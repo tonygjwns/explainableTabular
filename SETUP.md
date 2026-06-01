@@ -28,33 +28,32 @@ git clone https://github.com/tonygjwns/explainableTabular.git
 cd explainableTabular
 ```
 
-### 외부 baseline / 핵심 reference repos
+### 핵심 의존성
+
+| 항목 | 설치 방법 | 비고 |
+|---|---|---|
+| **TabM** (백본) | `pip install tabm` | ⭐ PyPI 패키지 (단일 파일 라이브러리). clone 불필요. `from tabm import TabM` 바로 됨. torch/rtdl_num_embeddings 의존성 자동 |
+| **TabReD** (데이터/평가) | `git clone` 후 preprocessing 실행 | 데이터 생성 스크립트 때문에 clone 필요 (§3) |
+
+### Reference 전용 (clone 안 해도 됨, 코드/인용 참조)
 
 | Repo | 용도 | URL |
 |---|---|---|
-| **TabM** | 우리 백본, 필수 | https://github.com/yandex-research/tabm |
-| **TabReD** | 벤치마크 + 평가 프로토콜 | https://github.com/yandex-research/tabred |
-| **LAMDA-TALENT** | ModernNCA + TALENT 벤치마크 (관련 도구) | https://github.com/qile2000/LAMDA-TALENT |
-| **Tabular-Temporal-Modulation** | Cai et al. NeurIPS 2025 (직접 경쟁작) | https://github.com/LAMDA-Tabular/Tabular-Temporal-Modulation |
+| LAMDA-TALENT | ModernNCA + TALENT 벤치마크 | https://github.com/qile2000/LAMDA-TALENT |
+| Tabular-Temporal-Modulation | Cai et al. NeurIPS 2025 (직접 경쟁작) | https://github.com/LAMDA-Tabular/Tabular-Temporal-Modulation |
+| EvolveGCN | 시간 진화 가중치 (인용) | https://github.com/IBM/EvolveGCN |
+| Latent ODE | 연속 시간 잠재 (인용) | https://github.com/YuliaRubanova/latent_ode |
+| TimeMCL | WTA centroid (Phase 2 aMCL 차용) | https://github.com/Victorletzelter/timeMCL |
 
-### Reference 전용 (clone 안 해도 됨, 코드 참조용)
-
-| Repo | 용도 | URL |
-|---|---|---|
-| EvolveGCN | 시간 진화 가중치 — 인용용 | https://github.com/IBM/EvolveGCN |
-| Latent ODE | 연속 시간 잠재 — 인용용 | https://github.com/YuliaRubanova/latent_ode |
-| TimeMCL | WTA centroid 학습 — Phase 2에서 aMCL annealing 차용 가능 | https://github.com/Victorletzelter/timeMCL |
-
-### Clone 명령
+### 설치 명령
 
 ```bash
-mkdir -p ~/Desktop/external
-cd ~/Desktop/external
+# TabM은 PyPI에서 (clone 아님!)
+pip install tabm
 
-git clone https://github.com/yandex-research/tabm.git
+# 데이터 생성용 TabReD repo만 clone
+mkdir -p ~/external && cd ~/external
 git clone https://github.com/yandex-research/tabred.git
-git clone https://github.com/qile2000/LAMDA-TALENT.git lamda-talent
-git clone https://github.com/LAMDA-Tabular/Tabular-Temporal-Modulation.git tabular-temporal-modulation
 ```
 
 ---
@@ -139,26 +138,29 @@ conda create -n explaintab python=3.10 -y
 conda activate explaintab
 
 # PyTorch (CUDA 12.x 가정)
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+pip install torch --index-url https://download.pytorch.org/whl/cu121
 
-# 핵심 패키지
-pip install \
-  numpy pandas scipy scikit-learn \
-  optuna \
-  tqdm omegaconf hydra-core \
-  matplotlib seaborn umap-learn \
-  pyarrow
-
-# TabM 관련 의존성 (TabM repo의 requirements.txt 따르기)
-cd ~/Desktop/external/tabm
+# 우리 repo 의존성 (numpy/pandas/scipy/sklearn/statsmodels/optuna/omegaconf/... )
+cd ~/explainableTabular
 pip install -r requirements.txt
+
+# TabM (PyPI 패키지 — clone 아님). torch/rtdl_num_embeddings/typing_extensions 자동 의존
+pip install tabm
+
+# Kaggle (데이터 다운로드용)
+pip install kaggle
 ```
 
-### GPU 환경 확인
+> ⚠️ 흔한 함정: `torch`만 깔고 `numpy`를 빼먹으면 `from tabm import TabM`은 되지만
+> "Failed to initialize NumPy" 경고가 뜨고 우리 코드는 전부 죽음. `requirements.txt`로 한 번에 설치할 것.
+
+### 환경 확인
 
 ```bash
-python -c "import torch; print(torch.cuda.is_available(), torch.cuda.device_count())"
-# 출력: True 2  (H100 ×2 확인)
+python -c "import torch, numpy, scipy, sklearn, statsmodels, omegaconf; print('deps OK')"
+python -c "from tabm import TabM; print('TabM OK')"
+python -c "import torch; print('cuda', torch.cuda.is_available(), torch.cuda.device_count())"
+# 기대: deps OK / TabM OK / cuda True 2
 ```
 
 ---

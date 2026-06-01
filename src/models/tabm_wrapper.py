@@ -18,11 +18,13 @@ Two uses:
     Phase-1 minimal version a single representation (reduce='mean') is the documented
     starting point, and per-submodel integration is a Phase-2 ablation (EXPERIMENT_PLAN §9).
 
-Install TabM on the experiment machine (repo has pyproject.toml):
-    pip install -e external/tabm        # then `from tabm import TabM`
-or rely on the sys.path fallback below.
+Install TabM from PyPI (it is a single-file library, do NOT git-clone+`-e`):
+    pip install tabm                    # then `from tabm import TabM`
+The sys.path fallback below is only for the rare case of using a local checkout.
 
-Requires PyTorch + the tabm package (not on the doc machine).
+Requires PyTorch + numpy + the tabm package. (Common gotcha: installing torch but
+forgetting numpy -> `from tabm import TabM` works but everything else dies with
+"Failed to initialize NumPy". Use requirements.txt.)
 """
 from __future__ import annotations
 

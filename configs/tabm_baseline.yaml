@@ -12,7 +12,9 @@ experiment:
   results_dir: results/phase0/tabm_baseline
 
 data:
-  root: external/tabred/data       # TabReD preprocessing output (SETUP.md §3); gitignored
+  # TabReD preprocessing output dir (SETUP.md §3). ADJUST to your server layout, e.g.
+  # absolute ~/external/tabred/data, or symlink it into the repo: ln -s ~/external/tabred/data data
+  root: data
   datasets:                        # start small, then scale
     - sberbank_housing
     - homesite_insurance
