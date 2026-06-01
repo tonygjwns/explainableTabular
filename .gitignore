@@ -1,0 +1,35 @@
+# Data & results (large, machine-specific)
+data/
+results/
+logs/
+*.parquet
+*.csv
+*.npy
+*.npz
+*.pt
+*.ckpt
+checkpoints/
+wandb/
+catboost_info/
+
+# External baseline repos (clone separately per SETUP.md)
+external/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Optuna / experiment artifacts
+*.db
+optuna_studies/
