@@ -1,0 +1,37 @@
+# Phase 0: TabM baseline reproduction config
+# See EXPERIMENT_PLAN.md §7 (evaluation) and PLAN.md §4 Phase 0.
+# Goal: reproduce TabM on TabReD (Cai temporal split) within +/-1% of paper.
+
+experiment:
+  name: phase0_tabm_baseline
+  phase: 0
+  seeds: [0, 1, 2, 3, 4]          # Phase 0: 5-10 seeds (EXPERIMENT_PLAN §7.1)
+  split: cai_temporal              # NOT random, NOT original-tabred
+  results_dir: results/phase0/tabm_baseline
+
+data:
+  root: data/tabred                # see SETUP.md §3; gitignored
+  datasets:                        # start small, then scale
+    - sberbank_housing
+    - homesite_insurance
+    - ecom_offers
+    - homecredit_default
+  # full 8 added once small ones reproduce cleanly
+
+model:
+  name: tabm
+  k: 32                            # implicit submodels (TabM default)
+  # remaining hyperparameters: start from TabM paper's recommended values,
+  # NOT full Optuna tuning in Phase 0 (SETUP.md §8 pitfall 7).
+  d_block: 512
+  n_blocks: 3
+  dropout: 0.1
+
+training:
+  optimizer: adamw                 # Muon is an orthogonal future option (Benchmarking Optimizers)
+  batch_size: 256
+  patience: 16
+  max_epochs: 200
+
+reproduction_check:
+  tolerance: 0.01                  # +/-1% vs TabM paper / TabReD table to pass Phase 0

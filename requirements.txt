@@ -1,0 +1,22 @@
+# Core
+numpy
+pandas
+scipy
+scikit-learn
+statsmodels
+pyarrow
+
+# DL (install torch matching your CUDA, see SETUP.md)
+# torch  # e.g. pip install torch --index-url https://download.pytorch.org/whl/cu121
+
+# Tuning / config / tracking
+optuna
+omegaconf
+tqdm
+
+# Analysis / viz (Phase 1 sanity check)
+matplotlib
+seaborn
+umap-learn
+
+# TabM has its own requirements; install from external/tabm/requirements.txt
