@@ -42,7 +42,7 @@ C:\Users\joon\Desktop\ExplainableTab\
 ## 프로젝트: ExplainableTab
 
 표 데이터 딥러닝의 temporal distribution shift를 해석 가능한 방식으로 다루는 연구.
-GitHub: https://github.com/tonygjwns-opt/explainableTabular
+GitHub: https://github.com/tonygjwns/explainableTabular
 
 ## 현재 상태
 - 4개월 실험 plan lock 직전

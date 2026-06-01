@@ -3,7 +3,7 @@
 > 매일 짧게 기록. SETUP.md §7 형식.
 
 ## 2026-06-01 — repo 셋업 + Phase 0 스캐폴딩
-- git repo 초기화, remote 연결 (tonygjwns-opt/explainableTabular)
+- git repo 초기화, remote 연결 (tonygjwns/explainableTabular)
 - 핸드오프 문서 7종 커밋 (아키텍처: 시간 인덱싱 메모리 + 검색)
 - Phase 0 코드 스캐폴딩 생성:
   - `src/utils/stats.py` — Wilcoxon/BH-FDR/Hedges' g (완전 구현, 환경 독립)

@@ -128,7 +128,7 @@ Stage 3b (6-7주): FAIL → B로 pivot, 진단 paper로 재구성
 ## 4. 즉시 행동 항목 (이번 주)
 
 1. **EXPERIMENT_PLAN.md(아키텍처), HANDOFF.md, SETUP.md, REFERENCES.md 정독**
-2. **GitHub repo (`https://github.com/tonygjwns-opt/explainableTabular`) clone 및 환경 셋업**
+2. **GitHub repo (`https://github.com/tonygjwns/explainableTabular`) clone 및 환경 셋업**
 3. **TabM 코드 받기** (`https://github.com/yandex-research/tabm`)
 4. **TabReD 데이터셋 다운로드**
 5. **Cai et al. NeurIPS 2025 코드 공개 여부 확인** (`https://github.com/LAMDA-Tabular/Tabular-Temporal-Modulation`)

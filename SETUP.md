@@ -24,7 +24,7 @@
 
 ### 우리 작업 repo (이미 만들어 둠)
 ```bash
-git clone https://github.com/tonygjwns-opt/explainableTabular.git
+git clone https://github.com/tonygjwns/explainableTabular.git
 cd explainableTabular
 ```
 
@@ -296,7 +296,7 @@ python scripts/aggregate_results.py --phase 0
 - TabM 관련: `yandex-research/tabm` issues
 - TabReD 관련: `yandex-research/tabred` issues
 - Cai et al. 코드 관련: `LAMDA-Tabular/Tabular-Temporal-Modulation` issues
-- 우리 작업 관련: `tonygjwns-opt/explainableTabular` issues
+- 우리 작업 관련: `tonygjwns/explainableTabular` issues
 
 핵심 인물 이메일 (정중하게, 구체적 질문만):
 - Yury Gorishniy (TabM 저자): firstnamelastname@gmail.com

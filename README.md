@@ -4,7 +4,7 @@
 > **목표 학회**: NeurIPS 2026 또는 ICLR 2027
 > **자원**: H100 ×2
 > **기간**: 약 4개월 (실험 12-13주 + 글쓰기 3주)
-> **GitHub**: https://github.com/tonygjwns-opt/explainableTabular
+> **GitHub**: https://github.com/tonygjwns/explainableTabular
 
 ---
 
@@ -54,7 +54,7 @@ cat HANDOFF.md PLAN.md SETUP.md REFERENCES.md
 
 # 2. GitHub repo clone
 cd ~/Desktop
-git clone https://github.com/tonygjwns-opt/explainableTabular.git
+git clone https://github.com/tonygjwns/explainableTabular.git
 
 # 3. SETUP.md의 환경 셋업 따라가기
 ```
