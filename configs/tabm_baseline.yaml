@@ -31,6 +31,8 @@ model:
 
 training:
   optimizer: adamw                 # Muon is an orthogonal future option (Benchmarking Optimizers)
+  learning_rate: 2.0e-3            # TabM-range default; tune in Phase 2, not Phase 0
+  weight_decay: 0.0
   batch_size: 256
   patience: 16
   max_epochs: 200

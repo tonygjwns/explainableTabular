@@ -35,6 +35,23 @@
 - 데이터셋 키↔폴더: sberbank_housing↔sberbank-housing, homesite_insurance↔homesite,
   ecom_offers↔ecom-offers, homecredit_default↔homecredit, 나머지 동일(하이픈)
 
+## 2026-06-01 (3) — TabM 래퍼 + 트레이너 (Phase 0 코드 완성)
+- external/tabm clone해서 **공식 API 직접 확인** (tabm.py):
+  - `TabM.make(n_num_features, cat_cardinalities, d_out, k=32, n_blocks, d_block, dropout, arch_type)`
+  - forward(x_num, x_cat) → (B, k, d_out or d_block); d_out=None이면 표현(k축 보존)
+  - **학습 관행(README 검증): k submodel 평균 손실 최적화** (mean prediction의 손실 아님)
+  - **추론: 확률 평균** (logits 아님)
+- `src/models/tabm_wrapper.py` **정확 구현**: encode(d_out=None, reduce=mean/none) / predict(평균)
+- `src/training/trainer.py` 신규: Phase 0 학습 루프 (quantile norm, 회귀 타겟 표준화,
+  mean-loss 학습, val 조기종료, 확률평균 추론)
+- `scripts/run_phase0.py` 완성: 데이터→트레이너→시드 집계(mean±std)→재현 tolerance 비교
+- 모든 파일 py_compile 통과. **Phase 0 코드는 데이터+tabm 설치만 있으면 즉시 실행 가능 상태**
+
+## Phase 0 코드 완성도
+- ✅ 로더(실물), TabM 래퍼(실물 API), 트레이너, run_phase0 — 추측성 NotImplementedError 제거됨
+- 서버에서 할 일: 데이터 생성(Kaggle) → `pip install -e external/tabm` → smoke test → run_phase0
+- ⚠️ torch/data 없어 로컬 미실행 — 서버에서 첫 실행 시 디버깅 가능성 (특히 trainer의 shape/normalization)
+
 ## Phase 0 체크리스트 (PLAN.md §4)
 - [ ] conda 환경 구축 (SETUP.md §4)
 - [ ] external/tabm, external/tabred clone (SETUP.md §2)
