@@ -15,12 +15,15 @@ data:
   # TabReD preprocessing output dir (SETUP.md §3). ADJUST to your server layout, e.g.
   # absolute ~/external/tabred/data, or symlink it into the repo: ln -s ~/external/tabred/data data
   root: data
-  datasets:                        # start small, then scale
+  datasets:                        # all 8 TabReD; run_phase0 skips any whose data is absent
     - sberbank_housing
-    - homesite_insurance
+    - cooking_time                 # Yandex datasets (no competition rules needed) first
+    - delivery_eta
+    - maps_routing
+    - weather
+    - homesite_insurance           # these 3 need Kaggle competition rules accepted
     - ecom_offers
     - homecredit_default
-  # full 8 added once small ones reproduce cleanly
 
 model:
   name: tabm

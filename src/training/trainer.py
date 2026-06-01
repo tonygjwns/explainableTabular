@@ -22,6 +22,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from sklearn.preprocessing import QuantileTransformer
+from tqdm.auto import tqdm
 
 from ..data.tabred_loader import TabReDDataset, TabularSplit
 from ..models.tabm_wrapper import TabMBackbone, compute_cat_cardinalities
@@ -41,6 +42,7 @@ class TrainConfig:
     patience: int = 16
     max_epochs: int = 200
     device: str = "cuda"
+    seed_tag: str = ""               # shown in the tqdm progress bar (e.g. "s0")
 
 
 def _prep_numeric(train: TabularSplit, *others: TabularSplit):
@@ -150,7 +152,12 @@ def train_tabm_baseline(data: TabReDDataset, cfg: TrainConfig) -> dict:
     best = -np.inf if higher_better else np.inf
     best_epoch, since_improve, best_state = -1, 0, None
 
-    for epoch in range(cfg.max_epochs):
+    pbar = tqdm(
+        range(cfg.max_epochs),
+        desc=f"{data.name}[{getattr(cfg, 'seed_tag', '')}]",
+        leave=False, dynamic_ncols=True,
+    )
+    for epoch in pbar:
         model.train()
         for idx in batches():
             xb_num = None if x_num["train"] is None else x_num["train"][idx]
@@ -167,6 +174,8 @@ def train_tabm_baseline(data: TabReDDataset, cfg: TrainConfig) -> dict:
 
         val = evaluate("val")
         improved = (val > best) if higher_better else (val < best)
+        pbar.set_postfix(val=f"{val:.4f}", best=f"{best if np.isfinite(best) else val:.4f}",
+                         patience=f"{since_improve}/{cfg.patience}")
         if improved:
             best, best_epoch, since_improve = val, epoch, 0
             best_state = {k_: v.detach().clone() for k_, v in model.state_dict().items()}

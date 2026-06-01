@@ -2,6 +2,20 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-02 — Phase 0 sberbank 재현 성공 ✅ + overnight 자동화
+- 서버(explaintab311, py3.11)에서 전 파이프라인 실증 완료:
+  - 환경/smoke test/Kaggle(KGAT 토큰, `kaggle auth login`)/sberbank 전처리/로더 전부 OK
+  - **Phase 0 TabM 재현: sberbank rmse = 0.2572 ± 0.0046** → TabReD/Cai 공개 수치(~0.24-0.26)와 일치 ✅
+  - 트러블슈팅 기록: kaggle 1.8+는 py3.11 필요(KGAT 토큰), polars==0.20.19 핀, X_num NaN→임퓨테이션+grad clip
+- 코드 개선:
+  - 트레이너에 tqdm 진행바 (val/best/patience postfix)
+  - run_phase0: 8개 전체 + 데이터 없는 건 자동 skip + done/skipped 요약, seed별 tqdm
+  - config: 8개 데이터셋 전부 (Yandex 4개 먼저, 규칙수락 3개 뒤)
+  - `scripts/prepare_all_data.sh`: 8개 전처리 일괄(실패해도 계속)
+  - `scripts/run_overnight.sh`: 전처리→Phase0 한 번에 + 로그 (nohup용)
+- 밤샘 실행: `ln -s ~/external/tabred/data data` 후
+  `nohup bash scripts/run_overnight.sh >/dev/null 2>&1 &` / `tail -f logs/overnight_*.log`
+
 ## 2026-06-01 — repo 셋업 + Phase 0 스캐폴딩
 - git repo 초기화, remote 연결 (tonygjwns/explainableTabular)
 - 핸드오프 문서 7종 커밋 (아키텍처: 시간 인덱싱 메모리 + 검색)
