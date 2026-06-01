@@ -66,9 +66,16 @@ def _prep_numeric(train: TabularSplit, *others: TabularSplit):
     for s in splits:
         parts = []
         if has_num:
-            parts.append(qt.transform(s.X_num).astype(np.float32))
+            xn = qt.transform(s.X_num).astype(np.float32)
+            # TabReD numeric features can contain NaN (missing values, e.g. sberbank).
+            # QuantileTransformer passes NaN through -> would poison the model.
+            # Impute to 0 (= the mean in the normal-output quantile space).
+            xn = np.nan_to_num(xn, nan=0.0, posinf=0.0, neginf=0.0)
+            parts.append(xn)
         if has_bin:
-            parts.append(s.X_bin.astype(np.float32))
+            xb = s.X_bin.astype(np.float32)
+            xb = np.nan_to_num(xb, nan=0.0, posinf=0.0, neginf=0.0)
+            parts.append(xb)
         x = np.concatenate(parts, axis=1) if parts else None
         out.append(x)
     n_num_features = 0 if out[0] is None else out[0].shape[1]
@@ -150,7 +157,13 @@ def train_tabm_baseline(data: TabReDDataset, cfg: TrainConfig) -> dict:
             xb_cat = None if x_cat["train"] is None else x_cat["train"][idx]
             out = model(xb_num, xb_cat)               # (B, k, d_out)
             loss = mean_loss(out, y["train"][idx])
-            opt.zero_grad(); loss.backward(); opt.step()
+            if not torch.isfinite(loss):
+                # Diverged (NaN/inf loss). Skip this step rather than poisoning weights.
+                opt.zero_grad(set_to_none=True)
+                continue
+            opt.zero_grad(); loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)  # stabilize
+            opt.step()
 
         val = evaluate("val")
         improved = (val > best) if higher_better else (val < best)
