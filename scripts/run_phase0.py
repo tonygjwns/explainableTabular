@@ -40,7 +40,8 @@ def run_single(dataset: str, cfg, seed: int) -> dict:
     """Train + evaluate TabM on one dataset for one seed. Returns a result dict."""
     seed_everything(seed)
 
-    data = load_tabred(dataset, Path(cfg.data.root))          # TODO: needs data
+    # Phase 0 uses TabReD's 'default' temporal split (matches published numbers).
+    data = load_tabred(dataset, Path(cfg.data.root), split=cfg.experiment.split)
     backbone = TabMBackbone(OmegaConf.to_container(cfg.model))  # TODO: needs external/tabm
 
     # TODO: training loop with early stopping (patience from cfg), then:

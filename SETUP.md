@@ -63,28 +63,69 @@ git clone https://github.com/LAMDA-Tabular/Tabular-Temporal-Modulation.git tabul
 
 ### TabReD 8개 데이터셋
 
-**1차 출처**: TabReD 공식 repo의 `data_loaders/` 또는 다운로드 스크립트
+> ⚠️ **데이터는 repo에 없음. GitHub = 스크립트, Kaggle = 실제 데이터.**
+> (yandex-research/tabred 코드 직접 확인함. `preprocessing/<script>.py`가 `import kaggle`로
+> Kaggle API를 통해 다운로드 후 전처리.)
 
-**TabReD 데이터셋 목록**:
-1. **Sberbank Russian Housing** — Kaggle 데이터, 부동산 가격 예측 (회귀)
-2. **Homesite Quote Conversion** — Kaggle, 보험 가입 예측 (이진 분류)
-3. **Ecommerce Offers** — Kaggle, 쿠폰 사용 예측 (이진 분류)
-4. **HomeCredit Default Risk** — Kaggle, 대출 부도 예측 (이진 분류)
-5. **Cooking Time** — Yandex 신규, 식당 조리 시간 (회귀)
-6. **Delivery ETA** — Yandex 신규, 배달 도착 시간 (회귀)
-7. **Maps Routing** — Yandex 신규, 내비 도착 시간 (회귀)
-8. **Weather** — Yandex 신규, 기온 예측 (회귀)
+**데이터셋 목록 (folder name → 우리 key)**:
+| Kaggle competition (규칙 수락 필요) | folder | 우리 key | task |
+|---|---|---|---|
+| Sberbank Russian Housing | sberbank-housing | sberbank_housing | regression |
+| Homesite Quote Conversion | homesite | homesite_insurance | binclass |
+| Acquire Valued Shoppers (Ecom) | ecom-offers | ecom_offers | binclass |
+| Home Credit Default Risk | homecredit | homecredit_default | binclass |
 
-**다운로드 방법**:
+| Kaggle dataset (계정만) | folder | 우리 key | task |
+|---|---|---|---|
+| Cooking Time | cooking-time | cooking_time | regression |
+| Delivery ETA | delivery-eta | delivery_eta | regression |
+| Maps Routing | maps-routing | maps_routing | regression |
+| Weather | weather | weather | regression |
+
+**다운로드 절차 (실험 머신에서, 검증된 방법)**:
 ```bash
-cd ~/Desktop/external/tabred
-# README 따라 데이터 다운로드 (보통 scripts/download_data.py 같은 스크립트)
-# Kaggle 부분은 Kaggle API 키 필요
+# 1. Kaggle API 준비
+pip install kaggle
+#    Kaggle 웹 → Settings → API → Create New Token → kaggle.json 다운로드
+mkdir -p ~/.kaggle && mv ~/Downloads/kaggle.json ~/.kaggle/ && chmod 600 ~/.kaggle/kaggle.json
+
+# 2. 위 4개 competition은 웹에서 "Join Competition / Accept Rules" 클릭 (1회, API로 불가)
+
+# 3. tabred repo에서 데이터셋별 스크립트 실행 (repo root 기준)
+cd external/tabred
+mkdir -p data
+python preprocessing/sberbank-housing.py
+python preprocessing/homesite.py
+python preprocessing/ecom-offers.py
+python preprocessing/homecredit.py
+python preprocessing/cooking-time.py
+python preprocessing/delivery-eta.py
+python preprocessing/maps-routing.py
+python preprocessing/weather.py
 ```
 
-**대용량 데이터 처리**:
-- Maps Routing (6.5M), Weather (13M), HomeCredit Default (1.5M)은 추가 서브샘플링 권장
-- Cai & Ye 2025 (ICML)이 사용한 서브샘플 크기 참조
+**출력 포맷 (우리 `tabred_loader.py`가 직접 읽음)** — `data/<folder>/`:
+- `X_num.npy`(float32) / `X_bin.npy`(float32) / `X_cat.npy`(int64) / `X_meta.npy`(int64) / `Y.npy`
+- **`X_meta[:, 0]` = timestamp** (8개 모두 일관 — int64)
+- `info.json` = {name, task_type, score?}
+- `split-<name>/{train,val,test}_idx.npy` — 사용 가능 split:
+  - **`default`** = 공식 시간 분할 (Phase 0 재현용 — 논문 수치 매칭)
+  - **`random-{0,1,2}`** = 무작위 분할 (Cai "random vs temporal" 대조군, Test 4)
+  - **`sliding-window-{0,1,2}`** = 슬라이딩 시간 윈도우
+
+**우리 로더 사용**:
+```python
+from src.data.tabred_loader import load_tabred
+from pathlib import Path
+ds = load_tabred("sberbank_housing", Path("external/tabred/data"), split="default")
+# ds.train.t 는 [0,1]로 정규화된 timestamp (test는 >1.0 가능 — 미래 외삽용)
+```
+
+**Cai 분할**: TabReD `default`(시간)·`random`은 디스크에 있지만, Cai & Ye ICML 2025의
+*개선* 분할(lag=0, bias-min)은 `src/data/splits.py:cai_resplit`로 구현해둠 (그들 코드와 대조 검증 필요).
+
+**대용량 처리**: Maps Routing(6.5M), Weather(13M), HomeCredit(1.5M)은 전처리 스크립트가
+이미 서브샘플 버전을 만들 수 있음 (스크립트 내부 확인). 필요 시 추가 서브샘플.
 
 ---
 

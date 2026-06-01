@@ -6,11 +6,13 @@ experiment:
   name: phase0_tabm_baseline
   phase: 0
   seeds: [0, 1, 2, 3, 4]          # Phase 0: 5-10 seeds (EXPERIMENT_PLAN §7.1)
-  split: cai_temporal              # NOT random, NOT original-tabred
+  split: default                   # Phase 0: TabReD official temporal split (matches
+                                   # published TabM numbers). Cai resplit is Phase 1+
+                                   # (src/data/splits.py:cai_resplit).
   results_dir: results/phase0/tabm_baseline
 
 data:
-  root: data/tabred                # see SETUP.md §3; gitignored
+  root: external/tabred/data       # TabReD preprocessing output (SETUP.md §3); gitignored
   datasets:                        # start small, then scale
     - sberbank_housing
     - homesite_insurance

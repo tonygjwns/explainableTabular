@@ -20,6 +20,21 @@
   - ⚠️ 이 문서 머신엔 torch 없어 미실행 — **torch 있는 환경에서 `python scripts/smoke_test_memory.py` 먼저 돌려 검증할 것**
 - 다음: GPU 머신에서 SETUP.md 따라 환경 구축 + smoke test
 
+## 2026-06-01 (2) — TabReD 실제 포맷 확인 + 로더 정확 구현
+- external/tabred clone해서 **실제 출력 포맷 직접 확인** (lib/data.py, preprocessing/*.py):
+  - `data/<folder>/`: X_num/X_bin/X_cat/X_meta/Y.npy + info.json + split-<name>/{train,val,test}_idx.npy
+  - **timestamp = X_meta[:, 0]** (8개 데이터셋 모두 일관, int64)
+  - split 3종: `default`(시간), `random-{0,1,2}`, `sliding-window-{0,1,2}` — 모두 디스크에 존재
+- `src/data/tabred_loader.py` **정확 재구현** (추측 아닌 실물 포맷 기반):
+  - 폴더명 매핑, timestamp 추출+정규화([0,1], 학습범위 기준, test는 >1 가능)
+  - split 선택 (default/random/sliding), X_num/bin/cat 분리 노출
+- `src/data/splits.py` 신규: `cai_resplit` (Cai lag=0/bias-min 분할, 우리 구현 — 그들 코드 대조 필요)
+- SETUP.md §3 **검증된 다운로드 절차로 교체** (kaggle.json, 규칙 수락, preprocessing 스크립트)
+- config/run_phase0: Phase 0은 `default` split 사용 (논문 수치 매칭), root=external/tabred/data
+- ⚠️ 데이터 자체는 미다운로드 (Kaggle 계정 필요) — 로더는 서버에서 데이터 생성 후 즉시 동작
+- 데이터셋 키↔폴더: sberbank_housing↔sberbank-housing, homesite_insurance↔homesite,
+  ecom_offers↔ecom-offers, homecredit_default↔homecredit, 나머지 동일(하이픈)
+
 ## Phase 0 체크리스트 (PLAN.md §4)
 - [ ] conda 환경 구축 (SETUP.md §4)
 - [ ] external/tabm, external/tabred clone (SETUP.md §2)
