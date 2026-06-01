@@ -11,7 +11,14 @@
   - `src/data/tabred_loader.py` — 스켈레톤 (Cai 분할 TODO, 데이터 필요)
   - `src/models/tabm_wrapper.py` — 스켈레톤 (external/tabm 필요)
   - `configs/tabm_baseline.yaml`, `scripts/run_phase0.py` — 오케스트레이션 스켈레톤
-- 다음: GPU 머신에서 SETUP.md 따라 환경 구축
+- **우리 novel 모듈 완전 구현** (external API 의존 없음, 서버에서 Claude 못 쓰니 로컬서 완성):
+  - `src/models/temporal_embedding.py` — Fourier 시간 임베딩 tau(t)
+  - `src/models/prototype_memory.py` — P_k(t)=P_k^base+drift_k(tau(t)), time_indexed 토글, KMeans init, smoothness penalty
+  - `src/models/value_module.py` — V_k = W_y(label) + value (해석가능성용 라벨 표현)
+  - `src/models/retrieval.py` — 단순 softmax 검색 + MemoryRetrievalLayer (predictor 포함)
+  - `scripts/smoke_test_memory.py` — CPU 스모크 테스트 (shape/grad 검증)
+  - ⚠️ 이 문서 머신엔 torch 없어 미실행 — **torch 있는 환경에서 `python scripts/smoke_test_memory.py` 먼저 돌려 검증할 것**
+- 다음: GPU 머신에서 SETUP.md 따라 환경 구축 + smoke test
 
 ## Phase 0 체크리스트 (PLAN.md §4)
 - [ ] conda 환경 구축 (SETUP.md §4)
