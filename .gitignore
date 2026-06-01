@@ -1,7 +1,7 @@
-# Data & results (large, machine-specific)
-data/
-results/
-logs/
+# Data & results (large, machine-specific) — root-anchored so src/data/ is NOT ignored
+/data/
+/results/
+/logs/
 *.parquet
 *.csv
 *.npy
