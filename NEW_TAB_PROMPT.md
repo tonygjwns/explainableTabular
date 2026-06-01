@@ -1,28 +1,26 @@
 # 새 탭에서 LLM에 전달할 첫 프롬프트
 
-> 새 탭(Claude 또는 다른 LLM)에서 작업 시작 시, 이 프롬프트를 첫 메시지로 전달합니다.
+> 새 탭(Claude Code) 작업 시작 시 이 프롬프트를 첫 메시지로. 이 repo는 `CLAUDE.md`가
+> 자동 로드되므로 핵심 컨텍스트는 이미 잡혀 있음. 아래는 보강용.
 
----
+## ⭐ 현재 상태 (2026-06-02) — 새 탭이 먼저 알 것
+- **Phase 0 (TabM 재현) sberbank 검증 완료**: rmse 0.2572±0.0046 (공개치 일치)
+- 전 코드 서버에서 실증됨. 8개 데이터 전처리+Phase 0 **overnight 실행 중**
+- **다음 작업 = Phase 1**: novel 모듈(이미 구현됨)을 TabM 위에 조립한 학습 모델 + sanity check Test 1~4
+- 워크플로우: **로컬에서 코드 작성→push**, 서버(explaintab311)에서 pull→실험 (서버엔 Claude 없음)
 
-## 옵션 1: 짧은 부트스트랩 (LLM이 폴더 접근 가능한 경우)
+## 옵션 1: 짧은 부트스트랩 (Claude Code, 폴더 접근 가능)
 
 ```
-이 프로젝트는 표 데이터 딥러닝의 temporal distribution shift를 해석 가능한 방식으로
-다루는 연구입니다. 4개월 plan을 짜둔 상태이고, 곧 실험을 시작합니다.
+이 repo의 CLAUDE.md가 자동 로드됐을 것입니다. 추가로 progress.md(최신 진행)와
+EXPERIMENT_PLAN.md(§6 Phase1 최소버전, §8 sanity check)를 읽어주세요.
 
-다음 폴더의 모든 .md 파일을 읽고 컨텍스트를 파악해주세요:
-C:\Users\joon\Desktop\ExplainableTab\
+현재: Phase 0 (TabM 재현) sberbank 검증 완료(rmse 0.2572), 8개 overnight 실행 중.
+다음: Phase 1 — 이미 구현된 novel 모듈(src/models/*)을 TabM encode() 위에 조립한
+학습 모델 + sanity check Test 1~4 스크립트 작성.
 
-읽는 순서:
-1. README.md
-2. HANDOFF.md (컨텍스트·사고흐름)
-3. EXPERIMENT_PLAN.md (아키텍처 정본 — 가장 중요)
-4. PLAN.md (phase·일정·자원 로지스틱스)
-5. SETUP.md
-6. PRE_REGISTRATION.md
-7. REFERENCES.md
-
-다 읽은 후, "현재 상태에서 가장 시급한 다음 단계 3가지"를 한국어로 답해주세요.
+확인차 답해주세요: (1) 우리 구조가 head가 아니라 메모리인 이유, (2) Phase 1에 WTA를
+안 넣는 이유, (3) Phase 1 첫 코딩 작업으로 뭘 할지 3가지.
 ```
 
 ---
