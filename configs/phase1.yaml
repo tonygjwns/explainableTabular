@@ -1,0 +1,52 @@
+# Phase 1: minimal time-indexed memory + retrieval, sanity-check config.
+# See EXPERIMENT_PLAN.md §6 (minimal version) / §8 (sanity) and PRE_REGISTRATION.md §2-3.
+# Test 1 (gating) = time-indexed memory vs fixed memory (drift off), same backbone.
+
+experiment:
+  name: phase1_sanity
+  phase: 1
+  seeds: [0, 1, 2, 3, 4]            # PRE_REGISTRATION §2.1: 5 seeds
+  split: default                     # temporal split (Cai resplit = later refinement)
+  results_dir: results/phase1/sanity
+
+data:
+  root: data
+  sanity_datasets:                   # PRE_REGISTRATION §2.1: 4 datasets (reg + binclass)
+    - sberbank_housing
+    - ecom_offers
+    - homesite_insurance
+    - homecredit_default
+
+model:                               # TabM backbone (Phase-1 minimal: single representation)
+  k: 32
+  d_block: 512
+  n_blocks: 3
+  dropout: 0.1
+
+memory:                              # time-indexed prototype memory + softmax retrieval
+  n_prototypes: 1000                 # K (PRE_REGISTRATION §2.1)
+  rank: 32
+  mem_hidden: 64
+  tau_temp: 1.0
+  predictor_hidden: 256
+  inject_time_input: true            # decision 4 auxiliary path (Test 4 toggles this)
+  input_time_out_dim: 8
+  mem_time_out_dim: 32
+  n_harmonics: 6
+  kmeans_init: true                  # decision 5
+  n_slices: 10
+  kmeans_max_samples: 50000
+  lambda_smooth: 1.0                 # L_smooth weight (EXPERIMENT_PLAN §5)
+
+training:
+  learning_rate: 2.0e-3
+  weight_decay: 0.0
+  batch_size: 256
+  eval_batch: 1024                   # retrieval is (B,K,d): keep eval batched (OOM guard)
+  patience: 16
+  max_epochs: 200
+
+test1:                               # PRE_REGISTRATION §3.1 gate
+  min_datasets: 3                    # PASS if time>fixed (post-FDR, g>=thr) in >=3/4
+  min_hedges_g: 0.3
+  alpha: 0.05
