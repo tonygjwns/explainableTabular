@@ -14,11 +14,13 @@
 - 서버에선 Claude를 못 씀. **그래서 로컬에서 최대한 완성된 코드를 만들어 push**해야 함.
 - GitHub: https://github.com/tonygjwns/explainableTabular
 
-## 현재 상태 (2026-06-02)
-- ✅ **Phase 0 (TabM 재현) sberbank 검증 완료**: rmse 0.2572±0.0046 (공개 수치 ~0.24-0.26과 일치)
+## 현재 상태 (2026-06-04)
+- ✅ **Phase 0 (TabM 재현) 8/8 PASS**: TabReD 8개 default split, 5시드, 논문 MLP 대비 6개 ±1%내/더좋음,
+  2개(sberbank/ecom)는 노이즈·공개범위 내. 상세 표는 progress.md 2026-06-04. **재현 게이트 통과.**
 - ✅ 전 코드가 서버에서 실증됨 (로더/트레이너/TabM 래퍼/novel 모듈/통계)
-- 🔄 **8개 데이터셋 전처리 + Phase 0 overnight 실행 중** (`scripts/run_overnight.sh`)
-- ⬜ **다음 작업 = Phase 1**: novel 모듈을 TabM 위에 조립한 학습 모델 + sanity check Test 1~4 스크립트
+- ✅ **Phase 1 첫 3개 코딩 완료** (push): `phase1_model.py`(조립) / `smoke_test_phase1.py` / `proto_init.py`(KMeans init)
+- 🔄 **다음 작업 = Phase 1 ④**: 트레이너(L_main+λ·L_smooth) + `run_phase1_sanity.py`(Test 1~4) + Cai/Fixed-memory 대조군
+- ⬜ smoke_test_phase1 서버 통과 확인 (TabM import 포함 배선 최종 검증)
 - ⬜ PRE_REGISTRATION 동료 입회 commit (특히 결정 3: WTA 보류 합의)
 
 ## 아키텍처 (요지)

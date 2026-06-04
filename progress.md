@@ -2,6 +2,28 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-04 — Phase 0 (TabM 재현) 8/8 PASS ✅ + Phase 1 첫 3개 코딩
+- **Phase 0 종료**: TabReD 8개 default(시간) split, 5시드. TabReD 논문 Table 2 MLP 베이스라인 대조:
+  | 데이터셋 | 우리(TabM) | MLP | 차이 |
+  |---|---|---|---|
+  | sberbank_housing | 0.2572 | 0.2508 | +2.6% |
+  | cooking_time | 0.4807 | 0.4820 | −0.3% |
+  | delivery_eta | 0.5522 | 0.5504 | +0.3% |
+  | maps_routing | 0.1614 | 0.1622 | −0.5% |
+  | weather | 1.5073 | 1.5470 | −2.6%(더좋음) |
+  | ecom_offers (AUC) | 0.5906 | 0.6015 | −1.8% |
+  | homesite_insurance (AUC) | 0.9615 | 0.9500 | +1.2%(더좋음) |
+  | homecredit_default (AUC) | 0.8518 | 0.8545 | −0.3% |
+  - 6개 ±1% 이내/더좋음(정방향), 2개(sberbank/ecom)는 데이터셋 노이즈·공개범위 내(MLP 기준). 시드 std 극소 → 건강. **재현 게이트 PASS.**
+- **버그 수정 2건** (재현 중 발견):
+  - 폴더명: TabReD가 `homesite-insurance`/`homecredit-default`로 씀 → 로더 `DIRNAME`은 `homesite`/`homecredit` 기대(서버서 폴더 rename으로 정합). 재전처리 시 또 rename 필요(또는 로더 양쪽 인식하도록 추후 보강).
+  - cat embedding OOB: homecredit temporal test에 train 미관측 범주 → `index out of bounds`(CUDA). cardinality를 train+val+test 전체 max+1로 (commit 2072d19). ← 범주 수준 시간 드리프트의 실증.
+- **Phase 1 첫 3개 코딩 완료** (EXPERIMENT_PLAN §6 최소버전, push 95d9777/27f6660):
+  - `src/models/phase1_model.py` (`Phase1Model`): TabM encode(mean) + 입력 시간주입(토글) + 메모리검색층 조립
+  - `scripts/smoke_test_phase1.py`: forward/shape/w_sum=1/grad/fixed-smooth=0/KMeans-init CPU 검증
+  - `src/models/proto_init.py`: 시간슬라이스 KMeans init(z-space, subsample 가드)
+- **다음**: smoke_test_phase1 서버 통과 확인 → Phase 1 ④ 트레이너(L_main+λL_smooth) + run_phase1_sanity(Test 1~4) + Cai/Fixed-memory 대조군.
+
 ## 2026-06-03 — 서버 env 통째 소실 → 재구축 + TabReD 8개 전처리 전부 성공 ✅
 - **사건**: 공유 H100 서버에서 `~/miniconda3`(conda 전체)·`~/external`(tabred/tabm)·전처리 데이터가
   통째로 사라짐 (디스크 압력 시 큰 디렉토리 정리된 것으로 추정). git repo `~/explainableTabular`만 생존.
