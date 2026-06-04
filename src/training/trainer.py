@@ -88,6 +88,22 @@ def _to_tensor(x: Optional[np.ndarray], dtype, device):
     return None if x is None else torch.as_tensor(x, dtype=dtype, device=device)
 
 
+def _global_cat_cardinalities(*x_cats: Optional[np.ndarray]) -> list[int]:
+    """Per-column category count over ALL splits (train+val+test).
+
+    A temporal test split can contain category codes unseen in train (e.g.
+    homecredit: real category-level distribution shift). Sizing TabM's
+    categorical embedding from train only then makes a test code out of bounds
+    -> CUDA device-side assert in the one-hot scatter. Use the global max so
+    every observed code maps to a valid embedding row.
+    """
+    arrs = [a for a in x_cats if a is not None and getattr(a, "size", 0)]
+    if not arrs:
+        return []
+    allc = np.concatenate(arrs, axis=0)
+    return [int(allc[:, j].max()) + 1 for j in range(allc.shape[1])]
+
+
 def train_tabm_baseline(data: TabReDDataset, cfg: TrainConfig) -> dict:
     """Train TabM on one dataset/seed and return {score, best_epoch, ...}."""
     device = cfg.device if torch.cuda.is_available() else "cpu"
@@ -95,7 +111,10 @@ def train_tabm_baseline(data: TabReDDataset, cfg: TrainConfig) -> dict:
 
     # ---- features ----
     (xnum_tr, xnum_va, xnum_te), n_num = _prep_numeric(data.train, data.val, data.test)
-    cat_card = compute_cat_cardinalities(data.train.X_cat)
+    # Size categorical embeddings for EVERY observed code, not just train's:
+    # temporal test splits (homecredit) contain unseen future categories ->
+    # train-only cardinality => CUDA "index out of bounds" in TabM's scatter.
+    cat_card = _global_cat_cardinalities(data.train.X_cat, data.val.X_cat, data.test.X_cat)
 
     x_num = {p: _to_tensor(a, torch.float32, device)
              for p, a in zip(("train", "val", "test"), (xnum_tr, xnum_va, xnum_te))}
