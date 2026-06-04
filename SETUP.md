@@ -130,29 +130,52 @@ ds = load_tabred("sberbank_housing", Path("external/tabred/data"), split="defaul
 
 ## 4. Python 환경 셋업
 
-### Conda 권장
+> **env 2개로 분리한다** (서로 deps 안 겹침):
+> - **`explaintab311`** (py3.11): 우리 repo + TabM — **학습/Phase 0~2**용.
+> - **`tabred`** (py3.11): TabReD 공식 env — **데이터 전처리 전용**.
+>
+> ⚠️ 이 서버는 공유 H100이라 `~/miniconda3`·`~/external`·데이터가 통째로 날아간 적 있음(2026-06-02).
+> miniconda 자체가 없으면 `bash ~/miniconda.sh -b -p ~/miniconda3` 후 `source ~/miniconda3/etc/profile.d/conda.sh`로 복구.
+
+### 4-1. 학습 env (`explaintab311`)
 
 ```bash
-# 새 환경 생성
-conda create -n explaintab python=3.10 -y
-conda activate explaintab
+conda create -n explaintab311 python=3.11 -y    # kaggle 1.8+/KGAT 토큰 때문에 py3.11
+conda activate explaintab311
 
-# PyTorch (CUDA 12.x 가정)
-pip install torch --index-url https://download.pytorch.org/whl/cu121
-
-# 우리 repo 의존성 (numpy/pandas/scipy/sklearn/statsmodels/optuna/omegaconf/... )
+pip install torch --index-url https://download.pytorch.org/whl/cu121   # nvidia-smi의 CUDA에 맞춰
 cd ~/explainableTabular
 pip install -r requirements.txt
-
-# TabM (PyPI 패키지 — clone 아님). torch/rtdl_num_embeddings/typing_extensions 자동 의존
-pip install tabm
-
-# Kaggle (데이터 다운로드용)
-pip install kaggle
+pip install tabm                                  # PyPI 단일파일 (clone 아님)
 ```
 
 > ⚠️ 흔한 함정: `torch`만 깔고 `numpy`를 빼먹으면 `from tabm import TabM`은 되지만
 > "Failed to initialize NumPy" 경고가 뜨고 우리 코드는 전부 죽음. `requirements.txt`로 한 번에 설치할 것.
+
+### 4-2. 전처리 env (`tabred`) — **TabReD 공식 yaml로 한 방에**
+
+deps를 하나씩 깔지 말 것. TabReD preprocessing은 `import lib`가 torch/faiss/rtdl 전체 스택을
+끌어와서, 반응적으로 깔면 끝이 없다. **공식 env 파일**이 정답:
+
+```bash
+cd ~/external/tabred
+conda env create -f tabred-env.yaml              # env명 'tabred', py3.11, numpy 1.26.4 등 핀
+conda activate tabred
+
+# ⚠️ yaml의 lightgbm은 GPU 소스빌드(--no-binary)라 OpenCL 헤더 없으면 pip 단계 실패 →
+#    그 바람에 안 깔린 pip deps + lightgbm을 바이너리휠로 보강:
+pip install delu==0.0.23 rtdl_num_embeddings==0.0.9 rtdl_revisiting_models==0.0.2 lightgbm
+pip install -e ~/external/tabred                 # yaml의 './' editable lib (실패 시 보강)
+
+# kaggle: tabred env는 1.6.11 핀(kaggle.json 요구) → OAuth 토큰 쓰려면 1.8+로:
+pip install "kaggle>=1.8"
+
+# 전처리 가능 여부의 관문:
+PYTHONPATH=. python -c "import lib; print('lib OK')"
+kaggle competitions list >/dev/null 2>&1 && echo "kaggle OK"
+```
+
+`lib OK` + `kaggle OK` 둘 다 떠야 전처리가 돈다 (§3의 `prepare_all_data.sh`는 이 env에서 실행).
 
 ### 환경 확인
 

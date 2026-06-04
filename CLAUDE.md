@@ -74,11 +74,17 @@ scripts/
 5. `scripts/run_phase1_sanity.py` + `src/analysis/` (extrapolation/retrieval/trajectory_viz/time_injection).
 
 ## 서버 환경 gotchas (재현 시 참고)
-- kaggle 1.8+ (KGAT 토큰)은 **py3.11 필요** → conda env `explaintab311`.
-- 인증: `kaggle auth login` (OAuth) 또는 `KAGGLE_API_TOKEN` 환경변수. (구형 `KAGGLE_KEY`는 새 CLI가 무시)
-- TabReD 전처리: `cd ~/external/tabred && PYTHONPATH=. python preprocessing/<script>.py`,
-  의존성 `polars==0.20.19`(핀 필수), xlsx2csv, plotnine, delu 등. 4개 competition 규칙 수락 필요.
-- 데이터 경로: `ln -s ~/external/tabred/data ~/explainableTabular/data` (config `data.root: data`).
+- **공유 H100 서버라 `~/miniconda3`·`~/external`·데이터가 통째로 사라질 수 있음** (2026-06-02 실제 발생;
+  디스크 압력 시 누군가/무언가가 큰 디렉토리를 정리). git repo만 살아남음 → **env 재구축 절차를 알아둘 것**(아래).
+- **두 env로 분리**: 전처리=`tabred`(TabReD 공식 env), 학습=`explaintab311`(우리 repo+tabm). 서로 deps 안 겹침.
+- **전처리 env = TabReD 공식 yaml로 한 방에** (deps 하나씩 깔지 말 것 — `import lib`가 torch/faiss/rtdl 전체 스택을 끌어옴):
+  - `cd ~/external/tabred && conda env create -f tabred-env.yaml` (env명 `tabred`, py3.11, numpy 1.26.4 등 핀)
+  - ⚠️ yaml의 `lightgbm`이 GPU 소스빌드(`--no-binary`)라 OpenCL 없으면 pip 단계 실패 → 그냥 `pip install lightgbm`(바이너리휠)로 보강. 끊긴 pip deps도 보강: `pip install delu==0.0.23 rtdl_num_embeddings==0.0.9 rtdl_revisiting_models==0.0.2`
+  - 검증 관문: `PYTHONPATH=. python -c "import lib; print('OK')"` 통과해야 전처리 가능.
+- kaggle: 1.8+ (KGAT 토큰)은 py3.11 필요. 인증 `kaggle auth login`(OAuth, user-level이라 env간 공유). `tabred` env는 kaggle 1.6.11 핀(=kaggle.json 요구)이라 **`pip install "kaggle>=1.8"`로 올려야** 기존 OAuth 토큰을 씀. (구형 `KAGGLE_KEY`는 무시)
+- 전처리 실행: `TABRED_REPO=~/external/tabred bash scripts/prepare_all_data.sh` (`tabred` env에서; tmp 데이터셋별 자동정리 내장 — 누적 시 디스크풀 Errno 28).
+- 데이터 경로: `ln -s ~/external/tabred/data ~/explainableTabular/data` (config `data.root: data`). 폴더는 하이픈(sberbank-housing), 로더가 키↔폴더 매핑.
+- Phase 0 학습은 **반드시 `explaintab311`에서** (`run_overnight.sh`는 prep+phase0를 한 env에서 돌리니 env 분리 상황에선 쓰지 말고 둘을 따로 실행).
 
 ## 상세 문서 (읽는 순서)
 1. `HANDOFF.md` — 사고 흐름 전체 (왜 이 설계에 도달했나)

@@ -2,6 +2,21 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-03 — 서버 env 통째 소실 → 재구축 + TabReD 8개 전처리 전부 성공 ✅
+- **사건**: 공유 H100 서버에서 `~/miniconda3`(conda 전체)·`~/external`(tabred/tabm)·전처리 데이터가
+  통째로 사라짐 (디스크 압력 시 큰 디렉토리 정리된 것으로 추정). git repo `~/explainableTabular`만 생존.
+  - 초기 증상은 `OSError [Errno 28]`(디스크풀)이었으나, 실제로는 (1) 일시적 외부 디스크 압력 +
+    (2) env/external/데이터 삭제가 겹친 것. 디스크는 멀쩡(/dev/sdb4 240G free, inode 5%, quota 없음)로 확인됨.
+- **재구축 (SETUP.md §4로 정립)**:
+  - miniconda 재설치(`~/miniconda.sh` 잔존) → `explaintab311`(py3.11) 재생성 + torch(cu121)+requirements+tabm
+  - smoke_test_memory.py **통과** (novel 모듈 4종, binclass/multiclass/regression 배선 정상; fixed-memory smooth=0 대조 OK)
+  - 전처리 deps 반응적 설치가 함정 → **TabReD 공식 `tabred-env.yaml`로 별도 env `tabred` 생성**이 정답.
+    - 함정 기록: lightgbm GPU 소스빌드(OpenCL 없음) 실패 → 바이너리휠로 보강 / kaggle 1.6.11 핀 → 1.8+로 올려 OAuth 토큰 사용 / `import lib`가 전체 DL 스택 요구.
+- **결과**: `prepare_all_data.sh` (tmp 데이터셋별 자동정리 fix `e2ae44f`) → **8개 전부 ok**
+  (sberbank/cooking/delivery/maps/weather/homesite/ecom/homecredit), fail 0 / skip 0.
+- **다음**: `explaintab311`에서 `run_phase0.py` 실행 중 → 8개 수치 나오면 Phase 0 통과 판정 → Phase 1 착수.
+- 교훈: prep=`tabred` env, train=`explaintab311` env로 분리. `run_overnight.sh`는 한 env 가정이라 env 분리 시 prep/phase0 따로 실행.
+
 ## 2026-06-02 — Phase 0 sberbank 재현 성공 ✅ + overnight 자동화
 - 서버(explaintab311, py3.11)에서 전 파이프라인 실증 완료:
   - 환경/smoke test/Kaggle(KGAT 토큰, `kaggle auth login`)/sberbank 전처리/로더 전부 OK
