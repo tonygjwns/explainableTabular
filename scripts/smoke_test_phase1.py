@@ -27,6 +27,7 @@ import torch
 import torch.nn.functional as F
 
 from src.models.phase1_model import Phase1Model
+from src.models.proto_init import time_sliced_kmeans_init
 
 
 def build(task: str, time_indexed: bool, *, n_num=5, cat_card=(4, 3), C=3,
@@ -91,10 +92,16 @@ def check(task: str):
     on_w = m_on.backbone.model  # just ensure both constructed; widths differ internally
     assert m_on.inject_time_input and not m_off.inject_time_input
 
-    # KMeans-init hook accepts (K, d)
+    # time-sliced KMeans init (decision 5) end-to-end on fake data
     m = build(task, True)
-    m.init_memory_from_kmeans(np.random.randn(m.memory.K, m.d).astype("float32"))
-    print(f"  KMeans-init hook OK (K={m.memory.K}, d={m.d}); inject on/off both build")
+    Nt = 400
+    xn = np.random.randn(Nt, n_num).astype("float32")
+    xc = np.stack([np.random.randint(0, c, Nt) for c in cat_card], axis=1).astype("int64")
+    tt = np.random.rand(Nt).astype("float32")
+    base = time_sliced_kmeans_init(m, xn, xc, tt, K=m.memory.K, n_slices=5, max_samples=300)
+    assert base.shape == (m.memory.K, m.d), f"kmeans base {base.shape} != {(m.memory.K, m.d)}"
+    m.init_memory_from_kmeans(base)
+    print(f"  time-sliced KMeans init OK -> base{base.shape} (K={m.memory.K}, d={m.d})")
 
 
 if __name__ == "__main__":
