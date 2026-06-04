@@ -28,6 +28,8 @@ import torch.nn.functional as F
 
 from src.models.phase1_model import Phase1Model
 from src.models.proto_init import time_sliced_kmeans_init
+from src.data.tabred_loader import TabReDDataset, TabularSplit
+from src.training.phase1_trainer import Phase1Config, train_phase1
 
 
 def build(task: str, time_indexed: bool, *, n_num=5, cat_card=(4, 3), C=3,
@@ -104,8 +106,49 @@ def check(task: str):
     print(f"  time-sliced KMeans init OK -> base{base.shape} (K={m.memory.K}, d={m.d})")
 
 
+def _fake_split(task, n, n_num, cat_card, C, rng):
+    Xn = rng.standard_normal((n, n_num)).astype("float32")
+    Xc = np.stack([rng.integers(0, c, n) for c in cat_card], axis=1).astype("int64")
+    if task == "regression":
+        y = rng.standard_normal(n).astype("float32")
+    else:
+        y = rng.integers(0, (C if task == "multiclass" else 2), n).astype("int64")
+    t = np.sort(rng.random(n)).astype("float32")
+    return TabularSplit(X_num=Xn, X_bin=None, X_cat=Xc, y=y, t=t,
+                        t_raw=(t * 1000).astype("int64"))
+
+
+def check_train(task: str):
+    """Run the Phase-1 trainer loop on fake data (batched train/eval, KMeans init,
+    L_smooth, early stop) -- validates the loop wiring before any real run."""
+    rng = np.random.default_rng(0)
+    n_num, cat_card, C = 5, (4, 3), 3
+    data = TabReDDataset(
+        name="fake", task=task, split="default",
+        train=_fake_split(task, 160, n_num, cat_card, C, rng),
+        val=_fake_split(task, 48, n_num, cat_card, C, rng),
+        test=_fake_split(task, 48, n_num, cat_card, C, rng),
+        t_min=0.0, t_max=1.0,
+    )
+    cfg = Phase1Config(
+        k=4, n_blocks=1, d_block=32, dropout=0.0,
+        n_prototypes=16, rank=8, mem_hidden=16, predictor_hidden=32,
+        n_slices=3, kmeans_max_samples=120, lambda_smooth=1.0,
+        batch_size=16, eval_batch=32, max_epochs=2, patience=5,
+        device="cpu", seed_tag="smoke",
+    )
+    res = train_phase1(data, cfg)
+    assert np.isfinite(res["score"]), f"non-finite test score: {res['score']}"
+    print(f"  train loop OK: val={res['val_score']:.4f} test={res['score']:.4f} "
+          f"best_epoch={res['best_epoch']}")
+
+
 if __name__ == "__main__":
     torch.manual_seed(0)
     for task in ("binclass", "multiclass", "regression"):
         check(task)
+    print("\n--- Phase-1 trainer loop (fake data) ---")
+    for task in ("binclass", "multiclass", "regression"):
+        print(f"=== train task={task} ===")
+        check_train(task)
     print("\nAll Phase-1 smoke checks passed.")
