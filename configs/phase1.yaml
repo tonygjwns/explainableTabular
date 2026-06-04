@@ -5,7 +5,9 @@
 experiment:
   name: phase1_sanity
   phase: 1
-  seeds: [0, 1, 2, 3, 4]            # PRE_REGISTRATION §2.1: 5 seeds
+  seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # 10 seeds: 5 makes two-sided Wilcoxon
+                                           # unpassable (min p=2/2^5=0.0625>0.05).
+                                           # 10 is within EXPERIMENT_PLAN §7.1's 5-10 range.
   split: default                     # temporal split (Cai resplit = later refinement)
   results_dir: results/phase1/sanity
 

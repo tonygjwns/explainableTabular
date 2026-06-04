@@ -34,7 +34,10 @@
 ### 2.1 실험 설정
 
 - **데이터셋**: 4개 (Sberbank Housing, Ecom Offers, Homesite Insurance, HomeCredit Default) — 회귀·이진분류 혼합, 크기 다양
-- **시드**: 5
+- **시드**: 10  *(검정력 정정 2026-06-04: n=5에서는 two-sided paired Wilcoxon의 최소 p값이*
+  *2/2⁵=0.0625>0.05라 효과가 아무리 커도 §3.1 게이트를 통과할 수 없음. EXPERIMENT_PLAN §7.1이*
+  *허용하는 5~10 범위의 상단인 10으로 상향. 사전등록 commit 전·실험 실행 전·단일 데이터셋 코드검증*
+  *단계에서의 정정이므로 "결과 본 후 기준 변경" 금지에 저촉되지 않음. two-sided 유지.)*
 - **K (프로토타입 수)**: 1000 (메인 결과 5000보다 적음, 빠른 결정 목적)
 - **백본**: TabM + Cai et al. NeurIPS 2025 modulation (고정)
 - **검색**: 단순 softmax `w_k = softmax(-‖z - P_k(t_x)‖²/τ)` (WTA·보정항 없음 — 결정 3)
