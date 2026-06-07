@@ -55,7 +55,7 @@ def run_one(ds: str, cfg, seed: int, root: Path, frac: float, n_slices: int) -> 
     data_early = TabReDDataset(name=ds, task=data.task, split=data.split,
                                train=early, val=data.val, test=late,
                                t_min=data.t_min, t_max=data.t_max)
-    pcfg = make_cfg(cfg, seed)              # time_indexed=True by default in sanity builder
+    pcfg = make_cfg(cfg, seed, True)        # time_indexed=True (extrapolate the drift)
     res = train_phase1(data_early, pcfg)
     model = res["model"]
 
