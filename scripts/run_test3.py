@@ -48,10 +48,13 @@ def parse_args():
                     help="override retrieval temperature (sweep for concentration)")
     ap.add_argument("--lambda-smooth", type=float, default=None,
                     help="override L_smooth weight (set 0 to test if drift can move)")
+    ap.add_argument("--n-harmonics", type=int, default=None,
+                    help="override Fourier harmonics (lower => smoother/more directional drift)")
     return ap.parse_args()
 
 
-def make_cfg(cfg, seed: int, tau: float = None, lambda_smooth: float = None) -> Phase1Config:
+def make_cfg(cfg, seed: int, tau: float = None, lambda_smooth: float = None,
+             n_harmonics: int = None) -> Phase1Config:
     m, mem, tr = cfg.model, cfg.memory, cfg.training
     return Phase1Config(
         k=m.k, n_blocks=m.n_blocks, d_block=m.d_block, dropout=m.dropout,
@@ -59,7 +62,8 @@ def make_cfg(cfg, seed: int, tau: float = None, lambda_smooth: float = None) -> 
         tau_temp=(mem.tau_temp if tau is None else tau), predictor_hidden=mem.predictor_hidden,
         time_indexed=True, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
-        n_harmonics=mem.n_harmonics, time_periods=tuple(mem.time_periods),
+        n_harmonics=(mem.n_harmonics if n_harmonics is None else n_harmonics),
+        time_periods=tuple(mem.time_periods),
         kmeans_init=mem.kmeans_init, n_slices=mem.n_slices,
         kmeans_max_samples=mem.kmeans_max_samples,
         lambda_smooth=(mem.lambda_smooth if lambda_smooth is None else lambda_smooth),
@@ -82,13 +86,15 @@ def main():
     seed_everything(args.seed)
     data = load_tabred(ds, Path(cfg.data.root), split=cfg.experiment.split)
     res = train_phase1(data, make_cfg(cfg, args.seed, tau=args.tau,
-                                      lambda_smooth=args.lambda_smooth))
+                                      lambda_smooth=args.lambda_smooth,
+                                      n_harmonics=args.n_harmonics))
     model = res["model"]
     metric = metric_name(data.task)
     tau_used = args.tau if args.tau is not None else float(cfg.memory.tau_temp)
     lam_used = args.lambda_smooth if args.lambda_smooth is not None else float(cfg.memory.lambda_smooth)
-    print(f"[{ds}] trained time-indexed model (tau={tau_used}, lambda_smooth={lam_used}): "
-          f"{metric}={res['score']:.4f}")
+    nharm_used = args.n_harmonics if args.n_harmonics is not None else int(cfg.memory.n_harmonics)
+    print(f"[{ds}] trained time-indexed model (tau={tau_used}, lambda_smooth={lam_used}, "
+          f"n_harmonics={nharm_used}): {metric}={res['score']:.4f}")
 
     # ---- retrieval concentration on TEST split ----
     (xnum_tr, xnum_te), _ = _prep_numeric(data.train, data.test)
@@ -107,7 +113,8 @@ def main():
           f"MOVERS(top {tm['n_movers_considered']})={tm['mover_straightness_median']:.3f} "
           f"(1=straight,0=wiggly), mover path_len median={tm['mover_path_len_median']:.3f}")
 
-    png = plot_trajectories(P, tg, str(out_dir / f"trajectories_{args.method}.png"),
+    tag = f"{args.method}_tau{tau_used}_lam{lam_used}_h{nharm_used}"
+    png = plot_trajectories(P, tg, str(out_dir / f"trajectories_{tag}.png"),
                             n_proto=args.n_proto, mover_idx=tm["movers_idx"], method=args.method)
     print(f"  saved plot -> {png}")
 
