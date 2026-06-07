@@ -122,12 +122,20 @@ def trajectory_metrics(P: np.ndarray) -> dict:
     net = np.linalg.norm(P[-1] - P[0], axis=1)            # (K,)
     straight = np.where(path_len > 1e-12, net / np.maximum(path_len, 1e-12), 0.0)
     movers = np.argsort(-path_len)
+    K = P.shape[1]
+    n_top = max(20, K // 20)                          # top ~5% movers
+    top = movers[:n_top]
     return {
         "path_len_mean": float(path_len.mean()),
         "path_len_median": float(np.median(path_len)),
         "net_disp_mean": float(net.mean()),
         "straightness_mean": float(straight.mean()),
         "straightness_median": float(np.median(straight)),
+        # the interpretable signal lives in the ACTIVE prototypes; the all-K
+        # median is dragged down by ~K near-stationary ones (noise direction).
+        "mover_straightness_median": float(np.median(straight[top])),
+        "mover_path_len_median": float(np.median(path_len[top])),
+        "n_movers_considered": int(n_top),
         "movers_idx": movers[:20].tolist(),
         "_path_len": path_len, "_straightness": straight, "_net": net,
     }

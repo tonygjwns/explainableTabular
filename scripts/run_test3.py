@@ -103,8 +103,9 @@ def main():
     # ---- trajectories + geometry ----
     tg, P = prototype_trajectories(model, n_times=args.n_times)
     tm = trajectory_metrics(P)
-    print(f"  trajectory: straightness median={tm['straightness_median']:.3f} "
-          f"(1=straight,0=wiggly), path_len mean={tm['path_len_mean']:.3f}")
+    print(f"  trajectory: straightness median(all)={tm['straightness_median']:.3f}, "
+          f"MOVERS(top {tm['n_movers_considered']})={tm['mover_straightness_median']:.3f} "
+          f"(1=straight,0=wiggly), mover path_len median={tm['mover_path_len_median']:.3f}")
 
     png = plot_trajectories(P, tg, str(out_dir / f"trajectories_{args.method}.png"),
                             n_proto=args.n_proto, mover_idx=tm["movers_idx"], method=args.method)
@@ -118,7 +119,7 @@ def main():
     # heuristic readouts (AIDS ONLY — the real PASS is the peer+self judgment)
     aid = {
         "retrieval_concentrated_hint": bool(conc["participation_ratio_frac"] < 0.10),
-        "trajectory_directional_hint": bool(tm["straightness_median"] > 0.5),
+        "trajectory_directional_hint": bool(tm["mover_straightness_median"] > 0.5),
     }
 
     payload = {
