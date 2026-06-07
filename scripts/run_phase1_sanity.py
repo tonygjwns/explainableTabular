@@ -89,6 +89,11 @@ def main():
     results_dir = Path(cfg.experiment.results_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
 
+    inject = bool(cfg.memory.inject_time_input)
+    print(f"Test 1 contrast: time_indexed=True vs False, inject_time_input={inject} (BOTH).")
+    print("  inject=False => isolates memory-time (drift on/off only); "
+          "inject=True => memory-time ON TOP OF input-time (stricter).")
+
     scores_time: dict[str, list[float]] = {}
     scores_fixed: dict[str, list[float]] = {}
     metric_by_dataset: dict[str, str] = {}
@@ -138,6 +143,8 @@ def main():
 
     (results_dir / "test1_verdict.json").write_text(json.dumps(
         {"datasets": datasets, "seeds": seeds, "rows": rows,
+         "contrast": f"time_indexed True vs False; inject_time_input={inject} (both)",
+         "inject_time_input": inject,
          "min_datasets": t1.min_datasets, "min_hedges_g": t1.min_hedges_g,
          "alpha": t1.alpha, "pass": bool(verdict),
          "complete": not bool(args.dataset)}, indent=2))

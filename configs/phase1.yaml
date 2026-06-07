@@ -32,7 +32,11 @@ memory:                              # time-indexed prototype memory + softmax r
   tau_temp: 0.3                      # tau=1 => near-uniform retrieval (PR~620/1000);
                                      # 0.3 concentrates meaningfully (PR~3-16) [Test-3 diag]
   predictor_hidden: 256
-  inject_time_input: true            # decision 4 auxiliary path (Test 4 toggles this)
+  inject_time_input: false           # Test 1 ISOLATES memory-time: both variants get
+                                     # NO input-time, so the only difference is drift
+                                     # on/off (time_indexed). Input-time is Test 4's axis
+                                     # (PRE_REG §3.4). With inject=true the fixed control
+                                     # secretly has time -> confounded ~null. (decision 4)
   input_time_out_dim: 8
   mem_time_out_dim: 32
   n_harmonics: 2                     # low-freq (trend + up to 2 gentle cycles); more
