@@ -48,6 +48,16 @@ def covariate_shift_auc(
     Xa, Xb = sub(X_past), sub(X_future)
     X = np.concatenate([Xa, Xb], axis=0)
     y = np.concatenate([np.zeros(len(Xa)), np.ones(len(Xb))])
+
+    # Drop degenerate columns: all-NaN or constant break HGB's bin mapper
+    # ("window shape cannot be larger than input array shape").
+    with np.errstate(all="ignore"):
+        keep = (~np.all(np.isnan(X), axis=0)) & (np.nanstd(X, axis=0) > 0)
+    if not keep.any():
+        return {"auc": 0.5, "n_past": int(len(Xa)), "n_future": int(len(Xb)),
+                "note": "no usable columns"}
+    X = X[:, keep]
+
     Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)
     clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
     clf.fit(Xtr, ytr)
