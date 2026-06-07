@@ -46,6 +46,9 @@ def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/phase1.yaml")
     ap.add_argument("--dataset", default=None, help="run a single sanity dataset")
+    ap.add_argument("--predictor-mode", default=None,
+                    choices=["concat", "memory_only", "residual"],
+                    help="override predictor mode (force memory engagement)")
     return ap.parse_args()
 
 
@@ -84,6 +87,8 @@ def run_one(dataset: str, cfg, seed: int, time_indexed: bool, root: Path) -> flo
 def main():
     args = parse_args()
     cfg = OmegaConf.load(args.config)
+    if args.predictor_mode:
+        cfg.memory.predictor_mode = args.predictor_mode
     root = Path(cfg.data.root)
     seeds = list(cfg.experiment.seeds)
     datasets = [args.dataset] if args.dataset else list(cfg.data.sanity_datasets)
@@ -91,7 +96,8 @@ def main():
     results_dir.mkdir(parents=True, exist_ok=True)
 
     inject = bool(cfg.memory.inject_time_input)
-    print(f"Test 1 contrast: time_indexed=True vs False, inject_time_input={inject} (BOTH).")
+    print(f"Test 1 contrast: time_indexed=True vs False, predictor_mode={cfg.memory.predictor_mode}, "
+          f"inject_time_input={inject} (BOTH).")
     print("  inject=False => isolates memory-time (drift on/off only); "
           "inject=True => memory-time ON TOP OF input-time (stricter).")
 
