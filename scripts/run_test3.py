@@ -46,10 +46,12 @@ def parse_args():
     ap.add_argument("--n-proto", type=int, default=20, help="# top-mover prototypes to plot")
     ap.add_argument("--tau", type=float, default=None,
                     help="override retrieval temperature (sweep for concentration)")
+    ap.add_argument("--lambda-smooth", type=float, default=None,
+                    help="override L_smooth weight (set 0 to test if drift can move)")
     return ap.parse_args()
 
 
-def make_cfg(cfg, seed: int, tau: float = None) -> Phase1Config:
+def make_cfg(cfg, seed: int, tau: float = None, lambda_smooth: float = None) -> Phase1Config:
     m, mem, tr = cfg.model, cfg.memory, cfg.training
     return Phase1Config(
         k=m.k, n_blocks=m.n_blocks, d_block=m.d_block, dropout=m.dropout,
@@ -58,7 +60,8 @@ def make_cfg(cfg, seed: int, tau: float = None) -> Phase1Config:
         time_indexed=True, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
         n_harmonics=mem.n_harmonics, kmeans_init=mem.kmeans_init, n_slices=mem.n_slices,
-        kmeans_max_samples=mem.kmeans_max_samples, lambda_smooth=mem.lambda_smooth,
+        kmeans_max_samples=mem.kmeans_max_samples,
+        lambda_smooth=(mem.lambda_smooth if lambda_smooth is None else lambda_smooth),
         lr=tr.learning_rate, weight_decay=tr.weight_decay, batch_size=tr.batch_size,
         eval_batch=tr.eval_batch, patience=tr.patience, max_epochs=tr.max_epochs,
         seed_tag=f"t3s{seed}",
@@ -77,11 +80,14 @@ def main():
     # ---- train one time-indexed model ----
     seed_everything(args.seed)
     data = load_tabred(ds, Path(cfg.data.root), split=cfg.experiment.split)
-    res = train_phase1(data, make_cfg(cfg, args.seed, tau=args.tau))
+    res = train_phase1(data, make_cfg(cfg, args.seed, tau=args.tau,
+                                      lambda_smooth=args.lambda_smooth))
     model = res["model"]
     metric = metric_name(data.task)
     tau_used = args.tau if args.tau is not None else float(cfg.memory.tau_temp)
-    print(f"[{ds}] trained time-indexed model (tau={tau_used}): {metric}={res['score']:.4f}")
+    lam_used = args.lambda_smooth if args.lambda_smooth is not None else float(cfg.memory.lambda_smooth)
+    print(f"[{ds}] trained time-indexed model (tau={tau_used}, lambda_smooth={lam_used}): "
+          f"{metric}={res['score']:.4f}")
 
     # ---- retrieval concentration on TEST split ----
     (xnum_tr, xnum_te), _ = _prep_numeric(data.train, data.test)
@@ -116,7 +122,8 @@ def main():
 
     payload = {
         "dataset": ds, "task": data.task, "metric": metric, "score": res["score"],
-        "seed": args.seed, "tau": tau_used, "n_times": args.n_times, "method": args.method,
+        "seed": args.seed, "tau": tau_used, "lambda_smooth": lam_used,
+        "n_times": args.n_times, "method": args.method,
         "retrieval_concentration": conc,
         "trajectory": {k: v for k, v in tm.items() if not k.startswith("_")},
         "biggest_movers_idx": movers,
