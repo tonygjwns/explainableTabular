@@ -2,6 +2,24 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-05 — Phase 1 평가 완료: 구현 검증된 음성 (TabReD=covariate, not concept)
+- **결론(FINDINGS.md 참조)**: 메커니즘은 *작동*(합성 순수 concept-drift에서 +87%, mem_gap+0.93),
+  그러나 **TabReD에선 성능 이득 0** — covariate 드리프트지 exploitable concept이 아니기 때문.
+- 증거 사슬:
+  - Test1(격리, 10시드): clean null (|g|≤0.17, 4/4 비유의).
+  - 학습 진단 도입(`diagnostics.py`): concat에선 메모리 *장식*(mem_gap≈0, 메모리 grad 100~1000×↓,
+    검색 1개로 붕괴) = z-지름길. → 깜깜이 튜닝에서 내부 계측 기반으로 전환.
+  - **합성 positive control**: 순수 concept-drift(y=x·w(t) 회전)에서 time≪fixed(0.13 vs 1.03) →
+    **구현 정확성 입증**(버그 아님).
+  - 드리프트 해부(G3): covariate AUC≈1.0(pervasive, drop-top5 후도 높음), label ρ(t,y)≤0.13.
+  - concept 측정(early vs late→future): sberbank +36%(단 covariate 외삽에 오염), 나머지 작음.
+  - **engaged time-vs-fixed(sberbank, residual/memory_only)**: 메모리 강제해도 안 됨(residual g=−0.30,
+    memory_only 불안정/붕괴) → sberbank +36%는 exploitable concept 아님 확정.
+- **TabReD 양성(성능) 경로 닫힘** (합성↔실데이터↔concept측정↔engaged null 4중 확인).
+- 신규 구조/도구: `predictor_mode`{concat,memory_only,residual}, ablate_memory, diagnostics,
+  drift_measure(covariate/concept), extrapolation, retrieval_trajectory, run_synth_control.
+- **다음 결정(보류, 지도교수 상의)**: A'(외부 concept-drift 벤치서 양성, decider=Elec2) / B(분석 paper) / A'+B.
+
 ## 2026-06-04 — Phase 0 (TabM 재현) 8/8 PASS ✅ + Phase 1 첫 3개 코딩
 - **Phase 0 종료**: TabReD 8개 default(시간) split, 5시드. TabReD 논문 Table 2 MLP 베이스라인 대조:
   | 데이터셋 | 우리(TabM) | MLP | 차이 |
