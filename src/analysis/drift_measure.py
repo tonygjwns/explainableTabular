@@ -32,11 +32,42 @@ def _stack(*arrs) -> Optional[np.ndarray]:
     return np.concatenate(cols, axis=1)
 
 
+def _hgb_auc(X: np.ndarray, y: np.ndarray, seed: int) -> float:
+    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)
+    clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
+    clf.fit(Xtr, ytr)
+    return float(roc_auc_score(yte, clf.predict_proba(Xte)[:, 1]))
+
+
+def _single_feature_aucs(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Per-column train/test separability using the feature value as the score."""
+    aucs = np.full(X.shape[1], 0.5)
+    for j in range(X.shape[1]):
+        col = X[:, j].astype(np.float64)
+        if np.all(np.isnan(col)):
+            continue
+        med = np.nanmedian(col)
+        col = np.where(np.isnan(col), med, col)
+        if np.std(col) == 0:
+            continue
+        a = roc_auc_score(y, col)
+        aucs[j] = max(a, 1.0 - a)         # direction-agnostic
+    return aucs
+
+
 def covariate_shift_auc(
     X_past: np.ndarray, X_future: np.ndarray, *,
-    seed: int = 0, max_n: int = 20_000,
+    seed: int = 0, max_n: int = 20_000, drop_top: int = 5,
 ) -> dict:
-    """AUC of a classifier separating past vs future by features (0.5=no shift)."""
+    """Past-vs-future separability by features, with trivial-vs-pervasive diagnostics.
+
+    auc                 : multivariate HGB AUC (0.5=no shift, 1.0=perfectly separable)
+    auc_drop_top{N}     : AUC after removing the N most time-separating features
+                          (if it collapses to ~0.5 => shift was a few time-proxy cols;
+                           if it stays high => pervasive multivariate drift)
+    max_single_feat_auc : best single-feature separability
+    n_feat_auc_gt_0.9   : how many features individually separate past/future
+    """
     rng = np.random.default_rng(seed)
 
     def sub(X):
@@ -49,8 +80,7 @@ def covariate_shift_auc(
     X = np.concatenate([Xa, Xb], axis=0)
     y = np.concatenate([np.zeros(len(Xa)), np.ones(len(Xb))])
 
-    # Drop degenerate columns: all-NaN or constant break HGB's bin mapper
-    # ("window shape cannot be larger than input array shape").
+    # Drop degenerate columns: all-NaN or constant break HGB's bin mapper.
     with np.errstate(all="ignore"):
         keep = (~np.all(np.isnan(X), axis=0)) & (np.nanstd(X, axis=0) > 0)
     if not keep.any():
@@ -58,11 +88,21 @@ def covariate_shift_auc(
                 "note": "no usable columns"}
     X = X[:, keep]
 
-    Xtr, Xte, ytr, yte = train_test_split(X, y, test_size=0.3, random_state=seed, stratify=y)
-    clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
-    clf.fit(Xtr, ytr)
-    auc = float(roc_auc_score(yte, clf.predict_proba(Xte)[:, 1]))
-    return {"auc": auc, "n_past": int(len(Xa)), "n_future": int(len(Xb))}
+    auc = _hgb_auc(X, y, seed)
+    sf = _single_feature_aucs(X, y)
+    order = np.argsort(-sf)
+    keep2 = np.ones(X.shape[1], dtype=bool)
+    keep2[order[:drop_top]] = False
+    auc_drop = _hgb_auc(X[:, keep2], y, seed) if keep2.any() else 0.5
+
+    return {
+        "auc": auc,
+        f"auc_drop_top{drop_top}": auc_drop,
+        "max_single_feat_auc": float(sf.max()),
+        "n_feat_auc_gt_0.9": int((sf > 0.9).sum()),
+        "n_features_kept": int(X.shape[1]),
+        "n_past": int(len(Xa)), "n_future": int(len(Xb)),
+    }
 
 
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:

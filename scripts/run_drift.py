@@ -67,6 +67,9 @@ def main():
         rec = {
             "dataset": ds, "task": data.task,
             "covariate_auc_train_vs_test": cov_tt["auc"],
+            "covariate_auc_drop_top5": cov_tt.get("auc_drop_top5"),
+            "max_single_feat_auc": cov_tt.get("max_single_feat_auc"),
+            "n_feat_auc_gt_0.9": cov_tt.get("n_feat_auc_gt_0.9"),
             "covariate_auc_early_vs_late": cov_el["auc"],
             "label_spearman_t_y": lab["spearman_t_y"],
             "label_rel_range_deciles": lab["rel_range"],
@@ -75,10 +78,11 @@ def main():
         rows.append(rec)
         (out_dir / f"{ds}.json").write_text(json.dumps({**rec, "cov_tt": cov_tt,
                                                         "cov_el": cov_el, "label": lab}, indent=2))
-        print(f"[{ds:20s}] cov(train→test) AUC={rec['covariate_auc_train_vs_test']:.3f}  "
-              f"cov(early→late)={rec['covariate_auc_early_vs_late']:.3f}  "
-              f"label ρ(t,y)={rec['label_spearman_t_y']:+.3f}  "
-              f"label decile rel-range={rec['label_rel_range_deciles']:.3f}")
+        print(f"[{ds:20s}] cov(t→te)={rec['covariate_auc_train_vs_test']:.3f} "
+              f"drop5={rec['covariate_auc_drop_top5']:.3f} "
+              f"maxSF={rec['max_single_feat_auc']:.3f} "
+              f"nSF>.9={rec['n_feat_auc_gt_0.9']:<3d} "
+              f"| label ρ={rec['label_spearman_t_y']:+.3f} relrange={rec['label_rel_range_deciles']:.3f}")
 
     (out_dir / "drift_summary.json").write_text(json.dumps({"datasets": datasets, "rows": rows}, indent=2))
     print("\n==== Drift summary ====")
