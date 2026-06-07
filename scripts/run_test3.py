@@ -44,15 +44,17 @@ def parse_args():
     ap.add_argument("--n-times", type=int, default=50)
     ap.add_argument("--method", default="pca", choices=["pca", "umap"])
     ap.add_argument("--n-proto", type=int, default=20, help="# top-mover prototypes to plot")
+    ap.add_argument("--tau", type=float, default=None,
+                    help="override retrieval temperature (sweep for concentration)")
     return ap.parse_args()
 
 
-def make_cfg(cfg, seed: int) -> Phase1Config:
+def make_cfg(cfg, seed: int, tau: float = None) -> Phase1Config:
     m, mem, tr = cfg.model, cfg.memory, cfg.training
     return Phase1Config(
         k=m.k, n_blocks=m.n_blocks, d_block=m.d_block, dropout=m.dropout,
         n_prototypes=mem.n_prototypes, rank=mem.rank, mem_hidden=mem.mem_hidden,
-        tau_temp=mem.tau_temp, predictor_hidden=mem.predictor_hidden,
+        tau_temp=(mem.tau_temp if tau is None else tau), predictor_hidden=mem.predictor_hidden,
         time_indexed=True, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
         n_harmonics=mem.n_harmonics, kmeans_init=mem.kmeans_init, n_slices=mem.n_slices,
@@ -75,10 +77,11 @@ def main():
     # ---- train one time-indexed model ----
     seed_everything(args.seed)
     data = load_tabred(ds, Path(cfg.data.root), split=cfg.experiment.split)
-    res = train_phase1(data, make_cfg(cfg, args.seed))
+    res = train_phase1(data, make_cfg(cfg, args.seed, tau=args.tau))
     model = res["model"]
     metric = metric_name(data.task)
-    print(f"[{ds}] trained time-indexed model: {metric}={res['score']:.4f}")
+    tau_used = args.tau if args.tau is not None else float(cfg.memory.tau_temp)
+    print(f"[{ds}] trained time-indexed model (tau={tau_used}): {metric}={res['score']:.4f}")
 
     # ---- retrieval concentration on TEST split ----
     (xnum_tr, xnum_te), _ = _prep_numeric(data.train, data.test)
@@ -86,6 +89,9 @@ def main():
     print(f"  retrieval: PR={conc['participation_ratio_mean']:.1f}/{conc['K']} "
           f"(frac={conc['participation_ratio_frac']:.3f}), "
           f"entropy_frac={conc['entropy_frac']:.3f}, top5_mass={conc['top5_mass_mean']:.3f}")
+    print(f"  dist diag: sqdist_mean={conc['sqdist_mean']:.3f}, "
+          f"across-proto rel_spread={conc['sqdist_rel_spread']:.4f}  "
+          f"(rel_spread~0 => prototypes indistinguishable from z; tau won't help)")
 
     # ---- trajectories + geometry ----
     tg, P = prototype_trajectories(model, n_times=args.n_times)
@@ -110,7 +116,7 @@ def main():
 
     payload = {
         "dataset": ds, "task": data.task, "metric": metric, "score": res["score"],
-        "seed": args.seed, "n_times": args.n_times, "method": args.method,
+        "seed": args.seed, "tau": tau_used, "n_times": args.n_times, "method": args.method,
         "retrieval_concentration": conc,
         "trajectory": {k: v for k, v in tm.items() if not k.startswith("_")},
         "biggest_movers_idx": movers,

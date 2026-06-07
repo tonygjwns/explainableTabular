@@ -58,6 +58,7 @@ def retrieval_concentration(
     K = int(model.memory.K)
 
     pr_sum = ent_sum = top1_sum = top5_sum = 0.0
+    sqd_mean_sum = sqd_kstd_sum = 0.0
     n = 0
     for i in range(0, N, batch):
         sl = slice(i, i + batch)
@@ -70,9 +71,14 @@ def retrieval_concentration(
         top = w.topk(min(5, K), dim=1).values
         top1_sum += float(top[:, 0].sum())
         top5_sum += float(top.sum())
+        sd = aux["sq_dist"]                            # (b, K): ||z-P_k||^2
+        sqd_mean_sum += float(sd.mean(dim=1).sum())
+        sqd_kstd_sum += float(sd.std(dim=1).sum())     # spread across prototypes / sample
         n += int(w.shape[0])
 
     logK = float(np.log(K))
+    sqd_mean = sqd_mean_sum / n
+    sqd_kstd = sqd_kstd_sum / n
     return {
         "K": K, "n": n,
         "participation_ratio_mean": pr_sum / n,
@@ -82,6 +88,12 @@ def retrieval_concentration(
         "entropy_frac": (ent_sum / n) / logK if logK > 0 else 0.0,
         "top1_mass_mean": top1_sum / n,
         "top5_mass_mean": top5_sum / n,
+        # distance diagnostics: is retrieval flat because tau is too big (high
+        # rel_spread but flat) or because prototypes are indistinguishable from
+        # z (rel_spread ~ 0 => collapse / scale mismatch, tau won't help)?
+        "sqdist_mean": sqd_mean,
+        "sqdist_across_proto_std": sqd_kstd,
+        "sqdist_rel_spread": (sqd_kstd / sqd_mean) if sqd_mean > 0 else 0.0,
     }
 
 
