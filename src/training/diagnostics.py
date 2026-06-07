@@ -42,7 +42,7 @@ def grad_norms(model) -> dict:
             b["drift"] += g2
         elif name.startswith("value_module"):
             b["value"] += g2
-        elif name.startswith("retrieval.predictor"):
+        elif name.startswith("retrieval.predictor") or name.startswith("retrieval.head_"):
             b["predictor"] += g2
         else:
             b["other"] += g2
@@ -50,7 +50,13 @@ def grad_norms(model) -> dict:
 
 
 def predictor_branch_split(model) -> dict:
-    """Norm of the predictor's first-layer weights on the z half vs memory half."""
+    """Norm of the predictor's first-layer weights on z vs memory branch.
+
+    Only meaningful for predictor_mode='concat' (one MLP over [z;aggregated]).
+    For 'memory_only'/'residual' the branches are structurally separate -> nan.
+    """
+    if getattr(model.retrieval, "predictor_mode", "concat") != "concat":
+        return {"w_z": float("nan"), "w_agg": float("nan"), "agg_over_z": float("nan")}
     lin = model.retrieval.predictor[0]            # Linear(2d, hidden)
     W = lin.weight.detach()                       # (hidden, 2d)
     d = W.shape[1] // 2

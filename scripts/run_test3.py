@@ -52,6 +52,9 @@ def parse_args():
                     help="override Fourier harmonics (lower => smoother/more directional drift)")
     ap.add_argument("--diag-every", type=int, default=5,
                     help="print internal training diagnostics every N epochs (0=off)")
+    ap.add_argument("--predictor-mode", default=None,
+                    choices=["concat", "memory_only", "residual"],
+                    help="override predictor mode (force memory use)")
     return ap.parse_args()
 
 
@@ -62,6 +65,7 @@ def make_cfg(cfg, seed: int, tau: float = None, lambda_smooth: float = None,
         k=m.k, n_blocks=m.n_blocks, d_block=m.d_block, dropout=m.dropout,
         n_prototypes=mem.n_prototypes, rank=mem.rank, mem_hidden=mem.mem_hidden,
         tau_temp=(mem.tau_temp if tau is None else tau), predictor_hidden=mem.predictor_hidden,
+        predictor_mode=mem.predictor_mode,
         time_indexed=True, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
         n_harmonics=(mem.n_harmonics if n_harmonics is None else n_harmonics),
@@ -90,6 +94,8 @@ def main():
     pcfg = make_cfg(cfg, args.seed, tau=args.tau, lambda_smooth=args.lambda_smooth,
                     n_harmonics=args.n_harmonics)
     pcfg.diag_every = args.diag_every
+    if args.predictor_mode is not None:
+        pcfg.predictor_mode = args.predictor_mode
     res = train_phase1(data, pcfg)
     model = res["model"]
     metric = metric_name(data.task)

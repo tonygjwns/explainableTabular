@@ -49,6 +49,7 @@ class MemoryRetrievalLayer(nn.Module):
         out_dim: int,
         tau_temp: float = 1.0,
         predictor_hidden: int = 256,
+        predictor_mode: str = "concat",
     ):
         """
         Args:
@@ -57,18 +58,31 @@ class MemoryRetrievalLayer(nn.Module):
             value_module: ValueModule (holds V_k).
             out_dim: prediction output dim (1 for binclass/regression, C for multiclass).
             tau_temp: softmax temperature for retrieval.
-            predictor_hidden: hidden width of the [z;aggregated] -> y_hat predictor.
+            predictor_hidden: hidden width of the predictor MLP(s).
+            predictor_mode: how the memory readout reaches the output —
+                "concat"      : MLP([z ; aggregated])           (memory can be bypassed via z)
+                "memory_only" : MLP(aggregated)                 (forces all signal through memory)
+                "residual"    : head_z(z) + head_mem(aggregated) (explicit, separable branches)
         """
         super().__init__()
         self.memory = memory
         self.value_module = value_module
         self.tau_temp = tau_temp
+        self.predictor_mode = predictor_mode
 
-        self.predictor = nn.Sequential(
-            nn.Linear(2 * dim, predictor_hidden),
-            nn.ReLU(),
-            nn.Linear(predictor_hidden, out_dim),
-        )
+        def mlp(in_dim):
+            return nn.Sequential(nn.Linear(in_dim, predictor_hidden), nn.ReLU(),
+                                 nn.Linear(predictor_hidden, out_dim))
+
+        if predictor_mode == "concat":
+            self.predictor = mlp(2 * dim)
+        elif predictor_mode == "memory_only":
+            self.predictor = mlp(dim)
+        elif predictor_mode == "residual":
+            self.head_z = mlp(dim)
+            self.head_mem = mlp(dim)
+        else:
+            raise ValueError(f"Unknown predictor_mode: {predictor_mode}")
 
     def forward(self, z: torch.Tensor, t: torch.Tensor, return_aux: bool = False,
                 ablate_memory: bool = False):
@@ -90,7 +104,12 @@ class MemoryRetrievalLayer(nn.Module):
         aggregated = w @ V                                    # (B, d)
         if ablate_memory:
             aggregated = torch.zeros_like(aggregated)
-        y_hat = self.predictor(torch.cat([z, aggregated], dim=-1))
+        if self.predictor_mode == "concat":
+            y_hat = self.predictor(torch.cat([z, aggregated], dim=-1))
+        elif self.predictor_mode == "memory_only":
+            y_hat = self.predictor(aggregated)
+        else:  # residual
+            y_hat = self.head_z(z) + self.head_mem(aggregated)
         if return_aux:
             return y_hat, {"w": w, "sq_dist": sq_dist}
         return y_hat

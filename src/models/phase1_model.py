@@ -68,6 +68,7 @@ class Phase1Model(nn.Module):
         mem_hidden: int = 64,
         tau_temp: float = 1.0,
         predictor_hidden: int = 256,
+        predictor_mode: str = "concat",
         time_indexed: bool = True,
         # --- time embeddings ---
         time_periods: Sequence[float] = (1.0, 1.0 / 12, 1.0 / 52, 1.0 / 365),
@@ -120,6 +121,7 @@ class Phase1Model(nn.Module):
         self.retrieval = MemoryRetrievalLayer(
             dim=d_block, memory=self.memory, value_module=self.value_module,
             out_dim=out_dim, tau_temp=tau_temp, predictor_hidden=predictor_hidden,
+            predictor_mode=predictor_mode,
         )
 
     def encode(

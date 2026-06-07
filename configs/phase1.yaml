@@ -32,6 +32,9 @@ memory:                              # time-indexed prototype memory + softmax r
   tau_temp: 0.3                      # tau=1 => near-uniform retrieval (PR~620/1000);
                                      # 0.3 concentrates meaningfully (PR~3-16) [Test-3 diag]
   predictor_hidden: 256
+  predictor_mode: concat             # concat | memory_only | residual
+                                     # concat lets the predictor bypass memory via z
+                                     # (diag: mem_gap~0); memory_only/residual force its use
   inject_time_input: false           # Test 1 ISOLATES memory-time: both variants get
                                      # NO input-time, so the only difference is drift
                                      # on/off (time_indexed). Input-time is Test 4's axis

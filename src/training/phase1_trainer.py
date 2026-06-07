@@ -50,6 +50,7 @@ class Phase1Config:
     mem_hidden: int = 64
     tau_temp: float = 1.0
     predictor_hidden: int = 256
+    predictor_mode: str = "concat"       # concat | memory_only | residual (force memory use)
     time_indexed: bool = True            # False -> fixed-memory control (Test 1)
     inject_time_input: bool = True       # decision 4 auxiliary path (Test 4 toggle)
     input_time_out_dim: int = 8
@@ -118,6 +119,7 @@ def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
         arch_type=cfg.arch_type,
         n_prototypes=cfg.n_prototypes, rank=cfg.rank, mem_hidden=cfg.mem_hidden,
         tau_temp=cfg.tau_temp, predictor_hidden=cfg.predictor_hidden,
+        predictor_mode=cfg.predictor_mode,
         time_indexed=cfg.time_indexed, inject_time_input=cfg.inject_time_input,
         input_time_out_dim=cfg.input_time_out_dim, mem_time_out_dim=cfg.mem_time_out_dim,
         n_harmonics=cfg.n_harmonics, time_periods=tuple(cfg.time_periods),

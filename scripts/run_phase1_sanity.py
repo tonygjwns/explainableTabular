@@ -55,6 +55,7 @@ def make_cfg(cfg, seed: int, time_indexed: bool) -> Phase1Config:
         k=m.k, n_blocks=m.n_blocks, d_block=m.d_block, dropout=m.dropout,
         n_prototypes=mem.n_prototypes, rank=mem.rank, mem_hidden=mem.mem_hidden,
         tau_temp=mem.tau_temp, predictor_hidden=mem.predictor_hidden,
+        predictor_mode=mem.predictor_mode,
         time_indexed=time_indexed, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
         n_harmonics=mem.n_harmonics, time_periods=tuple(mem.time_periods),
