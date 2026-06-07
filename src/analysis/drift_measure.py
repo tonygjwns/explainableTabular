@@ -147,10 +147,17 @@ def concept_drift_gap(
     Xl, yl = np.asarray(X_late, float)[il], np.asarray(y_late)[il]
     Xf, yf = np.asarray(X_future, float), np.asarray(y_future)
 
-    # drop columns degenerate across the union (consistent feature set)
-    U = np.concatenate([Xe, Xl, Xf], axis=0)
-    with np.errstate(all="ignore"):
-        keep = (~np.all(np.isnan(U), axis=0)) & (np.nanstd(U, axis=0) > 0)
+    # Keep only columns valid in BOTH training sets (we fit on each separately):
+    # a column all-NaN/constant within early or late breaks HGB's bin mapper even
+    # if it has values elsewhere. (Xf may still contain NaN -> HGB handles at predict.)
+    def _good(X):
+        with np.errstate(all="ignore"):
+            return (~np.all(np.isnan(X), axis=0)) & (np.nanstd(X, axis=0) > 0)
+    keep = _good(Xe) & _good(Xl)
+    if not keep.any():
+        return {"gap_concept": 0.0, "gap_rel": 0.0, "n_each": int(n),
+                "metric": "rmse" if task == "regression" else "auc",
+                "note": "no usable columns"}
     Xe, Xl, Xf = Xe[:, keep], Xl[:, keep], Xf[:, keep]
 
     s_early = _fit_eval(Xe, ye, Xf, yf, task, seed)
