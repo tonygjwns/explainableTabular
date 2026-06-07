@@ -35,13 +35,14 @@ memory:                              # time-indexed prototype memory + softmax r
   inject_time_input: true            # decision 4 auxiliary path (Test 4 toggles this)
   input_time_out_dim: 8
   mem_time_out_dim: 32
-  n_harmonics: 4
+  n_harmonics: 2                     # low-freq (trend + up to 2 gentle cycles); more
+                                     # harmonics -> oscillatory drift (Test-3 diag)
   time_periods: [1.0]                # low-freq basis on normalized [0,1] t (see trainer note)
   kmeans_init: true                  # decision 5
   n_slices: 10
   kmeans_max_samples: 50000
-  lambda_smooth: 0.05                # L_smooth: 1.0 killed drift (path_len 0.005); 0.05
-                                     # allows smooth movement [Test-3 diag, to re-verify]
+  lambda_smooth: 0.1                 # L_smooth: 1.0 killed drift (path_len 0.005);
+                                     # 0.1 allows movement + best/near-best rmse [Test-3 diag]
 
 training:
   learning_rate: 2.0e-3
