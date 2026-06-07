@@ -70,13 +70,17 @@ class MemoryRetrievalLayer(nn.Module):
             nn.Linear(predictor_hidden, out_dim),
         )
 
-    def forward(self, z: torch.Tensor, t: torch.Tensor, return_aux: bool = False):
+    def forward(self, z: torch.Tensor, t: torch.Tensor, return_aux: bool = False,
+                ablate_memory: bool = False):
         """
         Args:
             z: (B, d) backbone representation.
             t: (B,) normalized timestamps.
             return_aux: if True, also return retrieval weights & distances (for
                         Sanity Test 3 retrieval-concentration analysis).
+            ablate_memory: if True, zero the aggregated memory readout (predictor
+                        sees [z ; 0]). Used by diagnostics to measure how much the
+                        memory actually contributes (mem_gap).
         Returns:
             y_hat: (B, out_dim). If return_aux: (y_hat, {"w":..., "sq_dist":...}).
         """
@@ -84,6 +88,8 @@ class MemoryRetrievalLayer(nn.Module):
         w, sq_dist = softmax_retrieval(z, prototypes, self.tau_temp)  # (B, K)
         V = self.value_module.values()                        # (K, d)
         aggregated = w @ V                                    # (B, d)
+        if ablate_memory:
+            aggregated = torch.zeros_like(aggregated)
         y_hat = self.predictor(torch.cat([z, aggregated], dim=-1))
         if return_aux:
             return y_hat, {"w": w, "sq_dist": sq_dist}

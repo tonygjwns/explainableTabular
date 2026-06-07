@@ -50,6 +50,8 @@ def parse_args():
                     help="override L_smooth weight (set 0 to test if drift can move)")
     ap.add_argument("--n-harmonics", type=int, default=None,
                     help="override Fourier harmonics (lower => smoother/more directional drift)")
+    ap.add_argument("--diag-every", type=int, default=5,
+                    help="print internal training diagnostics every N epochs (0=off)")
     return ap.parse_args()
 
 
@@ -85,9 +87,10 @@ def main():
     # ---- train one time-indexed model ----
     seed_everything(args.seed)
     data = load_tabred(ds, Path(cfg.data.root), split=cfg.experiment.split)
-    res = train_phase1(data, make_cfg(cfg, args.seed, tau=args.tau,
-                                      lambda_smooth=args.lambda_smooth,
-                                      n_harmonics=args.n_harmonics))
+    pcfg = make_cfg(cfg, args.seed, tau=args.tau, lambda_smooth=args.lambda_smooth,
+                    n_harmonics=args.n_harmonics)
+    pcfg.diag_every = args.diag_every
+    res = train_phase1(data, pcfg)
     model = res["model"]
     metric = metric_name(data.task)
     tau_used = args.tau if args.tau is not None else float(cfg.memory.tau_temp)

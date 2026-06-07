@@ -33,6 +33,7 @@ from ..models.phase1_model import Phase1Model
 from ..models.proto_init import time_sliced_kmeans_init
 from ..utils.metrics import compute_metric
 from .trainer import _prep_numeric, _to_tensor, _global_cat_cardinalities
+from .diagnostics import grad_norms, forward_diagnostics, format_line
 
 
 @dataclass
@@ -75,6 +76,8 @@ class Phase1Config:
     max_epochs: int = 200
     device: str = "cuda"
     seed_tag: str = ""
+    diag_every: int = 0          # 0=off; else print internal diagnostics every N epochs
+    diag_sample: int = 2048      # sample size for the diagnostics probes
 
 
 def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
@@ -185,6 +188,24 @@ def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
             opt.zero_grad(); loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             opt.step()
+
+        if cfg.diag_every and (epoch % cfg.diag_every == 0):
+            di = torch.randperm(n_train, device=device)[:cfg.diag_sample]
+            dn = None if x_num["train"] is None else x_num["train"][di]
+            dc = None if x_cat["train"] is None else x_cat["train"][di]
+            model.train()
+            dloss = main_loss(model(dn, dc, t["train"][di]), y["train"][di])
+            if cfg.lambda_smooth > 0:
+                dloss = dloss + cfg.lambda_smooth * model.smoothness_penalty(t["train"][di])
+            opt.zero_grad(); dloss.backward()
+            gn = grad_norms(model)
+            opt.zero_grad(set_to_none=True)
+            nv = (x_num["val"] if x_num["val"] is not None else x_cat["val"]).shape[0]
+            vi = torch.arange(min(cfg.diag_sample, nv), device=device)
+            vn = None if x_num["val"] is None else x_num["val"][vi]
+            vc = None if x_cat["val"] is None else x_cat["val"][vi]
+            fs = forward_diagnostics(model, vn, vc, t["val"][vi], y["val"][vi], task)
+            tqdm.write(format_line(epoch, fs, gn))
 
         val = evaluate("val")
         improved = (val > best) if higher_better else (val < best)

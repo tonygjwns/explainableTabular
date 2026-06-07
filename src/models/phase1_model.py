@@ -140,10 +140,14 @@ class Phase1Model(nn.Module):
         x_cat: Optional[torch.Tensor],
         t: torch.Tensor,
         return_aux: bool = False,
+        ablate_memory: bool = False,
     ):
-        """Returns y_hat (B, out_dim). If return_aux: (y_hat, {'w','sq_dist'})."""
+        """Returns y_hat (B, out_dim). If return_aux: (y_hat, {'w','sq_dist'}).
+
+        ablate_memory=True zeroes the memory readout (diagnostics: mem contribution).
+        """
         z = self.encode(x_num, x_cat, t)
-        return self.retrieval(z, t, return_aux=return_aux)
+        return self.retrieval(z, t, return_aux=return_aux, ablate_memory=ablate_memory)
 
     def smoothness_penalty(self, t: torch.Tensor) -> torch.Tensor:
         """L_smooth (0 when time_indexed=False)."""
