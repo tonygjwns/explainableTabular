@@ -46,12 +46,20 @@ mechanism looking for the right data.
    (codebook collapse to ~0.39 on several seeds). → sberbank's +36% recency was
    covariate extrapolation, **not** concept drift the mechanism can exploit.
 
+8. **Elec2 decider — POSITIVE on REAL concept drift.** On the canonical Electricity
+   concept-drift benchmark (random split, inject off so memory is the only time path,
+   10 seeds): time-indexed **AUC 0.954 vs fixed 0.911**, delta +0.043, p=0.002,
+   g=+7.39. The mechanism exploits real concept drift, not just synthetic.
+
 ## Conclusion
 - Implementation verified (4). Mechanism is real and capable.
-- **On TabReD, a positive (performance) claim is closed** — established three ways
-  (synthetic vs real, concept measure, engaged null), not a guess.
-- TabReD temporal shift = **covariate, not exploitable concept** → time-indexed
-  memory correctly yields no prediction gain. This itself is a finding.
+- **Synthetic (+87%) AND real Elec2 (+4.3 AUC) → the mechanism exploits concept
+  drift.** On TabReD it doesn't help because TabReD's shift is **covariate, not
+  exploitable concept** (5–7). The three points line up: works on concept drift,
+  null on covariate-only — a coherent, evidence-backed story.
+- **Positive (A') path is LIVE**, pending: Elec2 temporal split (future
+  extrapolation), memory-vs-time-as-feature (is the memory structure necessary?),
+  strong drift-aware baselines, and more concept-drift benchmarks.
 
 ## Open directions (top-tier-shaped)
 - **A' (positive):** run the validated mechanism on real concept-drift tabular

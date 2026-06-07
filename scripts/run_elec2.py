@@ -37,12 +37,17 @@ def main():
     ap.add_argument("--split", default="random", choices=["random", "temporal"])
     ap.add_argument("--predictor-mode", default=None,
                     choices=["concat", "memory_only", "residual"])
+    ap.add_argument("--inject", action="store_true",
+                    help="inject time at input too (with time_indexed=False this is the "
+                         "time-as-FEATURE baseline -> tests if the memory STRUCTURE is needed)")
     ap.add_argument("--diag-every", type=int, default=0)
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
     if args.predictor_mode:
         cfg.memory.predictor_mode = args.predictor_mode
+    if args.inject:
+        cfg.memory.inject_time_input = True
     seeds = list(cfg.experiment.seeds)
     out_dir = Path(cfg.experiment.results_dir).parent / "elec2"
     out_dir.mkdir(parents=True, exist_ok=True)
