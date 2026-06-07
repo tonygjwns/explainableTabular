@@ -57,7 +57,7 @@ def make_cfg(cfg, seed: int, time_indexed: bool) -> Phase1Config:
         tau_temp=mem.tau_temp, predictor_hidden=mem.predictor_hidden,
         time_indexed=time_indexed, inject_time_input=mem.inject_time_input,
         input_time_out_dim=mem.input_time_out_dim, mem_time_out_dim=mem.mem_time_out_dim,
-        n_harmonics=mem.n_harmonics,
+        n_harmonics=mem.n_harmonics, time_periods=tuple(mem.time_periods),
         kmeans_init=mem.kmeans_init, n_slices=mem.n_slices,
         kmeans_max_samples=mem.kmeans_max_samples, lambda_smooth=mem.lambda_smooth,
         lr=tr.learning_rate, weight_decay=tr.weight_decay, batch_size=tr.batch_size,

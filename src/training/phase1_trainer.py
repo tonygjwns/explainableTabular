@@ -53,7 +53,13 @@ class Phase1Config:
     inject_time_input: bool = True       # decision 4 auxiliary path (Test 4 toggle)
     input_time_out_dim: int = 8
     mem_time_out_dim: int = 32
-    n_harmonics: int = 6
+    n_harmonics: int = 4
+    # Fourier periods in the SAME units as the normalized t (loader maps the
+    # training range to [0,1]). (1.0,) => fundamental = the whole span; with
+    # n_harmonics that is a smooth low-frequency basis (1..n cycles over [0,1]).
+    # The old (1, 1/12, 1/52, 1/365) assumed "t==years" and is ultra-high-freq
+    # on [0,1] -> oscillatory drift. (calendar-aware time is a later refinement.)
+    time_periods: tuple = (1.0,)
     # KMeans init (decision 5)
     kmeans_init: bool = True
     n_slices: int = 10
@@ -111,7 +117,7 @@ def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
         tau_temp=cfg.tau_temp, predictor_hidden=cfg.predictor_hidden,
         time_indexed=cfg.time_indexed, inject_time_input=cfg.inject_time_input,
         input_time_out_dim=cfg.input_time_out_dim, mem_time_out_dim=cfg.mem_time_out_dim,
-        n_harmonics=cfg.n_harmonics,
+        n_harmonics=cfg.n_harmonics, time_periods=tuple(cfg.time_periods),
     ).to(device)
 
     # ---- KMeans prototype init in z-space (decision 5) ----
