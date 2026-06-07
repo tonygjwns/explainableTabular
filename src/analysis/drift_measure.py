@@ -19,9 +19,9 @@ from __future__ import annotations
 from typing import Optional
 
 import numpy as np
-from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, mean_squared_error
 from scipy.stats import spearmanr
 
 
@@ -103,6 +103,67 @@ def covariate_shift_auc(
         "n_features_kept": int(X.shape[1]),
         "n_past": int(len(Xa)), "n_future": int(len(Xb)),
     }
+
+
+def _fit_eval(Xtr, ytr, Xte, yte, task, seed) -> float:
+    """Fit HGB on (Xtr,ytr), score on (Xte,yte). regression->RMSE, classif->AUC."""
+    if task == "regression":
+        m = HistGradientBoostingRegressor(max_iter=300, random_state=seed)
+        m.fit(Xtr, ytr)
+        return float(np.sqrt(mean_squared_error(yte, m.predict(Xte))))
+    m = HistGradientBoostingClassifier(max_iter=300, random_state=seed)
+    m.fit(Xtr, ytr)
+    return float(roc_auc_score(yte, m.predict_proba(Xte)[:, 1]))
+
+
+def concept_drift_gap(
+    X_early, y_early, X_late, y_late, X_future, y_future, task, *,
+    seed: int = 0, max_n: int = 20_000,
+) -> dict:
+    """Concept drift = does the predictive rule P(y|x) change over time?
+
+    Train one model on EARLY data and one on LATE data (equal size), evaluate BOTH
+    on the same held-out FUTURE set. If the late-trained model does much better on
+    the future, the rule moved (concept drift); if they tie, the early rule still
+    holds (no concept drift -> covariate shift only -> a time-indexed memory can't
+    help prediction).
+
+    gap_concept (direction-normalized, >0 => concept drift / late is better):
+      regression : rmse_early - rmse_late
+      classif    : auc_late  - auc_early
+    """
+    rng = np.random.default_rng(seed)
+
+    def clean_and_sub(X, n=None):
+        X = np.asarray(X, dtype=np.float64)
+        if n is not None and X.shape[0] > n:
+            X = X[rng.choice(X.shape[0], n, replace=False)]
+        return X
+
+    n = min(len(y_early), len(y_late), max_n)
+    ie = rng.choice(len(y_early), n, replace=False)
+    il = rng.choice(len(y_late), n, replace=False)
+    Xe, ye = np.asarray(X_early, float)[ie], np.asarray(y_early)[ie]
+    Xl, yl = np.asarray(X_late, float)[il], np.asarray(y_late)[il]
+    Xf, yf = np.asarray(X_future, float), np.asarray(y_future)
+
+    # drop columns degenerate across the union (consistent feature set)
+    U = np.concatenate([Xe, Xl, Xf], axis=0)
+    with np.errstate(all="ignore"):
+        keep = (~np.all(np.isnan(U), axis=0)) & (np.nanstd(U, axis=0) > 0)
+    Xe, Xl, Xf = Xe[:, keep], Xl[:, keep], Xf[:, keep]
+
+    s_early = _fit_eval(Xe, ye, Xf, yf, task, seed)
+    s_late = _fit_eval(Xl, yl, Xf, yf, task, seed)
+    if task == "regression":
+        gap = s_early - s_late                      # >0 => late better => concept drift
+        rel = gap / (s_late + 1e-12)
+    else:
+        gap = s_late - s_early
+        rel = gap / (abs(s_early - 0.5) + 1e-12)    # vs early's skill above chance
+    return {"score_early_on_future": s_early, "score_late_on_future": s_late,
+            "gap_concept": float(gap), "gap_rel": float(rel), "n_each": int(n),
+            "metric": "rmse" if task == "regression" else "auc"}
 
 
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:
