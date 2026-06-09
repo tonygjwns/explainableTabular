@@ -2,6 +2,8 @@
 /data/
 /results/
 /logs/
+/grid_report.json          # stray result artifact if a run wrote to repo root
+diagnostics.jsonl
 *.parquet
 *.csv
 *.npy
