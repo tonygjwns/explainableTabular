@@ -46,20 +46,42 @@ mechanism looking for the right data.
    (codebook collapse to ~0.39 on several seeds). → sberbank's +36% recency was
    covariate extrapolation, **not** concept drift the mechanism can exploit.
 
-8. **Elec2 decider — POSITIVE on REAL concept drift.** On the canonical Electricity
-   concept-drift benchmark (random split, inject off so memory is the only time path,
-   10 seeds): time-indexed **AUC 0.954 vs fixed 0.911**, delta +0.043, p=0.002,
-   g=+7.39. The mechanism exploits real concept drift, not just synthetic.
+8. **Elec2 — time helps, but the MEMORY does not earn its keep (positive path closed).**
+   Canonical Electricity concept-drift benchmark, 10 seeds:
+   - random split, inject off: time-indexed AUC 0.954 vs fixed(no time) 0.911 (+0.043).
+     Looked positive — but this only says *time information* helps, not the memory.
+   - random split, **inject on (time as an input FEATURE)**: fixed jumps to **0.9615**
+     (a plain time feature > the memory's 0.954), and adding the drift memory on top
+     gives **delta +0.0017, p=0.11, g=0.76 (n.s.)**. => the memory STRUCTURE does not
+     beat trivially feeding t as a feature (empirically reproduces Cai's input-side
+     finding; the time-indexed-retrieval "gap" is empty because it loses to the simpler
+     option).
+   - **temporal split (realistic future extrapolation), inject off**: time-indexed
+     **0.875 vs fixed 0.894, delta −0.019, g=−0.67** — the memory HURTS and is unstable
+     (a seed collapsed to 0.77).
 
 ## Conclusion
-- Implementation verified (4). Mechanism is real and capable.
-- **Synthetic (+87%) AND real Elec2 (+4.3 AUC) → the mechanism exploits concept
-  drift.** On TabReD it doesn't help because TabReD's shift is **covariate, not
-  exploitable concept** (5–7). The three points line up: works on concept drift,
-  null on covariate-only — a coherent, evidence-backed story.
-- **Positive (A') path is LIVE**, pending: Elec2 temporal split (future
-  extrapolation), memory-vs-time-as-feature (is the memory structure necessary?),
-  strong drift-aware baselines, and more concept-drift benchmarks.
+- Implementation verified (4): the mechanism exploits concept drift in a controlled
+  synthetic setting (+87%, in-distribution t, memory as the only path).
+- **On real data the positive (performance) path is CLOSED both ways**: TabReD has no
+  exploitable concept drift (5–7); Elec2 has it, but a plain time FEATURE captures it
+  better than the time-indexed memory, the memory adds ~0 over the feature, and it
+  DEGRADES under temporal extrapolation. The memory-retrieval structure does not
+  justify its complexity over simpler time-conditioning.
+- Honest status: a thorough, implementation-verified **negative** for the proposed
+  architecture as a *predictor*. (Earlier "+4.3 => A' live" was premature — it lacked
+  the time-feature baseline, which dominates.)
+
+## Remaining honest options (narrowed)
+- **B (analysis/negative):** when/why time-indexed memory helps (controlled) vs fails
+  (covariate-only; feature-subsumed; extrapolation-fragile) + diagnostic toolkit +
+  covariate-vs-concept. Needs breadth for a top venue; solid for TMLR/workshop.
+- **C (reframe to interpretability):** drop the performance claim; evaluate the
+  memory purely as a faithful, inspectable drift-explanation tool (memory_only, no
+  z-shortcut), with a real interpretability eval/use-case. Risky; needs new design +
+  faithfulness evaluation (current memory is z-shortcut-bypassed).
+- A genuinely new mechanism with a reason to beat time-feature conditioning would be
+  needed for a positive top-tier method paper. Not currently in hand.
 
 ## Open directions (top-tier-shaped)
 - **A' (positive):** run the validated mechanism on real concept-drift tabular
