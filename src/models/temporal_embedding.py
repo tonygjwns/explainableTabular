@@ -31,49 +31,57 @@ class FourierTimeEmbedding(nn.Module):
         periods: Sequence[float] = (1.0, 1.0 / 12, 1.0 / 52, 1.0 / 365),
         n_harmonics: int = 6,
         use_trend: bool = True,
+        basis: str = "fourier",
+        trend_degree: int = 3,
     ):
         """
         Args:
-            out_dim: dimension of the periodic projection output (the ReLU(Linear(.)) part).
+            out_dim: dimension of the projected output (the ReLU(Linear(.)) part).
                      Final embedding dim = out_dim + (1 if use_trend else 0).
-            periods: periodicity priors T_i in the SAME units as the (normalized) t.
-                     Defaults assume t normalized so that 1.0 == one year, hence
-                     yearly=1, monthly=1/12, weekly=1/52, daily=1/365.
-                     ADJUST to your timestamp normalization (see tabred_loader.normalize_time).
-            n_harmonics: number of Fourier harmonics K per period.
-            use_trend: append standardized t to capture linear trend.
+            periods/n_harmonics: Fourier params (basis='fourier').
+            use_trend: append raw t (linear trend term).
+            basis: 'fourier' (periodic; oscillates for t>1 -> bad extrapolation) or
+                   'trend' (polynomial [t, t^2, ..., t^deg]; monotone, extrapolation-safe).
+                   Use 'trend' for the rescue plan's extrapolation regime.
+            trend_degree: polynomial degree for basis='trend'.
         """
         super().__init__()
         self.periods = list(periods)
         self.n_harmonics = int(n_harmonics)
         self.use_trend = bool(use_trend)
+        self.basis = basis
+        self.trend_degree = int(trend_degree)
 
-        # raw Fourier feature count: 2 (sin,cos) * K harmonics * n_periods
-        raw_dim = 2 * self.n_harmonics * len(self.periods)
+        if basis == "fourier":
+            raw_dim = 2 * self.n_harmonics * len(self.periods)
+            k = torch.arange(1, self.n_harmonics + 1, dtype=torch.float32)
+            self.register_buffer("harmonics", k, persistent=False)
+        elif basis == "trend":
+            raw_dim = self.trend_degree                        # [t, t^2, ..., t^deg]
+            powers = torch.arange(1, self.trend_degree + 1, dtype=torch.float32)
+            self.register_buffer("powers", powers, persistent=False)
+        else:
+            raise ValueError(f"Unknown basis: {basis}")
+
         self.proj = nn.Linear(raw_dim, out_dim)
         self.act = nn.ReLU()
         self.out_dim = out_dim + (1 if self.use_trend else 0)
 
-        # harmonic multipliers k = 1..K, registered as buffer (not trained)
-        k = torch.arange(1, self.n_harmonics + 1, dtype=torch.float32)
-        self.register_buffer("harmonics", k, persistent=False)
-
-    def _raw_fourier(self, t: torch.Tensor) -> torch.Tensor:
+    def _raw(self, t: torch.Tensor) -> torch.Tensor:
         """t: (batch,) -> (batch, raw_dim)."""
         t = t.reshape(-1, 1)                                   # (B, 1)
-        feats = []
-        for T in self.periods:
-            # angle: (B, K) = 2*pi*k*t / T
-            ang = 2.0 * torch.pi * self.harmonics.reshape(1, -1) * t / float(T)
-            feats.append(torch.sin(ang))
-            feats.append(torch.cos(ang))
-        return torch.cat(feats, dim=1)                          # (B, raw_dim)
+        if self.basis == "fourier":
+            feats = []
+            for T in self.periods:
+                ang = 2.0 * torch.pi * self.harmonics.reshape(1, -1) * t / float(T)
+                feats.append(torch.sin(ang)); feats.append(torch.cos(ang))
+            return torch.cat(feats, dim=1)
+        # trend: polynomial powers (monotone, extrapolation-safe)
+        return t ** self.powers.reshape(1, -1)                 # (B, deg)
 
     def forward(self, t: torch.Tensor) -> torch.Tensor:
         """t: (batch,) normalized timestamps -> tau: (batch, out_dim)."""
-        raw = self._raw_fourier(t)                              # (B, raw_dim)
-        periodic = self.act(self.proj(raw))                     # (B, out_dim_periodic)
+        proj = self.act(self.proj(self._raw(t)))               # (B, out_dim_proj)
         if self.use_trend:
-            trend = t.reshape(-1, 1)                            # already ~standardized
-            return torch.cat([periodic, trend], dim=1)          # (B, out_dim)
-        return periodic
+            return torch.cat([proj, t.reshape(-1, 1)], dim=1)  # (B, out_dim)
+        return proj

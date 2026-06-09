@@ -14,26 +14,44 @@
 
 ## A. 즉시 (병렬, 싸고 결정적) — 지금 잠그고 실행
 
-### Q1 — 기능적 충실성 (합성) [주 게이트]
-- **세팅**: 합성 `y=x·w(t)`(회전) + **memory_only**(메모리 사용 강제) + 붕괴수정 + **trend 기저**.
+### Q1 — 기능적 충실성 (합성) [주 게이트] — 최종 프로토콜
+- **세팅**: 합성 **이진** `y=sign(x·w(t)+noise)` (V_k=라벨임베딩 설계·Elec2와 정합) +
+  **memory_only**(메모리 사용 강제) + **load-balance anti-collapse**(계수 최소+스윕) + **trend 기저**.
   학습 V_k 허용(시간은 drift_k로만 흐름; V_k·τ는 t-비의존 → 기능 충실성 격리).
-- **주지표(기능공간, 인코더-불변)**: `ŵ(t)=E_x[∂ŷ/∂x | t]`. recovery = t-그리드에서
-  `ŵ(t)` 궤적과 `w(t)` 궤적의 회전 정렬(평균 cosine 또는 rotation-CCA R²).
-- **보조지표(읽기성)**: z-공간 프로토타입 궤적 vs `span{w1,w2}` Procrustes. *게이트 아님*(해석 품질).
-- **임계 θ₁ (상대정의)**: 오라클 천장 R²_hi(진짜 w(t) 쓰는 완벽 모델 / time-feature MLP) +
-  셔플-t 바닥 R²_lo 먼저 측정 → `θ₁ = R²_lo + 0.7·(R²_hi − R²_lo)`.
-- **결정규칙**: recovery ≥ θ₁ → **충실성 PASS(필요조건)**. 미달 → **메인 청구 즉사 → §6(다).**
-  (mem_gap은 memory_only에서 공허 → 게이트에서 제외.)
+- **★합성 drift는 trend-표현가능하게**(기저-불일치 confound 제거가 최우선): `w(t)` 각도를
+  **0→π/2 단조 회전(≤반주기)** 또는 저차 다항 경로로. (전주기 cos는 deg-3가 못 담아 *충실해도 FAIL*.)
+  → 게이트는 이 **trend-정합판**. periodic 합성+Fourier 기저(정합) 조합은 *충실성 기저-불변* robustness로 별도 1회.
+- **주지표(기능공간, 게이지-고정 직접비교)**: `ŵ(t)=E_x[∂ŷ/∂x | t]`.
+  recovery = t-그리드에서 **per-t `cos(ŵ(t), w(t))`의 집계(평균)**. ŵ와 w는 *같은 입력공간*
+  그래디언트라 게이지가 이미 고정 → **Procrustes/CCA(자유회전) 금지**(false PASS·기하자유도 부활).
+  **로짓이 x에 선형**(`logit=x·w(t)`, 이진 라벨) → ∂(logit)/∂x가 x-무관하게 `w(t)` 방향 → ŵ(t) 명확.
+  (이질 그래디언트 비선형 합성은 게이트 후 robustness.)
+- **보조지표(읽기성, 게이트 아님)**: z-공간 프로토타입 궤적 vs `span{w1,w2}` Procrustes/CCA.
+- **임계 θ₁ (상대정의)**: 오라클 천장 hi(진짜 w(t) 쓰는 완벽/ time-feature MLP) + 셔플-t 바닥 lo
+  먼저 측정. 두 기준선: `PASS선 = lo + 0.7·(hi−lo)`, `FAIL선 = lo + 0.4·(hi−lo)`.
+- **결정규칙(칼날 대신 경계대; 오차 비대칭 — false PASS가 false FAIL보다 나쁨)**:
+  - **PASS**: recovery의 **하한 신뢰구간 ≥ PASS선** → 충실성 PASS(필요조건). (점추정 0.69/0.71 다툼 제거)
+  - **FAIL→(다)**: 점추정 < FAIL선 → 메인 청구 사망.
+  - **[FAIL선, PASS선] 또는 CI 넓음**: 하드판정 아님 → 싼 후속(noise·난이도 스윕, 시드↑)으로 해소(합성이라 비용≈0).
+  - (mem_gap은 memory_only에서 공허 → 게이트 제외.)
+  - **CI는 시드-간이 주**: 하한을 **10시드 recovery 분포** 위(또는 "≥8/10 시드 PASS선 통과");
+    t-그리드 부트스트랩은 보조(학습/init 노이즈를 못 잡음).
+  - **진단 플롯**: `recovery(t)` 그리드 전체 — t→1 붕괴는 Q2 외삽 곤란의 예고편.
+  - **load-balance 계수 스윕**: 강계수 FAIL은 정규화 아티팩트일 수 있으니 recovery(계수) 곡선 확인.
 - **별도 진단(게이트 아님)**: concat 모드에서 z-탈출구가 있어도 메모리를 쓰는가 →
   배포용 concat이 z-지름길로 회귀하면 *불충실*(충실성⟂성능 모순)임을 열어둠.
 
 ### F3 — concept 측정-가능성 feasibility 프로브 [지금, Q1과 병렬]
 - **질문**: AUC≈1.0 제약하에서 *어느 데이터셋이든* 충분한 공통 support로
   covariate-조정 concept을 잴 수 있는가?
-- **방법**: 후보별 early/late covariate overlap 점검(IW 밀도비 꼬리/유효표본수, 또는 매칭쌍 수).
-  overlap 있는 곳에서만 covariate-조정 교차시점 초과손실 측정; 없으면 **측정불가**로 표기.
-- **결정**: 어디서도 support 있는 concept 측정 불가 → **Q2 데이터 게이팅 전제 사망 →
-  (Q1 결과와 무관하게) §6(다) 가중 즉시 상향.** Q2는 공통 support 데이터(Elec2/Insects/Airlines)로.
+- **방법**: early/late(median t) 분류기(HGB) → held-out `P(late|x)`. 측정 3종:
+  **overlap mass**=`P∈[0.1,0.9]` 비율(+`[0.2,0.8]` 민감도 동반보고), **IW ESS**=`(Σw)²/Σw²`,
+  **라벨-support**=overlap∩early / overlap∩late 각각의 (소수클래스) 사건수.
+- **측정가능 판정**: overlap mass ≥ τ_m(=5%, 스크린) **AND** ESS ≥ N_m(스크린 500; 실측엔 1000~2000)
+  **AND** 시간반쪽별 overlap 사건수 ≥ 하한. (covariate overlap이 있어도 불균형(homecredit 저부도율)이면
+  overlap 양쪽에 양성이 거의 없어 P(y|x)를 못 잼.)
+- **결정**: 측정가능 데이터셋 0개 → **Q2 데이터 게이팅 전제 사망 → (Q1 무관) §6(다) 가중 즉시 상향.**
+  Q2는 공통 support 데이터(Elec2/Insects/Airlines) 중심.
 
 ---
 
