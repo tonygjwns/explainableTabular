@@ -20,7 +20,7 @@ from typing import Optional
 
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.metrics import roc_auc_score, mean_squared_error
 from scipy.stats import spearmanr
 
@@ -230,6 +230,19 @@ def overlap_feasibility(
     return out
 
 
+def _transfer_gap(Xe, ye, Xl, yl, task, seed):
+    """Transfer gap on a FIXED late test: early-trained vs late-trained, SAME test set.
+    >0 => early rule fails to transfer = concept (covariate matched by caller)."""
+    if min(len(ye), len(yl)) < 150:
+        return None
+    Xl_tr, Xl_te, yl_tr, yl_te = train_test_split(Xl, yl, test_size=0.5, random_state=seed)
+    se = _fit_eval(Xe, ye, Xl_te, yl_te, task, seed)        # early-trained on late-test
+    sl = _fit_eval(Xl_tr, yl_tr, Xl_te, yl_te, task, seed)  # late-trained on SAME late-test
+    gap = (se - sl) if task == "regression" else (sl - se)
+    return {"score_early": se, "score_late": sl, "gap": float(gap),
+            "n_early": int(len(ye)), "n_late": int(len(yl))}
+
+
 def concept_within_overlap(
     X_early, y_early, X_late, y_late, task, *,
     seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
@@ -264,26 +277,36 @@ def concept_within_overlap(
     X = np.concatenate([Xe, Xl]); half = np.concatenate([np.zeros(len(ye)), np.ones(len(yl))])
     yy = np.concatenate([ye, yl])
     clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
-    clf.fit(X, half)
-    p = clf.predict_proba(X)[:, 1]
+    # OUT-OF-FOLD p for region selection (removes in-sample optimism in choosing overlap)
+    p = cross_val_predict(clf, X, half, cv=5, method="predict_proba")[:, 1]
     ov = (p >= band[0]) & (p <= band[1])
-    Xeo, yeo = X[ov & (half == 0)], yy[ov & (half == 0)]
-    Xlo, ylo = X[ov & (half == 1)], yy[ov & (half == 1)]
-    n_e, n_l = len(yeo), len(ylo)
+    eo, lo = ov & (half == 0), ov & (half == 1)
+    n_e, n_l = int(eo.sum()), int(lo.sum())
     if min(n_e, n_l) < min_per_half:
-        return {"measurable": False, "n_overlap_early": int(n_e), "n_overlap_late": int(n_l),
+        return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
                 "note": "too few overlap points per half"}
-    Xlo_tr, Xlo_te, ylo_tr, ylo_te = train_test_split(Xlo, ylo, test_size=0.5, random_state=seed)
-    s_early = _fit_eval(Xeo, yeo, Xlo_te, ylo_te, task, seed)   # early-trained on late-overlap-test
-    s_late = _fit_eval(Xlo_tr, ylo_tr, Xlo_te, ylo_te, task, seed)  # late-trained on same
-    if task == "regression":
-        gap = s_early - s_late
-    else:
-        gap = s_late - s_early
-    return {"measurable": True, "n_overlap_early": int(n_e), "n_overlap_late": int(n_l),
-            "score_early_on_lateOverlap": s_early, "score_late_on_lateOverlap": s_late,
-            "concept_gap_within_overlap": float(gap),
-            "metric": "rmse" if task == "regression" else "auc"}
+    full = _transfer_gap(X[eo], yy[eo], X[lo], yy[lo], task, seed)
+
+    # p-stratified stability: if the gap were residual covariate, it would vary across
+    # P(late|x) strata. Compute the transfer gap within p-tertiles of the overlap band.
+    edges = np.quantile(p[ov], [0.0, 1 / 3, 2 / 3, 1.0])
+    strata = []
+    for a, b in zip(edges[:-1], edges[1:]):
+        m = (p >= a) & (p <= b)
+        g = _transfer_gap(X[m & (half == 0)], yy[m & (half == 0)],
+                          X[m & (half == 1)], yy[m & (half == 1)], task, seed)
+        strata.append(None if g is None else g["gap"])
+    sg = [g for g in strata if g is not None]
+    return {"measurable": True, "n_overlap_early": n_e, "n_overlap_late": n_l,
+            "metric": "rmse" if task == "regression" else "auc",
+            "score_early_on_lateOverlap": full["score_early"],
+            "score_late_on_lateOverlap": full["score_late"],
+            "concept_gap_within_overlap": full["gap"],
+            "strata_gaps": strata,
+            "strata_gap_min": (float(min(sg)) if sg else None),
+            "strata_gap_max": (float(max(sg)) if sg else None),
+            "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); "
+                    "out-of-fold p; stable across p-strata => not residual covariate"}
 
 
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:

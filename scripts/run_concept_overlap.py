@@ -62,10 +62,12 @@ def main():
         r.update({"dataset": ds, "task": task})
         rows.append(r)
         if r.get("measurable"):
-            print(f"[{ds:20s}] {r['metric']}: early→lateOv={r['score_early_on_lateOverlap']:.4f} "
-                  f"late→lateOv={r['score_late_on_lateOverlap']:.4f} "
-                  f"concept_gap={r['concept_gap_within_overlap']:+.4f} "
-                  f"(n_ov e/l={r['n_overlap_early']}/{r['n_overlap_late']})")
+            smin, smax = r.get("strata_gap_min"), r.get("strata_gap_max")
+            srange = f"strata[{smin:+.3f},{smax:+.3f}]" if smin is not None else "strata[NA]"
+            print(f"[{ds:20s}] {r['metric']}: transfer_gap(fixed late-test)="
+                  f"{r['concept_gap_within_overlap']:+.4f} "
+                  f"(early={r['score_early_on_lateOverlap']:.4f} late={r['score_late_on_lateOverlap']:.4f}; "
+                  f"n_ov e/l={r['n_overlap_early']}/{r['n_overlap_late']}; {srange})")
         else:
             print(f"[{ds:20s}] not measurable within overlap ({r.get('note','')}; "
                   f"n_ov e/l={r.get('n_overlap_early','?')}/{r.get('n_overlap_late','?')})")

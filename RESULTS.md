@@ -57,6 +57,10 @@ metric = per-t `cos(ŵ(t), w(t))`, ŵ(t)=E_x[∂(logit)/∂x] (게이지-고정,
   | maps | −0.003 | 20000/20000 |
   | delivery | −0.033 | 1290/686 |
   | 고-covariate 5개 | 측정불가(n_ov=0) | — |
+  - *정의 명확화*: gap은 **고정된 late-overlap-test 위에서 early-학습 vs late-학습의 전이 격차**
+    (AUC(late)−AUC(early), 같은 테스트셋) = **concept(난이도 아님)**. 코드 확인됨.
+  - *조이기(재실행 대기)*: 영역선택을 **out-of-fold p**로(in-sample 낙관 제거) + **p-층별 gap 안정성**
+    (잔여 covariate면 층마다 들쭉) — `run_concept_overlap` 갱신됨, 재실행해 +0.166 확정 예정.
 → **elec2는 공통support 위에 *크고 측정가능한* concept(+0.166)** 보유. 이분법 정밀화:
   *고-covariate⇒측정불가 / 저-covariate⇒측정가능하나 concept0 / elec2(중간)⇒support+concept 둘 다.*
 
@@ -65,7 +69,9 @@ metric = per-t `cos(ŵ(t), w(t))`, ŵ(t)=E_x[∂(logit)/∂x] (게이지-고정,
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
-- **Open(실행 중)**: **Q2a** — *재설계* 프로토타입 메모리가 elec2 concept에서 (무시간 대비/시간-피처 대비) 돕는가.
+- **Open(실행 중)**: **Q2a** — *재설계 **프로토타입** 메모리*가 elec2 concept에서 돕는가. ⚠ **이건 약한 프록시**:
+  학습 V_k(§4.2 정보없음 결함)는 trend+load-balance로 안 고쳐짐 → Q2a null을 "구조 실패"로 해석 금지.
+  **진짜 구조 테스트 = Q2b 인스턴스 V_k(TabR)** + 같은-모델 시간-조건 on/off ablation(아래).
 
 ## 헤드라인 (정밀)
 메커니즘은 **충실·정확**(합성). 실 표 시간데이터는 **covariate-지배** — 고-covariate는 concept **측정불가**, elec2(중간)는 **진짜 측정가능 concept(+0.166)**. **시간-인덱싱 *구조*가 시간-*피처*를 elec2 concept에서 넘는지**가 열린 질문(Q2 진행). *주의: "시간방법이 못 돕는다"(전칭) 아님 — 시간-피처는 elec2서 도움. 미확정은 "구조 > 피처".*
