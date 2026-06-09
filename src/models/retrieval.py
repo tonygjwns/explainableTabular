@@ -40,6 +40,18 @@ def softmax_retrieval(
     return w, sq_dist
 
 
+def load_balance_loss(w: torch.Tensor) -> torch.Tensor:
+    """Switch-style load-balance: K * sum_k mean_b(w_k)^2  (1=uniform usage, K=collapsed).
+
+    Penalizes population-level COLLAPSE (a few prototypes get all the mass) WITHOUT
+    flattening per-query distributions (so sharp time-indexed selection is preserved,
+    unlike an entropy penalty). Minimal coefficient: just prevent collapse.
+    """
+    importance = w.mean(dim=0)                    # (K,) aggregate usage, sums to 1
+    K = w.shape[1]
+    return K * importance.pow(2).sum()
+
+
 class MemoryRetrievalLayer(nn.Module):
     def __init__(
         self,

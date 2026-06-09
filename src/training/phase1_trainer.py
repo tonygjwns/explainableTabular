@@ -31,6 +31,7 @@ from tqdm.auto import tqdm
 from ..data.tabred_loader import TabReDDataset
 from ..models.phase1_model import Phase1Model
 from ..models.proto_init import time_sliced_kmeans_init
+from ..models.retrieval import load_balance_loss
 from ..utils.metrics import compute_metric
 from .trainer import _prep_numeric, _to_tensor, _global_cat_cardinalities
 from .diagnostics import grad_norms, forward_diagnostics, format_line
@@ -62,6 +63,9 @@ class Phase1Config:
     # The old (1, 1/12, 1/52, 1/365) assumed "t==years" and is ultra-high-freq
     # on [0,1] -> oscillatory drift. (calendar-aware time is a later refinement.)
     time_periods: tuple = (1.0,)
+    time_basis: str = "fourier"          # 'fourier' | 'trend' (extrapolation-safe poly)
+    trend_degree: int = 3
+    load_balance_coef: float = 0.0       # >0: anti-collapse (Switch-style, keeps per-query sharp)
     # KMeans init (decision 5)
     kmeans_init: bool = True
     n_slices: int = 10
@@ -123,6 +127,7 @@ def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
         time_indexed=cfg.time_indexed, inject_time_input=cfg.inject_time_input,
         input_time_out_dim=cfg.input_time_out_dim, mem_time_out_dim=cfg.mem_time_out_dim,
         n_harmonics=cfg.n_harmonics, time_periods=tuple(cfg.time_periods),
+        time_basis=cfg.time_basis, trend_degree=cfg.trend_degree,
     ).to(device)
 
     # ---- KMeans prototype init in z-space (decision 5) ----
@@ -180,10 +185,15 @@ def train_phase1(data: TabReDDataset, cfg: Phase1Config) -> dict:
             xb_num = None if x_num["train"] is None else x_num["train"][idx]
             xb_cat = None if x_cat["train"] is None else x_cat["train"][idx]
             tb = t["train"][idx]
-            y_hat = model(xb_num, xb_cat, tb)
+            if cfg.load_balance_coef > 0:
+                y_hat, aux = model(xb_num, xb_cat, tb, return_aux=True)
+            else:
+                y_hat, aux = model(xb_num, xb_cat, tb), None
             loss = main_loss(y_hat, y["train"][idx])
             if cfg.lambda_smooth > 0:
                 loss = loss + cfg.lambda_smooth * model.smoothness_penalty(tb)
+            if aux is not None:
+                loss = loss + cfg.load_balance_coef * load_balance_loss(aux["w"])
             if not torch.isfinite(loss):
                 opt.zero_grad(set_to_none=True)
                 continue

@@ -45,6 +45,9 @@ memory:                              # time-indexed prototype memory + softmax r
   n_harmonics: 2                     # low-freq (trend + up to 2 gentle cycles); more
                                      # harmonics -> oscillatory drift (Test-3 diag)
   time_periods: [1.0]                # low-freq basis on normalized [0,1] t (see trainer note)
+  time_basis: fourier                # fourier | trend (extrapolation-safe poly; rescue Q2)
+  trend_degree: 3
+  load_balance_coef: 0.0             # >0: Switch-style anti-collapse (rescue Q1)
   kmeans_init: true                  # decision 5
   n_slices: 10
   kmeans_max_samples: 50000

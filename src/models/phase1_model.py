@@ -74,6 +74,8 @@ class Phase1Model(nn.Module):
         time_periods: Sequence[float] = (1.0, 1.0 / 12, 1.0 / 52, 1.0 / 365),
         n_harmonics: int = 6,
         use_trend: bool = True,
+        time_basis: str = "fourier",
+        trend_degree: int = 3,
         mem_time_out_dim: int = 32,
         # --- auxiliary input-time injection (decision 4) ---
         inject_time_input: bool = True,
@@ -90,6 +92,7 @@ class Phase1Model(nn.Module):
             self.time_emb_input = FourierTimeEmbedding(
                 out_dim=input_time_out_dim, periods=time_periods,
                 n_harmonics=n_harmonics, use_trend=use_trend,
+                basis=time_basis, trend_degree=trend_degree,
             )
             extra_num = self.time_emb_input.out_dim
         else:
@@ -109,6 +112,7 @@ class Phase1Model(nn.Module):
         self.time_emb_mem = FourierTimeEmbedding(
             out_dim=mem_time_out_dim, periods=time_periods,
             n_harmonics=n_harmonics, use_trend=use_trend,
+            basis=time_basis, trend_degree=trend_degree,
         )
         self.memory = TimeIndexedPrototypeMemory(
             n_prototypes=n_prototypes, dim=d_block,
