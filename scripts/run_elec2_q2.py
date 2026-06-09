@@ -92,12 +92,21 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     metric = metric_name("binclass")  # elec2 = roc_auc
 
+    out_path = out_dir / f"q2_{args.time_mode}.json"
     print(f"Q2b factorial: archs={args.archs} bases={args.bases} splits={args.splits} "
           f"time_mode={args.time_mode} seeds=0..{args.n_seeds - 1}")
+    print(f"results -> {out_path} (written incrementally after every seed)")
 
     # scores[split][basis][arch] = [per-seed test score]
     scores: dict = {sp: {b: {a: [] for a in args.archs} for b in args.bases} for sp in args.splits}
     rows = []
+    summary = {"metric": metric, "n_seeds": args.n_seeds, "time_mode": args.time_mode,
+               "splits": args.splits, "bases": args.bases, "complete": False,
+               "contrasts": [], "rows": rows}
+
+    def save():
+        out_path.write_text(json.dumps(summary, indent=2))
+
     for split in args.splits:
         for basis in args.bases:
             for seed in seeds:
@@ -117,10 +126,10 @@ def main():
                     torch.cuda.empty_cache()
                 ldesc = "  ".join(f"{a}={line[a]:.4f}" for a in args.archs)
                 print(f"[{split:8s}/{basis:7s} s{seed:02d}] {ldesc}")
+                save()    # incremental: crash mid-run still leaves all finished rows
 
     # ---- pre-registered contrasts ----
-    summary = {"metric": metric, "n_seeds": args.n_seeds, "time_mode": args.time_mode,
-               "splits": args.splits, "bases": args.bases, "contrasts": [], "rows": rows}
+    summary["complete"] = True
     print("\n==== Q2b contrasts (time_tabr vs baseline; +g => structure wins) ====")
     for split in args.splits:
         for basis in args.bases:
@@ -143,8 +152,8 @@ def main():
         print("\n  (pre-registered: gain on TEMPORAL, ~0 on RANDOM => concept exploit;")
         print("                   gain only on RANDOM => red flag, not concept.)")
 
-    (out_dir / f"q2_{args.time_mode}.json").write_text(json.dumps(summary, indent=2))
-    print(f"\nwrote {out_dir / f'q2_{args.time_mode}.json'}")
+    save()    # final write: now with contrasts + complete=True
+    print(f"\nwrote {out_path}  <-- send me THIS one file (has all rows + contrasts)")
 
 
 if __name__ == "__main__":
