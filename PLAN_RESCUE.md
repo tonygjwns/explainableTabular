@@ -58,8 +58,12 @@
 ## B. 게이트 통과 후에만 (Q1 PASS **그리고** F3 feasibility OK) — 지금 확정하지 않음
 
 ### Q2 — 외삽 우위 [큰 빌드, 연기]
-- **메커니즘 F2(기본)**: **(b) 시간-조건 유사도, trend로 parametrize(외삽 가능).**
-  ✗(a) `|t_q−t_i|` recency 커널 — 외삽서 모든 학습 이웃이 "오래됨" → 신호 소멸(서식지는 §6가 온라인).
+- **메커니즘 F2(정정, round 7)**: 시간을 **두 곳**에 — (metric-side) trend(t_q)로 유사도 변조 +
+  ★(value-side) **이웃 라벨 기여를 (t_i→t_q) drift로 보정**(trend parametrize, 외삽가능). concept은
+  P(y|x) 변화라 검색에선 *value*에 삶 — stale-label 보정이 핵심. **어느 항이 이득을 나르는지 ablate**:
+  value-side=concept 착취(증거), metric-side만=covariate 적응(시간-피처와 중복→MLP+t로 붕괴 위험).
+  ✗(a) `|t_q−t_i|` recency 커널(외삽서 붕괴, 서식지는 §6가 온라인) ≠ 관계-drift 보정(필요한 것).
+- **시간 on/off = 2단계**: metric항·value항을 각각 끄는 ablation.
 - **요인설계**: 구조축 **3단계 {MLP+t, TabR(무시간), 시간-TabR}** × {기저: fourier, trend} × λ;
   **baseline의 t 인코딩을 같은 기저로 정합.** → 시간 기여 vs 비파라메트릭 검색 기여 분리.
 - **데이터 F4**: Elec2/Insects/Airlines 우선(공통 support), TabReD 보조.
