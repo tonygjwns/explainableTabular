@@ -45,44 +45,63 @@ from src.utils.stats import (  # noqa: E402
 
 
 def _cfg(cfg, arch, time_mode, time_basis, seed, *, lr=None,
-         min_epochs=0, record_history=False) -> TabRConfig:
+         min_epochs=0, record_history=False, args=None) -> TabRConfig:
     tr = cfg.training
     topk = OmegaConf.select(cfg, "tabr.topk", default=32)
+    # optional overrides (diagnostics ②③④): batch / weight_decay / dropout / step-eval
+    bs = args.batch_size if args and args.batch_size else int(tr.batch_size)
+    wd = args.weight_decay if args and args.weight_decay is not None else float(tr.weight_decay)
+    do = args.dropout if args and args.dropout is not None else 0.0
+    evs = args.eval_every_steps if args and args.eval_every_steps else 0
     return TabRConfig(
         arch=arch, time_mode=time_mode, time_basis=time_basis,
         trend_degree=int(OmegaConf.select(cfg, "memory.trend_degree", default=3)),
         topk=int(topk),
         lr=float(lr) if lr is not None else float(tr.learning_rate),
-        weight_decay=float(tr.weight_decay),
-        batch_size=int(tr.batch_size), eval_batch=int(tr.eval_batch),
+        weight_decay=float(wd), dropout=float(do),
+        batch_size=int(bs), eval_batch=int(tr.eval_batch),
         patience=int(tr.patience), min_epochs=int(min_epochs),
-        max_epochs=int(tr.max_epochs),
+        eval_every_steps=int(evs), max_epochs=int(tr.max_epochs),
         record_history=record_history, seed_tag=f"s{seed}",
     )
 
 
 def _diag(cfg, args):
-    """Print the per-epoch val curve for one cell (temporal/trend/seed0, all arms).
+    """① temporal-vs-random learning curves (train loss + val) — bug vs drift decider.
 
-    Disambiguates the 'epoch 1 is always best' observation: is it a real temporal-
-    drift signature (val peaks early then degrades), or an optimization artifact that
-    early-stops the zero-init time-modulation before it can train (-> time_tabr==tabr)?
+    Runs each requested split, all arms, seed 0, recording per-epoch TRAIN LOSS and VAL.
+    Reading (per the diagnostic plan):
+      - train loss falling but val peak-then-decline, AND temporal peaks early while
+        random peaks later/flat  => real concept DRIFT (not a bug). expected.
+      - train loss flat           => optimization bug (no gradient flow).
+      - BOTH splits peak at epoch 0/1 & val flat+noisy => saturation / val too small.
+    Use --eval-every-steps N to see sub-epoch resolution; --dropout/--weight-decay to
+    flatten early overfit so the mechanism gets to train.
     """
-    split = args.splits[0]; basis = args.bases[0]
-    print(f"\n==== DIAG: per-epoch val curve [{split}/{basis} s0], lr={args.lr or 'cfg'}, "
+    print(f"\n==== DIAG curves: splits={args.splits} basis={args.bases[0]} s0  "
+          f"lr={args.lr or 'cfg'} bs={args.batch_size or 'cfg'} wd={args.weight_decay} "
+          f"dropout={args.dropout} eval_every_steps={args.eval_every_steps} "
           f"min_epochs={args.min_epochs} ====")
-    seed_everything(0)
-    data = load_elec2(split=split, seed=0)
-    for arch in args.archs:
-        tm = args.time_mode if arch == "time_tabr" else "none"
-        r = train_timetabr(data, _cfg(cfg, arch, tm, basis, 0, lr=args.lr,
-                                      min_epochs=args.min_epochs, record_history=True))
-        h = r["val_history"]
-        curve = " ".join(f"{v:.4f}" for v in h[:25])
-        print(f"  {arch:9s}/{tm:5s} best_epoch={r['best_epoch']:3d}/{r['n_epochs']:3d} "
-              f"test={r['score']:.4f}\n      val: {curve}{' ...' if len(h) > 25 else ''}")
-    print("  read: best_epoch>>0 with a rising-then-falling curve => mechanism gets to")
-    print("        train; best_epoch~0 & monotone-down => artifact (raise min_epochs / lower lr).")
+    basis = args.bases[0]
+    for split in args.splits:
+        print(f"\n  --- split={split} ---")
+        seed_everything(0)
+        data = load_elec2(split=split, seed=0)
+        for arch in args.archs:
+            tm = args.time_mode if arch == "time_tabr" else "none"
+            r = train_timetabr(data, _cfg(cfg, arch, tm, basis, 0, lr=args.lr,
+                                          min_epochs=args.min_epochs,
+                                          record_history=True, args=args))
+            vh, lh = r["val_history"], r["train_loss_history"]
+            unit = "step-evals" if args.eval_every_steps else "epochs"
+            vcurve = " ".join(f"{v:.4f}" for v in vh[:30])
+            lcurve = " ".join(f"{v:.3f}" for v in lh[:30])
+            print(f"  {arch:9s}/{tm:5s} best@{r['best_epoch']}/{r['n_epochs']}ep "
+                  f"test={r['score']:.4f}  argmax_val={int(np.argmax(vh))}/{len(vh)-1} {unit}")
+            print(f"      train_loss: {lcurve}{' ...' if len(lh) > 30 else ''}")
+            print(f"      val       : {vcurve}{' ...' if len(vh) > 30 else ''}")
+    print("\n  VERDICT: temporal peaks early + random peaks later/flat => DRIFT (not bug).")
+    print("           train_loss must DECREASE (else gradient bug). both-splits-flat-val => saturation.")
 
 
 def _report_grid(cfg, args):
@@ -123,7 +142,7 @@ def _report_grid(cfg, args):
                 seed_everything(s)
                 r = train_timetabr(get_data(s),
                                    _cfg(cfg, arch, tm, basis, s, lr=lr,
-                                        min_epochs=args.min_epochs))
+                                        min_epochs=args.min_epochs, args=args))
                 tests.append(float(r["score"])); vals.append(float(r["val_score"]))
                 bes.append(int(r["best_epoch"]))
                 if torch.cuda.is_available():
@@ -199,6 +218,14 @@ def main():
                     help="#seeds (0..n-1) used to pick lr by mean val (no test peek)")
     ap.add_argument("--min-epochs", type=int, default=0,
                     help="floor before early-stop fires (let zero-init time-mod train)")
+    ap.add_argument("--batch-size", type=int, default=None,
+                    help="override batch size (smaller => more updates/epoch, sees peak)")
+    ap.add_argument("--weight-decay", type=float, default=None,
+                    help="override weight decay (regularize early overfit; applied to all arms)")
+    ap.add_argument("--dropout", type=float, default=None,
+                    help="encoder dropout (regularize; applied to all arms)")
+    ap.add_argument("--eval-every-steps", type=int, default=0,
+                    help="eval every N optimizer steps (sub-epoch resolution); 0=per-epoch")
     ap.add_argument("--diag", action="store_true",
                     help="print per-epoch val curve for ONE cell, then exit (no full run)")
     ap.add_argument("--report-grid", action="store_true",
@@ -229,8 +256,10 @@ def main():
     summary = {"metric": metric, "n_seeds": args.n_seeds, "time_mode": args.time_mode,
                "splits": args.splits, "bases": args.bases,
                "lr": args.lr, "lr_grid": args.lr_grid, "tune_seeds": args.tune_seeds,
-               "min_epochs": args.min_epochs, "lr_selected": {}, "complete": False,
-               "contrasts": [], "rows": rows}
+               "min_epochs": args.min_epochs, "batch_size": args.batch_size,
+               "weight_decay": args.weight_decay, "dropout": args.dropout,
+               "eval_every_steps": args.eval_every_steps,
+               "lr_selected": {}, "complete": False, "contrasts": [], "rows": rows}
     if args.lr_grid:
         print(f"per-arm lr selection ON: grid={args.lr_grid}, tune on "
               f"{min(args.tune_seeds, args.n_seeds)} seed(s) by mean val (no test peek)")
@@ -254,7 +283,7 @@ def main():
             seed_everything(seed)
             r = train_timetabr(get_data(split, seed),
                                _cfg(cfg, arch, tm, basis, seed, lr=lr,
-                                    min_epochs=args.min_epochs))
+                                    min_epochs=args.min_epochs, args=args))
             result_cache[key] = {"score": float(r["score"]), "val_score": float(r["val_score"]),
                                  "best_epoch": int(r["best_epoch"]), "n_epochs": int(r["n_epochs"]),
                                  "time_mode": tm}

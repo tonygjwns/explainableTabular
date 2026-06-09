@@ -119,13 +119,18 @@ class TimeTabRModel(nn.Module):
                  arch: str = "time_tabr", time_mode: str = "value",
                  enc_dim: int = 128, enc_hidden: int = 256, n_enc_layers: int = 2,
                  time_basis: str = "trend", trend_degree: int = 3, time_out: int = 16,
-                 topk: int = 32, predictor_hidden: int = 256):
+                 topk: int = 32, predictor_hidden: int = 256, dropout: float = 0.0):
         super().__init__()
         self.task = task.lower(); self.arch = arch
         out_dim = n_classes if self.task == "multiclass" else (2 if self.task == "binclass" else 1)
+        # shared encoder; dropout (>0) regularizes ALL arms identically so they can
+        # train past the early-overfit peak (lets time_tabr's drift correction engage).
         layers, prev = [], n_features
         for _ in range(n_enc_layers):
-            layers += [nn.Linear(prev, enc_hidden), nn.ReLU()]; prev = enc_hidden
+            layers += [nn.Linear(prev, enc_hidden), nn.ReLU()]
+            if dropout > 0:
+                layers += [nn.Dropout(dropout)]
+            prev = enc_hidden
         layers += [nn.Linear(prev, enc_dim)]
         self.encoder = nn.Sequential(*layers)
         if arch == "mlp_t":

@@ -59,7 +59,17 @@ def main():
         print(f"  arch={arch:9s} time_mode={tm:5s}: "
               f"val={r['val_score']:.4f} test={r['score']:.4f} best_epoch={r['best_epoch']} OK")
 
-    print("\ntrain_timetabr smoke checks passed (all arms finite).")
+    # diagnostics paths: dropout + weight_decay + step-eval + history recording
+    r = train_timetabr(data, TabRConfig(arch="time_tabr", time_mode="value",
+                                        time_basis="trend", seed_tag="0",
+                                        dropout=0.1, weight_decay=1e-4,
+                                        eval_every_steps=3, record_history=True, **base))
+    assert np.isfinite(r["score"]) and r["val_history"], "step-eval/history path failed"
+    assert r["train_loss_history"] and all(np.isfinite(r["train_loss_history"])), "no train loss"
+    print(f"  diag-paths (dropout/wd/step-eval/history): {len(r['val_history'])} val evals, "
+          f"{len(r['train_loss_history'])} epochs, train_loss[0]={r['train_loss_history'][0]:.3f} OK")
+
+    print("\ntrain_timetabr smoke checks passed (all arms finite + diag paths).")
 
 
 if __name__ == "__main__":

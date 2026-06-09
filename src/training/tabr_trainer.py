@@ -48,6 +48,8 @@ class TabRConfig:
     enc_dim: int = 128
     enc_hidden: int = 256
     n_enc_layers: int = 2
+    dropout: float = 0.0         # encoder dropout (regularize so models train past
+                                 # the early-overfit peak; applied to ALL arms)
     # retrieval
     topk: int = 32
     predictor_hidden: int = 256
@@ -57,9 +59,11 @@ class TabRConfig:
     weight_decay: float = 0.0
     batch_size: int = 256
     eval_batch: int = 1024
-    patience: int = 16
+    patience: int = 16            # in EVAL events (per-epoch, or per eval_every_steps)
     min_epochs: int = 0          # floor before early-stop may fire (give zero-init
                                  # time-modulation room to train; 0 = off)
+    eval_every_steps: int = 0    # 0 = eval once per epoch; >0 = eval every N optimizer
+                                 # steps (resolution: catch a peak inside epoch 1)
     max_epochs: int = 200
     device: str = "cuda"
     seed_tag: str = ""
@@ -126,7 +130,7 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         n_features, task, n_classes, arch=cfg.arch, time_mode=cfg.time_mode,
         enc_dim=cfg.enc_dim, enc_hidden=cfg.enc_hidden, n_enc_layers=cfg.n_enc_layers,
         time_basis=cfg.time_basis, trend_degree=cfg.trend_degree, time_out=cfg.time_out,
-        topk=cfg.topk, predictor_hidden=cfg.predictor_hidden,
+        topk=cfg.topk, predictor_hidden=cfg.predictor_hidden, dropout=cfg.dropout,
     ).to(device)
 
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
@@ -175,12 +179,33 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
     higher_better = task != "regression"
     best = -np.inf if higher_better else np.inf
     best_epoch, since_improve, best_state = -1, 0, None
-    val_history, epochs_run = [], 0
+    val_history, train_loss_history, epochs_run = [], [], 0
 
     pbar = tqdm(range(cfg.max_epochs), desc=f"{data.name}[{cfg.arch}/{cfg.time_mode}|{cfg.seed_tag}]",
                 leave=False, dynamic_ncols=True)
+
+    def record_eval(epoch) -> bool:
+        """Eval val, update best / early-stop state. Returns True if training should stop.
+        patience counts EVAL events; min_epochs floors the stop in epoch units."""
+        nonlocal best, best_epoch, since_improve, best_state
+        val = evaluate("val")
+        model.train()                       # evaluate() flipped to eval(); resume
+        if cfg.record_history:
+            val_history.append(float(val))
+        improved = (val > best) if higher_better else (val < best)
+        if improved:
+            best, best_epoch, since_improve = val, epoch, 0
+            best_state = {k_: v.detach().clone() for k_, v in model.state_dict().items()}
+        else:
+            since_improve += 1
+        pbar.set_postfix(val=f"{val:.4f}", best=f"{best if np.isfinite(best) else val:.4f}",
+                         patience=f"{since_improve}/{cfg.patience}")
+        return epoch + 1 >= cfg.min_epochs and since_improve > cfg.patience
+
+    stop = False
     for epoch in pbar:
         model.train()
+        ep_loss, nb = 0.0, 0
         for idx in batches():
             xb, tb, yb = x["train"][idx], t["train"][idx], y["train"][idx]
             if needs_ctx:
@@ -199,23 +224,18 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
             opt.zero_grad(); loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             opt.step()
-
-        val = evaluate("val")
+            ep_loss += float(loss); nb += 1
+            if cfg.eval_every_steps and nb % cfg.eval_every_steps == 0:
+                if record_eval(epoch):
+                    stop = True
+                    break
         epochs_run = epoch + 1
         if cfg.record_history:
-            val_history.append(float(val))
-        improved = (val > best) if higher_better else (val < best)
-        pbar.set_postfix(val=f"{val:.4f}", best=f"{best if np.isfinite(best) else val:.4f}",
-                         patience=f"{since_improve}/{cfg.patience}")
-        if improved:
-            best, best_epoch, since_improve = val, epoch, 0
-            best_state = {k_: v.detach().clone() for k_, v in model.state_dict().items()}
-        else:
-            since_improve += 1
-            # don't early-stop before min_epochs (zero-init time-modulation needs
-            # epochs to train; stopping at epoch 0/1 makes time_tabr collapse to tabr).
-            if epoch + 1 >= cfg.min_epochs and since_improve > cfg.patience:
-                break
+            train_loss_history.append(ep_loss / max(nb, 1))
+        if not cfg.eval_every_steps and record_eval(epoch):
+            stop = True
+        if stop:
+            break
 
     if best_state is not None:
         model.load_state_dict(best_state)
@@ -225,5 +245,7 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         "arch": cfg.arch, "time_mode": cfg.time_mode, "time_basis": cfg.time_basis,
         "val_score": float(best), "score": float(test_score),
         "best_epoch": int(best_epoch), "n_epochs": int(epochs_run),
-        "val_history": val_history if cfg.record_history else None, "model": model,
+        "val_history": val_history if cfg.record_history else None,
+        "train_loss_history": train_loss_history if cfg.record_history else None,
+        "model": model,
     }
