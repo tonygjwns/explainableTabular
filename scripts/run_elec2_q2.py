@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from pathlib import Path
 
 import sys
@@ -42,6 +43,27 @@ from src.utils.metrics import metric_name  # noqa: E402
 from src.utils.stats import (  # noqa: E402
     orient_higher_is_better, paired_wilcoxon, hedges_g,
 )
+
+
+DIAG_FILE = "diagnostics.jsonl"   # all --diag / --report-grid runs append here (1 line each)
+
+
+def _params(args):
+    """The run knobs, stamped on every appended record so runs are distinguishable."""
+    return {"splits": args.splits, "bases": args.bases, "archs": args.archs,
+            "time_mode": args.time_mode, "lr": args.lr, "lr_grid": args.lr_grid,
+            "batch_size": args.batch_size, "weight_decay": args.weight_decay,
+            "dropout": args.dropout, "eval_every_steps": args.eval_every_steps,
+            "min_epochs": args.min_epochs, "n_seeds": args.n_seeds}
+
+
+def _append(out_dir, record):
+    """Append one JSON record as a line to diagnostics.jsonl (accumulates all runs)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    record["ts"] = time.time()
+    with open(out_dir / DIAG_FILE, "a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
+    return out_dir / DIAG_FILE
 
 
 def _cfg(cfg, arch, time_mode, time_basis, seed, *, lr=None,
@@ -78,11 +100,13 @@ def _diag(cfg, args):
     Use --eval-every-steps N to see sub-epoch resolution; --dropout/--weight-decay to
     flatten early overfit so the mechanism gets to train.
     """
+    out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
     print(f"\n==== DIAG curves: splits={args.splits} basis={args.bases[0]} s0  "
           f"lr={args.lr or 'cfg'} bs={args.batch_size or 'cfg'} wd={args.weight_decay} "
           f"dropout={args.dropout} eval_every_steps={args.eval_every_steps} "
           f"min_epochs={args.min_epochs} ====")
     basis = args.bases[0]
+    curves = []
     for split in args.splits:
         print(f"\n  --- split={split} ---")
         seed_everything(0)
@@ -100,8 +124,15 @@ def _diag(cfg, args):
                   f"test={r['score']:.4f}  argmax_val={int(np.argmax(vh))}/{len(vh)-1} {unit}")
             print(f"      train_loss: {lcurve}{' ...' if len(lh) > 30 else ''}")
             print(f"      val       : {vcurve}{' ...' if len(vh) > 30 else ''}")
+            curves.append({"split": split, "arch": arch, "time_mode": tm,
+                           "test": float(r["score"]), "val_score": float(r["val_score"]),
+                           "best_epoch": int(r["best_epoch"]), "n_epochs": int(r["n_epochs"]),
+                           "argmax_val": int(np.argmax(vh)), "val_unit": unit,
+                           "val_history": vh, "train_loss_history": lh})
     print("\n  VERDICT: temporal peaks early + random peaks later/flat => DRIFT (not bug).")
     print("           train_loss must DECREASE (else gradient bug). both-splits-flat-val => saturation.")
+    p = _append(out_dir, {"mode": "diag", "params": _params(args), "curves": curves})
+    print(f"\n  appended to {p}  <-- send me THIS file (accumulates every diag/grid run)")
 
 
 def _report_grid(cfg, args):
@@ -174,12 +205,12 @@ def _report_grid(cfg, args):
     rho, p = spearmanr(mv, mt)
     print(f"\n  val->test Spearman across {len(cells)} cells: rho={rho:+.3f} (p={p:.3f})")
     print("    rho<=0 => val MISLEADS test (concept drift): do NOT select lr/epoch by val.")
-    out = {"split": split, "basis": basis, "n_seeds": args.n_seeds, "grid": grid,
-           "min_epochs": args.min_epochs, "cells": cells,
-           "oracle_best_lr": {a: best[a]["lr"] for a in best},
-           "val_test_spearman": float(rho)}
-    (out_dir / "grid_report.json").write_text(json.dumps(out, indent=2))
-    print(f"\n  wrote {out_dir / 'grid_report.json'}  <-- send me this one file")
+    record = {"mode": "report_grid", "params": _params(args),
+              "split": split, "basis": basis, "grid": grid, "cells": cells,
+              "oracle_best_lr": {a: best[a]["lr"] for a in best},
+              "val_test_spearman": float(rho)}
+    p = _append(out_dir, record)
+    print(f"\n  appended to {p}  <-- send me THIS file (accumulates every diag/grid run)")
 
 
 def _contrast(scores_a, scores_b, metric):
