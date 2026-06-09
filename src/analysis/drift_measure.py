@@ -230,6 +230,62 @@ def overlap_feasibility(
     return out
 
 
+def concept_within_overlap(
+    X_early, y_early, X_late, y_late, task, *,
+    seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
+) -> dict:
+    """Covariate-MATCHED concept measurement, restricted to the common-support band.
+
+    Fixes the global-IW heavy-tail artifact (ESS collapse) by selecting the overlap
+    region with P(late|x)∈band and comparing P(y|x) early-vs-late WITHIN it (no global
+    reweighting). Both train pools and the eval set sit in the same band → covariate
+    is matched → the gap is concept, not covariate.
+
+    gap_concept (>0 => rule moved within common support):
+      regression: rmse(early→late_test) − rmse(late→late_test)
+      classif:    auc(late→late_test)   − auc(early→late_test)
+    """
+    rng = np.random.default_rng(seed)
+
+    def sub(X, y, n):
+        X = np.asarray(X, float); y = np.asarray(y)
+        if len(y) > n:
+            ii = rng.choice(len(y), n, replace=False); return X[ii], y[ii]
+        return X, y
+
+    n = min(len(y_early), len(y_late), max_n)
+    Xe, ye = sub(X_early, y_early, n); Xl, yl = sub(X_late, y_late, n)
+    with np.errstate(all="ignore"):
+        keep = ((~np.all(np.isnan(Xe), axis=0)) & (np.nanstd(Xe, axis=0) > 0)
+                & (~np.all(np.isnan(Xl), axis=0)) & (np.nanstd(Xl, axis=0) > 0))
+    if not keep.any():
+        return {"measurable": False, "note": "no usable columns"}
+    Xe, Xl = Xe[:, keep], Xl[:, keep]
+    X = np.concatenate([Xe, Xl]); half = np.concatenate([np.zeros(len(ye)), np.ones(len(yl))])
+    yy = np.concatenate([ye, yl])
+    clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
+    clf.fit(X, half)
+    p = clf.predict_proba(X)[:, 1]
+    ov = (p >= band[0]) & (p <= band[1])
+    Xeo, yeo = X[ov & (half == 0)], yy[ov & (half == 0)]
+    Xlo, ylo = X[ov & (half == 1)], yy[ov & (half == 1)]
+    n_e, n_l = len(yeo), len(ylo)
+    if min(n_e, n_l) < min_per_half:
+        return {"measurable": False, "n_overlap_early": int(n_e), "n_overlap_late": int(n_l),
+                "note": "too few overlap points per half"}
+    Xlo_tr, Xlo_te, ylo_tr, ylo_te = train_test_split(Xlo, ylo, test_size=0.5, random_state=seed)
+    s_early = _fit_eval(Xeo, yeo, Xlo_te, ylo_te, task, seed)   # early-trained on late-overlap-test
+    s_late = _fit_eval(Xlo_tr, ylo_tr, Xlo_te, ylo_te, task, seed)  # late-trained on same
+    if task == "regression":
+        gap = s_early - s_late
+    else:
+        gap = s_late - s_early
+    return {"measurable": True, "n_overlap_early": int(n_e), "n_overlap_late": int(n_l),
+            "score_early_on_lateOverlap": s_early, "score_late_on_lateOverlap": s_late,
+            "concept_gap_within_overlap": float(gap),
+            "metric": "rmse" if task == "regression" else "auc"}
+
+
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:
     """Target statistic per time decile + Spearman(t, y). (pos-rate / mean)."""
     y = np.asarray(y, dtype=np.float64)

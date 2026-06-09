@@ -111,14 +111,27 @@ mechanism looking for the right data.
   unmeasurable). The failure on real data is about the DATA, not the method (Q1 proves
   the method works when concept exists).
 
-### Upgraded §6(다) thesis (now strongly evidenced)
+### Upgraded §6(다) thesis (now strongly evidenced) — claim PRECISED
 "In realistic tabular temporal data, drift is overwhelmingly covariate; strong
-covariate shift destroys common support so concept drift is *unmeasurable* by the
-conditional lens; hence time-indexed mechanisms have no exploitable concept signal —
-shown with a mechanism that provably & faithfully captures concept drift on synthetic
-(Q1 PASS, +87%) yet cannot help on real benchmarks. Diagnostic toolkit provided."
-Optional positive data-point: Insects (designed concept drift, controlled covariate)
-— test feasibility before fully closing Q2.
+covariate shift destroys early/late common support, so concept drift is
+**unmeasurable by the standard conditional lens** ((a)(b) — strong & novel); AND on
+available benchmarks a **structured time mechanism shows no exploitable concept
+beyond a simple time-feature**. (Do NOT claim the universal 'time methods don't help'
+— a time FEATURE does help via covariate adaptation on elec2 (test 7); what fails is
+the memory/retrieval STRUCTURE beating that feature. 'unmeasurable' (epistemic) +
+'structure ≤ feature' is sharper and defensible.) Shown with a mechanism that
+provably & faithfully captures concept on synthetic (Q1 PASS) yet cannot help on real.
+
+OPEN (spine, do FIRST): the elec2 F3 row is internally contradictory — overlap
+0.438 but ESS 20. 44% in-band = substantial common support; ESS=20 is almost
+certainly a GLOBAL-IW heavy-tail artifact (a few out-of-band P≈1 points blow up
+Σw²; in-band odds are [0.11, 9], fine). Re-measure concept WITHIN the overlap band
+(conditional P(y|x) early-vs-late, no global reweight). If elec2 is within-overlap
+measurable AND has concept → the middle case of the dichotomy opens → we hold the
+measurable-concept real dataset Q2 needs (run small Q2 factorial there); if a
+'negative ON MEASURED concept' results, that is far stronger than 'could not measure'.
+Q1 headline use also needs one large-rotation (≥180°, basis-matched) robustness to
+widen the narrow recovery dynamic range (floor 0.894→ceiling 0.990).
 
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
