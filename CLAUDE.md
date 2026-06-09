@@ -14,14 +14,19 @@
 - 서버에선 Claude를 못 씀. **그래서 로컬에서 최대한 완성된 코드를 만들어 push**해야 함.
 - GitHub: https://github.com/tonygjwns/explainableTabular
 
-## 현재 상태 (2026-06-04)
-- ✅ **Phase 0 (TabM 재현) 8/8 PASS**: TabReD 8개 default split, 5시드, 논문 MLP 대비 6개 ±1%내/더좋음,
-  2개(sberbank/ecom)는 노이즈·공개범위 내. 상세 표는 progress.md 2026-06-04. **재현 게이트 통과.**
-- ✅ 전 코드가 서버에서 실증됨 (로더/트레이너/TabM 래퍼/novel 모듈/통계)
-- ✅ **Phase 1 첫 3개 코딩 완료** (push): `phase1_model.py`(조립) / `smoke_test_phase1.py` / `proto_init.py`(KMeans init)
-- 🔄 **다음 작업 = Phase 1 ④**: 트레이너(L_main+λ·L_smooth) + `run_phase1_sanity.py`(Test 1~4) + Cai/Fixed-memory 대조군
-- ⬜ smoke_test_phase1 서버 통과 확인 (TabM import 포함 배선 최종 검증)
-- ⬜ PRE_REGISTRATION 동료 입회 commit (특히 결정 3: WTA 보류 합의)
+## 현재 상태 (2026-06-05) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
+**핵심 문서(읽는 순서)**: `NEXT_TAB.md`(인계·다음 행동) → `RESULTS.md`(결과 ledger) →
+`FINDINGS.md`(증거 사슬) → `PLAN_RESCUE.md`(사전등록 프로토콜·결정규칙) → `Q2B_PROPOSAL.md`(현 빌드).
+
+한 줄: Phase 0 8/8 PASS. Phase 1 메모리 메커니즘은 **TabReD에서 성능 이득 0(검증된 음성)**,
+**합성/Elec2 concept에선 충실·작동**. 현재 **구제 plan**: Q1 충실성 **PASS**, Elec2 **measurable
+concept +0.132(OOF·층안정) 확정** → **Q2b(인스턴스 time-TabR) 인프라 빌드 중** + 지도교수 정렬(F2 결정) 병렬.
+- ✅ Q1 게이트 PASS(`run_q1_faithfulness`), Elec2 concept 확정(`run_concept_overlap`).
+- ✅ Q2b 인프라 코어 커밋: `src/models/tabr.py`(TimeTabR + TimeTabRModel, **(t_q,t_i,y_i) 훅**, time_mode 토글),
+  `smoke_test_tabr.py` 서버 통과.
+- 🔄 **다음 작업**: `tabr_trainer.py`(in-batch 학습 / 고정-context eval) + elec2 요인설계 러너. (NEXT_TAB.md 상세)
+- ⬜ **F2 분기 결정(정렬)**: 시간을 **value-side(라벨 drift 보정, 권고)** vs metric-side — 핵심 novelty.
+- ⬜ Insects는 elec2 Q2b 결과 후(river+multiclass 필요, 조건부 가치). PRE_REGISTRATION 동료 commit.
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.
