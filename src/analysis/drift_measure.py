@@ -173,6 +173,63 @@ def concept_drift_gap(
             "metric": "rmse" if task == "regression" else "auc"}
 
 
+def overlap_feasibility(
+    X_early, y_early, X_late, y_late, task, *,
+    seed: int = 0, max_n: int = 20_000, bands=((0.1, 0.9), (0.2, 0.8)),
+) -> dict:
+    """Can covariate-adjusted concept be MEASURED? (F3, PLAN_RESCUE §A)
+
+    Under AUC≈1.0 the early/late x supports barely overlap -> 'fix x, vary t' is
+    ill-posed. We probe, on a held-out set:
+      - overlap mass = P(late|x) ∈ band (with band sensitivity 0.1-0.9 vs 0.2-0.8)
+      - IW ESS over early points (reweight early->late): (Σw)²/Σw²  (low = poor overlap)
+      - LABEL support: per time-half, # of the minority class within the overlap region
+        (covariate overlap is useless if a half has ~no minority events to fit P(y|x)).
+    """
+    rng = np.random.default_rng(seed)
+
+    def sub(X, y, n):
+        X = np.asarray(X, dtype=np.float64); y = np.asarray(y)
+        if len(y) > n:
+            ii = rng.choice(len(y), n, replace=False); return X[ii], y[ii]
+        return X, y
+
+    n = min(len(y_early), len(y_late), max_n)
+    Xe, ye = sub(X_early, y_early, n); Xl, yl = sub(X_late, y_late, n)
+    with np.errstate(all="ignore"):
+        keep = ((~np.all(np.isnan(Xe), axis=0)) & (np.nanstd(Xe, axis=0) > 0)
+                & (~np.all(np.isnan(Xl), axis=0)) & (np.nanstd(Xl, axis=0) > 0))
+    if not keep.any():
+        return {"measurable": False, "note": "no usable columns"}
+    Xe, Xl = Xe[:, keep], Xl[:, keep]
+    X = np.concatenate([Xe, Xl]); half = np.concatenate([np.zeros(len(ye)), np.ones(len(yl))])
+    yy = np.concatenate([ye, yl])
+    Xtr, Xte, htr, hte, _, yte = train_test_split(
+        X, half, yy, test_size=0.4, random_state=seed, stratify=half)
+    clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
+    clf.fit(Xtr, htr)
+    p = clf.predict_proba(Xte)[:, 1]                       # P(late|x) on held-out
+
+    out = {"bands": {}}
+    is_cls = task in ("binclass", "multiclass")
+    for lob, hib in bands:
+        m = (p >= lob) & (p <= hib)
+        oe, ol = m & (hte == 0), m & (hte == 1)
+        def minority(mask):
+            yy_ = yte[mask]
+            if len(yy_) == 0:
+                return 0
+            return int(min((yy_ == c).sum() for c in np.unique(yy))) if is_cls else int(len(yy_))
+        out["bands"][f"{lob}-{hib}"] = {
+            "overlap_mass": float(m.mean()),
+            "n_overlap_early": int(oe.sum()), "n_overlap_late": int(ol.sum()),
+            "minority_events_early": minority(oe), "minority_events_late": minority(ol)}
+    pe = np.clip(p[hte == 0], 1e-4, 1 - 1e-4)
+    w = pe / (1 - pe)
+    out["IW_ESS_early"] = float((w.sum() ** 2) / ((w ** 2).sum() + 1e-12))
+    return out
+
+
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:
     """Target statistic per time decile + Spearman(t, y). (pos-rate / mean)."""
     y = np.asarray(y, dtype=np.float64)
