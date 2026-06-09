@@ -20,11 +20,13 @@
 
 한 줄: Phase 0 8/8 PASS. Phase 1 메모리 메커니즘은 **TabReD에서 성능 이득 0(검증된 음성)**,
 **합성/Elec2 concept에선 충실·작동**. 현재 **구제 plan**: Q1 충실성 **PASS**, Elec2 **measurable
-concept +0.132(OOF·층안정) 확정** → **Q2b(인스턴스 time-TabR) 인프라 빌드 중** + 지도교수 정렬(F2 결정) 병렬.
+concept +0.132(OOF·층안정) 확정** → **Q2b(인스턴스 time-TabR) 러너 코딩 완료, 서버 실행 대기** + 지도교수 정렬(F2 결정) 병렬.
 - ✅ Q1 게이트 PASS(`run_q1_faithfulness`), Elec2 concept 확정(`run_concept_overlap`).
 - ✅ Q2b 인프라 코어 커밋: `src/models/tabr.py`(TimeTabR + TimeTabRModel, **(t_q,t_i,y_i) 훅**, time_mode 토글),
   `smoke_test_tabr.py` 서버 통과.
-- 🔄 **다음 작업**: `tabr_trainer.py`(in-batch 학습 / 고정-context eval) + elec2 요인설계 러너. (NEXT_TAB.md 상세)
+- ✅ Q2b 러너 코딩 완료: `src/training/tabr_trainer.py`(in-batch 학습 / 고정-context eval),
+  `scripts/run_elec2_q2.py`(요인설계 {mlp_t,tabr,time_tabr}×{trend,fourier}×{temporal,random}), `smoke_test_tabr_trainer.py`.
+- 🔄 **다음 작업**: **서버 실행·해석** — `smoke_test_tabr_trainer.py` → `run_elec2_q2.py --n-seeds 25`. (NEXT_TAB.md 상세)
 - ⬜ **F2 분기 결정(정렬)**: 시간을 **value-side(라벨 drift 보정, 권고)** vs metric-side — 핵심 novelty.
 - ⬜ Insects는 elec2 Q2b 결과 후(river+multiclass 필요, 조건부 가치). PRE_REGISTRATION 동료 commit.
 
@@ -59,14 +61,22 @@ src/models/
   prototype_memory.py     P_k(t) (time_indexed 토글, KMeans init, smoothness)
   value_module.py         V_k (라벨표현+학습벡터)
   retrieval.py            softmax 검색 + MemoryRetrievalLayer (predictor 포함)
+  tabr.py                 TimeTabR(인스턴스 검색, (t_q,t_i,y_i) 훅) + TimeTabRModel(3-arm) ← Q2b
   tabm_wrapper.py         TabM 래퍼 (encode d_out=None / predict)
 src/data/
   tabred_loader.py        실물 포맷 로더 (X_meta[:,0]=timestamp, split 선택)
+  elec2_loader.py         Elec2(real concept-drift) → TabReDDataset (split random/temporal)
   splits.py               cai_resplit (Cai lag=0/bias-min, 검증 필요)
-src/training/trainer.py   Phase 0 학습 (mean-loss over k, quantile+nan_to_num, grad clip, tqdm)
+src/training/
+  trainer.py              Phase 0 학습 (mean-loss over k, quantile+nan_to_num, grad clip, tqdm)
+  phase1_trainer.py       Phase 1 메모리 모델 학습 (L_main + λ·L_smooth)
+  tabr_trainer.py         Q2b: train_timetabr (in-batch 검색 학습 / 고정-context eval) ← NEW
 src/utils/                stats(Wilcoxon/FDR/Hedges'g), metrics, seed
 scripts/
   run_phase0.py           Phase 0 (8개, 데이터 없으면 skip, tqdm)
+  run_elec2_q2.py         Q2b 요인설계 {mlp_t,tabr,time_tabr}×{trend,fourier}×{temporal,random} ← NEW
+  smoke_test_tabr.py      TimeTabR 모델 CPU 배선 (서버 통과)
+  smoke_test_tabr_trainer.py  train_timetabr CPU 배선 (합성 라벨-flip) ← NEW
   smoke_test_memory.py    novel 모듈 CPU 배선 검증 (통과 확인됨)
   prepare_all_data.sh     TabReD 8개 전처리 일괄
   run_overnight.sh        전처리→Phase0 한 번에 (nohup)

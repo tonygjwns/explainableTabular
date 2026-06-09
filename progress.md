@@ -2,6 +2,18 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-09 — Q2b 러너 코딩 완료: `tabr_trainer.py` + elec2 요인설계 러너
+- **`src/training/tabr_trainer.py`** (`train_timetabr` + `TabRConfig`): TimeTabRModel 3-arm 학습 루프.
+  - 피처 = `_prep_numeric`(quantile X_num+X_bin) + cat **one-hot**(글로벌 cardinality) → flat 인코더 입력.
+  - 학습 = **in-batch retrieval**(context=같은 배치, `exclude_self=arange`, batch<2 skip), CE/MSE, L_smooth/LB 없음.
+  - eval = 고정 context(train 4096 sample, 매 evaluate no-grad 재인코딩) 위 쿼리 배치 검색. 조기종료/best_state=phase1 패턴.
+- **`scripts/run_elec2_q2.py`**: 요인설계 `{mlp_t,tabr,time_tabr}×{trend,fourier}×{temporal,random}×seed`.
+  사전등록 대비 = time_tabr vs **mlp_t**(구조 vs 시간-피처, 기저정합) & vs **tabr**(시간 훅 이득), Wilcoxon+g(`positive`=Δ>0∧p<.05∧g≥.5).
+  → `results/phase1/elec2_q2/q2_<mode>.json`. 사전등록 해석: 구조이득은 temporal에 국소, random~0이어야.
+- **`scripts/smoke_test_tabr_trainer.py`**: 합성(시간에 따라 라벨 flip) CPU 3-arm 배선 검증.
+- 로컬 torch 없음 → 컴파일만 확인(py_compile OK). **서버에서 smoke → run_elec2_q2 실행** (NEXT_TAB.md).
+- F2(value/metric/both) 최종화는 지도교수 정렬 후; 기본 `time_mode='value'`.
+
 ## 2026-06-05 — Phase 1 평가 완료: 구현 검증된 음성 (TabReD=covariate, not concept)
 - **결론(FINDINGS.md 참조)**: 메커니즘은 *작동*(합성 순수 concept-drift에서 +87%, mem_gap+0.93),
   그러나 **TabReD에선 성능 이득 0** — covariate 드리프트지 exploitable concept이 아니기 때문.

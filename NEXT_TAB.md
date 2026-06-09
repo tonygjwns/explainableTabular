@@ -25,19 +25,27 @@ TabM 재현(Phase0) 8/8 PASS. 제안 메커니즘(시간-인덱싱 메모리+검
     caller가 context set(features,t,y) 공급 — 학습=in-batch(exclude_self), eval=고정 sample.
 - `scripts/smoke_test_tabr.py`: 서버 통과(shape/grad/time-mod grad/exclude_self).
 
-## ★ 다음 행동 (코딩) — `tabr_trainer.py` + elec2 요인설계 러너
-1. **`src/training/tabr_trainer.py`**: `train_timetabr(data, cfg)`.
-   - 데이터 준비는 `phase1_trainer`의 `_prep_numeric`/`_global_cat_cardinalities` 재활용
-     (인코더 입력 = 준비된 numeric; cat은 일단 생략 or one-hot 추가).
-   - **학습**: 미니배치 = 쿼리, **context=같은 배치(exclude_self=arange)** (in-batch retrieval).
-     loss = CE/MSE. (load_balance/L_smooth 불필요 — 검색 붕괴는 top-k라 자연 완화.)
-   - **eval**: 고정 context = train에서 sample(예 4096), encode(no-grad), 쿼리 배치별 검색.
-   - 조기종료/시드 = phase1_trainer 패턴.
-2. **`scripts/run_elec2_q2.py`** (또는 run_elec2 확장): **요인설계
-   {arch: mlp_t, tabr, time_tabr} × {time_basis: fourier, trend} × seed**, elec2 temporal+random,
-   기저 정합, **검정력 시드 25~30 또는 g≥0.5**. 사전등록 예상패턴(아래) 검증.
-3. **F2 변조 최종화는 정렬 후**: 기본 `time_mode='value'`(value-side 라벨-drift 보정 권고).
-   `value`/`metric` 각각 끄는 **2단계 ablation**으로 어느 항이 이득을 나르는지(=concept 착취 vs covariate 적응).
+## ★ 다음 행동 — **서버에서 Q2b 요인설계 실행** (코딩은 완료, push됨)
+인프라/러너 코딩 완료(아래 ✅). 다음 탭/서버는 **실행 → 결과 해석**.
+- ✅ **`src/training/tabr_trainer.py`** (`train_timetabr(data, cfg)` + `TabRConfig`):
+  - 피처 = `_prep_numeric`(quantile X_num+X_bin) + **cat one-hot**(글로벌 cardinality) → flat 인코더 입력.
+  - **학습** = in-batch retrieval(context=같은 배치, `exclude_self=arange`, <2면 skip). loss=CE/MSE, L_smooth/LB 없음.
+  - **eval** = 고정 context(train에서 `eval_context_size`=4096 sample, 매 evaluate마다 no-grad 재인코딩), 쿼리 배치별 검색.
+  - 조기종료/시드/best_state = `phase1_trainer` 패턴.
+- ✅ **`scripts/run_elec2_q2.py`**: 요인설계 `{mlp_t,tabr,time_tabr}×{trend,fourier}×{temporal,random}×seed`,
+  공유 인코더+기저, 사전등록 대비 = **time_tabr vs mlp_t**(기저정합 구조 vs 피처) & **time_tabr vs tabr**(시간 훅 이득),
+  paired Wilcoxon+Hedges' g(`positive`=Δ>0∧p<.05∧g≥.5). 결과 `results/phase1/elec2_q2/q2_<mode>.json`.
+- ✅ **`scripts/smoke_test_tabr_trainer.py`**: 합성(시간에 따라 라벨 flip) CPU에서 3-arm 학습 배선 검증.
+
+**서버 실행(권장 순서)**:
+```
+python scripts/smoke_test_tabr_trainer.py                              # 러너 배선(빠름)
+python scripts/run_elec2_q2.py --config configs/phase1.yaml --n-seeds 25
+```
+빠른 사전점검은 `--n-seeds 3 --splits temporal --bases trend`.
+
+**F2 변조 최종화는 정렬 후**: 기본 `time_mode='value'`(value-side 라벨-drift 보정 권고).
+`--time-mode value`/`metric`/`both` 각각 끄는 **2단계 ablation**으로 어느 항이 이득을 나르는지(=concept 착취 vs covariate 적응).
 
 ## 사전등록된 해석 규칙 (결과에 안 휘둘리게)
 - 구조 이득은 **temporal split**에 나타나야(early→late stale-label 존재), **random엔 ~0**
@@ -64,4 +72,4 @@ python scripts/run_concept_overlap.py --config configs/phase1.yaml --all --elec2
 - 정렬-우선: Q2b는 최대 빌드 + F2가 핵심 novelty 분기 → 지도교수 결정 받고 변조 최종화.
 
 ## 미커밋 상태
-없음(모두 push됨). 다음 탭은 `tabr_trainer.py`부터 작성.
+없음(모두 push됨). Q2b 코딩 완료 → **다음 탭/서버는 `run_elec2_q2.py` 실행·해석**.
