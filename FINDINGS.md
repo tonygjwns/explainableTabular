@@ -92,6 +92,34 @@ mechanism looking for the right data.
 - **A'+B combined** is strongest: method wins where concept drift is real, diagnostic
   explains why it doesn't on TabReD. Hinges on A' succeeding on ≥1 real benchmark.
 
+## Rescue results (2026-06-05) — Q1 PASS, F3 decisive
+- **Q1 (functional faithfulness, gate)**: properly-built mechanism (memory_only +
+  trend basis + load-balance) recovers true drift on synthetic: recovery 0.991
+  (mean, 10/10 seeds) vs ceiling(MLP+t) 0.990, floor(shuffle-t) 0.894 → **PASS**.
+  The MECHANISM IS FAITHFUL & CORRECT (necessary condition for the interpretability
+  claim holds in principle). Caveat: ≤90° drift makes the floor high (narrow dynamic
+  range); harder geometry is a robustness follow-up.
+- **F3 (concept measurability)**: measurable only on cooking_time / maps_routing —
+  the two LOWEST-covariate datasets (AUC 0.80/0.64), which have ~no concept. Where
+  concept might exist (elec2, homecredit, …) strong covariate (AUC≈1.0) destroys
+  early/late common support → concept UNMEASURABLE (elec2 ESS=20; 4 datasets overlap=0).
+  → **The very covariate dominance that defines TabReD-style drift makes concept
+  drift unmeasurable/unexploitable there.**
+- **Verdict (pre-registered)**: Q1 PASS (main claim not dead) BUT Q2's premise — a
+  clean real benchmark with BOTH measurable AND substantial concept drift — is
+  **unsatisfiable on available data** (measurable⇒no-concept; concept-suspected⇒
+  unmeasurable). The failure on real data is about the DATA, not the method (Q1 proves
+  the method works when concept exists).
+
+### Upgraded §6(다) thesis (now strongly evidenced)
+"In realistic tabular temporal data, drift is overwhelmingly covariate; strong
+covariate shift destroys common support so concept drift is *unmeasurable* by the
+conditional lens; hence time-indexed mechanisms have no exploitable concept signal —
+shown with a mechanism that provably & faithfully captures concept drift on synthetic
+(Q1 PASS, +87%) yet cannot help on real benchmarks. Diagnostic toolkit provided."
+Optional positive data-point: Insects (designed concept drift, controlled covariate)
+— test feasibility before fully closing Q2.
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.
