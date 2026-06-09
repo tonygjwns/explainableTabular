@@ -112,7 +112,13 @@ def main():
     ap.add_argument("--archs", nargs="+", default=["mlp_t", "tabr", "time_tabr"],
                     choices=["mlp_t", "tabr", "time_tabr"])
     ap.add_argument("--lr", type=float, default=None,
-                    help="override learning rate (diagnose epoch-1-best = lr too high)")
+                    help="single learning rate override (else config). Ignored if --lr-grid given.")
+    ap.add_argument("--lr-grid", nargs="+", type=float, default=None,
+                    help="enable PER-(split,basis,arch) lr selection by val (fair comparison): "
+                         "each arm runs at its own best-val lr from this grid. "
+                         "e.g. --lr-grid 2e-3 1e-3 5e-4 2e-4")
+    ap.add_argument("--tune-seeds", type=int, default=3,
+                    help="#seeds (0..n-1) used to pick lr by mean val (no test peek)")
     ap.add_argument("--min-epochs", type=int, default=0,
                     help="floor before early-stop fires (let zero-init time-mod train)")
     ap.add_argument("--diag", action="store_true",
@@ -138,33 +144,74 @@ def main():
     rows = []
     summary = {"metric": metric, "n_seeds": args.n_seeds, "time_mode": args.time_mode,
                "splits": args.splits, "bases": args.bases,
-               "lr": args.lr, "min_epochs": args.min_epochs, "complete": False,
+               "lr": args.lr, "lr_grid": args.lr_grid, "tune_seeds": args.tune_seeds,
+               "min_epochs": args.min_epochs, "lr_selected": {}, "complete": False,
                "contrasts": [], "rows": rows}
+    if args.lr_grid:
+        print(f"per-arm lr selection ON: grid={args.lr_grid}, tune on "
+              f"{min(args.tune_seeds, args.n_seeds)} seed(s) by mean val (no test peek)")
+
+    # ---- memoized single trainings: each (split,basis,arch,seed,lr) trained once,
+    #      so lr-selection tune-seeds are reused by the main sweep (no duplicate work).
+    data_cache: dict = {}
+    result_cache: dict = {}
+
+    def get_data(split, seed):
+        # temporal split is seed-independent (idx=arange); cache it once.
+        key = (split, seed if split == "random" else 0)
+        if key not in data_cache:
+            data_cache[key] = load_elec2(split=split, seed=key[1])
+        return data_cache[key]
+
+    def run_one(split, basis, arch, seed, lr):
+        tm = args.time_mode if arch == "time_tabr" else "none"
+        key = (split, basis, arch, seed, lr)
+        if key not in result_cache:
+            seed_everything(seed)
+            r = train_timetabr(get_data(split, seed),
+                               _cfg(cfg, arch, tm, basis, seed, lr=lr,
+                                    min_epochs=args.min_epochs))
+            result_cache[key] = {"score": float(r["score"]), "val_score": float(r["val_score"]),
+                                 "best_epoch": int(r["best_epoch"]), "n_epochs": int(r["n_epochs"]),
+                                 "time_mode": tm}
+            del r
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+        return result_cache[key]
+
+    def select_lr(split, basis, arch):
+        """Pick the lr maximizing mean VAL over tune seeds (test never inspected)."""
+        if not args.lr_grid:
+            return args.lr   # None => config default; single shared lr (old behavior)
+        tune = list(range(min(args.tune_seeds, args.n_seeds)))
+        best_lr, best_val = None, -np.inf
+        for lr in args.lr_grid:
+            v = float(np.mean([run_one(split, basis, arch, s, lr)["val_score"] for s in tune]))
+            if v > best_val:
+                best_val, best_lr = v, lr
+        print(f"  [lr-select {split:8s}/{basis:7s}/{arch:9s}] -> lr={best_lr:g} (mean val={best_val:.4f})")
+        return best_lr
 
     def save():
         out_path.write_text(json.dumps(summary, indent=2))
 
     for split in args.splits:
         for basis in args.bases:
+            lr_by_arch = {a: select_lr(split, basis, a) for a in args.archs}
+            summary["lr_selected"][f"{split}/{basis}"] = {
+                a: lr_by_arch[a] for a in args.archs}
             for seed in seeds:
-                seed_everything(seed)
-                data = load_elec2(split=split, seed=seed)
                 line = {}
                 for arch in args.archs:
-                    tm = args.time_mode if arch == "time_tabr" else "none"
-                    r = train_timetabr(data, _cfg(cfg, arch, tm, basis, seed,
-                                                  lr=args.lr, min_epochs=args.min_epochs))
-                    s = float(r["score"])
+                    lr = lr_by_arch[arch]
+                    r = run_one(split, basis, arch, seed, lr)
+                    s = r["score"]
                     scores[split][basis][arch].append(s)
-                    line[arch] = (s, int(r["best_epoch"]), int(r["n_epochs"]))
+                    line[arch] = (s, r["best_epoch"], r["n_epochs"])
                     rows.append({"split": split, "basis": basis, "arch": arch,
-                                 "time_mode": tm, "seed": seed, "score": s,
-                                 "val_score": float(r["val_score"]),
-                                 "best_epoch": int(r["best_epoch"]),
-                                 "n_epochs": int(r["n_epochs"])})
-                del data
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
+                                 "time_mode": r["time_mode"], "seed": seed, "score": s,
+                                 "lr": lr, "val_score": r["val_score"],
+                                 "best_epoch": r["best_epoch"], "n_epochs": r["n_epochs"]})
                 ldesc = "  ".join(f"{a}={line[a][0]:.4f}@e{line[a][1]}/{line[a][2]}"
                                   for a in args.archs)
                 print(f"[{split:8s}/{basis:7s} s{seed:02d}] {ldesc}")
