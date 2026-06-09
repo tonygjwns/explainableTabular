@@ -136,8 +136,11 @@ widen the narrow recovery dynamic range (floor 0.894→ceiling 0.990).
 ## Within-overlap concept (spine fix, 2026-06-05) — elec2 has REAL concept
 The F3 elec2 ESS=20 was a global-IW heavy-tail artifact. Measuring concept WITHIN
 the overlap band (covariate matched, no global reweight):
-- **elec2: concept_gap = +0.166 AUC** (early→late-overlap 0.721 vs late→ 0.887;
-  n_overlap 7864/5610) → **large, measurable concept drift on common support.**
+- **elec2: concept_gap = +0.132 AUC** (transfer gap on a FIXED late-overlap test:
+  early-trained 0.716 vs late-trained 0.848; n_overlap 9173/4721). **CONFIRMED with
+  out-of-fold p (region selection) and p-strata stability [+0.12,+0.17] across all
+  tertiles** → real exploitable concept, NOT difficulty nor residual covariate.
+  (in-sample p gave +0.166; OOF +0.132 — still large.)
 - cooking/maps: ~0 (measurable, no concept). delivery: −0.03 (small/noisy).
 - 5 high-covariate (AUC≈1.0) datasets: n_overlap=0 → truly unmeasurable.
 → Dichotomy REFINED (not broken): high-covariate ⇒ unmeasurable; low-covariate

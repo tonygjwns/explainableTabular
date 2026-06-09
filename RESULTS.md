@@ -52,7 +52,7 @@ metric = per-t `cos(ŵ(t), w(t))`, ŵ(t)=E_x[∂(logit)/∂x] (게이지-고정,
 - **within-overlap**(covariate-매칭, 전역 reweight 없음):
   | | concept_gap | n_ov e/l |
   |---|---|---|
-  | **elec2** | **+0.166 AUC** (early→0.721 / late→0.887) | 7864/5610 |
+  | **elec2** | **+0.132 AUC** (OOF; early 0.716 / late 0.848; strata [+0.12,+0.17] 안정) | 9173/4721 |
   | cooking | −0.007(rmse) | 16820/17930 |
   | maps | −0.003 | 20000/20000 |
   | delivery | −0.033 | 1290/686 |
