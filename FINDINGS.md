@@ -157,6 +157,35 @@ no win → 'negative on MEASURED concept' (far stronger than 'could not measure'
 (Do not repeat the +4.3 over-claim: elec2 having concept ≠ our structure winning.)
 §6(다) claim must NOT say 'concept unmeasurable everywhere' — elec2 is the counterexample.
 
+## Q2b ANSWERED (2026-06-09) — structure ≤ feature on MEASURED concept (robust negative)
+The proper structure test (instance `V_k` = TabR, same-encoder 3-arm, time-conditioning
+on/off) on elec2's measured concept. `run_elec2_q2.py` → `results/phase1/elec2_q2/diagnostics.jsonl`.
+1. **Bug-vs-drift settled (curves).** train_loss decreases for all arms (no gradient bug).
+   On **temporal** split val peaks at epoch 2–4 then declines; on **random** it peaks at
+   epoch ~55 with a smooth rise. = textbook concept-drift signature (fit train regime ⇒
+   future val degrades), NOT a code/design bug. Confirmed at sub-epoch (step-eval) resolution.
+2. **Structure does not beat feature (10 seeds, per-arm oracle lr).**
+   - no regularization: mlp_t **0.9054** > time_tabr 0.9003 > tabr 0.8969.
+   - **+regularization (dropout 0.1, wd 1e-4) + min_epochs 20** (forces the zero-init
+     (t_i→t_q) correction to actually train — best_epoch reaches 11/14/36): mlp_t **0.9027**
+     > tabr 0.8955 > **time_tabr 0.8848**. time_tabr−mlp_t = **−0.018** (worse than unreg.),
+     time_tabr−tabr = −0.011 (the time hook HURTS retrieval), mlp_t−tabr = +0.007 (time
+     itself helps). time_tabr **std 0.05–0.075** (unstable across seeds/lr) → the value-side
+     drift-correction term is **ill-conditioned**, adding variance not signal.
+3. **Protocol-artifact threat removed.** The advisor's worry — "the negative is just the
+   mechanism never engaging (stops at epoch ~1)" — is refuted: with min_epochs+regularization
+   the mechanism trained (best_ep up to 36) and the negative **held and strengthened**.
+4. val→test Spearman ≈0.07 (val useless as selector under drift). On RANDOM split time_tabr≈
+   mlp_t (both high) is the pre-registered **autocorrelation-leakage red flag**, not concept
+   exploitation; the decision rests on TEMPORAL, where structure clearly loses.
+→ **Verdict: time INFORMATION helps, but a plain time-FEATURE MLP carries it best; the
+  time-TabR retrieval STRUCTURE does not beat the feature (−0.018) and is unstable.** This
+  is the §6(다) "negative on MEASURED concept" — far stronger than "could not measure",
+  and consistent with elec2 being trivially exploitable (autocorrelated stream).
+**Caveat / next**: single dataset. Pre-registration needs ≥2 → **Insects (designed drift,
+  multiclass)** to test whether the negative generalizes to a non-trivially-exploitable
+  concept, or whether structure can win there. (Loader infra being built.)
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.

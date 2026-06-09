@@ -2,7 +2,8 @@
 /data/
 /results/
 /logs/
-/grid_report.json          # stray result artifact if a run wrote to repo root
+# stray result artifacts if a run wrote to repo root (no inline comments in .gitignore!)
+/grid_report.json
 diagnostics.jsonl
 *.parquet
 *.csv

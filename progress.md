@@ -2,6 +2,18 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-09 (2) — Q2b 실행·판정: elec2 구조 **견고한 음성** + Insects 인프라
+- **elec2 Q2b 결정 (RESULTS §10, FINDINGS "Q2b ANSWERED")**: 3-arm 요인설계 실행·해석.
+  - ①버그vs드리프트: train_loss 전부 감소(버그 아님). temporal argmax_val=epoch2~4, random=~55 → **drift 확정**.
+  - ②정규화+min_epochs20(메커니즘 engage 보장, best_ep 36↑): mlp_t **0.9027** > tabr 0.8955 > **time_tabr 0.8848**.
+    time_tabr−mlp_t=**−0.018**, time_tabr−tabr=−0.011(검색 해침), mlp_t−tabr=+0.007(시간 자체는 도움). time_tabr std .05~.075(불안정).
+  - → **"메커니즘 미engage" 위협 제거** → **Q2b 구조 청구 = 견고한 음성**(시간은 도움, 구조는 피처를 못 넘음). §6(다) 강화.
+- **진단 인프라**: `--diag`(temporal+random 곡선, train_loss), `--report-grid`(다중시드 결정표), step-eval/dropout/wd/min_epochs,
+  모든 진단 `results/phase1/<ds>_q2/diagnostics.jsonl` 누적. (커밋 03bbc7b 등)
+- **Insects 인프라 시작 (≥2 데이터셋 병목)**: `src/data/insects_loader.py`(river, multiclass, designed drift, temporal/random),
+  `run_elec2_q2.py`에 `--dataset insects --insects-variant ... --max-samples` 디스패치(메트릭=accuracy 자동), `smoke_test_insects.py`(river 없으면 skip).
+- 다음: 서버서 `smoke_test_insects.py` → `run_elec2_q2.py --dataset insects` (river 설치 필요). + 지도교수 F2/방향 정렬.
+
 ## 2026-06-09 — Q2b 러너 코딩 완료: `tabr_trainer.py` + elec2 요인설계 러너
 - **`src/training/tabr_trainer.py`** (`train_timetabr` + `TabRConfig`): TimeTabRModel 3-arm 학습 루프.
   - 피처 = `_prep_numeric`(quantile X_num+X_bin) + cat **one-hot**(글로벌 cardinality) → flat 인코더 입력.

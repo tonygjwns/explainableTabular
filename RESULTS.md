@@ -64,6 +64,18 @@ metric = per-t `cos(ŵ(t), w(t))`, ŵ(t)=E_x[∂(logit)/∂x] (게이지-고정,
 → **elec2는 공통support 위에 *크고 측정가능한* concept(+0.166)** 보유. 이분법 정밀화:
   *고-covariate⇒측정불가 / 저-covariate⇒측정가능하나 concept0 / elec2(중간)⇒support+concept 둘 다.*
 
+## 10. Q2b — 인스턴스 time-TabR *구조* vs 시간-*피처* (elec2, 3-arm 요인설계)  [solid] ★결정
+3-arm 공유인코더: `mlp_t`(시간=피처) / `tabr`(검색, 시간없음) / `time_tabr`(검색+value 시간훅, time_mode=value).
+elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec2_q2.py`, `diagnostics.jsonl`)
+- **버그 vs drift 판별(①, train_loss+val 곡선)**: train_loss 전부 감소(버그 아님). **temporal은 argmax_val=epoch2~4(조기 peak 후 하락), random은 epoch~55(매끄러운 상승)** → 사전등록 drift 지문 확정. (step 해상도 ③도 동일.)
+- **무정규화 10시드 oracle**: mlp_t **0.9054** > time_tabr 0.9003 > tabr 0.8969. (time_tabr−mlp_t = −0.005)
+- **정규화+min_epochs 20 (dropout.1/wd1e-4, 메커니즘 engage 보장; best_ep 11·14·36↑) 10시드 oracle**:
+  mlp_t **0.9027** > tabr 0.8955 > **time_tabr 0.8848**. **time_tabr−mlp_t = −0.018**(더 악화), time_tabr−tabr = **−0.011**(검색을 해침), mlp_t−tabr = +0.007(시간 자체는 도움).
+  **time_tabr std 0.047~0.075** (lr↑서 0.73~0.92 난동) — 정규화로도 불안정 → `(t_i→t_q)` 보정항 **ill-conditioned**.
+- val→test Spearman 0.07(≈0) → val로 lr/epoch 선택 무용(concept drift). random서 time_tabr≈mlp_t 높음은 **autocorrelation-leakage 적신호**(concept 착취 아님; 사전등록대로 temporal이 핵심).
+→ **시간은 도움, 그러나 그것을 나르는 최선은 평범한 시간-피처 MLP. time-TabR 구조는 피처를 못 넘고(−0.018) 불안정.**
+  **"메커니즘 미engage 때문" 위협 제거됨**(min_epochs로 학습시켜도 음성 유지·강화). **Q2b 구조 청구 = 견고한 음성.**
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)

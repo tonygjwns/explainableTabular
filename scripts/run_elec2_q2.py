@@ -38,6 +38,7 @@ from omegaconf import OmegaConf  # noqa: E402
 
 from src.utils.seed import seed_everything  # noqa: E402
 from src.data.elec2_loader import load_elec2  # noqa: E402
+from src.data.insects_loader import load_insects  # noqa: E402
 from src.training.tabr_trainer import TabRConfig, train_timetabr  # noqa: E402
 from src.utils.metrics import metric_name  # noqa: E402
 from src.utils.stats import (  # noqa: E402
@@ -64,6 +65,14 @@ def _append(out_dir, record):
     with open(out_dir / DIAG_FILE, "a", encoding="utf-8") as f:
         f.write(json.dumps(record) + "\n")
     return out_dir / DIAG_FILE
+
+
+def _load(args, split, seed):
+    """Dispatch the dataset (elec2 binclass | insects multiclass)."""
+    if args.dataset == "insects":
+        return load_insects(variant=args.insects_variant, split=split, seed=seed,
+                            max_samples=args.max_samples)
+    return load_elec2(split=split, seed=seed)
 
 
 def _cfg(cfg, arch, time_mode, time_basis, seed, *, lr=None,
@@ -100,7 +109,7 @@ def _diag(cfg, args):
     Use --eval-every-steps N to see sub-epoch resolution; --dropout/--weight-decay to
     flatten early overfit so the mechanism gets to train.
     """
-    out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
+    out_dir = Path(cfg.experiment.results_dir).parent / f"{args.dataset}_q2"
     print(f"\n==== DIAG curves: splits={args.splits} basis={args.bases[0]} s0  "
           f"lr={args.lr or 'cfg'} bs={args.batch_size or 'cfg'} wd={args.weight_decay} "
           f"dropout={args.dropout} eval_every_steps={args.eval_every_steps} "
@@ -110,7 +119,7 @@ def _diag(cfg, args):
     for split in args.splits:
         print(f"\n  --- split={split} ---")
         seed_everything(0)
-        data = load_elec2(split=split, seed=0)
+        data = _load(args, split, 0)
         for arch in args.archs:
             tm = args.time_mode if arch == "time_tabr" else "none"
             r = train_timetabr(data, _cfg(cfg, arch, tm, basis, 0, lr=args.lr,
@@ -151,14 +160,14 @@ def _report_grid(cfg, args):
     grid = args.lr_grid or [float(cfg.training.learning_rate)]
     split, basis = args.splits[0], args.bases[0]
     seeds = list(range(args.n_seeds))
-    out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
+    out_dir = Path(cfg.experiment.results_dir).parent / f"{args.dataset}_q2"
     out_dir.mkdir(parents=True, exist_ok=True)
 
     data_cache: dict = {}
     def get_data(seed):
         key = seed if split == "random" else 0
         if key not in data_cache:
-            data_cache[key] = load_elec2(split=split, seed=key)
+            data_cache[key] = _load(args, split, key)
         return data_cache[key]
 
     print(f"\n==== GRID REPORT [{split}/{basis}]  n_seeds={args.n_seeds}  grid={grid}  "
@@ -230,6 +239,12 @@ def _contrast(scores_a, scores_b, metric):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/phase1.yaml")
+    ap.add_argument("--dataset", default="elec2", choices=["elec2", "insects"],
+                    help="elec2 (binclass) | insects (multiclass designed-drift, 2nd dataset)")
+    ap.add_argument("--insects-variant", default="incremental_balanced",
+                    help="river INSECTS variant (see insects_loader.VARIANTS)")
+    ap.add_argument("--max-samples", type=int, default=None,
+                    help="cap INSECTS stream length (head) for speed; None=full")
     ap.add_argument("--n-seeds", type=int, default=25,
                     help="seeds 0..n-1 (>=25 for power, or rely on g>=0.5)")
     ap.add_argument("--splits", nargs="+", default=["temporal", "random"],
@@ -272,9 +287,9 @@ def main():
         _report_grid(cfg, args)
         return
     seeds = list(range(args.n_seeds))
-    out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
+    out_dir = Path(cfg.experiment.results_dir).parent / f"{args.dataset}_q2"
     out_dir.mkdir(parents=True, exist_ok=True)
-    metric = metric_name("binclass")  # elec2 = roc_auc
+    metric = metric_name("multiclass" if args.dataset == "insects" else "binclass")
 
     out_path = out_dir / f"q2_{args.time_mode}.json"
     print(f"Q2b factorial: archs={args.archs} bases={args.bases} splits={args.splits} "
@@ -304,7 +319,7 @@ def main():
         # temporal split is seed-independent (idx=arange); cache it once.
         key = (split, seed if split == "random" else 0)
         if key not in data_cache:
-            data_cache[key] = load_elec2(split=split, seed=key[1])
+            data_cache[key] = _load(args, split, key[1])
         return data_cache[key]
 
     def run_one(split, basis, arch, seed, lr):
