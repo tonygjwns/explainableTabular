@@ -133,6 +133,27 @@ measurable-concept real dataset Q2 needs (run small Q2 factorial there); if a
 Q1 headline use also needs one large-rotation (≥180°, basis-matched) robustness to
 widen the narrow recovery dynamic range (floor 0.894→ceiling 0.990).
 
+## Within-overlap concept (spine fix, 2026-06-05) — elec2 has REAL concept
+The F3 elec2 ESS=20 was a global-IW heavy-tail artifact. Measuring concept WITHIN
+the overlap band (covariate matched, no global reweight):
+- **elec2: concept_gap = +0.166 AUC** (early→late-overlap 0.721 vs late→ 0.887;
+  n_overlap 7864/5610) → **large, measurable concept drift on common support.**
+- cooking/maps: ~0 (measurable, no concept). delivery: −0.03 (small/noisy).
+- 5 high-covariate (AUC≈1.0) datasets: n_overlap=0 → truly unmeasurable.
+→ Dichotomy REFINED (not broken): high-covariate ⇒ unmeasurable; low-covariate
+  cooking/maps ⇒ measurable-but-no-concept; **elec2 (mid covariate) ⇒ common support
+  AND real concept** = the measurable-concept benchmark Q2 needs.
+
+### Status: BOTH gates open Q2
+Q1 PASS (faithful mechanism) + F3-within-overlap (elec2 measurable + large concept)
+→ Q2 is properly motivated. Earlier elec2 "memory ≤ feature / hurts on temporal" used
+the BROKEN mechanism (Fourier, learned V_k, collapse) → must re-test with the redesign
+(trend basis + load-balance + instance V_k). Q2 = does the STRUCTURE (time-TabR) beat
+a basis-matched time-FEATURE on elec2's MEASURED concept? Win → positive method result;
+no win → 'negative on MEASURED concept' (far stronger than 'could not measure').
+(Do not repeat the +4.3 over-claim: elec2 having concept ≠ our structure winning.)
+§6(다) claim must NOT say 'concept unmeasurable everywhere' — elec2 is the counterexample.
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.
