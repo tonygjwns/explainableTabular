@@ -85,6 +85,84 @@ def _diag(cfg, args):
     print("        train; best_epoch~0 & monotone-down => artifact (raise min_epochs / lower lr).")
 
 
+def _report_grid(cfg, args):
+    """DECISION TABLE: multi-seed mean test per (arch, lr) + val->test rank corr.
+
+    seed-0 diag can't conclude (noisy, and val<->test anti-correlate under concept
+    drift => val-based selection is unreliable here). This reports MEAN TEST over
+    n_seeds for EVERY (arch, lr) directly — no val selection — plus an oracle best-lr
+    per arch (upper bound) and the val->test Spearman (negative => val misleads).
+    One cell (splits[0]/bases[0]) so seeds buy power where it matters.
+
+      python scripts/run_elec2_q2.py --config configs/phase1.yaml --report-grid \
+          --n-seeds 10 --splits temporal --bases trend --lr-grid 2e-3 1e-3 5e-4 2e-4
+    """
+    from scipy.stats import spearmanr
+    grid = args.lr_grid or [float(cfg.training.learning_rate)]
+    split, basis = args.splits[0], args.bases[0]
+    seeds = list(range(args.n_seeds))
+    out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    data_cache: dict = {}
+    def get_data(seed):
+        key = seed if split == "random" else 0
+        if key not in data_cache:
+            data_cache[key] = load_elec2(split=split, seed=key)
+        return data_cache[key]
+
+    print(f"\n==== GRID REPORT [{split}/{basis}]  n_seeds={args.n_seeds}  grid={grid}  "
+          f"min_epochs={args.min_epochs} ====")
+    print(f"  {'arch':10s}{'lr':>9s}  {'mean_test':>9s} {'std':>6s}  {'mean_val':>8s}  best_epochs")
+    cells = []
+    for arch in args.archs:
+        tm = args.time_mode if arch == "time_tabr" else "none"
+        for lr in grid:
+            tests, vals, bes = [], [], []
+            for s in seeds:
+                seed_everything(s)
+                r = train_timetabr(get_data(s),
+                                   _cfg(cfg, arch, tm, basis, s, lr=lr,
+                                        min_epochs=args.min_epochs))
+                tests.append(float(r["score"])); vals.append(float(r["val_score"]))
+                bes.append(int(r["best_epoch"]))
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+            c = {"arch": arch, "time_mode": tm, "lr": lr,
+                 "mean_test": float(np.mean(tests)), "std_test": float(np.std(tests)),
+                 "mean_val": float(np.mean(vals)), "tests": tests, "vals": vals,
+                 "best_epochs": bes}
+            cells.append(c)
+            print(f"  {arch:10s}{lr:9g}  {c['mean_test']:9.4f} {c['std_test']:6.4f}  "
+                  f"{c['mean_val']:8.4f}  {bes}")
+
+    print("\n  oracle best-TEST lr per arch (upper bound; NOT a val-fair number):")
+    best = {}
+    for arch in args.archs:
+        ac = [c for c in cells if c["arch"] == arch]
+        b = max(ac, key=lambda c: c["mean_test"])
+        best[arch] = b
+        print(f"    {arch:10s} lr={b['lr']:g}: test={b['mean_test']:.4f} ± {b['std_test']:.4f}")
+    if {"mlp_t", "time_tabr"} <= set(args.archs):
+        d_struct = best["time_tabr"]["mean_test"] - best["mlp_t"]["mean_test"]
+        print(f"\n  DECISION (oracle): time_tabr - mlp_t = {d_struct:+.4f}  "
+              f"(>~2*std => structure beats time-feature; ~0 => time helps but structure doesn't)")
+    if {"tabr", "mlp_t"} <= set(args.archs):
+        d_time = best["mlp_t"]["mean_test"] - best["tabr"]["mean_test"]
+        print(f"            mlp_t    - tabr  = {d_time:+.4f}  (>0 => time itself helps over no-time retrieval)")
+
+    mv = [c["mean_val"] for c in cells]; mt = [c["mean_test"] for c in cells]
+    rho, p = spearmanr(mv, mt)
+    print(f"\n  val->test Spearman across {len(cells)} cells: rho={rho:+.3f} (p={p:.3f})")
+    print("    rho<=0 => val MISLEADS test (concept drift): do NOT select lr/epoch by val.")
+    out = {"split": split, "basis": basis, "n_seeds": args.n_seeds, "grid": grid,
+           "min_epochs": args.min_epochs, "cells": cells,
+           "oracle_best_lr": {a: best[a]["lr"] for a in best},
+           "val_test_spearman": float(rho)}
+    (out_dir / "grid_report.json").write_text(json.dumps(out, indent=2))
+    print(f"\n  wrote {out_dir / 'grid_report.json'}  <-- send me this one file")
+
+
 def _contrast(scores_a, scores_b, metric):
     """Paired (time_tabr vs baseline) comparison, oriented so higher=better."""
     a = orient_higher_is_better(scores_a, metric)
@@ -123,11 +201,17 @@ def main():
                     help="floor before early-stop fires (let zero-init time-mod train)")
     ap.add_argument("--diag", action="store_true",
                     help="print per-epoch val curve for ONE cell, then exit (no full run)")
+    ap.add_argument("--report-grid", action="store_true",
+                    help="DECISION TABLE: multi-seed mean test per (arch,lr) + val/test "
+                         "corr for ONE cell, then exit (use with --lr-grid --n-seeds)")
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
     if args.diag:
         _diag(cfg, args)
+        return
+    if args.report_grid:
+        _report_grid(cfg, args)
         return
     seeds = list(range(args.n_seeds))
     out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
