@@ -99,3 +99,56 @@ class TimeTabR(nn.Module):
         if return_aux:
             return out, {"w": w, "topi": topi}
         return out
+
+
+class TimeTabRModel(nn.Module):
+    """3-arm factorial model (shared encoder): the structure axis of Q2b.
+
+      arch='mlp_t'    : predictor([z ; trend(t)])            — time as a FEATURE (baseline)
+      arch='tabr'     : TimeTabR retrieval, time_mode='none' — non-parametric, no time
+      arch='time_tabr': TimeTabR retrieval, time_mode=value/metric/both — the candidate
+
+    Same encoder + same time basis across arms (so 'structure vs feature' and 'basis'
+    are cleanly separable). Caller supplies a CONTEXT set (features, t, y) of training
+    instances for retrieval (in-batch during training, a fixed sample at eval).
+    Encoder is a plain MLP over the prepared numeric matrix (num+bin); categoricals
+    can be appended one-hot by the caller. Requires PyTorch.
+    """
+
+    def __init__(self, n_features: int, task: str, n_classes: int = 2, *,
+                 arch: str = "time_tabr", time_mode: str = "value",
+                 enc_dim: int = 128, enc_hidden: int = 256, n_enc_layers: int = 2,
+                 time_basis: str = "trend", trend_degree: int = 3, time_out: int = 16,
+                 topk: int = 32, predictor_hidden: int = 256):
+        super().__init__()
+        self.task = task.lower(); self.arch = arch
+        out_dim = n_classes if self.task == "multiclass" else (2 if self.task == "binclass" else 1)
+        layers, prev = [], n_features
+        for _ in range(n_enc_layers):
+            layers += [nn.Linear(prev, enc_hidden), nn.ReLU()]; prev = enc_hidden
+        layers += [nn.Linear(prev, enc_dim)]
+        self.encoder = nn.Sequential(*layers)
+        if arch == "mlp_t":
+            self.time_emb = FourierTimeEmbedding(time_out, basis=time_basis,
+                                                 trend_degree=trend_degree, use_trend=True)
+            self.predictor = nn.Sequential(
+                nn.Linear(enc_dim + self.time_emb.out_dim, predictor_hidden), nn.ReLU(),
+                nn.Linear(predictor_hidden, out_dim))
+        else:
+            tm = "none" if arch == "tabr" else time_mode
+            self.tabr = TimeTabR(enc_dim, task, n_classes, time_basis=time_basis,
+                                 trend_degree=trend_degree, time_out=time_out, topk=topk,
+                                 predictor_hidden=predictor_hidden, time_mode=tm)
+
+    def encode(self, x):
+        return self.encoder(x)
+
+    def forward(self, xq, tq, ctx_x=None, ctx_t=None, ctx_y=None,
+                exclude_self=None, return_aux=False):
+        zq = self.encode(xq)
+        if self.arch == "mlp_t":
+            out = self.predictor(torch.cat([zq, self.time_emb(tq)], dim=-1))
+            return (out, {}) if return_aux else out
+        zc = self.encode(ctx_x)
+        return self.tabr(zq, tq, zc, ctx_t, ctx_y,
+                         exclude_self=exclude_self, return_aux=return_aux)

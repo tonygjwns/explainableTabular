@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import torch
 import torch.nn.functional as F
 
-from src.models.tabr import TimeTabR
+from src.models.tabr import TimeTabR, TimeTabRModel
 
 
 def check(task, n_classes=3):
@@ -61,9 +61,38 @@ def check_exclude_self():
     print("\nin-batch exclude_self OK")
 
 
+def check_model(task, n_classes=3):
+    B, Nc, nfeat = 16, 300, 10
+    xq = torch.randn(B, nfeat); tq = torch.rand(B)
+    xc = torch.randn(Nc, nfeat); tc = torch.rand(Nc)
+    yc = (torch.rand(Nc) if task == "regression"
+          else torch.randint(0, (n_classes if task == "multiclass" else 2), (Nc,)))
+    yq = (torch.randn(B) if task == "regression"
+          else torch.randint(0, (n_classes if task == "multiclass" else 2), (B,)))
+    exp = n_classes if task == "multiclass" else (2 if task == "binclass" else 1)
+    print(f"\n=== model task={task} ===")
+    for arch, tm in [("mlp_t", "none"), ("tabr", "none"), ("time_tabr", "value"), ("time_tabr", "both")]:
+        m = TimeTabRModel(nfeat, task, n_classes, arch=arch, time_mode=tm, enc_dim=32, topk=8)
+        for p in m.parameters():
+            p.grad = None
+        out = m(xq, tq, xc, tc, yc)
+        assert out.shape == (B, exp), f"{arch}/{tm}: {out.shape} != {(B, exp)}"
+        loss = (F.mse_loss(out.squeeze(-1), yq.float()) if task == "regression"
+                else F.cross_entropy(out, yq))
+        loss.backward()
+        g_enc = m.encoder[0].weight.grad is not None
+        print(f"  arch={arch:9s} time_mode={tm:5s}: out{tuple(out.shape)} OK, grad[enc={g_enc}]")
+    # in-batch retrieval (candidates == queries)
+    m = TimeTabRModel(nfeat, task, n_classes, arch="time_tabr", time_mode="value", enc_dim=32, topk=4)
+    _ = m(xq, tq, xq, tq, yq, exclude_self=torch.arange(B))
+    print("  in-batch (exclude_self) OK")
+
+
 if __name__ == "__main__":
     torch.manual_seed(0)
     for task in ("binclass", "multiclass", "regression"):
         check(task)
     check_exclude_self()
+    for task in ("binclass", "multiclass", "regression"):
+        check_model(task)
     print("\nAll TabR smoke checks passed.")
