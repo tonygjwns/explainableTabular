@@ -106,7 +106,15 @@ def covariate_shift_auc(
 
 
 def _fit_eval(Xtr, ytr, Xte, yte, task, seed) -> float:
-    """Fit HGB on (Xtr,ytr), score on (Xte,yte). regression->RMSE, classif->AUC."""
+    """Fit HGB on (Xtr,ytr), score on (Xte,yte). regression->RMSE, classif->AUC.
+
+    Drops all-NaN/constant columns of the TRAINING matrix (small strata can make a
+    column degenerate -> HGB bin mapper 'window shape' crash)."""
+    Xtr = np.asarray(Xtr, dtype=np.float64); Xte = np.asarray(Xte, dtype=np.float64)
+    with np.errstate(all="ignore"):
+        keep = (~np.all(np.isnan(Xtr), axis=0)) & (np.nanstd(Xtr, axis=0) > 0)
+    if keep.any():
+        Xtr, Xte = Xtr[:, keep], Xte[:, keep]
     if task == "regression":
         m = HistGradientBoostingRegressor(max_iter=300, random_state=seed)
         m.fit(Xtr, ytr)
@@ -235,7 +243,12 @@ def _transfer_gap(Xe, ye, Xl, yl, task, seed):
     >0 => early rule fails to transfer = concept (covariate matched by caller)."""
     if min(len(ye), len(yl)) < 150:
         return None
+    if task != "regression":   # need both classes in early-train, late-train, late-test
+        if len(np.unique(ye)) < 2 or len(np.unique(yl)) < 2:
+            return None
     Xl_tr, Xl_te, yl_tr, yl_te = train_test_split(Xl, yl, test_size=0.5, random_state=seed)
+    if task != "regression" and (len(np.unique(yl_tr)) < 2 or len(np.unique(yl_te)) < 2):
+        return None
     se = _fit_eval(Xe, ye, Xl_te, yl_te, task, seed)        # early-trained on late-test
     sl = _fit_eval(Xl_tr, yl_tr, Xl_te, yl_te, task, seed)  # late-trained on SAME late-test
     gap = (se - sl) if task == "regression" else (sl - se)
