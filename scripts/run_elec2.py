@@ -40,6 +40,9 @@ def main():
     ap.add_argument("--inject", action="store_true",
                     help="inject time at input too (with time_indexed=False this is the "
                          "time-as-FEATURE baseline -> tests if the memory STRUCTURE is needed)")
+    ap.add_argument("--time-basis", default=None, choices=["fourier", "trend"],
+                    help="override time basis (trend = extrapolation-safe; rescue Q2a)")
+    ap.add_argument("--lb", type=float, default=None, help="load_balance_coef (anti-collapse)")
     ap.add_argument("--diag-every", type=int, default=0)
     args = ap.parse_args()
 
@@ -48,6 +51,10 @@ def main():
         cfg.memory.predictor_mode = args.predictor_mode
     if args.inject:
         cfg.memory.inject_time_input = True
+    if args.time_basis:
+        cfg.memory.time_basis = args.time_basis
+    if args.lb is not None:
+        cfg.memory.load_balance_coef = args.lb
     seeds = list(cfg.experiment.seeds)
     out_dir = Path(cfg.experiment.results_dir).parent / "elec2"
     out_dir.mkdir(parents=True, exist_ok=True)
