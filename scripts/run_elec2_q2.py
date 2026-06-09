@@ -44,18 +44,45 @@ from src.utils.stats import (  # noqa: E402
 )
 
 
-def _cfg(cfg, arch, time_mode, time_basis, seed) -> TabRConfig:
+def _cfg(cfg, arch, time_mode, time_basis, seed, *, lr=None,
+         min_epochs=0, record_history=False) -> TabRConfig:
     tr = cfg.training
     topk = OmegaConf.select(cfg, "tabr.topk", default=32)
     return TabRConfig(
         arch=arch, time_mode=time_mode, time_basis=time_basis,
         trend_degree=int(OmegaConf.select(cfg, "memory.trend_degree", default=3)),
         topk=int(topk),
-        lr=float(tr.learning_rate), weight_decay=float(tr.weight_decay),
+        lr=float(lr) if lr is not None else float(tr.learning_rate),
+        weight_decay=float(tr.weight_decay),
         batch_size=int(tr.batch_size), eval_batch=int(tr.eval_batch),
-        patience=int(tr.patience), max_epochs=int(tr.max_epochs),
-        seed_tag=f"s{seed}",
+        patience=int(tr.patience), min_epochs=int(min_epochs),
+        max_epochs=int(tr.max_epochs),
+        record_history=record_history, seed_tag=f"s{seed}",
     )
+
+
+def _diag(cfg, args):
+    """Print the per-epoch val curve for one cell (temporal/trend/seed0, all arms).
+
+    Disambiguates the 'epoch 1 is always best' observation: is it a real temporal-
+    drift signature (val peaks early then degrades), or an optimization artifact that
+    early-stops the zero-init time-modulation before it can train (-> time_tabr==tabr)?
+    """
+    split = args.splits[0]; basis = args.bases[0]
+    print(f"\n==== DIAG: per-epoch val curve [{split}/{basis} s0], lr={args.lr or 'cfg'}, "
+          f"min_epochs={args.min_epochs} ====")
+    seed_everything(0)
+    data = load_elec2(split=split, seed=0)
+    for arch in args.archs:
+        tm = args.time_mode if arch == "time_tabr" else "none"
+        r = train_timetabr(data, _cfg(cfg, arch, tm, basis, 0, lr=args.lr,
+                                      min_epochs=args.min_epochs, record_history=True))
+        h = r["val_history"]
+        curve = " ".join(f"{v:.4f}" for v in h[:25])
+        print(f"  {arch:9s}/{tm:5s} best_epoch={r['best_epoch']:3d}/{r['n_epochs']:3d} "
+              f"test={r['score']:.4f}\n      val: {curve}{' ...' if len(h) > 25 else ''}")
+    print("  read: best_epoch>>0 with a rising-then-falling curve => mechanism gets to")
+    print("        train; best_epoch~0 & monotone-down => artifact (raise min_epochs / lower lr).")
 
 
 def _contrast(scores_a, scores_b, metric):
@@ -84,9 +111,18 @@ def main():
     ap.add_argument("--time-mode", default="value", choices=["value", "metric", "both"])
     ap.add_argument("--archs", nargs="+", default=["mlp_t", "tabr", "time_tabr"],
                     choices=["mlp_t", "tabr", "time_tabr"])
+    ap.add_argument("--lr", type=float, default=None,
+                    help="override learning rate (diagnose epoch-1-best = lr too high)")
+    ap.add_argument("--min-epochs", type=int, default=0,
+                    help="floor before early-stop fires (let zero-init time-mod train)")
+    ap.add_argument("--diag", action="store_true",
+                    help="print per-epoch val curve for ONE cell, then exit (no full run)")
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
+    if args.diag:
+        _diag(cfg, args)
+        return
     seeds = list(range(args.n_seeds))
     out_dir = Path(cfg.experiment.results_dir).parent / "elec2_q2"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -101,7 +137,8 @@ def main():
     scores: dict = {sp: {b: {a: [] for a in args.archs} for b in args.bases} for sp in args.splits}
     rows = []
     summary = {"metric": metric, "n_seeds": args.n_seeds, "time_mode": args.time_mode,
-               "splits": args.splits, "bases": args.bases, "complete": False,
+               "splits": args.splits, "bases": args.bases,
+               "lr": args.lr, "min_epochs": args.min_epochs, "complete": False,
                "contrasts": [], "rows": rows}
 
     def save():
@@ -115,16 +152,21 @@ def main():
                 line = {}
                 for arch in args.archs:
                     tm = args.time_mode if arch == "time_tabr" else "none"
-                    r = train_timetabr(data, _cfg(cfg, arch, tm, basis, seed))
+                    r = train_timetabr(data, _cfg(cfg, arch, tm, basis, seed,
+                                                  lr=args.lr, min_epochs=args.min_epochs))
                     s = float(r["score"])
                     scores[split][basis][arch].append(s)
-                    line[arch] = s
+                    line[arch] = (s, int(r["best_epoch"]), int(r["n_epochs"]))
                     rows.append({"split": split, "basis": basis, "arch": arch,
-                                 "time_mode": tm, "seed": seed, "score": s})
+                                 "time_mode": tm, "seed": seed, "score": s,
+                                 "val_score": float(r["val_score"]),
+                                 "best_epoch": int(r["best_epoch"]),
+                                 "n_epochs": int(r["n_epochs"])})
                 del data
                 if torch.cuda.is_available():
                     torch.cuda.empty_cache()
-                ldesc = "  ".join(f"{a}={line[a]:.4f}" for a in args.archs)
+                ldesc = "  ".join(f"{a}={line[a][0]:.4f}@e{line[a][1]}/{line[a][2]}"
+                                  for a in args.archs)
                 print(f"[{split:8s}/{basis:7s} s{seed:02d}] {ldesc}")
                 save()    # incremental: crash mid-run still leaves all finished rows
 

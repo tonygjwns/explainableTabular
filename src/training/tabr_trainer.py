@@ -58,9 +58,12 @@ class TabRConfig:
     batch_size: int = 256
     eval_batch: int = 1024
     patience: int = 16
+    min_epochs: int = 0          # floor before early-stop may fire (give zero-init
+                                 # time-modulation room to train; 0 = off)
     max_epochs: int = 200
     device: str = "cuda"
     seed_tag: str = ""
+    record_history: bool = False  # collect per-epoch val into the result (diagnostic)
 
 
 def _build_features(data: TabReDDataset):
@@ -172,6 +175,7 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
     higher_better = task != "regression"
     best = -np.inf if higher_better else np.inf
     best_epoch, since_improve, best_state = -1, 0, None
+    val_history, epochs_run = [], 0
 
     pbar = tqdm(range(cfg.max_epochs), desc=f"{data.name}[{cfg.arch}/{cfg.time_mode}|{cfg.seed_tag}]",
                 leave=False, dynamic_ncols=True)
@@ -197,6 +201,9 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
             opt.step()
 
         val = evaluate("val")
+        epochs_run = epoch + 1
+        if cfg.record_history:
+            val_history.append(float(val))
         improved = (val > best) if higher_better else (val < best)
         pbar.set_postfix(val=f"{val:.4f}", best=f"{best if np.isfinite(best) else val:.4f}",
                          patience=f"{since_improve}/{cfg.patience}")
@@ -205,7 +212,9 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
             best_state = {k_: v.detach().clone() for k_, v in model.state_dict().items()}
         else:
             since_improve += 1
-            if since_improve > cfg.patience:
+            # don't early-stop before min_epochs (zero-init time-modulation needs
+            # epochs to train; stopping at epoch 0/1 makes time_tabr collapse to tabr).
+            if epoch + 1 >= cfg.min_epochs and since_improve > cfg.patience:
                 break
 
     if best_state is not None:
@@ -215,5 +224,6 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         "dataset": data.name, "task": task, "split": data.split,
         "arch": cfg.arch, "time_mode": cfg.time_mode, "time_basis": cfg.time_basis,
         "val_score": float(best), "score": float(test_score),
-        "best_epoch": int(best_epoch), "model": model,
+        "best_epoch": int(best_epoch), "n_epochs": int(epochs_run),
+        "val_history": val_history if cfg.record_history else None, "model": model,
     }
