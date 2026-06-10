@@ -2,7 +2,7 @@
 
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1` (작성 시점 `40d3d13`).
-> 읽는 순서: 이 파일 → RESULTS.md → FINDINGS.md → PLAN_RESCUE.md → Q2B_PROPOSAL.md → REVIEW.md.
+> 읽는 순서: (배경부터면 OVERVIEW.md) → 이 파일 → RESULTS.md → FINDINGS.md → PLAN_RESCUE.md → Q2B_PROPOSAL.md → REVIEW.md.
 
 ## 한 문단 요약 (2026-06-09 갱신)
 TabM 재현 8/8. TabReD=covariate(concept 측정불가). Elec2=within-overlap 측정·확정 concept(+0.132).

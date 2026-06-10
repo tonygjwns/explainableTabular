@@ -15,8 +15,8 @@
 - GitHub: https://github.com/tonygjwns/explainableTabular
 
 ## 현재 상태 (2026-06-05) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
-**핵심 문서(읽는 순서)**: `NEXT_TAB.md`(인계·다음 행동) → `RESULTS.md`(결과 ledger) →
-`FINDINGS.md`(증거 사슬) → `PLAN_RESCUE.md`(사전등록 프로토콜·결정규칙) → `Q2B_PROPOSAL.md`(현 빌드).
+**핵심 문서(읽는 순서)**: **`OVERVIEW.md`(전체 흐름·배경부터, 비전공자도 OK)** → `NEXT_TAB.md`(인계·다음 행동) →
+`RESULTS.md`(결과 ledger) → `FINDINGS.md`(증거 사슬) → `PLAN_RESCUE.md`(사전등록 프로토콜·결정규칙) → `Q2B_PROPOSAL.md`(현 빌드).
 
 한 줄: Phase 0 8/8 PASS. Phase 1 메모리 메커니즘은 **TabReD에서 성능 이득 0(검증된 음성)**,
 **합성/Elec2 concept에선 충실·작동**. Q1 충실성 **PASS**, Elec2 measurable concept +0.132 확정.
