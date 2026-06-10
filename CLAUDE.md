@@ -27,9 +27,10 @@ elec2(time_tabr−mlp_t=−0.018) + Insects(−0.011, 비-trivial multiclass) **
 - ✅ Q2b 코어: `src/models/tabr.py`(TimeTabR+TimeTabRModel, (t_q,t_i,y_i) 훅, dropout), `src/training/tabr_trainer.py`
   (in-batch 학습/고정-context eval, train-loss 기록·step-eval·min_epochs), `scripts/run_elec2_q2.py`(요인설계 + `--diag`/`--report-grid`/`--dataset`).
 - ✅ **Insects 인프라**: `src/data/insects_loader.py`(river, multiclass), `run_elec2_q2.py --dataset insects`, `smoke_test_insects.py`.
-- ✅ **Insects 실행·판정 완료**: 구조 음성 일관(§11). ≥2 데이터셋 결정규칙 충족 → §6(다) 확정.
-- 🔄 **다음 작업**: **지도교수 정렬**(RESULTS §10·§11 / FINDINGS "Q2b ANSWERED" 지참) → §6(다) 음성/분석 paper 작성 착수.
-  (선택 보강: Insects abrupt variant·random 대조로 음성 견고화.)
+- ✅ **Insects 실행·판정 완료**: 구조 음성(§11). **정밀 재진술(비평 반영)**: elec2=consistent-but-uninformative(paired −.005, CI 0포함, val→test .07),
+  **음성은 Insects가 나름**(paired −.011, CI[−.023,+.001], borderline, val→test .87). 분해: 지는 건 시간메커니즘 아닌 **검색 substrate**(tabr−mlp_t=−.038; time_tabr−tabr=+.028).
+- 🔄 **다음 작업**: ⓪**타깃 학회 합의**(워크숍 now / NeurIPS D&B 최적핏 / 메인트랙=15~20데이터셋·다중방법 범위확장) → 정렬(Claim A 리드, B 보조·분리) → 범위작업.
+  (싼 보강: Insects abrupt/gradual variants로 B n=1-clean→n=3-clean. Q1 큰-회전 1회 미결.) 러너에 paired 통계 박힘.
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.

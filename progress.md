@@ -2,6 +2,18 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-10 (2) — Q2b 정밀 재진술(비평 반영) + paired 통계 + 학회 타깃 프레이밍
+- **paired per-seed 통계 추가**(`run_elec2_q2.py --report-grid`에 `paired_contrasts`: mean diff·SE·95%CI·Wilcoxon·sign).
+  arm들이 시드/split/init 공유 → *차이의* SE가 marginal std(0.05)보다 훨씬 tight = 정직한 척도.
+- **정밀 결론(RESULTS §10·§11, FINDINGS "Precision pass")**:
+  - **elec2 = consistent-but-uninformative**: time_tabr−mlp_t paired −0.005, CI[−.013,+.003], 1.45 SE, val→test .07 → 0과 구분 불가. 음성 *못 나름*.
+  - **음성은 Insects가 나름**: paired −0.011, CI[−.023,+.001], 2.12 SE(borderline), val→test .87(깨끗).
+  - **구조 vs 기판 분해**: mlp_t−tabr=+0.038(substrate≪parametric, 9.6SE) + time_tabr−tabr=+0.028(시간-구조는 작동, 4.1SE)
+    → 지는 건 시간메커니즘 아닌 **검색 substrate**. redundancy와 일관(증명 아닌 경험적).
+- **프레이밍**: **Claim A**(covariate지배→concept 측정난, ~10데이터셋) 리드 / **Claim B**(구조≤피처) 보조·분리(A 약화 방지).
+- **학회 타깃(정렬 1순위)**: 워크숍=now충분 / **NeurIPS D&B=현자산 최적핏** / 메인트랙=15~20데이터셋·다중방법 범위확장(수개월).
+- **다음**: ⓪타깃 합의 → 정렬 → (싼)Insects abrupt/gradual variants로 B 견고화 + Q1 큰-회전 1회.
+
 ## 2026-06-10 — Q2b 둘째 데이터셋 Insects: 구조 음성 일관 → ≥2 데이터셋 잠금, §6(다) 확정
 - **Insects (incremental_balanced, multiclass, temporal, 정규화+min_ep20, 10시드; RESULTS §11)**:
   oracle mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320. **time_tabr−mlp_t=−0.011**(elec2 −0.018과 일관 음성),

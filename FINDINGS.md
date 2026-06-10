@@ -207,6 +207,41 @@ time matters a LOT — so it's a genuine non-trivial concept-drift test.
   negative paper (measurable concept exists, structure doesn't beat feature, covariate-vs-
   concept toolkit, Q1-faithful mechanism). A'(method) path closed for time-TabR structure.
 
+### Precision pass (2026-06-10, critique-driven) — restated honestly before alignment
+PAIRED per-seed stats (arms share seed/split/init → diff-SE is the honest scale, far below
+each arm's marginal std):
+- **elec2 = consistent-but-uninformative**: time_tabr−mlp_t paired −0.005, SE .0035, 95% CI
+  [−0.013,+0.003] (1.45 SE, sign 2/8) — NOT distinguishable from 0. val→test Spearman 0.07
+  ⇒ elec2 is a noisy model-comparison substrate (regime/autocorrelation), even though the
+  DATA has concept (+0.132). So elec2 does NOT carry the negative.
+- **Insects carries it**: time_tabr−mlp_t paired −0.011, SE .0052, 95% CI [−0.023,+0.001]
+  (2.12 SE, sign 3/7) — borderline-significant, val→test 0.87 (clean). The negative is
+  Insects-borne (n=1 clean), elec2 is consistent-but-uninformative support.
+- **Decompose structure vs substrate** (pre-empt "but time_tabr>tabr ⇒ structure works"):
+  mlp_t−tabr=+0.038 (CI [+.029,+.048], 9.6 SE — retrieval substrate ≪ parametric) and
+  time_tabr−tabr=+0.028 (CI [+.013,+.043], 4.1 SE — time-indexing DOES add value inside
+  retrieval). The time-structure works; it loses because the retrieval SUBSTRATE can't reach
+  parametric, so the combined structure can't beat the feature. Consistent with redundancy
+  (state as empirical, NOT proof — redundancy is an in-dist capacity argument).
+- "oracle test" = best-on-test lr per arm ⇒ strong-form negative ("even given oracle lr,
+  structure doesn't beat feature"), but NO deployment claim on elec2 (val→test 0.07).
+
+### Framing decision (venue-dependent — for advisor alignment)
+LEAD with **Claim A** (robust, novel: covariate dominance ⇒ concept unmeasurable by the
+standard conditional lens, across ~10 datasets, with the F3/within-overlap measurement
+frame + a reusable diagnostic toolkit). Present **Claim B** (structure ≤ feature) as
+SUPPORTING evidence with the decomposition — do NOT let thin B weaken A.
+Honest venue read: current package = workshop-ready negative NOW; **NeurIPS D&B track** is
+the best fit with modest scope add (it values benchmark/measurement/analysis over novelty);
+top main-track analysis needs scope (15–20 tabular-temporal datasets), **multiple time-aware
+methods** through the same lens (turns "our method failed" → "the field's methods
+underdeliver for this reason"), toolkit promoted to a validated 1st-class contribution, and
+redundancy developed carefully as a hypothesis. (Q1 large-rotation robustness still open for
+the "mechanism is faithful" headline argument.)
+**Cheap robustification (recommended, not optional)**: add INSECTS abrupt/gradual variants
+(same loader, near-free) to take B from n=1-clean → n=3-clean across drift types; deprioritize
+elec2-abrupt (inherits elec2's val→test 0.07 noise).
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.

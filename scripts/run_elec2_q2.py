@@ -50,8 +50,11 @@ DIAG_FILE = "diagnostics.jsonl"   # all --diag / --report-grid runs append here 
 
 
 def _params(args):
-    """The run knobs, stamped on every appended record so runs are distinguishable."""
-    return {"splits": args.splits, "bases": args.bases, "archs": args.archs,
+    """The run knobs, stamped on every appended record so runs are distinguishable
+    (esp. dataset + insects_variant: multiple variants share one diagnostics.jsonl)."""
+    return {"dataset": args.dataset, "insects_variant": args.insects_variant,
+            "max_samples": args.max_samples,
+            "splits": args.splits, "bases": args.bases, "archs": args.archs,
             "time_mode": args.time_mode, "lr": args.lr, "lr_grid": args.lr_grid,
             "batch_size": args.batch_size, "weight_decay": args.weight_decay,
             "dropout": args.dropout, "eval_every_steps": args.eval_every_steps,
@@ -202,21 +205,37 @@ def _report_grid(cfg, args):
         b = max(ac, key=lambda c: c["mean_test"])
         best[arch] = b
         print(f"    {arch:10s} lr={b['lr']:g}: test={b['mean_test']:.4f} ± {b['std_test']:.4f}")
-    if {"mlp_t", "time_tabr"} <= set(args.archs):
-        d_struct = best["time_tabr"]["mean_test"] - best["mlp_t"]["mean_test"]
-        print(f"\n  DECISION (oracle): time_tabr - mlp_t = {d_struct:+.4f}  "
-              f"(>~2*std => structure beats time-feature; ~0 => time helps but structure doesn't)")
-    if {"tabr", "mlp_t"} <= set(args.archs):
-        d_time = best["mlp_t"]["mean_test"] - best["tabr"]["mean_test"]
-        print(f"            mlp_t    - tabr  = {d_time:+.4f}  (>0 => time itself helps over no-time retrieval)")
+    # PAIRED per-seed contrasts at oracle lr — the honest scale (arms share seed/split/
+    # encoder-init, so the *difference* SE is far tighter than each arm's marginal std).
+    from scipy.stats import t as _t
+    def paired(x, y):
+        ax, ay = np.array(best[x]["tests"]), np.array(best[y]["tests"])
+        d = ax - ay; n = len(d); m = float(d.mean())
+        se = float(d.std(ddof=1) / np.sqrt(n))
+        h = float(_t.ppf(0.975, n - 1)) * se
+        return {"pair": f"{x}-{y}", "lr_x": best[x]["lr"], "lr_y": best[y]["lr"],
+                "mean_diff": m, "se": se, "ci95": [m - h, m + h],
+                "wilcoxon_p": paired_wilcoxon(list(ax), list(ay)), "hedges_g": hedges_g(ax, ay),
+                "n_pos": int((d > 0).sum()), "n_neg": int((d < 0).sum()), "n": n}
+    pairs = [("time_tabr", "mlp_t"), ("time_tabr", "tabr"), ("mlp_t", "tabr")]
+    paired_contrasts = [paired(x, y) for x, y in pairs
+                        if {x, y} <= set(args.archs)]
+    print("\n  PAIRED per-seed contrasts (oracle lr; CI/Wilcoxon = the honest scale):")
+    for c in paired_contrasts:
+        print(f"    {c['pair']:18s} diff={c['mean_diff']:+.4f}  SE={c['se']:.4f}  "
+              f"95%CI=[{c['ci95'][0]:+.4f},{c['ci95'][1]:+.4f}]  p={c['wilcoxon_p']:.3f}  "
+              f"sign+/-={c['n_pos']}/{c['n_neg']}")
+    print("    time_tabr-mlp_t: CI crossing 0 => uninformative; tight<0 => structure<feature.")
+    print("    time_tabr-tabr & mlp_t-tabr: decompose (substrate deficit vs time-hook value).")
 
     mv = [c["mean_val"] for c in cells]; mt = [c["mean_test"] for c in cells]
     rho, p = spearmanr(mv, mt)
     print(f"\n  val->test Spearman across {len(cells)} cells: rho={rho:+.3f} (p={p:.3f})")
-    print("    rho<=0 => val MISLEADS test (concept drift): do NOT select lr/epoch by val.")
+    print("    rho~0/neg => val MISLEADS test (this cell is a noisy model-selection substrate).")
     record = {"mode": "report_grid", "params": _params(args),
               "split": split, "basis": basis, "grid": grid, "cells": cells,
               "oracle_best_lr": {a: best[a]["lr"] for a in best},
+              "paired_contrasts": paired_contrasts,
               "val_test_spearman": float(rho)}
     p = _append(out_dir, record)
     print(f"\n  appended to {p}  <-- send me THIS file (accumulates every diag/grid run)")

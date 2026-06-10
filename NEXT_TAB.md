@@ -28,20 +28,33 @@ TabM 재현 8/8. TabReD=covariate(concept 측정불가). Elec2=within-overlap �
     caller가 context set(features,t,y) 공급 — 학습=in-batch(exclude_self), eval=고정 sample.
 - `scripts/smoke_test_tabr.py`: 서버 통과(shape/grad/time-mod grad/exclude_self).
 
-## ★ 다음 행동 — **지도교수 정렬 → §6(다) 음성/분석 paper 착수**
-Q2b 실행·판정 **완료**: elec2 + Insects 둘 다 구조 음성(위 요약). 사전등록 결정규칙 해소 → **방향 = §6(다)**.
+## ★ 다음 행동 — **(0) 타깃 학회 합의 → 정렬 → 범위 작업** (비평 반영, 2026-06-10)
+Q2b 판정 완료(구조 음성). **단 정밀 재진술 필수**(아래). 먼저 **어느 학회를 노릴지** 지도교수와 합의 — 그게 남은 작업량 결정.
 
-**A. 지도교수 정렬 (지금)**: RESULTS §10·§11 + FINDINGS "Q2b ANSWERED" 지참.
-- 핵심 메시지: "측정가능한 concept(elec2 +0.132)·비-trivial designed drift(Insects) **둘 다에서 시간은 도움이나
-  time-TabR *구조*가 시간-*피처*를 못 넘음(−0.018, −0.011)**. Q1로 메커니즘 충실성은 입증. → 정직한 음성/분석 기여."
-- 결정: §6(다) 분석/음성 paper 확정(A' method 경로 닫힘). F2(value/metric)는 우선순위↓(elec2선 value도 음성).
+**0. 타깃 결정 (정렬 1순위)**: 토대(엄밀성·정직성·진단)는 탑티어급, 막는 건 *범위·프레이밍*(재작업 아닌 추가작업).
+- **(i) 워크숍/단편 = 지금 충분** (distribution-shift/tabular). 낮은 노력, 피드백.
+- **(ii) NeurIPS D&B 트랙 = 현 자산 최적핏** (벤치·측정·분석·음성 가치; 적당 범위확장으로 현실권).
+- **(iii) 메인트랙 분석 = 수개월**: 표 시간 **15~20개**로 Claim A 일반화 + **여러 시간-인지 방법**을 같은 렌즈로
+  ("내 방법 실패"→"분야 현상") + 도구킷 1급화 + redundancy를 가설로 신중 전개.
 
-**B. 음성/분석 paper 골격 (정렬 후 착수)**: ① covariate≫concept(TabReD) + 측정 프레임(F3/within-overlap),
-② Q1 충실성(메커니즘은 맞음), ③ Q2b 구조≤피처(2 데이터셋, 진단 곡선·결정표), ④ 도구킷(diagnostics/drift_measure).
+**1. 정렬 전 정밀 재진술 (지도교수가 찌를 자리 — 선제)**:
+- **elec2 = consistent-but-uninformative**(paired −0.005, CI[−.013,+.003], val→test .07). 음성은 **Insects가 나름**(paired −0.011, CI[−.023,+.001], borderline, val→test .87). "두 벤치 모두" 헤드라인 금지.
+- **구조 vs 기판 분해**: time_tabr−tabr=+0.028(시간-구조는 작동) but tabr−mlp_t=−0.038(검색 substrate ≪ parametric) → 지는 건 substrate. "time_tabr>tabr인데 구조 되는 거 아니냐" 선제 차단.
+- **통계 = paired**(시드 공유 → diff-SE ≪ marginal std). 러너에 `paired_contrasts` 박힘(`--report-grid` 출력).
+- **리드 = Claim A**(robust·신규), **Claim B는 보조**(분리해 A 약화 방지). oracle 음성은 강한형이나 elec2 배포주장 불가 명시.
 
-**선택 보강(음성 견고화, 원하면)**: Insects `--insects-variant abrupt_balanced`, random 대조,
-elec2 abrupt 등. 명령은 `run_elec2_q2.py --dataset insects --report-grid ...` 형태 그대로.
-모든 진단은 `results/phase1/<dataset>_q2/diagnostics.jsonl`에 누적.
+**2. 음성 견고화 (권장, 싼 것만 — B를 n=1-clean→n=3-clean)**:
+```
+python scripts/run_elec2_q2.py --dataset insects --insects-variant abrupt_balanced --report-grid \
+    --n-seeds 10 --splits temporal --bases trend --lr-grid 1e-3 5e-4 2e-4 --dropout 0.1 --weight-decay 1e-4 --min-epochs 20
+# + incremental_abrupt_balanced 등. (elec2-abrupt는 우선순위↓: val→test .07 노이즈 상속)
+```
+모든 진단 `results/phase1/insects_q2/diagnostics.jsonl` 누적(record에 dataset/variant·paired_contrasts 포함).
+
+**3. Q1 큰-회전 robustness (헤드라인 논거용 미결)**: floor 0.894 좁은 동적범위 → 큰-회전(≥180°) 1회로 넓혀야
+"메커니즘은 충실"이 헤드라인 논거로 robust. (게이트론 이미 충분.)
+
+**4. paper 골격 (타깃 정해지면)**: A(covariate≫concept+측정프레임) 리드 → Q1 충실성 → B(구조≤피처, 분해·paired) 보조 → 도구킷 1급화.
 
 ## 사전등록된 해석 규칙 (결과에 안 휘둘리게)
 - 구조 이득은 **temporal split**에 나타나야(early→late stale-label 존재), **random엔 ~0**

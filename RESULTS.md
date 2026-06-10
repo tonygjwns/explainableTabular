@@ -72,21 +72,30 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
 - **정규화+min_epochs 20 (dropout.1/wd1e-4, 메커니즘 engage 보장; best_ep 11·14·36↑) 10시드 oracle**:
   mlp_t **0.9027** > tabr 0.8955 > **time_tabr 0.8848**. **time_tabr−mlp_t = −0.018**(더 악화), time_tabr−tabr = **−0.011**(검색을 해침), mlp_t−tabr = +0.007(시간 자체는 도움).
   **time_tabr std 0.047~0.075** (lr↑서 0.73~0.92 난동) — 정규화로도 불안정 → `(t_i→t_q)` 보정항 **ill-conditioned**.
-- val→test Spearman 0.07(≈0) → val로 lr/epoch 선택 무용(concept drift). random서 time_tabr≈mlp_t 높음은 **autocorrelation-leakage 적신호**(concept 착취 아님; 사전등록대로 temporal이 핵심).
-→ **시간은 도움, 그러나 그것을 나르는 최선은 평범한 시간-피처 MLP. time-TabR 구조는 피처를 못 넘고(−0.018) 불안정.**
-  **"메커니즘 미engage 때문" 위협 제거됨**(min_epochs로 학습시켜도 음성 유지·강화). **Q2b 구조 청구 = 견고한 음성.**
+- **⚠ paired 재진술 (정직, 비평 반영)**: arm들이 시드/split/init 공유 → marginal std(0.05)가 아니라 *차이의* SE가 척도.
+  무정규화 paired: time_tabr−mlp_t = **−0.005, SE .0035, 95%CI [−0.013,+0.003], 1.45 SE, sign 2/8 → 0과 구분 불가**.
+  즉 elec2의 "구조<피처"는 **consistent-but-uninformative**(noise null). val→test Spearman 0.07 = elec2는 regime/autocorrelation
+  때문에 *모델 비교 기판으로는 노이즈*(데이터엔 concept +0.132 있음과 모순 아님 — concept은 있으나 비교엔 부적합).
+→ **elec2는 음성을 *나르지 않음*(증거력 없음). 음성의 무게는 Insects(§11, val→test 0.87, 깨끗)가 짊어짐.**
+  ("메커니즘 미engage" 위협은 min_epochs로 제거됨 — 별개로 유효.)
 
 ## 11. Q2b 둘째 데이터셋 — INSECTS (designed drift, multiclass, accuracy)  [solid] ★≥2 잠금
 `incremental_balanced`, temporal, 정규화+min_epochs 20, 10시드 (`run_elec2_q2.py --dataset insects`).
 - ①곡선: train_loss 감소(버그 아님), argmax_val **15~20 epoch**(elec2 epoch1~4와 달리 **trivially 쉽지 않음** = 비-trivial concept).
-- 결정표 oracle: mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320.
-  - **time_tabr − mlp_t = −0.011** (구조가 피처 못 넘음; elec2 −0.018과 일관 **음성**).
-  - **mlp_t − tabr = +0.038** (Insects선 시간이 *매우* 중요 — elec2 +0.007의 5배 = 진짜 concept).
-  - **time_tabr − tabr = +0.028** (시간 훅이 검색엔 도움; elec2선 해쳤던 것과 대조). 그래도 mlp_t 미달.
-  - time_tabr std 0.014~0.033 (mlp_t .006~.009) — 여전히 더 불안정.
-- **val→test Spearman = +0.87** (elec2 0.07) → val이 test 예측 = elec2 val/test 붕괴는 **elec2 고유**(autocorrelation/regime) 확인.
-→ **성격 정반대 두 벤치(trivial elec2 / 비-trivial Insects) 모두 구조 ≤ 피처** → 사전등록 "구조 우위(≥2 데이터셋)" **미충족 = §6(다) 음성 확정.**
-  (부수: Insects선 시간 자체·시간 훅 모두 합리적으로 작동하나 단순 시간-피처를 못 넘음 = 깔끔한 "structure ≤ feature".)
+- 결정표 oracle: mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320. **PAIRED per-seed(oracle lr, 10시드, 정직한 척도):**
+  | 대비 | mean diff | SE | 95% CI | sign +/− | \|m\|/SE |
+  |---|---|---|---|---|---|
+  | **time_tabr − mlp_t** | **−0.011** | .0052 | **[−0.023, +0.001]** | 3/7 | 2.12 (borderline) |
+  | time_tabr − tabr | +0.028 | .0066 | [+0.013, +0.043] | 9/1 | 4.14 (유의+) |
+  | mlp_t − tabr | +0.038 | .0040 | [+0.029, +0.048] | 10/0 | 9.58 (강한+) |
+- **★구조 vs 기판 분해 (비평 반영, 선제 진술)**: 지는 건 *시간 메커니즘이 아니라 검색 substrate*다.
+  `mlp_t−tabr=+0.038`(검색 기판 ≪ parametric MLP) + `time_tabr−tabr=+0.028`(**시간-구조는 검색 안에서 확실히 작동**)
+  → 시간-구조가 substrate 적자(−0.038)를 못 메워 결합 구조가 피처를 못 넘음(−0.011). **redundancy 논증과 일관.**
+- **val→test Spearman = +0.87** (elec2 0.07) → Insects는 val이 test 예측(깨끗) → elec2 붕괴는 **elec2 고유**.
+- time_tabr std 0.014~0.033 (mlp_t .006~.009) — paired SE는 0.0052로 훨씬 tight.
+→ **음성은 Insects가 나름**(borderline-significant, CI 상단 +0.001로 0 스침). time_tabr−mlp_t<0이 일관·near-sig =
+  "**테스트 가능한 깨끗한 벤치에서 구조가 시간-피처를 못 넘음**"(강한 oracle 형태 음성 — oracle 선택을 줘도 못 넘음).
+  단 배포 주장은 불가(elec2 val→test 0.07). **분야 class 음성엔 더 많은 깨끗한 데이터셋·방법 필요(아래 NEXT_TAB).**
 
 ---
 
@@ -97,8 +106,14 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
   학습 V_k(§4.2 정보없음 결함)는 trend+load-balance로 안 고쳐짐 → Q2a null을 "구조 실패"로 해석 금지.
   **진짜 구조 테스트 = Q2b 인스턴스 V_k(TabR)** + 같은-모델 시간-조건 on/off ablation(아래).
 
-## 헤드라인 (정밀)
-메커니즘은 **충실·정확**(합성). 실 표 시간데이터는 **covariate-지배** — 고-covariate는 concept **측정불가**, elec2(중간)는 **진짜 측정가능 concept(+0.166)**. **시간-인덱싱 *구조*가 시간-*피처*를 elec2 concept에서 넘는지**가 열린 질문(Q2 진행). *주의: "시간방법이 못 돕는다"(전칭) 아님 — 시간-피처는 elec2서 도움. 미확정은 "구조 > 피처".*
+## 헤드라인 (정밀, 2026-06-10 재프레이밍 — 비평 반영)
+**리드 = Claim A (robust·신규)**: 현실 표 시간데이터는 **covariate 지배** → 강한 covariate가 early/late 공통support를
+무너뜨려 **concept을 표준 조건부 렌즈로 측정조차 어렵다**(~10 데이터셋; F3/within-overlap 프레임 + 진단 도구킷이 받침).
+**보조 = Claim B (구조 ≤ 피처)**: 테스트 가능한 곳에선 시간-인덱싱 *구조*가 시간-*피처*를 못 넘음 — **Insects(깨끗, val→test .87)
+paired −0.011, 95%CI[−.023,+.001], borderline**이 나르고, **elec2는 consistent-but-uninformative**(paired −.005, CI가 0 포함; val→test .07).
+분해: 지는 건 *시간 메커니즘이 아니라 검색 substrate*(tabr−mlp_t=−.038; time_tabr−tabr=+.028) → redundancy와 일관.
+*주의(전칭 금지)*: "시간방법 무용" 아님 — 시간-피처는 도움(Insects mlp_t−tabr +.038). 메커니즘도 안 망가짐(Q1 충실 PASS).
+미확정은 "구조 > 피처"가 거짓. **B는 A를 약화시키지 않게 분리** — B는 1개-clean(+1 noisy)이라 class 음성엔 다중 데이터셋·방법 확장 필요.
 
 ## 리뷰어용 열린 질문
 1. within-overlap concept 측정(in-sample p로 영역 선택)이 elec2 +0.166을 과대평가하지 않나? (held-out p로 재확인 가치?)
