@@ -186,6 +186,27 @@ on/off) on elec2's measured concept. `run_elec2_q2.py` → `results/phase1/elec2
   multiclass)** to test whether the negative generalizes to a non-trivially-exploitable
   concept, or whether structure can win there. (Loader infra being built.)
 
+### Q2b 2nd dataset — INSECTS confirms the negative (≥2 datasets, 2026-06-09)
+INSECTS `incremental_balanced` (multiclass, accuracy), temporal, regularized+min_epochs 20,
+10 seeds. Unlike elec2, INSECTS is NOT trivially saturated (argmax_val ~15–20 epochs) and
+time matters a LOT — so it's a genuine non-trivial concept-drift test.
+- oracle mean test: mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320.
+- **time_tabr − mlp_t = −0.011** (structure again does NOT beat the time-feature; consistent
+  with elec2 −0.018). mlp_t − tabr = **+0.038** (time hugely helps — 5× elec2's +0.007).
+  time_tabr − tabr = +0.028 (here the time hook HELPS retrieval — opposite of elec2 — but
+  still below the plain feature). time_tabr std .014–.033 (still less stable than mlp_t).
+- val→test Spearman **+0.87** (vs elec2's 0.07) → on INSECTS val predicts test; the elec2
+  val/test breakdown was elec2-specific (autocorrelation/regime), not a general flaw.
+→ **Across TWO opposite-character benchmarks (trivially-exploitable elec2 / non-trivial
+  designed-drift INSECTS) the time-TabR STRUCTURE never beats a plain time-FEATURE
+  (−0.018, −0.011).** Pre-registered "structure win on ≥2 datasets" is UNMET → the §6(다)
+  negative/analysis result is locked. (Nuance for the writeup: on INSECTS time itself and
+  the time hook both behave sensibly — the mechanism isn't broken; it's just dominated by
+  the simpler time-feature. Clean "structure ≤ feature", not "mechanism fails".)
+**DECISION (pre-registered)**: ≥2-dataset structure win = NO → direction = §6(다) analysis/
+  negative paper (measurable concept exists, structure doesn't beat feature, covariate-vs-
+  concept toolkit, Q1-faithful mechanism). A'(method) path closed for time-TabR structure.
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.

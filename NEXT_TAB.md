@@ -9,8 +9,10 @@ TabM 재현 8/8. TabReD=covariate(concept 측정불가). Elec2=within-overlap �
 **Q2b 인스턴스 time-TabR 실행·판정 완료 → 구조 청구 = 견고한 음성**: elec2(temporal, 10시드, 정규화+min_epochs로
 메커니즘 engage 보장)에서 **mlp_t(시간=피처) 0.9027 > tabr 0.8955 > time_tabr 0.8848**. 시간은 도움(mlp_t−tabr +0.007)
 이나 **구조가 피처를 못 넘고(−0.018) 불안정(std .05~.075)**. ①train_loss 감소+temporal조기/random늦은 peak로 **drift 확정(버그 아님)**.
-→ §6(다) "측정된 concept 위 음성" 강화. **남은 병목 = ≥2 데이터셋 → Insects(designed drift, multiclass) 인프라 빌드 완료, 서버 실행 대기.**
-(RESULTS §10, FINDINGS "Q2b ANSWERED" 참조.)
+→ §6(다) "측정된 concept 위 음성". **≥2 데이터셋 충족: Insects(designed drift, multiclass)도 구조 음성**
+(time_tabr−mlp_t=−0.011; mlp_t−tabr=+0.038로 시간은 매우 중요·구조만 못 넘음; val→test ρ=0.87로 elec2 val붕괴는 elec2 고유).
+→ **사전등록 "구조 우위" 미충족 = §6(다) 음성/분석 paper 확정, A' method 경로 닫힘. 남은 건 지도교수 정렬.**
+(RESULTS §10·§11, FINDINGS "Q2b ANSWERED" 참조.)
 
 ## 게이트 상태 (사전등록 PLAN_RESCUE §E)
 - **Q1 충실성 PASS**: `run_q1_faithfulness` recovery 0.991 (10/10) vs ceiling 0.990/floor 0.894.
@@ -26,30 +28,20 @@ TabM 재현 8/8. TabReD=covariate(concept 측정불가). Elec2=within-overlap �
     caller가 context set(features,t,y) 공급 — 학습=in-batch(exclude_self), eval=고정 sample.
 - `scripts/smoke_test_tabr.py`: 서버 통과(shape/grad/time-mod grad/exclude_self).
 
-## ★ 다음 행동 — **Insects 실행(≥2 데이터셋 병목) + 지도교수 정렬**
-elec2 Q2b는 **음성 확정**(위 요약). 코딩은 전부 push됨. 남은 건 **Insects 실행**과 **방향 정렬**.
+## ★ 다음 행동 — **지도교수 정렬 → §6(다) 음성/분석 paper 착수**
+Q2b 실행·판정 **완료**: elec2 + Insects 둘 다 구조 음성(위 요약). 사전등록 결정규칙 해소 → **방향 = §6(다)**.
 
-**A. Insects 실행 (서버, `river` 설치 필요: `pip install river`)** — 인프라 빌드 완료(아래 ✅):
-- ✅ `src/data/insects_loader.py`: river INSECTS(multiclass, designed drift), temporal/random split, `max_samples` 캡.
-- ✅ `run_elec2_q2.py --dataset insects`: 메트릭=accuracy 자동, 결과 `results/phase1/insects_q2/diagnostics.jsonl`.
-- ✅ `scripts/smoke_test_insects.py`: river 없으면 skip(exit0).
-```
-pip install river
-python scripts/smoke_test_insects.py                                   # 로더+멀티클래스 배선
-# ① 버그/drift 곡선
-python scripts/run_elec2_q2.py --dataset insects --diag --splits temporal random --bases trend
-# ② 결정표(정규화+min_epochs, elec2와 동일 프로토콜)
-python scripts/run_elec2_q2.py --dataset insects --report-grid --n-seeds 10 \
-    --splits temporal --bases trend --lr-grid 1e-3 5e-4 2e-4 --dropout 0.1 --weight-decay 1e-4 --min-epochs 20
-```
-판정: Insects(비-trivial concept)서도 time_tabr ≤ mlp_t → **§6(다) 음성 확정**(2 데이터셋). time_tabr > mlp_t →
-elec2 음성은 "trivial 착취" 한정 → **양성 경로 부분 부활**(variant별 abrupt/incremental 추가 권장).
+**A. 지도교수 정렬 (지금)**: RESULTS §10·§11 + FINDINGS "Q2b ANSWERED" 지참.
+- 핵심 메시지: "측정가능한 concept(elec2 +0.132)·비-trivial designed drift(Insects) **둘 다에서 시간은 도움이나
+  time-TabR *구조*가 시간-*피처*를 못 넘음(−0.018, −0.011)**. Q1로 메커니즘 충실성은 입증. → 정직한 음성/분석 기여."
+- 결정: §6(다) 분석/음성 paper 확정(A' method 경로 닫힘). F2(value/metric)는 우선순위↓(elec2선 value도 음성).
 
-**B. 지도교수 정렬 (병렬)**: ① F2(value vs metric side) — 이제 elec2선 value도 음성이라 우선순위↓. ② **방향 결정**:
-elec2 음성 + (Insects 결과)로 **§6(다) 분석/음성 paper** vs **A'(Insects 양성 시 method)**. RESULTS §10 / FINDINGS "Q2b ANSWERED" 들고 상의.
+**B. 음성/분석 paper 골격 (정렬 후 착수)**: ① covariate≫concept(TabReD) + 측정 프레임(F3/within-overlap),
+② Q1 충실성(메커니즘은 맞음), ③ Q2b 구조≤피처(2 데이터셋, 진단 곡선·결정표), ④ 도구킷(diagnostics/drift_measure).
 
-**elec2 진단 재현(원하면)**: `--diag --splits temporal random`, `--report-grid ... --dropout 0.1 --weight-decay 1e-4 --min-epochs 20`.
-모든 진단은 `results/phase1/<dataset>_q2/diagnostics.jsonl`에 한 줄씩 누적.
+**선택 보강(음성 견고화, 원하면)**: Insects `--insects-variant abrupt_balanced`, random 대조,
+elec2 abrupt 등. 명령은 `run_elec2_q2.py --dataset insects --report-grid ...` 형태 그대로.
+모든 진단은 `results/phase1/<dataset>_q2/diagnostics.jsonl`에 누적.
 
 ## 사전등록된 해석 규칙 (결과에 안 휘둘리게)
 - 구조 이득은 **temporal split**에 나타나야(early→late stale-label 존재), **random엔 ~0**

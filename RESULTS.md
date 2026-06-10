@@ -76,6 +76,18 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
 → **시간은 도움, 그러나 그것을 나르는 최선은 평범한 시간-피처 MLP. time-TabR 구조는 피처를 못 넘고(−0.018) 불안정.**
   **"메커니즘 미engage 때문" 위협 제거됨**(min_epochs로 학습시켜도 음성 유지·강화). **Q2b 구조 청구 = 견고한 음성.**
 
+## 11. Q2b 둘째 데이터셋 — INSECTS (designed drift, multiclass, accuracy)  [solid] ★≥2 잠금
+`incremental_balanced`, temporal, 정규화+min_epochs 20, 10시드 (`run_elec2_q2.py --dataset insects`).
+- ①곡선: train_loss 감소(버그 아님), argmax_val **15~20 epoch**(elec2 epoch1~4와 달리 **trivially 쉽지 않음** = 비-trivial concept).
+- 결정표 oracle: mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320.
+  - **time_tabr − mlp_t = −0.011** (구조가 피처 못 넘음; elec2 −0.018과 일관 **음성**).
+  - **mlp_t − tabr = +0.038** (Insects선 시간이 *매우* 중요 — elec2 +0.007의 5배 = 진짜 concept).
+  - **time_tabr − tabr = +0.028** (시간 훅이 검색엔 도움; elec2선 해쳤던 것과 대조). 그래도 mlp_t 미달.
+  - time_tabr std 0.014~0.033 (mlp_t .006~.009) — 여전히 더 불안정.
+- **val→test Spearman = +0.87** (elec2 0.07) → val이 test 예측 = elec2 val/test 붕괴는 **elec2 고유**(autocorrelation/regime) 확인.
+→ **성격 정반대 두 벤치(trivial elec2 / 비-trivial Insects) 모두 구조 ≤ 피처** → 사전등록 "구조 우위(≥2 데이터셋)" **미충족 = §6(다) 음성 확정.**
+  (부수: Insects선 시간 자체·시간 훅 모두 합리적으로 작동하나 단순 시간-피처를 못 넘음 = 깔끔한 "structure ≤ feature".)
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)
@@ -91,7 +103,8 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
 ## 리뷰어용 열린 질문
 1. within-overlap concept 측정(in-sample p로 영역 선택)이 elec2 +0.166을 과대평가하지 않나? (held-out p로 재확인 가치?)
 2. Q1 동적범위(floor 0.894)가 좁다 — 큰-회전 robustness 전에 "충실성 PASS"를 헤드라인으로 써도 되나?
-3. elec2 단일 measurable-concept 벤치 — 일반성? (Insects 등 designed-drift 추가 필요?)
+3. ~~elec2 단일 measurable-concept 벤치 — 일반성?~~ **해결**: Insects(designed-drift, multiclass) 추가 →
+   구조 ≤ 피처 음성이 **두 데이터셋서 일관**(§11). 더 강하려면 abrupt variant·random 대조 추가 가능.
 4. Q2에서 time-feature baseline의 t-인코딩을 메모리와 같은 기저로 정합하는 것 외에, "구조 기여"를 더 깨끗이 가를 방법?
 
 ## 포인터

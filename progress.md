@@ -2,6 +2,15 @@
 
 > 매일 짧게 기록. SETUP.md §7 형식.
 
+## 2026-06-10 — Q2b 둘째 데이터셋 Insects: 구조 음성 일관 → ≥2 데이터셋 잠금, §6(다) 확정
+- **Insects (incremental_balanced, multiclass, temporal, 정규화+min_ep20, 10시드; RESULTS §11)**:
+  oracle mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320. **time_tabr−mlp_t=−0.011**(elec2 −0.018과 일관 음성),
+  mlp_t−tabr=**+0.038**(시간이 매우 중요=진짜 concept), time_tabr−tabr=+0.028(시간 훅이 검색엔 도움). val→test ρ=**0.87**(elec2 0.07 → elec2 val붕괴는 고유).
+  ①곡선 argmax_val 15~20ep(trivially 쉽지 않음). train_loss 감소(버그 아님).
+- → **성격 정반대 두 벤치(trivial elec2 / 비-trivial Insects) 모두 구조 ≤ 피처** = 사전등록 "구조 우위(≥2)" **미충족**
+  → **방향 = §6(다) 음성/분석 paper 확정**(A' method 경로 닫힘). 남은 건 지도교수 정렬 + paper 골격.
+- 레저 갱신: RESULTS §11 + open Q#3 해결, FINDINGS "≥2 datasets" 잠금, NEXT_TAB/CLAUDE 방향 §6(다)로.
+
 ## 2026-06-09 (2) — Q2b 실행·판정: elec2 구조 **견고한 음성** + Insects 인프라
 - **elec2 Q2b 결정 (RESULTS §10, FINDINGS "Q2b ANSWERED")**: 3-arm 요인설계 실행·해석.
   - ①버그vs드리프트: train_loss 전부 감소(버그 아님). temporal argmax_val=epoch2~4, random=~55 → **drift 확정**.

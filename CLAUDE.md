@@ -20,14 +20,16 @@
 
 한 줄: Phase 0 8/8 PASS. Phase 1 메모리 메커니즘은 **TabReD에서 성능 이득 0(검증된 음성)**,
 **합성/Elec2 concept에선 충실·작동**. Q1 충실성 **PASS**, Elec2 measurable concept +0.132 확정.
-**Q2b(인스턴스 time-TabR) 실행·판정 완료 → 구조 청구 = 견고한 음성** (elec2서 time_tabr ≤ 시간-피처 mlp_t, −0.018·불안정;
-"메커니즘 미engage" 위협 min_epochs로 제거). **남은 병목 = ≥2 데이터셋 → Insects(designed drift, multiclass) 인프라 빌드 완료, 서버 실행 대기.**
-- ✅ Q1 게이트 PASS, Elec2 concept 확정, **Q2b elec2 음성 확정**(RESULTS §10, FINDINGS "Q2b ANSWERED", `diagnostics.jsonl`).
+**Q2b(인스턴스 time-TabR) 실행·판정 완료 → 구조 청구 = 견고한 음성, ≥2 데이터셋 잠금**:
+elec2(time_tabr−mlp_t=−0.018) + Insects(−0.011, 비-trivial multiclass) **둘 다 구조 ≤ 시간-피처**.
+**사전등록 "구조 우위(≥2 데이터셋)" 미충족 → 방향 = §6(다) 음성/분석 paper(A' method 경로 닫힘).** 지도교수 정렬만 남음.
+- ✅ Q1 게이트 PASS, Elec2 concept 확정, **Q2b 음성 확정(elec2+Insects)**(RESULTS §10·§11, FINDINGS "Q2b ANSWERED").
 - ✅ Q2b 코어: `src/models/tabr.py`(TimeTabR+TimeTabRModel, (t_q,t_i,y_i) 훅, dropout), `src/training/tabr_trainer.py`
   (in-batch 학습/고정-context eval, train-loss 기록·step-eval·min_epochs), `scripts/run_elec2_q2.py`(요인설계 + `--diag`/`--report-grid`/`--dataset`).
 - ✅ **Insects 인프라**: `src/data/insects_loader.py`(river, multiclass), `run_elec2_q2.py --dataset insects`, `smoke_test_insects.py`.
-- 🔄 **다음 작업**: 서버서 `pip install river` → `smoke_test_insects.py` → `run_elec2_q2.py --dataset insects --report-grid ...`. (NEXT_TAB.md)
-- ⬜ **방향 결정(정렬)**: elec2 음성 + Insects 결과로 §6(다) 음성/분석 paper vs A'(Insects 양성 시 method). F2는 우선순위↓(value도 elec2서 음성).
+- ✅ **Insects 실행·판정 완료**: 구조 음성 일관(§11). ≥2 데이터셋 결정규칙 충족 → §6(다) 확정.
+- 🔄 **다음 작업**: **지도교수 정렬**(RESULTS §10·§11 / FINDINGS "Q2b ANSWERED" 지참) → §6(다) 음성/분석 paper 작성 착수.
+  (선택 보강: Insects abrupt variant·random 대조로 음성 견고화.)
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.
