@@ -14,23 +14,24 @@
 - 서버에선 Claude를 못 씀. **그래서 로컬에서 최대한 완성된 코드를 만들어 push**해야 함.
 - GitHub: https://github.com/tonygjwns/explainableTabular
 
-## 현재 상태 (2026-06-05) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
-**핵심 문서(읽는 순서)**: **`OVERVIEW.md`(전체 흐름·배경부터, 비전공자도 OK)** → `NEXT_TAB.md`(인계·다음 행동) →
-`RESULTS.md`(결과 ledger) → `FINDINGS.md`(증거 사슬) → `PLAN_RESCUE.md`(사전등록 프로토콜·결정규칙) → `Q2B_PROPOSAL.md`(현 빌드).
+## 현재 상태 (2026-06-12) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
+**핵심 문서(읽는 순서)**: **`OVERVIEW.md`(전체 흐름·배경)** → `NEXT_TAB.md`(인계·다음 행동) →
+**`PLAN_V2.md`(현행 계획)** → **`PREREG_V2.md`(현행 결정규칙)** → `RESULTS.md`(ledger) → `FINDINGS.md`(증거).
+(PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서. OVERVIEW의 Q2b 결론 단락도 V2 무효화 이전 서술임에 주의.)
 
-한 줄: Phase 0 8/8 PASS. Phase 1 메모리 메커니즘은 **TabReD에서 성능 이득 0(검증된 음성)**,
-**합성/Elec2 concept에선 충실·작동**. Q1 충실성 **PASS**, Elec2 measurable concept +0.132 확정.
-**Q2b(인스턴스 time-TabR) 실행·판정 완료 → 구조 청구 = 견고한 음성, ≥2 데이터셋 잠금**:
-elec2(time_tabr−mlp_t=−0.018) + Insects(−0.011, 비-trivial multiclass) **둘 다 구조 ≤ 시간-피처**.
-**사전등록 "구조 우위(≥2 데이터셋)" 미충족 → 방향 = §6(다) 음성/분석 paper(A' method 경로 닫힘).** 지도교수 정렬만 남음.
-- ✅ Q1 게이트 PASS, Elec2 concept 확정, **Q2b 음성 확정(elec2+Insects)**(RESULTS §10·§11, FINDINGS "Q2b ANSWERED").
-- ✅ Q2b 코어: `src/models/tabr.py`(TimeTabR+TimeTabRModel, (t_q,t_i,y_i) 훅, dropout), `src/training/tabr_trainer.py`
-  (in-batch 학습/고정-context eval, train-loss 기록·step-eval·min_epochs), `scripts/run_elec2_q2.py`(요인설계 + `--diag`/`--report-grid`/`--dataset`).
-- ✅ **Insects 인프라**: `src/data/insects_loader.py`(river, multiclass), `run_elec2_q2.py --dataset insects`, `smoke_test_insects.py`.
-- ✅ **Insects 실행·판정 완료**: 구조 음성(§11). **정밀 재진술(비평 반영)**: elec2=consistent-but-uninformative(paired −.005, CI 0포함, val→test .07),
-  **음성은 Insects가 나름**(paired −.011, CI[−.023,+.001], borderline, val→test .87). 분해: 지는 건 시간메커니즘 아닌 **검색 substrate**(tabr−mlp_t=−.038; time_tabr−tabr=+.028).
-- 🔄 **다음 작업**: ⓪**타깃 학회 합의**(워크숍 now / NeurIPS D&B 최적핏 / 메인트랙=15~20데이터셋·다중방법 범위확장) → 정렬(Claim A 리드, B 보조·분리) → 범위작업.
-  (싼 보강: Insects abrupt/gradual variants로 B n=1-clean→n=3-clean. Q1 큰-회전 1회 미결.) 러너에 paired 통계 박힘.
+한 줄: Phase 0 8/8 PASS, Q1 충실성 PASS, Elec2 within-overlap concept +0.132 — 유효.
+**단 2026-06-12 외부 감사로 Q2b "구조 ≤ 피처" 음성의 *해석*이 무효화됨**: linear value 훅이 집계 하에
+Δt 피처 1개로 붕괴(`Σw·Lin(Δτ)=Lin(Σw·Δτ)` — 가설 미검정), 검색 기판 sub-TabR(온도·key-proj 없음,
+train/eval context 불일치), time_tabr만 직접 시간 피처 미보유(교락). 시드 10 ≠ 사전등록 25.
+Claim A 측정 프레임은 DISDE/WhyShift 인용·재포지셔닝 필요(신규성 = 시간축 실증 + 측정불가 발견).
+- ✅ **V2 인프라 구현 완료(R0, 2026-06-12)**: 비퇴화 훅(mlp/gate, zero-init 등가), learnable τ+key-proj,
+  train/eval context 정합(sampled-4096/full), **5-arm(tabr_t·time_tabr_t 추가)**, val-fair+oracle 병기,
+  `hedges_g_paired`, `run_anchors.py`(lgbm±t/knn±t/no-change), 선형-붕괴 표현력 smoke 가드, `--legacy` 재현 플래그.
+- 🔒 **PREREG_V2 잠금**: 주 대비 = `time_tabr_t − tabr_t`(temporal, 25시드, val-fair, paired CI+p+g_z),
+  clean 셋 = INSECTS 3변종(val→test ρ≥0.3 확인), elec2 보조. 구조 우위 = ≥2/3 변종 CI>0 ∧ p<.05 ∧ g_z≥.5.
+- 🔄 **다음**: ①서버 R1(smoke→앵커→topk 튜닝 3시드→본 실행 25시드; 커맨드 NEXT_TAB에 완성) →
+  ②R2(문헌 원문 검증[웹 필요]·DISDE 퇴화 실험·**Cai&Ye 판결**·도구킷 검증·Q1 큰-회전; PLAN_V2 §R2) →
+  ③R1 결과 들고 지도교수 정렬(타깃: 워크숍 now / **NeurIPS D&B 주 타깃** / 메인트랙 확장).
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.

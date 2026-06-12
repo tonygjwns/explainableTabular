@@ -70,10 +70,11 @@ def paired_wilcoxon(scores_a: Sequence[float], scores_b: Sequence[float]) -> flo
 
 
 def hedges_g(scores_a: Sequence[float], scores_b: Sequence[float]) -> float:
-    """Hedges' g effect size (Cohen's d with small-sample correction).
+    """UNPAIRED Hedges' g effect size (Cohen's d with small-sample correction).
 
-    Positive g means method A > method B (on oriented scores). Computed on the
-    paired per-seed scores; uses pooled SD (treating the two as samples).
+    Positive g means method A > method B (on oriented scores). Uses pooled SD,
+    treating the two as independent samples — for seed-paired comparisons this
+    UNDERSTATES the effect; prefer `hedges_g_paired` there (audit 2026-06-12).
     """
     a = np.asarray(scores_a, dtype=float)
     b = np.asarray(scores_b, dtype=float)
@@ -88,6 +89,30 @@ def hedges_g(scores_a: Sequence[float], scores_b: Sequence[float]) -> float:
     cohen_d = (np.mean(a) - np.mean(b)) / s_pooled
     correction = 1.0 - 3.0 / (4.0 * (n_a + n_b) - 9.0)
     return float(cohen_d * correction)
+
+
+def hedges_g_paired(scores_a: Sequence[float], scores_b: Sequence[float]) -> float:
+    """PAIRED Hedges' g (d_z with small-sample correction) — use with paired Wilcoxon.
+
+    d_z = mean(a-b) / std(a-b, ddof=1), corrected by J(df=n-1) = 1 - 3/(4(n-1)-1).
+    When the two arms share seed/data/init, between-seed variance is common to both,
+    so the unpaired pooled-SD `hedges_g` UNDERSTATES the standardized paired effect
+    (audit 2026-06-12). Use this wherever the comparison is paired by seed.
+    """
+    a = np.asarray(scores_a, dtype=float)
+    b = np.asarray(scores_b, dtype=float)
+    if a.shape != b.shape:
+        raise ValueError(f"shape mismatch: {a.shape} vs {b.shape}")
+    n = len(a)
+    if n < 2:
+        return float("nan")
+    d = a - b
+    sd = d.std(ddof=1)
+    if sd == 0:
+        return 0.0
+    dz = float(d.mean() / sd)
+    correction = 1.0 - 3.0 / (4.0 * (n - 1) - 1.0)
+    return float(dz * correction)
 
 
 def benjamini_hochberg(p_values: Sequence[float], alpha: float = 0.05):

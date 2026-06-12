@@ -1,20 +1,30 @@
-"""Training loop for the 3-arm TimeTabRModel (Q2b structure axis).
+"""Training loop for the TimeTabRModel arms (Q2b structure axis, V2 protocol).
 
-Trains TimeTabRModel (shared MLP encoder; arch in {mlp_t, tabr, time_tabr}) on one
-dataset/seed with a single supervised loss (CE / MSE). This is the runner-side half
-of the Q2b infra; the model + retrieval core live in src/models/tabr.py.
+Trains TimeTabRModel (shared MLP encoder; arch in {mlp_t, tabr, tabr_t, time_tabr,
+time_tabr_t}) on one dataset/seed with a single supervised loss (CE / MSE). This is
+the runner-side half of the Q2b infra; the model + retrieval core live in
+src/models/tabr.py.
 
-Retrieval protocol (NEXT_TAB.md ★):
-- TRAIN: in-batch retrieval. Each minibatch is BOTH the queries and the candidate
-  context (context = same batch), with exclude_self=arange(B) so a query never
-  retrieves itself. No load-balance / L_smooth term — top-k retrieval doesn't
-  collapse the way a softmax-over-K prototype memory does.
-- EVAL : a FIXED context set sampled once from train (default 4096 instances) is the
-  candidate pool for every query. The encoder is re-applied to that context at each
-  evaluate() call (weights change across epochs), no_grad.
+Retrieval protocol — V2 (external audit 2026-06-12; see PLAN_V2.md):
+- TRAIN (train_context='sampled', default): context = [the minibatch] + a fresh
+  per-step sample of `train_context_size` OTHER train instances (batch indices
+  excluded so a query can never meet a duplicate of itself), exclude_self over the
+  batch positions. This closes the pre-V2 train/eval mismatch (in-batch 255
+  candidates at train vs 4096 at eval) AND keeps the Δt input distribution of the
+  hooks comparable between train and eval.
+  train_context='inbatch' reproduces the legacy protocol (context = batch only).
+- EVAL (eval_context='full', default): the candidate pool is the ENTIRE train set
+  (computationally trivial at these scales; pre-V2 used an arbitrary 13% uniform
+  subsample). eval_context='fixed' reproduces the legacy fixed sample of
+  `eval_context_size`, now drawn from a DEDICATED generator seeded by `ctx_seed`
+  so all arms at the same seed share the same pool (pre-V2 drew from the global
+  RNG after model construction → pools differed across arms).
+  The context is re-encoded once per evaluate() call (weights change), no_grad.
 
 arch='mlp_t' ignores the context entirely (time is just a feature) — so the same
-loop trains all three arms; the factorial runner only flips cfg.arch / cfg.time_mode.
+loop trains all arms; the factorial runner only flips cfg.arch / cfg.time_mode.
+Batches with <2 samples are skipped for ALL arms (pre-V2 skipped them only for
+retrieval arms — an arm-asymmetric training stream).
 
 Reuses the Phase-0 numeric prep / global cat-cardinality helpers; categoricals are
 appended as one-hot so the encoder sees a single flat numeric matrix.
@@ -39,8 +49,9 @@ from .trainer import _prep_numeric, _to_tensor, _global_cat_cardinalities
 @dataclass
 class TabRConfig:
     # architecture (the Q2b factorial axes)
-    arch: str = "time_tabr"          # mlp_t | tabr | time_tabr
-    time_mode: str = "value"         # value | metric | both (only used when arch=time_tabr)
+    arch: str = "time_tabr_t"        # mlp_t | tabr | tabr_t | time_tabr | time_tabr_t
+    time_mode: str = "value"         # value | metric | both (time_tabr* arms only)
+    value_hook: str = "mlp"          # mlp | gate | linear(LEGACY — collapses, see tabr.py)
     time_basis: str = "trend"        # trend (extrapolation-safe) | fourier
     trend_degree: int = 3
     time_out: int = 16
@@ -50,10 +61,17 @@ class TabRConfig:
     n_enc_layers: int = 2
     dropout: float = 0.0         # encoder dropout (regularize so models train past
                                  # the early-overfit peak; applied to ALL arms)
-    # retrieval
+    # retrieval (V2 substrate)
     topk: int = 32
+    sim_scale: str = "sqrt_d"        # sqrt_d (learnable τ) | none (LEGACY raw -‖·‖²)
+    key_proj: bool = True            # learned key projection (False = LEGACY raw z)
     predictor_hidden: int = 256
-    eval_context_size: int = 4096    # fixed candidate pool sampled from train
+    train_context: str = "sampled"   # sampled (batch + fresh sample) | inbatch (LEGACY)
+    train_context_size: int = 4096   # extra candidates per step (train_context='sampled')
+    eval_context: str = "full"       # full train pool | fixed (LEGACY subsample)
+    eval_context_size: int = 4096    # pool size when eval_context='fixed'
+    ctx_seed: int = 0                # dedicated RNG seed for the fixed eval pool
+                                     # (shared across arms at the same run seed)
     # optimization
     lr: float = 2e-3
     weight_decay: float = 0.0
@@ -75,7 +93,8 @@ def _build_features(data: TabReDDataset):
 
     The encoder takes a single flat float matrix, so categoricals are one-hot
     encoded with GLOBAL per-column cardinalities (a temporal test split can hold
-    codes unseen in train). Returns ({part: float32 ndarray}, n_features).
+    codes unseen in train; the global max sizes the one-hot WIDTH only — purely
+    structural, no value statistics leak). Returns ({part: float32 ndarray}, n_features).
     """
     (xnum_tr, xnum_va, xnum_te), _ = _prep_numeric(data.train, data.val, data.test)
     num = {"train": xnum_tr, "val": xnum_va, "test": xnum_te}
@@ -122,8 +141,9 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
              for p in y_np}
         n_classes = 2  # unused
     else:
-        n_classes = int(max(int(y_np["train"].max()), int(y_np["val"].max()),
-                            int(y_np["test"].max())) + 1)
+        # train∪val only (no test peek). Accuracy on a test class unseen in train
+        # is still well-defined (the model just can't predict it).
+        n_classes = int(max(int(y_np["train"].max()), int(y_np["val"].max())) + 1)
         y = {p: torch.as_tensor(y_np[p], dtype=torch.long, device=device) for p in y_np}
 
     model = TimeTabRModel(
@@ -131,17 +151,23 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         enc_dim=cfg.enc_dim, enc_hidden=cfg.enc_hidden, n_enc_layers=cfg.n_enc_layers,
         time_basis=cfg.time_basis, trend_degree=cfg.trend_degree, time_out=cfg.time_out,
         topk=cfg.topk, predictor_hidden=cfg.predictor_hidden, dropout=cfg.dropout,
+        value_hook=cfg.value_hook, sim_scale=cfg.sim_scale, key_proj=cfg.key_proj,
     ).to(device)
 
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
     n_train = x["train"].shape[0]
     needs_ctx = cfg.arch != "mlp_t"
 
-    # fixed eval context = a sample of train instances (reused every evaluate())
+    # eval context pool: full train (V2 default) or a fixed legacy subsample drawn
+    # from a DEDICATED generator (same pool for every arm at the same run seed).
     if needs_ctx:
-        n_ctx = min(cfg.eval_context_size, n_train)
-        ctx_idx = torch.randperm(n_train, device=device)[:n_ctx]
-        ctx_x_eval, ctx_t_eval, ctx_y_eval = x["train"][ctx_idx], t["train"][ctx_idx], y["train"][ctx_idx]
+        if cfg.eval_context == "full" or n_train <= cfg.eval_context_size:
+            ctx_x_eval, ctx_t_eval, ctx_y_eval = x["train"], t["train"], y["train"]
+        else:
+            gen = torch.Generator().manual_seed(int(cfg.ctx_seed))
+            ctx_idx = torch.randperm(n_train, generator=gen)[: cfg.eval_context_size].to(device)
+            ctx_x_eval = x["train"][ctx_idx]
+            ctx_t_eval, ctx_y_eval = t["train"][ctx_idx], y["train"][ctx_idx]
 
     def batches():
         perm = torch.randperm(n_train, device=device)
@@ -158,11 +184,13 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         model.eval()
         n = x[part].shape[0]
         preds = []
+        # encode the (possibly full-train) context ONCE per evaluate() call
+        zc = model.encode(ctx_x_eval) if needs_ctx else None
         for i in range(0, n, cfg.eval_batch):
             sl = slice(i, i + cfg.eval_batch)
             if needs_ctx:
-                out = model(x[part][sl], t[part][sl],
-                            ctx_x_eval, ctx_t_eval, ctx_y_eval)
+                out = model.tabr(model.encode(x[part][sl]), t[part][sl],
+                                 zc, ctx_t_eval, ctx_y_eval)
             else:
                 out = model(x[part][sl], t[part][sl])
             if task == "regression":
@@ -208,12 +236,26 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         ep_loss, nb = 0.0, 0
         for idx in batches():
             xb, tb, yb = x["train"][idx], t["train"][idx], y["train"][idx]
+            # need >= 2 instances for a non-self neighbor; skip for ALL arms so the
+            # training stream is identical across arms (arm-symmetric).
+            if xb.shape[0] < 2:
+                continue
             if needs_ctx:
-                # in-batch retrieval: context = this batch, exclude the query itself.
-                # need >= 2 instances for a non-self neighbor to exist.
-                if xb.shape[0] < 2:
-                    continue
-                y_hat = model(xb, tb, xb, tb, yb,
+                if cfg.train_context == "sampled":
+                    # context = batch + fresh sample of OTHER train instances
+                    # (batch excluded from the extra pool: a duplicate of the query
+                    # would evade exclude_self = self-label leakage).
+                    mask = torch.ones(n_train, dtype=torch.bool, device=device)
+                    mask[idx] = False
+                    pool = mask.nonzero(as_tuple=True)[0]
+                    m = min(cfg.train_context_size, pool.shape[0])
+                    extra = pool[torch.randperm(pool.shape[0], device=device)[:m]]
+                    cx = torch.cat([xb, x["train"][extra]], dim=0)
+                    ct = torch.cat([tb, t["train"][extra]], dim=0)
+                    cy = torch.cat([yb, y["train"][extra]], dim=0)
+                else:                       # 'inbatch' (LEGACY): context = the batch
+                    cx, ct, cy = xb, tb, yb
+                y_hat = model(xb, tb, cx, ct, cy,
                               exclude_self=torch.arange(xb.shape[0], device=device))
             else:
                 y_hat = model(xb, tb)
@@ -243,6 +285,7 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
     return {
         "dataset": data.name, "task": task, "split": data.split,
         "arch": cfg.arch, "time_mode": cfg.time_mode, "time_basis": cfg.time_basis,
+        "value_hook": cfg.value_hook,
         "val_score": float(best), "score": float(test_score),
         "best_epoch": int(best_epoch), "n_epochs": int(epochs_run),
         "val_history": val_history if cfg.record_history else None,

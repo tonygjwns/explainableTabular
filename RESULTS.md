@@ -64,7 +64,13 @@ metric = per-t `cos(ŵ(t), w(t))`, ŵ(t)=E_x[∂(logit)/∂x] (게이지-고정,
 → **elec2는 공통support 위에 *크고 측정가능한* concept(+0.166)** 보유. 이분법 정밀화:
   *고-covariate⇒측정불가 / 저-covariate⇒측정가능하나 concept0 / elec2(중간)⇒support+concept 둘 다.*
 
-## 10. Q2b — 인스턴스 time-TabR *구조* vs 시간-*피처* (elec2, 3-arm 요인설계)  [solid] ★결정
+## 10. Q2b — 인스턴스 time-TabR *구조* vs 시간-*피처* (elec2, 3-arm 요인설계)  [~~solid~~ → **해석 무효화, 재검정 중**] ★결정
+
+> ⚠ **V2 무효화 (2026-06-12, 외부 감사)**: 아래 *숫자*는 유효하나 **"구조 ≤ 피처" 해석은 무효**.
+> (i) linear value 훅이 집계 하에 `Σw·Linear(Δτ)=Linear(Σw·Δτ)`로 붕괴 — 실제 검정된 것은
+> "검색-가중 Δt 피처 vs 직접 t 피처"이지 구조 vs 피처가 아님. (ii) 검색 기판이 sub-TabR
+> (온도/key-proj 없음, train 255 vs eval 4096 context 불일치, lr만 튜닝). (iii) time_tabr만
+> 직접 시간 피처 미보유(교락). → **PLAN_V2 §R0–R1 재검정으로 대체 예정, 결정규칙 = PREREG_V2.**
 3-arm 공유인코더: `mlp_t`(시간=피처) / `tabr`(검색, 시간없음) / `time_tabr`(검색+value 시간훅, time_mode=value).
 elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec2_q2.py`, `diagnostics.jsonl`)
 - **버그 vs drift 판별(①, train_loss+val 곡선)**: train_loss 전부 감소(버그 아님). **temporal은 argmax_val=epoch2~4(조기 peak 후 하락), random은 epoch~55(매끄러운 상승)** → 사전등록 drift 지문 확정. (step 해상도 ③도 동일.)
@@ -79,7 +85,11 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
 → **elec2는 음성을 *나르지 않음*(증거력 없음). 음성의 무게는 Insects(§11, val→test 0.87, 깨끗)가 짊어짐.**
   ("메커니즘 미engage" 위협은 min_epochs로 제거됨 — 별개로 유효.)
 
-## 11. Q2b 둘째 데이터셋 — INSECTS (designed drift, multiclass, accuracy)  [solid] ★≥2 잠금
+## 11. Q2b 둘째 데이터셋 — INSECTS (designed drift, multiclass, accuracy)  [~~solid~~ → **해석 무효화, 재검정 중**] ~~★≥2 잠금~~
+
+> ⚠ **V2 무효화 (2026-06-12)**: §10과 동일 사유로 "≥2 데이터셋 잠금" 철회. 추가로: 시드 10은
+> 사전등록 25 미달이고 CI 상단이 +0.001로 0을 스침. 단 **time_tabr−tabr=+0.028(시간-구조가 검색
+> 안에서 작동)은 불구 훅으로도 양수**였음 — V2 재검정에서 뒤집힐 가능성이 실재하는 근거. → PREREG_V2.
 `incremental_balanced`, temporal, 정규화+min_epochs 20, 10시드 (`run_elec2_q2.py --dataset insects`).
 - ①곡선: train_loss 감소(버그 아님), argmax_val **15~20 epoch**(elec2 epoch1~4와 달리 **trivially 쉽지 않음** = 비-trivial concept).
 - 결정표 oracle: mlp_t **0.6704** > time_tabr 0.6594 > tabr 0.6320. **PAIRED per-seed(oracle lr, 10시드, 정직한 척도):**
@@ -106,7 +116,7 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
   학습 V_k(§4.2 정보없음 결함)는 trend+load-balance로 안 고쳐짐 → Q2a null을 "구조 실패"로 해석 금지.
   **진짜 구조 테스트 = Q2b 인스턴스 V_k(TabR)** + 같은-모델 시간-조건 on/off ablation(아래).
 
-## 헤드라인 (정밀, 2026-06-10 재프레이밍 — 비평 반영)
+## 헤드라인 (정밀, 2026-06-10 재프레이밍 — 비평 반영) — ⚠ Claim B 부분은 §10·§11 무효화로 보류(2026-06-12, PLAN_V2/PREREG_V2 재검정 대기. Claim A 부분은 유효.)
 **리드 = Claim A (robust·신규)**: 현실 표 시간데이터는 **covariate 지배** → 강한 covariate가 early/late 공통support를
 무너뜨려 **concept을 표준 조건부 렌즈로 측정조차 어렵다**(~10 데이터셋; F3/within-overlap 프레임 + 진단 도구킷이 받침).
 **보조 = Claim B (구조 ≤ 피처)**: 테스트 가능한 곳에선 시간-인덱싱 *구조*가 시간-*피처*를 못 넘음 — **Insects(깨끗, val→test .87)

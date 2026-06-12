@@ -242,6 +242,30 @@ the "mechanism is faithful" headline argument.)
 (same loader, near-free) to take B from n=1-clean → n=3-clean across drift types; deprioritize
 elec2-abrupt (inherits elec2's val→test 0.07 noise).
 
+## V2 INVALIDATION of the Q2b negative (2026-06-12, external audit) — re-test pending
+The "Q2b ANSWERED" / "INSECTS confirms" sections above are RETRACTED as evidence for
+"structure ≤ feature" (the NUMBERS stand; the INTERPRETATION does not):
+1. **The tested hook could not express the hypothesis.** The linear value hook
+   collapses under aggregation — `Σ_k w_k·Linear(Δτ_k) = Linear(Σ_k w_k·Δτ_k)`,
+   independent of y_i — i.e. it is ONE aggregated Δt feature, not a per-neighbor
+   stale-label correction. The experiment compared "retrieval-weighted Δt feature"
+   vs "direct t feature", not structure vs feature.
+2. **Sub-TabR substrate.** No similarity temperature/scaling, no key projection,
+   in-batch-255 (train) vs fixed-4096 (eval) candidate mismatch, retrieval knobs
+   never tuned (only lr). The decomposition's "substrate deficit" (−0.038) may be
+   an artifact of this, not intrinsic.
+3. **Confounded arms.** Only mlp_t received the direct time feature; the missing
+   arm (retrieval + direct t) means "structure vs feature" was conflated with
+   "where time enters". Plus: 10 seeds vs the pre-registered 25; INSECTS CI upper
+   bound +0.001.
+Counter-signal preserved: time_tabr−tabr=+0.028 (INSECTS) was positive even with
+the crippled hook — the V2 re-test can flip the headline.
+**Status**: V2 infra implemented (non-degenerate mlp/gate hooks + expressivity
+smoke guard, scaled similarity + key projection, aligned train/eval contexts,
+tabr_t / time_tabr_t arms, paired Hedges' g, anchors script). Decision rules:
+PREREG_V2.md (locked before server runs). Plan: PLAN_V2.md. The pre-V2 runs remain
+reproducible via `run_elec2_q2.py --legacy`.
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.

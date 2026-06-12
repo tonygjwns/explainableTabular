@@ -49,15 +49,27 @@ def main():
     )
 
     base = dict(enc_dim=32, enc_hidden=64, topk=8, eval_context_size=256,
+                train_context_size=256,
                 batch_size=64, eval_batch=128, max_epochs=4, patience=3, device="cpu")
-    for arch, tm in [("mlp_t", "none"), ("tabr", "none"),
-                     ("time_tabr", "value"), ("time_tabr", "both")]:
+    # V2 default protocol (sampled train ctx / full eval ctx / mlp hook), all 5 arms
+    for arch, tm in [("mlp_t", "none"), ("tabr", "none"), ("tabr_t", "none"),
+                     ("time_tabr", "value"), ("time_tabr_t", "value"),
+                     ("time_tabr_t", "both")]:
         r = train_timetabr(data, TabRConfig(arch=arch, time_mode=tm, time_basis="trend",
                                             seed_tag="0", **base))
         assert np.isfinite(r["score"]), f"{arch}/{tm}: non-finite score"
         assert np.isfinite(r["val_score"]), f"{arch}/{tm}: non-finite val"
-        print(f"  arch={arch:9s} time_mode={tm:5s}: "
+        print(f"  arch={arch:11s} time_mode={tm:5s}: "
               f"val={r['val_score']:.4f} test={r['score']:.4f} best_epoch={r['best_epoch']} OK")
+
+    # legacy (pre-V2) protocol path: linear hook, raw sim, no key proj, in-batch/fixed ctx
+    r = train_timetabr(data, TabRConfig(arch="time_tabr", time_mode="value",
+                                        time_basis="trend", seed_tag="0",
+                                        value_hook="linear", sim_scale="none",
+                                        key_proj=False, train_context="inbatch",
+                                        eval_context="fixed", **base))
+    assert np.isfinite(r["score"]), "legacy path: non-finite score"
+    print(f"  legacy path (linear/none/inbatch/fixed): test={r['score']:.4f} OK")
 
     # diagnostics paths: dropout + weight_decay + step-eval + history recording
     r = train_timetabr(data, TabRConfig(arch="time_tabr", time_mode="value",
