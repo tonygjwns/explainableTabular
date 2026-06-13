@@ -68,5 +68,45 @@ python scripts/run_elec2_q2.py --dataset insects --insects-variant incremental_b
 - pre-V2 결과는 은폐하지 않고 "무효화된 선행 시도"로 부록 보고. `--legacy`로 재현 가능.
 - Q1 지표·within-overlap concept 정의 등 기존 잠금(8라운드)은 유지.
 
+## R1.1 튜닝 결과 (2026-06-13, 서버 3시드 — 본 실행 전 기록)
+서버에서 0단계 smoke 3종 통과 + 앵커 + topk 튜닝(3시드) 완료. 결과는
+`elec2_q2_diagnostics.jsonl` / `insects_q2_diagnostics.jsonl`(로컬 환류됨, repo 루트).
+
+**① topk 선택 (PREREG_V2 §7 규칙 = 검색 3-arm best-mean-val 평균 최대 K):**
+- incremental_balanced → **32**, incremental_abrupt_balanced → **128**, abrupt_balanced → 8(탈락예정),
+  elec2(보조) → 128. ※ topk는 4째 소수점에서 갈리는 무의미 축(노이즈) — 해석 시 민감도 없음 보고.
+
+**② ★abrupt_balanced가 val→test ρ 게이트 탈락 (PREREG_V2 §3):**
+- ρ: incremental +0.80~0.95 ✅ / **abrupt −0.43~−0.64 ❌** / incremental_abrupt +0.57~0.70 ✅.
+- 원인: abrupt drift + trend 외삽 상호작용(test t가 train 밖 → 틀린 regime으로 외삽 → 시간피처가 해침).
+  앵커가 예고: abrupt에서 lgbm_t 0.459(lgbm 0.664 대비 폭락), V2 `*_t` arm도 0.55~0.59로 붕괴(tabr는 0.65 건재).
+- → clean에서 제외, `incremental_reoccurring_balanced`로 보충. 부수발견: "trend 시간피처는 abrupt서 실패".
+
+**③ 예비 신호(3시드, 판정 아님):** 주 대비 `time_tabr_t−tabr_t` ≈ 0(clean 변종 −0.001~−0.045),
+  보조 `time_tabr_t−tabr`·`tabr_t−tabr`는 일관 +(+0.01~+0.04). **V2 기판 수정 작동**: INSECTS `tabr_t`≈0.685로
+  pre-V2 mlp_t(0.670) 상회, elec2 `tabr_t`≈0.90으로 옛 mlp_t 동급(감사의 substrate 적자 −0.038 상당 해소).
+  → 잠정 해석 "시간은 기판을 돕지만 *구조적 인덱싱*이 *피처*를 못 넘음"(교락 없는 유효 음성 후보). 25시드가 결정.
+
+**앵커 기록 (1셀 seed0):** elec2 lgbm 0.887/lgbm_t 0.884/knn 0.851/**no_change AUC 0.845**(acc 0.846 — 문헌 비판대로 강함,
+보고 의무) → 신경망 arm(mlp_t 0.90)이 그 위. INSECTS no_change 0.16~0.59(위협 아님). lgbm_t가 incremental서 0.679로
+pre-V2 최고 arm(0.670) 상회 → 외부 바닥선 필수.
+
+## ★ R1.2 본 실행 (다음, 서버) — 커맨드는 위 "다음 행동"이 아니라 아래
+```bash
+# (a) 보충 변종 topk 튜닝 3시드
+for K in 8 32 128; do python scripts/run_elec2_q2.py --dataset insects \
+  --insects-variant incremental_reoccurring_balanced --report-grid --n-seeds 3 --splits temporal \
+  --bases trend --archs tabr tabr_t time_tabr_t --lr-grid 1e-3 5e-4 2e-4 \
+  --dropout 0.1 --weight-decay 1e-4 --min-epochs 20 --topk $K; done
+# (b) 본 실행 25시드 4-arm temporal: incremental(k32) / incremental_abrupt(k128) /
+#     incremental_reoccurring(k=위 선택) / elec2 보조(k128) / abrupt(k8, 게이트가 잠긴규칙으로 탈락시키게 형식상 1회)
+#     archs = mlp_t tabr tabr_t time_tabr_t. 명령 형식은 incremental 예:
+python scripts/run_elec2_q2.py --dataset insects --insects-variant incremental_balanced \
+  --report-grid --n-seeds 25 --splits temporal --bases trend --archs mlp_t tabr tabr_t time_tabr_t \
+  --lr-grid 1e-3 5e-4 2e-4 --dropout 0.1 --weight-decay 1e-4 --min-epochs 20 --topk 32
+# (c) random 대조 10시드(clean 통과 변종만): --splits random, 나머지 동일.
+```
+판정 = PREREG_V2 §4 (주 대비 time_tabr_t−tabr_t, valfair, clean ≥2/3, CI>0∧p<.05∧g_z≥.5). 결과 2 jsonl 환류.
+
 ## 미커밋 상태
-없음(이 커밋에 모두 포함). 다음 탭/서버 = 위 "다음 행동" 그대로.
+없음. 다음 = 서버 R1.2 본 실행(위 ★).
