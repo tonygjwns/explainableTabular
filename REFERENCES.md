@@ -2,6 +2,57 @@
 
 > 논문 정독 결과를 새 탭에서도 참조할 수 있도록 정리.
 > 각 논문에 대해: 핵심 메시지, GitHub, 우리에게 미친 영향.
+> ⚠ A/B/C 섹션 일부는 **V2 이전(method 논문) 서술**임 — 현행 방향은 분석/음성(Claim A 리드)이라
+> "우리가 위에 build" 류 표현은 §0(R2.1 검증)의 재포지셔닝으로 대체됨. 본 검증은 웹 원문 확인.
+
+---
+
+## 0. R2.1 외부 검증 (2026-06-14, 웹 원문 확인) — 신규성 판정 + 재포지셔닝
+
+### 0.1 검증된 핵심 선행 (URL 원문 확인)
+- **DISDE** — Tiffany(Tianhui) Cai, Hongseok Namkoong, Steve Yadlowsky. *Diagnosing Model Performance
+  Under Distribution Shift*. **Operations Research 74(2):898–916, 2025**; arXiv **2303.02011**;
+  코드 github.com/namkoong-lab/disde. **3항 분해**: (1) seen-support 내 어려운 예제↑(X-shift),
+  (2) **feature↔outcome 관계 변화(=concept/Y|X)**, (3) infrequent/unseen 예제(X-shift→미관측영역).
+  공유분포 S(overlap)+density-ratio. 적용=ACS 인구조사 표(고용)+위성영상. **TabReD/시간축 적용 없음.**
+  → **우리 within-overlap 프레임 = DISDE의 *시간축·model-transfer 적응*. 반드시 인용+차별화**(재발명 금지).
+- **WhyShift** — Jiashuo Liu, Tianyu Wang, Peng Cui, Hongseok Namkoong. *On the Need for a Language
+  Describing Distribution Shifts: Illustrations on Tabular Datasets*. **NeurIPS 2023 D&B**;
+  github.com/namkoong-lab/whyshift. 5개 표 데이터(주로 **공간/인구 folktables**), 86k config.
+  **헤드라인: 그들 세팅에선 Y|X-shift가 지배적**, 큰-Y|X 영역 식별 알고리즘 제안.
+  → **대조 헤드라인 성립**: *공간 표 shift = Y|X 지배(WhyShift) ↔ 시간 표 shift = X 지배(우리)*.
+- **TabReD** — Rubachev et al. ICLR 2025, arXiv 2406.19380. **X vs Y|X 분해 안 함**(원문 확인):
+  "gradual temporal shift"로 holistic 특성화 + **앙상블-std 프록시**(Fig 3)만. TabR 실패 설명 =
+  "train이 test에 유용하다는 가정이 gradual shift로 위배" + 다중공선성/노이즈. → **분해는 우리 고유.**
+- **Cai & Ye ICML 2025** — Haorun Cai, Han-Jia Ye. arXiv **2502.20260**, PMLR 267:6366. random split이
+  temporal split보다 좋음(프로토콜/validation-bias) + Fourier 임베딩.
+- **Cai & Ye NeurIPS 2025 (변조)** — arXiv **2512.03678**, OpenReview 88MXvVn5dl. **★최대 위협+기회**:
+  "**evolving feature semantics가 concept drift를 유발**"이라며 **피처 통계량(scale/skewness)을 시간 변조**,
+  "full modulation 단 MLP도 대부분 DL 능가". **단 그들이 'concept drift'라 부르는 건 피처 *분포/통계* 변화
+  = X-side 적응**(P(y|x) 변화 아님). → **R2.3 판결의 핵심**: 우리 분해로 그들 이득이 X-side임을 보이면
+  용어 혼동 교정 + 경쟁 서사 포섭.
+- **Drift-Resilient TabPFN** — NeurIPS 2024, arXiv 2411.10634. 시간-인지가 *도움*(SCM-shift prior).
+  → **반례**: Claim B를 "검색 *구조*"로 명시 한정해야 반례 회피.
+- **Model Assessment & Selection under Temporal Distribution Shift** — Han, Huang, Wang. arXiv 2402.08672.
+  비정상 데이터 모델선택(rolling window). → **우리 val→test 붕괴 발견의 관련연구**(분해/TabReD는 아님).
+- 스트리밍 선행(Claim B "빈 교차점" 범위 한정용, 메모리 기반 — 원문 재확인 권장): **FISH**(Žliobaitė ~2011,
+  시간+피처 거리 학습셋 선택), **SAM-kNN**(Losing/Hammer/Wersing, ICDM 2016), **Elec2 비판**(Žliobaitė 2013,
+  no-change ~85%). → "빈 교차점"은 "**현대 미분가능 딥 표 검색** 내"로 한정 필수.
+
+### 0.2 신규성 판정: **Claim A 선점 안 됨 (단 측정-프레임 축은 PARTIAL)**
+- **린치핀(TabReD에 X/Y|X 분해 적용 / "covariate 지배로 concept 측정불가" 선행)**: 다중 타깃 검색에서
+  **발견 안 됨**. 검색이 명시적으로 "DISDE를 TabReD에 결합한 연구 없음" 확인. → **Claim A 코어 미선점.**
+- **PARTIAL 리스크**: 측정 *프레임*은 DISDE와 강하게 겹침 → "발명"이 아니라 "**시간축 적응+support 붕괴
+  영역으로 확장**"으로 정밀 포지셔닝. 신규성 = ①시간-표 실증(X 지배) ②**covariate 지배→concept 측정불가**
+  ③within-overlap model-transfer 조작화 ④Cai&Ye 판결(그들 'concept' 이득=X-side).
+- **가장 위험한 3편**: (1) **Cai&Ye NeurIPS'25 변조**(같은 'concept' 용어로 TabReD서 이김 — 위협이자
+  판결 기회) (2) **DISDE**(프레임 출처 — 인용·차별화 안 하면 재발명으로 보임) (3) **WhyShift**(가장 가까운
+  표-분해 연구 — 단 반대 축/결론이라 *우군*으로 프레이밍 가능).
+
+### 0.3 재포지셔닝 결론
+헤드라인 = **Claim A(분석)**, DISDE 위에 명시적으로 세우고(시간축 적응+퇴화 시연), WhyShift와 대조,
+Cai&Ye 판결을 중심 실험으로. Claim B(구조 음성)는 보조 — **검색 *구조*로 한정**(Drift-Resilient TabPFN 반례 회피),
+"빈 교차점"은 "현대 딥 표 검색 내"로 범위. (상세 PLAN_V2 §R2.)
 
 ---
 
