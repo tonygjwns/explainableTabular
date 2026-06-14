@@ -322,6 +322,60 @@ def concept_within_overlap(
                     "out-of-fold p; stable across p-strata => not residual covariate"}
 
 
+def disde_iw_degeneration(
+    X_early, X_late, *, seed: int = 0, max_n: int = 20_000, clip=1e-3,
+) -> dict:
+    """DISDE-style importance-reweighting DEGENERATION diagnostic (R2.2).
+
+    DISDE (Cai, Namkoong, Yadlowsky, Operations Research 2025) attributes a
+    performance drop to within-support Y|X change vs X-shift-into-unseen by
+    reweighting the source (early) covariates to the target (late) distribution
+    with density ratios w(x)=p_late(x)/p_early(x). Under STRONG covariate shift
+    (the AUC≈1.0 regime that defines TabReD-style temporal drift), w has a heavy
+    tail: a few near-out-of-support early points carry almost all the mass, so any
+    self-normalized IW estimate Ê = Σw·ℓ / Σw has effective sample size
+    ESS=(Σw)²/Σw² that collapses — the DISDE within-support term becomes
+    unestimable. This function quantifies that degeneration WITHOUT fitting a
+    probe model (ESS bounds the variance of ANY bounded reweighted functional).
+
+    Returns (over early points; w from an OUT-OF-FOLD P(late|x) to avoid optimism):
+      ess, ess_pct (=ESS / n_early·100), cv (=std(w)/mean(w)), max_weight_share
+      (=max(w)/Σw, single-point leverage), n_early. Low ess_pct / high cv / high
+      max_weight_share => DISDE reweighting is degenerate (use the within-overlap
+      frame instead — concept_within_overlap, which restricts to the band, no
+      global reweight).
+    """
+    rng = np.random.default_rng(seed)
+
+    def sub(X, n):
+        X = np.asarray(X, dtype=np.float64)
+        if X.shape[0] > n:
+            X = X[rng.choice(X.shape[0], n, replace=False)]
+        return X
+
+    Xe, Xl = sub(X_early, max_n), sub(X_late, max_n)
+    with np.errstate(all="ignore"):
+        keep = ((~np.all(np.isnan(Xe), axis=0)) & (np.nanstd(Xe, axis=0) > 0)
+                & (~np.all(np.isnan(Xl), axis=0)) & (np.nanstd(Xl, axis=0) > 0))
+    if not keep.any():
+        return {"note": "no usable columns"}
+    Xe, Xl = Xe[:, keep], Xl[:, keep]
+    X = np.concatenate([Xe, Xl])
+    half = np.concatenate([np.zeros(len(Xe)), np.ones(len(Xl))])
+    clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
+    p = cross_val_predict(clf, X, half, cv=5, method="predict_proba")[:, 1]
+    pe = np.clip(p[half == 0], clip, 1 - clip)
+    w = pe / (1 - pe)                                    # density ratio on early pts
+    sw, sw2 = float(w.sum()), float((w ** 2).sum())
+    ess = (sw ** 2) / (sw2 + 1e-12)
+    return {
+        "ess": float(ess), "ess_pct": float(100.0 * ess / len(w)),
+        "cv": float(w.std() / (w.mean() + 1e-12)),
+        "max_weight_share": float(w.max() / (sw + 1e-12)),
+        "n_early": int(len(w)),
+    }
+
+
 def label_drift(y: np.ndarray, t: np.ndarray, task: str, *, n_bins: int = 10) -> dict:
     """Target statistic per time decile + Spearman(t, y). (pos-rate / mean)."""
     y = np.asarray(y, dtype=np.float64)
