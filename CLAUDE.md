@@ -20,18 +20,17 @@
 (PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서. OVERVIEW의 Q2b 결론 단락도 V2 무효화 이전 서술임에 주의.)
 
 한 줄: Phase 0 8/8 PASS, Q1 충실성 PASS, Elec2 within-overlap concept +0.132 — 유효.
-**단 2026-06-12 외부 감사로 Q2b "구조 ≤ 피처" 음성의 *해석*이 무효화됨**: linear value 훅이 집계 하에
-Δt 피처 1개로 붕괴(`Σw·Lin(Δτ)=Lin(Σw·Δτ)` — 가설 미검정), 검색 기판 sub-TabR(온도·key-proj 없음,
-train/eval context 불일치), time_tabr만 직접 시간 피처 미보유(교락). 시드 10 ≠ 사전등록 25.
-Claim A 측정 프레임은 DISDE/WhyShift 인용·재포지셔닝 필요(신규성 = 시간축 실증 + 측정불가 발견).
-- ✅ **V2 인프라 구현 완료(R0, 2026-06-12)**: 비퇴화 훅(mlp/gate, zero-init 등가), learnable τ+key-proj,
-  train/eval context 정합(sampled-4096/full), **5-arm(tabr_t·time_tabr_t 추가)**, val-fair+oracle 병기,
-  `hedges_g_paired`, `run_anchors.py`(lgbm±t/knn±t/no-change), 선형-붕괴 표현력 smoke 가드, `--legacy` 재현 플래그.
-- 🔒 **PREREG_V2 잠금**: 주 대비 = `time_tabr_t − tabr_t`(temporal, 25시드, val-fair, paired CI+p+g_z),
-  clean 셋 = INSECTS 3변종(val→test ρ≥0.3 확인), elec2 보조. 구조 우위 = ≥2/3 변종 CI>0 ∧ p<.05 ∧ g_z≥.5.
-- 🔄 **다음**: ①서버 R1(smoke→앵커→topk 튜닝 3시드→본 실행 25시드; 커맨드 NEXT_TAB에 완성) →
-  ②R2(문헌 원문 검증[웹 필요]·DISDE 퇴화 실험·**Cai&Ye 판결**·도구킷 검증·Q1 큰-회전; PLAN_V2 §R2) →
-  ③R1 결과 들고 지도교수 정렬(타깃: 워크숍 now / **NeurIPS D&B 주 타깃** / 메인트랙 확장).
+**R1(V2 재검정) 완료(2026-06-14): 구조 우위 = NO, 교락 없는 *유의* 음성.** 주 대비 `time_tabr_t−tabr_t`
+(temporal, val-fair, 25시드): incremental −0.0067[CI −.012,−.001] p=.006, incremental_abrupt −0.0205 p<.001
+— 두 clean 변종 모두 CI<0. (pre-V2 음성은 linear 훅 붕괴·sub-TabR 기판으로 무효였으나, V2는 비퇴화 훅·
+정품 기판·피처 양쪽 고정으로 교락 제거 → 더 깨끗·강함.)
+- **분해(교락 제거)**: 기판 경쟁력(tabr_t−mlp_t≈0~+.011, pre-V2 −.038 적자 소멸) / 시간은 검색 도움이나 피처가 더 나름 /
+  **★in-dist(random) 훅 도움 vs 외삽(temporal) 훅 해 — 시간-인덱싱은 외삽 장치 아님(redundancy 직접 뒷받침)** /
+  trend기저는 비단조 drift서 외삽붕괴(Claim A 먹이). RESULTS §12, FINDINGS "V2 RE-TEST VERDICT".
+- ✅ V2 인프라(R0): 비퇴화 훅(mlp/gate), learnable τ+key-proj, context 정합(sampled-4096/full), 5-arm,
+  val-fair+oracle, `hedges_g_paired`, `run_anchors.py`, 선형-붕괴 표현력 smoke 가드, `--legacy`. PREREG_V2 잠금.
+- 🔄 **다음 = R2 (PLAN_V2 §R2)**: ①문헌 원문 검증[웹]·②DISDE 퇴화 실험·③**Cai&Ye 판결**(변조 이득 X-side 증명)·
+  ④도구킷 합성2×2+INSECTS 검증·⑤Q1 큰-회전 → R1 들고 지도교수 정렬(워크숍 now / **NeurIPS D&B 주타깃**). Claim A 리드, B 보조.
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.

@@ -266,6 +266,37 @@ tabr_t / time_tabr_t arms, paired Hedges' g, anchors script). Decision rules:
 PREREG_V2.md (locked before server runs). Plan: PLAN_V2.md. The pre-V2 runs remain
 reproducible via `run_elec2_q2.py --legacy`.
 
+## V2 RE-TEST VERDICT (2026-06-14) — un-confounded, SIGNIFICANT negative
+The V2 re-test (PREREG_V2: non-degenerate mlp hook, scaled similarity + key
+projection, aligned train/eval contexts, the missing tabr_t / time_tabr_t arms,
+25 seeds, val-fair) resolves the invalidation above. PRIMARY contrast
+time_tabr_t − tabr_t (direct time feature held constant in BOTH arms), temporal,
+on the ρ≥0.3 clean variants:
+- incremental_balanced (ρ=.89): −0.0067, 95% CI [−0.012,−0.001], p=.006 — SIG NEG
+- incremental_abrupt_balanced (ρ=.77): −0.0205, CI [−0.034,−0.008], p<.001 — SIG NEG
+- (reoccurring ρ=.33 marginal but PATHOLOGICAL: time_tabr_t→0.19≈random, std 4.3×
+  mlp_t = §4 instability red flag → magnitude not used; abrupt ρ=−.43 excluded.)
+→ **PREREG §4 verdict: structure win = NO.** Not the pre-V2 "≈0 null" — a
+  SIGNIFICANT negative on both clean variants: with a fair comparison, indexing
+  time as STRUCTURE costs you vs concatenating it as a FEATURE.
+
+Why this is stronger/cleaner than pre-V2 (confounds removed):
+1. Substrate now competitive: tabr_t − mlp_t = +0.0005 / +0.011 (retrieval ≈ MLP).
+   The pre-V2 −0.038 "substrate deficit" is GONE (V2 temperature/key-proj/full ctx).
+   So "retrieval is just weak" no longer explains the loss.
+2. Time helps retrieval (time_tabr_t − tabr = +0.042) but the FEATURE carries it
+   at least as well (mlp_t − tabr = +0.048).
+3. ★ In-dist vs extrapolation FLIP: on RANDOM split the hook HELPS (+0.005, +0.021);
+   on TEMPORAL it HURTS (−0.007, −0.021). The time-indexing hook is an
+   in-distribution device, NOT an extrapolation device — directly refutes
+   "structure wins at extrapolation", empirically consistent with redundancy.
+4. Side finding: the trend basis collapses under non-monotonic drift (abrupt
+   ρ=−.43, reoccurring time_tabr_t→0.19) → temporal model-selection breaks
+   (ρ<0.3). Feeds Claim A (measurement reliability), not the structure verdict.
+→ **R1 done. A' (method) path closed for time-TabR with an un-confounded
+  significant negative. Lead = Claim A; B is supporting, now with this clean
+  decomposition. Next = R2 (Claim A reposition, literature, Cai&Ye adjudication).**
+
 ## Assets built (reusable for any direction)
 - Verified pipeline (loader/TabM/trainer), Phase-1 model with `predictor_mode`
   {concat, memory_only, residual} and time/inject toggles.

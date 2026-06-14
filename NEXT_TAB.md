@@ -5,7 +5,20 @@
 > 읽는 순서: (배경부터면 OVERVIEW.md) → 이 파일 → **PLAN_V2.md(현행 계획)** → **PREREG_V2.md(결정규칙)**
 > → RESULTS.md → FINDINGS.md. (PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서.)
 
-## 한 문단 요약 (2026-06-12 대전환)
+## ★★ R1 완료 — V2 재검정 판정 = 구조 음성(유의), 다음 = R2 (2026-06-14)
+25시드 본 실행 완료. **PREREG §4 판정: 구조 우위 = NO**, 교락 없는 *유의* 음성.
+주 대비 `time_tabr_t − tabr_t`(temporal, val-fair): incremental −0.0067 [CI −.012,−.001] p=.006,
+incremental_abrupt −0.0205 [−.034,−.008] p<.001 — **두 clean 변종 모두 CI<0 유의 음성**. (abrupt ρ=−.43
+게이트 탈락; reoccurring ρ=.33 경계지만 trend-기저 외삽 병리 time_tabr_t→0.19, §4 red flag → 크기 비사용; elec2 ρ=−.34 보조.)
+- **교락 제거로 pre-V2보다 깨끗·강함**: ①기판 경쟁력(tabr_t−mlp_t≈0~+.011, −.038 적자 소멸) ②시간은 검색 도움(time_tabr_t−tabr=+.042)
+  but 피처가 더 나름 ③**★in-dist vs 외삽 뒤집힘**: random서 훅 도움(+.005,+.021)/temporal서 해(−.007,−.021)
+  = 시간-인덱싱 훅은 in-dist 장치, 외삽 장치 아님(redundancy 직접 뒷받침) ④trend기저는 비단조 drift서 외삽붕괴(Claim A 먹이).
+- 결과 jsonl 환류·커밋. RESULTS §12, FINDINGS "V2 RE-TEST VERDICT" 참조.
+- **다음 = R2 (PLAN_V2 §R2)**: ①문헌 원문 검증(웹: DISDE/WhyShift/Cai&Ye/TabReD-분해 선행유무) →
+  ②DISDE 퇴화 실험 ③**Cai&Ye 판결**(변조 이득이 X-side임을 cooking/maps서 증명) ④도구킷 합성 2×2+INSECTS 검증
+  ⑤Q1 큰-회전. → R1 결과 들고 지도교수 정렬(워크숍 now / NeurIPS D&B 주타깃). Claim A 리드, B는 이 분해와 함께 보조.
+
+## 한 문단 요약 (2026-06-12 대전환 — 위 ★★가 현행 최신)
 **외부 감사로 Q2b "구조 ≤ 피처" 음성의 *해석*이 무효화됨**: (i) linear value 훅이 집계 하에
 "Δt 피처 1개"로 붕괴(stale-label 보정 표현 불가 — 가설을 검정한 적 없음), (ii) 검색 기판 sub-TabR
 (온도·key-proj 없음, train/eval context 불일치, knob 미튜닝), (iii) time_tabr만 직접 시간 피처 미보유.

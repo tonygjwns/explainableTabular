@@ -107,6 +107,28 @@ elec2 temporal/trend, per-arm lr 선택(oracle 상한), 다중시드. (`run_elec
   "**테스트 가능한 깨끗한 벤치에서 구조가 시간-피처를 못 넘음**"(강한 oracle 형태 음성 — oracle 선택을 줘도 못 넘음).
   단 배포 주장은 불가(elec2 val→test 0.07). **분야 class 음성엔 더 많은 깨끗한 데이터셋·방법 필요(아래 NEXT_TAB).**
 
+## 12. Q2b V2 재검정 — 교락 제거판 (INSECTS designed-drift 4변종 + elec2, 25시드)  [solid] ★R1 판정
+PREREG_V2 프로토콜: 5-arm(mlp_t/tabr/tabr_t/time_tabr_t), 비퇴화 mlp 훅, learnable τ+key-proj,
+train sampled-4096/eval full-train context, val-fair+oracle 병기, **주 대비 = time_tabr_t − tabr_t**
+(직접 시간 피처를 양쪽에 고정 → 구조×주입위치 교락 제거). topk: PREREG §7 규칙(검색 3-arm best-val 평균).
+- **val→test ρ 게이트(25시드)로 clean 셋 확정**: incremental +0.89 ✅ / incremental_abrupt +0.77 ✅ /
+  reoccurring +0.33 △(경계, 병리) / **abrupt −0.43 ❌** / elec2 보조 −0.34 ❌(기존 0.07과 일관).
+- **주 대비 time_tabr_t − tabr_t (temporal, val-fair, 25시드):**
+  | clean 변종 | mean diff | 95% CI | p | g_z | 판정 |
+  |---|---|---|---|---|---|
+  | incremental_balanced | **−0.0067** | [−0.012, −0.001] | .006 | −0.50 | **유의 음성** |
+  | incremental_abrupt_balanced | **−0.0205** | [−0.034, −0.008] | <.001 | −0.63 | **유의 음성** |
+  | reoccurring(병리) | −0.358 | — | — | −3.83 | time_tabr_t→0.19, std 4.3×mlp_t = §4 red flag, 크기 비사용 |
+- **★구조 우위 = NO (PREREG §4).** pre-V2의 "≈0 null"이 아니라 **두 병리없는 clean 변종 모두 CI<0 유의 음성**:
+  공정 비교에서 시간을 *구조로 인덱싱*하면 *피처로 넣는 것*보다 손해.
+- **분해 (교락 제거 — pre-V2 substrate 변명 소멸):**
+  - `tabr_t − mlp_t` = +0.0005 / +0.011 → **검색 기판 ≈ MLP**(pre-V2 −0.038 적자 사라짐; V2 기판 수정 효과).
+  - `time_tabr_t − tabr` = +0.042, `mlp_t − tabr` = +0.048 → 시간은 검색 크게 도움, 단 피처가 더 잘 나름.
+  - **★in-dist vs 외삽 뒤집힘**: random split 주 대비 = **+0.005 / +0.021**(훅 도움) vs temporal **−0.007 / −0.021**(훅 해)
+    → **시간-인덱싱 훅 = in-distribution 장치, 외삽 장치 아님.** "구조가 외삽서 우위" 가설을 정면 반증, redundancy와 일관.
+- **부수 발견**: trend 기저는 비단조 drift(abrupt·reoccurring)에서 외삽 붕괴 → temporal 모델선택 무력화(ρ<0.3) → Claim A(측정 신뢰성) 먹이.
+→ **R1 완료: 교락 없는 V2-유효 음성(유의). A' method 경로 최종 닫힘. 헤드라인은 Claim A, B는 보조(이 깨끗한 분해와 함께).**
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)
