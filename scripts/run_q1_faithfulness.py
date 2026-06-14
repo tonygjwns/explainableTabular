@@ -36,14 +36,19 @@ from src.training.phase1_trainer import Phase1Config, train_phase1  # noqa: E402
 from src.analysis.faithfulness import recovery_curve, band_line  # noqa: E402
 
 
-# ---------- synthetic (trend-representable, binary) ----------
-def make_synth(n, d, sigma, seed, shuffle_t=False):
+# ---------- synthetic (binary; angle_max controls the rotation magnitude) ----------
+# angle_max = π/2 (default) -> monotone 90°, TREND-representable (the PASS gate).
+# angle_max = 2π (R2.5) -> one FULL rotation; NOT trend-representable, so it must be
+# paired with --basis fourier (matched periodicity) -> basis can carry it -> if the
+# mechanism still recovers, faithfulness holds across a WIDE dynamic range (the floor
+# drops toward ~0 because a fixed/shuffled direction can't track a full sweep).
+def make_synth(n, d, sigma, seed, shuffle_t=False, angle_max=np.pi / 2.0):
     rng = np.random.default_rng(seed)
     x = rng.standard_normal((n, d)).astype("float32")
     t = rng.random(n).astype("float32")
     w1 = rng.standard_normal(d); w1 /= np.linalg.norm(w1)
     w2 = rng.standard_normal(d); w2 -= (w2 @ w1) * w1; w2 /= np.linalg.norm(w2)  # ⊥ w1
-    alpha = (np.pi / 2.0) * t                                   # monotone 0→π/2
+    alpha = angle_max * t                                       # 0 -> angle_max
     wt = np.cos(alpha)[:, None] * w1[None] + np.sin(alpha)[:, None] * w2[None]
     logit = (x * wt).sum(1) + sigma * rng.standard_normal(n)
     y = (logit > 0).astype("int64")
@@ -51,8 +56,8 @@ def make_synth(n, d, sigma, seed, shuffle_t=False):
     return x, y, t_used, w1, w2
 
 
-def w_true_fn(w1, w2):
-    return lambda tv: np.cos(np.pi / 2 * tv) * w1 + np.sin(np.pi / 2 * tv) * w2
+def w_true_fn(w1, w2, angle_max=np.pi / 2.0):
+    return lambda tv: np.cos(angle_max * tv) * w1 + np.sin(angle_max * tv) * w2
 
 
 def to_ds(x, y, t, seed):
@@ -65,13 +70,13 @@ def to_ds(x, y, t, seed):
                          test=mk(idx[ntr + nva:]), t_min=0.0, t_max=1.0)
 
 
-def pcfg(lb):
+def pcfg(lb, basis="trend", n_harmonics=4, time_periods=(1.0,)):
     return Phase1Config(
         k=8, n_blocks=2, d_block=128, dropout=0.0,
         n_prototypes=200, rank=16, mem_hidden=64, tau_temp=0.3, predictor_hidden=128,
         predictor_mode="memory_only", time_indexed=True, inject_time_input=False,
-        mem_time_out_dim=16, n_harmonics=4, time_periods=(1.0,),
-        time_basis="trend", trend_degree=3, load_balance_coef=lb,
+        mem_time_out_dim=16, n_harmonics=n_harmonics, time_periods=time_periods,
+        time_basis=basis, trend_degree=3, load_balance_coef=lb,
         kmeans_init=True, n_slices=5, kmeans_max_samples=8000, lambda_smooth=0.0,
         lr=2e-3, batch_size=256, eval_batch=4096, patience=12, max_epochs=80, seed_tag="q1")
 
@@ -117,8 +122,8 @@ def mlpt_score(m):
     return f
 
 
-def model_recovery(score_fn, w1, w2, t_grid, x_eval, device):
-    rec, _ = recovery_curve(score_fn, w_true_fn(w1, w2), t_grid, x_eval, device)
+def model_recovery(score_fn, w1, w2, t_grid, x_eval, device, angle_max=np.pi / 2.0):
+    rec, _ = recovery_curve(score_fn, w_true_fn(w1, w2, angle_max), t_grid, x_eval, device)
     return rec
 
 
@@ -132,23 +137,37 @@ def main():
     ap.add_argument("--M", type=int, default=512)
     ap.add_argument("--lb", type=float, nargs="+", default=[0.01],
                     help="load_balance coef(s); multiple -> sweep")
+    ap.add_argument("--angle-max", type=float, default=np.pi / 2.0,
+                    help="rotation magnitude over t in [0,1]. π/2≈1.571 (gate, trend) | "
+                         "2π≈6.283 (R2.5 full-rotation robustness, use --basis fourier)")
+    ap.add_argument("--basis", default="trend", choices=["trend", "fourier"],
+                    help="memory time basis; MUST match the rotation (fourier for large angle)")
+    ap.add_argument("--n-harmonics", type=int, default=4,
+                    help="Fourier harmonics (>= cycles in angle_max/2π); used when basis=fourier")
+    ap.add_argument("--tag", default=None, help="output filename tag (else derived from angle/basis)")
     args = ap.parse_args()
     device = "cuda" if torch.cuda.is_available() else "cpu"
+    am = float(args.angle_max)
+    pc = lambda lb: pcfg(lb, basis=args.basis, n_harmonics=args.n_harmonics)
+    tag = args.tag or f"a{am:.2f}_{args.basis}"
     t_grid = np.linspace(0.0, 1.0, args.T)
     x_eval = np.random.default_rng(0).standard_normal((args.M, args.d)).astype("float32")
     out_dir = Path("results/phase1/q1"); out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"== Q1 faithfulness: angle_max={am:.3f} ({am/np.pi:.2f}π) basis={args.basis} "
+          f"n_harmonics={args.n_harmonics} tag={tag} ==")
 
     # ceiling (MLP+t) and floor (shuffle-t model), averaged over 3 seeds
     hi_list, lo_list = [], []
     for s in range(3):
-        xc, yc, tc, w1, w2 = make_synth(args.n, args.d, args.sigma, 100 + s)
+        xc, yc, tc, w1, w2 = make_synth(args.n, args.d, args.sigma, 100 + s, angle_max=am)
         seed_everything(100 + s)
         mlp = train_mlpt(xc, yc, tc, device)
-        hi_list.append(model_recovery(mlpt_score(mlp), w1, w2, t_grid, x_eval, device).mean())
-        xf, yf, tf, w1f, w2f = make_synth(args.n, args.d, args.sigma, 200 + s, shuffle_t=True)
+        hi_list.append(model_recovery(mlpt_score(mlp), w1, w2, t_grid, x_eval, device, am).mean())
+        xf, yf, tf, w1f, w2f = make_synth(args.n, args.d, args.sigma, 200 + s,
+                                          shuffle_t=True, angle_max=am)
         seed_everything(200 + s)
-        mf = train_phase1(to_ds(xf, yf, tf, 200 + s), pcfg(args.lb[0]))["model"]
-        lo_list.append(model_recovery(phase1_score(mf), w1f, w2f, t_grid, x_eval, device).mean())
+        mf = train_phase1(to_ds(xf, yf, tf, 200 + s), pc(args.lb[0]))["model"]
+        lo_list.append(model_recovery(phase1_score(mf), w1f, w2f, t_grid, x_eval, device, am).mean())
     hi, lo = float(np.mean(hi_list)), float(np.mean(lo_list))
     pass_line, fail_line = band_line(lo, hi, 0.7), band_line(lo, hi, 0.4)
     print(f"ceiling(MLP+t)={hi:.3f}  floor(shuffle-t)={lo:.3f}  "
@@ -157,15 +176,16 @@ def main():
         print("  ⚠ ceiling < 0.9 → gradient/synth sanity issue (expected ~1).")
 
     results = {"hi": hi, "lo": lo, "pass_line": pass_line, "fail_line": fail_line,
-               "sigma": args.sigma, "sweep": {}}
+               "sigma": args.sigma, "angle_max": am, "basis": args.basis,
+               "n_harmonics": args.n_harmonics, "tag": tag, "sweep": {}}
     rec_t_repr = None
     for lb in args.lb:
         recs = []
         for s in range(args.seeds):
-            x, y, t, w1, w2 = make_synth(args.n, args.d, args.sigma, s)
+            x, y, t, w1, w2 = make_synth(args.n, args.d, args.sigma, s, angle_max=am)
             seed_everything(s)
-            model = train_phase1(to_ds(x, y, t, s), pcfg(lb))["model"]
-            rec_curve, _ = recovery_curve(phase1_score(model), w_true_fn(w1, w2),
+            model = train_phase1(to_ds(x, y, t, s), pc(lb))["model"]
+            rec_curve, _ = recovery_curve(phase1_score(model), w_true_fn(w1, w2, am),
                                           t_grid, x_eval, device)
             recs.append(float(rec_curve.mean()))
             if lb == args.lb[0] and s == 0:
@@ -182,20 +202,21 @@ def main():
               f"n_pass={n_pass}/{args.seeds} → {verdict} ====")
 
     results["recovery_t_curve_repr"] = rec_t_repr
-    (out_dir / "q1_verdict.json").write_text(json.dumps(results, indent=2))
+    vpath = out_dir / f"q1_verdict_{tag}.json"
+    vpath.write_text(json.dumps(results, indent=2))
     try:
         import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
         plt.figure(figsize=(6, 4))
         plt.plot(t_grid, rec_t_repr, "-o", ms=3)
         plt.axhline(pass_line, color="g", ls="--", label="PASS line")
         plt.axhline(fail_line, color="r", ls="--", label="FAIL line")
-        plt.xlabel("t (normalized)"); plt.ylabel("recovery cos(ŵ(t), w(t))")
-        plt.title("Q1 functional faithfulness recovery(t)"); plt.legend(); plt.tight_layout()
-        plt.savefig(out_dir / "recovery_t.png", dpi=120)
-        print(f"saved plot -> {out_dir/'recovery_t.png'}")
+        plt.xlabel("t (normalized)"); plt.ylabel("recovery cos(w_hat(t), w(t))")
+        plt.title(f"Q1 faithfulness recovery(t) [{tag}]"); plt.legend(); plt.tight_layout()
+        plt.savefig(out_dir / f"recovery_t_{tag}.png", dpi=120)
+        print(f"saved plot -> {out_dir/('recovery_t_'+tag+'.png')}")
     except Exception as e:
         print(f"(plot skipped: {e})")
-    print(f"saved -> {out_dir/'q1_verdict.json'}")
+    print(f"saved -> {vpath}")
 
 
 if __name__ == "__main__":

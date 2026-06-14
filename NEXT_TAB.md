@@ -25,7 +25,16 @@ incremental_abrupt −0.0205 [−.034,−.008] p<.001 — **두 clean 변종 모
     ```
     기대: gain↔cov_AUC 양의 상관, gain↔concept_gap ~0, **cooking/maps(concept≈0)서도 변조 이득>0 = X-side**.
     결과 `results/phase1/modulation_adj/summary.json` 환류.
-  - ⬜ R2.4 도구킷 합성 2×2 + INSECTS 검증, ⑤ R2.5 Q1 큰-회전.
+  - ✅ **R2.4 도구킷 검증**(`run_toolkit_validation.py`): covariate×concept 4×4, **4/4 PASS**. RESULTS §14. (로컬 실행 완료.)
+  - 🔄 **R2.5 Q1 큰-회전 인프라 완료**(`run_q1_faithfulness.py` 확장: `--angle-max`/`--basis`/`--n-harmonics`/`--tag`).
+    기존 게이트(π/2+trend)는 기본값으로 불변. **R2.5 robustness = 큰 회전+Fourier 정합**(기저-불일치 교락 회피):
+    ```
+    python scripts/run_q1_faithfulness.py --angle-max 6.283 --basis fourier --n-harmonics 4   # 2π 전회전
+    # (변형) --angle-max 3.1416 --basis fourier  # π 반회전(규칙 완전반전)
+    ```
+    기대: 큰 회전이면 바닥(shuffle-t)이 ~0으로 내려가 동적범위 넓어짐 → 메커니즘이 그래도 복원(≥PASS선)하면
+    "충실"이 헤드라인 논거로 robust. 출력 `results/phase1/q1/q1_verdict_<tag>.json`. ⚠ 출력 파일명이 태그식으로
+    바뀜(기존 `q1_verdict.json`→`q1_verdict_a1.57_trend.json`).
   → R1+R2 결과 들고 지도교수 정렬(워크숍 now / **NeurIPS D&B 주타깃**). Claim A 리드, B는 분해와 함께 보조.
 
 ## 한 문단 요약 (2026-06-12 대전환 — 위 ★★가 현행 최신)
