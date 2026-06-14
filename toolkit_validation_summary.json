@@ -1,0 +1,165 @@
+{
+  "grid": [
+    {
+      "mu_cov": 0.0,
+      "theta": 0.0,
+      "cov_auc": 0.5079381944444444,
+      "overlap_mass": 0.99525,
+      "ess_pct": 57.34789053882669,
+      "measurable": true,
+      "concept_gap": -0.0012601214574898822,
+      "n_overlap_min": 3975
+    },
+    {
+      "mu_cov": 0.0,
+      "theta": 30.0,
+      "cov_auc": 0.5079381944444444,
+      "overlap_mass": 0.99525,
+      "ess_pct": 57.34789053882669,
+      "measurable": true,
+      "concept_gap": 0.0913531033756726,
+      "n_overlap_min": 3975
+    },
+    {
+      "mu_cov": 0.0,
+      "theta": 60.0,
+      "cov_auc": 0.5079381944444444,
+      "overlap_mass": 0.99525,
+      "ess_pct": 57.34789053882669,
+      "measurable": true,
+      "concept_gap": 0.27148216078774334,
+      "n_overlap_min": 3975
+    },
+    {
+      "mu_cov": 0.0,
+      "theta": 90.0,
+      "cov_auc": 0.5079381944444444,
+      "overlap_mass": 0.99525,
+      "ess_pct": 57.34789053882669,
+      "measurable": true,
+      "concept_gap": 0.4601402283139697,
+      "n_overlap_min": 3975
+    },
+    {
+      "mu_cov": 0.7,
+      "theta": 0.0,
+      "cov_auc": 0.8081472222222222,
+      "overlap_mass": 0.67775,
+      "ess_pct": 2.3256938109693173,
+      "measurable": true,
+      "concept_gap": -0.001479087289695702,
+      "n_overlap_min": 2687
+    },
+    {
+      "mu_cov": 0.7,
+      "theta": 30.0,
+      "cov_auc": 0.8081472222222222,
+      "overlap_mass": 0.67775,
+      "ess_pct": 2.3256938109693173,
+      "measurable": true,
+      "concept_gap": 0.09066639307294899,
+      "n_overlap_min": 2687
+    },
+    {
+      "mu_cov": 0.7,
+      "theta": 60.0,
+      "cov_auc": 0.8081472222222222,
+      "overlap_mass": 0.67775,
+      "ess_pct": 2.3256938109693173,
+      "measurable": true,
+      "concept_gap": 0.272447675774938,
+      "n_overlap_min": 2687
+    },
+    {
+      "mu_cov": 0.7,
+      "theta": 90.0,
+      "cov_auc": 0.8081472222222222,
+      "overlap_mass": 0.67775,
+      "ess_pct": 2.3256938109693173,
+      "measurable": true,
+      "concept_gap": 0.46245331764190467,
+      "n_overlap_min": 2687
+    },
+    {
+      "mu_cov": 1.5,
+      "theta": 0.0,
+      "cov_auc": 0.9810125000000001,
+      "overlap_mass": 0.120375,
+      "ess_pct": 0.8402574763603522,
+      "measurable": true,
+      "concept_gap": -0.001584240253478364,
+      "n_overlap_min": 481
+    },
+    {
+      "mu_cov": 1.5,
+      "theta": 30.0,
+      "cov_auc": 0.9810125000000001,
+      "overlap_mass": 0.120375,
+      "ess_pct": 0.8402574763603522,
+      "measurable": true,
+      "concept_gap": 0.07155647382920116,
+      "n_overlap_min": 481
+    },
+    {
+      "mu_cov": 1.5,
+      "theta": 60.0,
+      "cov_auc": 0.9810125000000001,
+      "overlap_mass": 0.120375,
+      "ess_pct": 0.8402574763603522,
+      "measurable": true,
+      "concept_gap": 0.2277131782945736,
+      "n_overlap_min": 481
+    },
+    {
+      "mu_cov": 1.5,
+      "theta": 90.0,
+      "cov_auc": 0.9810125000000001,
+      "overlap_mass": 0.120375,
+      "ess_pct": 0.8402574763603522,
+      "measurable": true,
+      "concept_gap": 0.39296046287367403,
+      "n_overlap_min": 481
+    },
+    {
+      "mu_cov": 3.0,
+      "theta": 0.0,
+      "cov_auc": 0.9999944444444444,
+      "overlap_mass": 0.002,
+      "ess_pct": 0.051039108786771044,
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
+    },
+    {
+      "mu_cov": 3.0,
+      "theta": 30.0,
+      "cov_auc": 0.9999944444444444,
+      "overlap_mass": 0.002,
+      "ess_pct": 0.051039108786771044,
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
+    },
+    {
+      "mu_cov": 3.0,
+      "theta": 60.0,
+      "cov_auc": 0.9999944444444444,
+      "overlap_mass": 0.002,
+      "ess_pct": 0.051039108786771044,
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
+    },
+    {
+      "mu_cov": 3.0,
+      "theta": 90.0,
+      "cov_auc": 0.9999944444444444,
+      "overlap_mass": 0.002,
+      "ess_pct": 0.051039108786771044,
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
+    }
+  ],
+  "pass": true
+}

@@ -155,6 +155,23 @@ train sampled-4096/eval full-train context, val-fair+oracle 병기, **주 대비
 → **Claim A 정량 근거 완성**: "covariate 지배가 concept을 표준 조건부/재가중 렌즈로 측정불가하게 만든다;
   공통 support 있는 곳에선 within-overlap이 복원한다(DISDE의 시간축·model-transfer 적응)." DISDE/WhyShift 위 위치(REFERENCES §0).
 
+## 14. R2.4 — 도구킷 ground-truth 검증 (covariate×concept 통제 그리드)  [solid] ★D&B 요건
+`run_toolkit_validation.py` (sklearn만). covariate 강도(mu, 비-rule dim 이동)와 concept 강도
+(theta, rule 회전)를 **독립 통제**한 합성 그리드에서 도구킷(cov_AUC+DISDE퇴화+within-overlap)이
+ground truth를 복원하는가 + 실패 모드를 아는가. 4×4 그리드, n=4000:
+| mu_cov | cov_AUC | overlap | ESS% | measurable | gap @ θ=0/30/60/90 |
+|---|---|---|---|---|---|
+| 0.00 | 0.508 | 0.995 | 57.4 | True | −0.001 / +0.091 / +0.271 / **+0.460** |
+| 0.70 | 0.808 | 0.678 | **2.33** | True | −0.001 / +0.091 / +0.272 / **+0.462** |
+| 1.50 | 0.981 | 0.120 | 0.84 | True | −0.002 / +0.072 / +0.228 / +0.393 |
+| 3.00 | 1.000 | 0.002 | 0.05 | **False(전부)** | — (concept 심겨 있어도 **거짓신호 안 냄**) |
+- **4개 검증 전부 PASS**: ①복원 Spearman(θ,gap)=**+1.000** ②거짓양성 없음(θ=0서 max|gap|=0.002)
+  ③퇴화 단조 Spearman(mu,cov_AUC)=+1.0 / (mu,overlap)=−1.0 ④실패모드: mu=3.0서 4/4 unmeasurable(support 소멸→abstain).
+- **★핵심(mu=0.70 행)**: **ESS%=2.33 = DISDE 재가중 사실상 사망**인데 within-overlap gap은 covariate 없는
+  경우와 **동일하게** 심은 concept 복원 → **elec2 현상(DISDE 붕괴/within-overlap +0.132 복원)의 합성 증명.**
+→ 측정 프레임이 (a) ground truth 복원 (b) DISDE 죽는 곳서도 작동 (c) concept 없으면 0 (d) support 없으면 abstain.
+  "측정불가"가 *방법 결함 아닌 support 부재*임을 통제 환경서 입증 — **D&B "도구킷 검증" 요건 충족.**
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)
