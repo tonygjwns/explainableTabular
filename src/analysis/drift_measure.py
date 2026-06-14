@@ -21,7 +21,7 @@ from typing import Optional
 import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 from sklearn.model_selection import train_test_split, cross_val_predict
-from sklearn.metrics import roc_auc_score, mean_squared_error
+from sklearn.metrics import roc_auc_score, mean_squared_error, accuracy_score
 from scipy.stats import spearmanr
 
 
@@ -121,6 +121,8 @@ def _fit_eval(Xtr, ytr, Xte, yte, task, seed) -> float:
         return float(np.sqrt(mean_squared_error(yte, m.predict(Xte))))
     m = HistGradientBoostingClassifier(max_iter=300, random_state=seed)
     m.fit(Xtr, ytr)
+    if task == "multiclass":                      # AUC[:,1] is binary-only -> use accuracy
+        return float(accuracy_score(yte, m.predict(Xte)))
     return float(roc_auc_score(yte, m.predict_proba(Xte)[:, 1]))
 
 
@@ -164,7 +166,7 @@ def concept_drift_gap(
     keep = _good(Xe) & _good(Xl)
     if not keep.any():
         return {"gap_concept": 0.0, "gap_rel": 0.0, "n_each": int(n),
-                "metric": "rmse" if task == "regression" else "auc",
+                "metric": {"regression": "rmse", "multiclass": "accuracy"}.get(task, "auc"),
                 "note": "no usable columns"}
     Xe, Xl, Xf = Xe[:, keep], Xl[:, keep], Xf[:, keep]
 
@@ -311,7 +313,7 @@ def concept_within_overlap(
         strata.append(None if g is None else g["gap"])
     sg = [g for g in strata if g is not None]
     return {"measurable": True, "n_overlap_early": n_e, "n_overlap_late": n_l,
-            "metric": "rmse" if task == "regression" else "auc",
+            "metric": {"regression": "rmse", "multiclass": "accuracy"}.get(task, "auc"),
             "score_early_on_lateOverlap": full["score_early"],
             "score_late_on_lateOverlap": full["score_late"],
             "concept_gap_within_overlap": full["gap"],
@@ -364,11 +366,18 @@ def disde_iw_degeneration(
     half = np.concatenate([np.zeros(len(Xe)), np.ones(len(Xl))])
     clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
     p = cross_val_predict(clf, X, half, cv=5, method="predict_proba")[:, 1]
+    # overlap_mass = support diagnostic (fraction of POOLED pts with P(late|x)∈[.1,.9]).
+    # This is the PRIMARY degeneration signal: ~0 => early/late supports are DISJOINT,
+    # so reweighting is biased (no early mass resembles late) — note ESS/CV are variance
+    # diagnostics and MISS this bias mode (perfect separation clips all early w to the
+    # floor => uniform tiny weights => ESS looks fine while the estimate is meaningless).
+    overlap_mass = float(((p >= 0.1) & (p <= 0.9)).mean())
     pe = np.clip(p[half == 0], clip, 1 - clip)
     w = pe / (1 - pe)                                    # density ratio on early pts
     sw, sw2 = float(w.sum()), float((w ** 2).sum())
     ess = (sw ** 2) / (sw2 + 1e-12)
     return {
+        "overlap_mass": overlap_mass,
         "ess": float(ess), "ess_pct": float(100.0 * ess / len(w)),
         "cv": float(w.std() / (w.mean() + 1e-12)),
         "max_weight_share": float(w.max() / (sw + 1e-12)),

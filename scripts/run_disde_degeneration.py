@@ -43,9 +43,10 @@ from src.analysis.drift_measure import (  # noqa: E402
     _stack, covariate_shift_auc, disde_iw_degeneration, concept_within_overlap,
 )
 
-# thresholds (screen-level; see F3). ESS_PCT_FLOOR: below this, IW reweighting is
-# effectively estimated from <X% of the data => DISDE within-support term unusable.
-COV_AUC_HI, ESS_PCT_FLOOR, OVERLAP_MIN = 0.90, 5.0, 200
+# thresholds (screen-level; see F3). Two degeneration modes:
+#   OVERLAP_MASS_FLOOR: below this, early/late supports are DISJOINT (bias mode).
+#   ESS_PCT_FLOOR: overlap exists but weights are heavy-tailed (variance mode).
+COV_AUC_HI, ESS_PCT_FLOOR, OVERLAP_MASS_FLOOR, OVERLAP_MIN = 0.90, 5.0, 0.05, 200
 
 
 def _early_late(data):
@@ -55,13 +56,17 @@ def _early_late(data):
     return X[em], data.train.y[em], X[lm], data.train.y[lm]
 
 
-def _verdict(cov_auc, ess_pct, n_ov_min, gap, metric):
-    disde_degen = (cov_auc >= COV_AUC_HI) or (ess_pct < ESS_PCT_FLOOR)
+def _verdict(cov_auc, overlap_mass, ess_pct, n_ov_min):
+    disjoint = overlap_mass < OVERLAP_MASS_FLOOR          # bias mode (disjoint support)
+    heavy_tail = (not disjoint) and (ess_pct < ESS_PCT_FLOOR)   # variance mode
+    disde_degen = disjoint or heavy_tail or (cov_auc >= COV_AUC_HI)
+    mode = ("disjoint-support" if disjoint
+            else "heavy-tail" if heavy_tail else "")
     overlap_usable = n_ov_min is not None and n_ov_min >= OVERLAP_MIN
     if disde_degen and overlap_usable:
-        return "DISDE-degenerate; OUR-FRAME-WINS (measurable on common support)"
+        return f"DISDE-degenerate[{mode or 'cov'}]; OUR-FRAME-WINS (measurable on common support)"
     if disde_degen and not overlap_usable:
-        return "DISDE-degenerate; concept TRULY UNMEASURABLE (no common support)"
+        return f"DISDE-degenerate[{mode or 'cov'}]; concept TRULY UNMEASURABLE (no common support)"
     if overlap_usable:
         return "DISDE-ok; both usable (check gap≈0 => no concept where measurable)"
     return "low-shift / inconclusive"
@@ -97,9 +102,10 @@ def main():
         jobs.append((f"insects_{args.insects_variant}", d.task, _early_late(d)))
 
     print(f"\n==== DISDE degeneration vs within-overlap "
-          f"(cov_AUC>={COV_AUC_HI} or ESS%<{ESS_PCT_FLOOR} => DISDE degenerate) ====")
+          f"(overlap<{OVERLAP_MASS_FLOOR}=disjoint | ESS%<{ESS_PCT_FLOOR}=heavy-tail "
+          f"| cov_AUC>={COV_AUC_HI}) ====")
     hdr = (f"  {'dataset':22s} {'cov_AUC':>7s} {'drop5':>6s} | "
-           f"{'ESS%':>6s} {'CV(w)':>7s} {'maxw':>6s} | "
+           f"{'ovlap':>6s} {'ESS%':>6s} {'CV(w)':>7s} {'maxw':>6s} | "
            f"{'n_ov':>6s} {'gap':>8s} | verdict")
     print(hdr); print("  " + "-" * (len(hdr) - 2))
     rows = []
@@ -110,8 +116,8 @@ def main():
         n_ov_min = (min(con.get("n_overlap_early", 0), con.get("n_overlap_late", 0))
                     if con.get("measurable") else 0)
         gap = con.get("concept_gap_within_overlap")
-        v = _verdict(cov.get("auc", 0.5), deg.get("ess_pct", 100.0), n_ov_min, gap,
-                     con.get("metric", "auc"))
+        v = _verdict(cov.get("auc", 0.5), deg.get("overlap_mass", 0.0),
+                     deg.get("ess_pct", 100.0), n_ov_min)
         row = {"dataset": ds, "task": task,
                "cov_auc": cov.get("auc"), "cov_auc_drop_top5": cov.get("auc_drop_top5"),
                "disde": deg, "within_overlap": con, "n_overlap_min": n_ov_min,
@@ -120,6 +126,7 @@ def main():
         gtxt = f"{gap:+.3f}" if isinstance(gap, (int, float)) else "   -  "
         print(f"  {ds:22s} {cov.get('auc',0.5):7.3f} "
               f"{cov.get('auc_drop_top5',float('nan')):6.3f} | "
+              f"{deg.get('overlap_mass',float('nan')):6.3f} "
               f"{deg.get('ess_pct',float('nan')):6.2f} {deg.get('cv',float('nan')):7.1f} "
               f"{deg.get('max_weight_share',float('nan')):6.3f} | "
               f"{n_ov_min:6d} {gtxt:>8s} | {v}")
@@ -127,6 +134,7 @@ def main():
 
     (out_dir / "summary.json").write_text(json.dumps(
         {"thresholds": {"cov_auc_hi": COV_AUC_HI, "ess_pct_floor": ESS_PCT_FLOOR,
+                        "overlap_mass_floor": OVERLAP_MASS_FLOOR,
                         "overlap_min": OVERLAP_MIN}, "rows": rows}, indent=2, default=float))
     print("\n  READ (Claim A): high cov_AUC (pervasive: drop5 still high) => ESS% collapses")
     print("  => DISDE within-support term unestimable; yet where n_ov>=200 our transfer-gap")
