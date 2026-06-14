@@ -46,6 +46,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .temporal_embedding import FourierTimeEmbedding
+from .temporal_modulation import TemporalModulation
 
 VALUE_HOOKS = ("linear", "mlp", "gate")
 
@@ -182,19 +183,26 @@ class TimeTabRModel(nn.Module):
     the caller). Requires PyTorch.
     """
 
-    ARCHS = ("mlp_t", "tabr", "tabr_t", "time_tabr", "time_tabr_t")
+    # 'mlp' = static MLP, NO time anywhere (R2.3 adjudication static baseline).
+    ARCHS = ("mlp", "mlp_t", "tabr", "tabr_t", "time_tabr", "time_tabr_t")
 
     def __init__(self, n_features: int, task: str, n_classes: int = 2, *,
                  arch: str = "time_tabr_t", time_mode: str = "value",
                  enc_dim: int = 128, enc_hidden: int = 256, n_enc_layers: int = 2,
                  time_basis: str = "trend", trend_degree: int = 3, time_out: int = 16,
                  topk: int = 32, predictor_hidden: int = 256, dropout: float = 0.0,
-                 value_hook: str = "mlp", sim_scale: str = "sqrt_d", key_proj: bool = True):
+                 value_hook: str = "mlp", sim_scale: str = "sqrt_d", key_proj: bool = True,
+                 feature_modulation: bool = False):
         super().__init__()
         if arch not in self.ARCHS:
             raise ValueError(f"arch must be one of {self.ARCHS}, got {arch!r}")
         self.task = task.lower(); self.arch = arch
         out_dim = n_classes if self.task == "multiclass" else (2 if self.task == "binclass" else 1)
+        # R2.3: Cai&Ye-style time-conditioned INPUT feature modulation (label-free,
+        # X-side). Applied to raw features before the encoder, for any arch.
+        self.fmod = (TemporalModulation(n_features, time_out=time_out,
+                                        time_basis=time_basis, trend_degree=trend_degree)
+                     if feature_modulation else None)
         # shared encoder; dropout (>0) regularizes ALL arms identically so they can
         # train past the early-overfit peak (lets time_tabr's drift correction engage).
         layers, prev = [], n_features
@@ -205,11 +213,13 @@ class TimeTabRModel(nn.Module):
             prev = enc_hidden
         layers += [nn.Linear(prev, enc_dim)]
         self.encoder = nn.Sequential(*layers)
-        if arch == "mlp_t":
-            self.time_emb = FourierTimeEmbedding(time_out, basis=time_basis,
-                                                 trend_degree=trend_degree, use_trend=True)
+        if arch in ("mlp", "mlp_t"):
+            self.time_emb = (FourierTimeEmbedding(time_out, basis=time_basis,
+                                                  trend_degree=trend_degree, use_trend=True)
+                             if arch == "mlp_t" else None)
+            tdim = self.time_emb.out_dim if arch == "mlp_t" else 0
             self.predictor = nn.Sequential(
-                nn.Linear(enc_dim + self.time_emb.out_dim, predictor_hidden), nn.ReLU(),
+                nn.Linear(enc_dim + tdim, predictor_hidden), nn.ReLU(),
                 nn.Linear(predictor_hidden, out_dim))
         else:
             tm = "none" if arch in ("tabr", "tabr_t") else time_mode
@@ -225,10 +235,15 @@ class TimeTabRModel(nn.Module):
 
     def forward(self, xq, tq, ctx_x=None, ctx_t=None, ctx_y=None,
                 exclude_self=None, return_aux=False):
+        if self.fmod is not None:                         # R2.3 input modulation
+            xq = self.fmod(xq, tq)
         zq = self.encode(xq)
-        if self.arch == "mlp_t":
-            out = self.predictor(torch.cat([zq, self.time_emb(tq)], dim=-1))
+        if self.arch in ("mlp", "mlp_t"):
+            feat = [zq, self.time_emb(tq)] if self.arch == "mlp_t" else [zq]
+            out = self.predictor(torch.cat(feat, dim=-1))
             return (out, {}) if return_aux else out
+        if self.fmod is not None:
+            ctx_x = self.fmod(ctx_x, ctx_t)
         zc = self.encode(ctx_x)
         return self.tabr(zq, tq, zc, ctx_t, ctx_y,
                          exclude_self=exclude_self, return_aux=return_aux)

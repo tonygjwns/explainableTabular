@@ -14,9 +14,19 @@ incremental_abrupt −0.0205 [−.034,−.008] p<.001 — **두 clean 변종 모
   but 피처가 더 나름 ③**★in-dist vs 외삽 뒤집힘**: random서 훅 도움(+.005,+.021)/temporal서 해(−.007,−.021)
   = 시간-인덱싱 훅은 in-dist 장치, 외삽 장치 아님(redundancy 직접 뒷받침) ④trend기저는 비단조 drift서 외삽붕괴(Claim A 먹이).
 - 결과 jsonl 환류·커밋. RESULTS §12, FINDINGS "V2 RE-TEST VERDICT" 참조.
-- **다음 = R2 (PLAN_V2 §R2)**: ①문헌 원문 검증(웹: DISDE/WhyShift/Cai&Ye/TabReD-분해 선행유무) →
-  ②DISDE 퇴화 실험 ③**Cai&Ye 판결**(변조 이득이 X-side임을 cooking/maps서 증명) ④도구킷 합성 2×2+INSECTS 검증
-  ⑤Q1 큰-회전. → R1 결과 들고 지도교수 정렬(워크숍 now / NeurIPS D&B 주타깃). Claim A 리드, B는 이 분해와 함께 보조.
+- **R2 진행상황 (PLAN_V2 §R2)**:
+  - ✅ **R2.1 문헌 검증(웹 원문)**: Claim A 코어 **미선점**(측정프레임만 DISDE와 PARTIAL). REFERENCES §0.
+  - ✅ **R2.2 DISDE 퇴화**(`run_disde_degeneration.py`): 10데이터셋 3분법 확정. RESULTS §13. (서버 실행·환류 완료.)
+  - 🔄 **R2.3 Cai&Ye 판결 인프라 완료**(아래 커밋). **정의적 절반 = 코드로 증명**(변조는 label-free X-side,
+    REFERENCES §0.1). **경험적 절반 = 서버 실행 대기**:
+    ```
+    python scripts/smoke_test_modulation.py    # 배선/identity-init 검증 (먼저)
+    python scripts/run_modulation_adjudication.py --config configs/phase1.yaml --all --elec2 --insects --n-seeds 5
+    ```
+    기대: gain↔cov_AUC 양의 상관, gain↔concept_gap ~0, **cooking/maps(concept≈0)서도 변조 이득>0 = X-side**.
+    결과 `results/phase1/modulation_adj/summary.json` 환류.
+  - ⬜ R2.4 도구킷 합성 2×2 + INSECTS 검증, ⑤ R2.5 Q1 큰-회전.
+  → R1+R2 결과 들고 지도교수 정렬(워크숍 now / **NeurIPS D&B 주타깃**). Claim A 리드, B는 분해와 함께 보조.
 
 ## 한 문단 요약 (2026-06-12 대전환 — 위 ★★가 현행 최신)
 **외부 감사로 Q2b "구조 ≤ 피처" 음성의 *해석*이 무효화됨**: (i) linear value 훅이 집계 하에

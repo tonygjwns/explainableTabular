@@ -48,8 +48,9 @@ from .trainer import _prep_numeric, _to_tensor, _global_cat_cardinalities
 
 @dataclass
 class TabRConfig:
-    # architecture (the Q2b factorial axes)
-    arch: str = "time_tabr_t"        # mlp_t | tabr | tabr_t | time_tabr | time_tabr_t
+    # architecture (the Q2b factorial axes; 'mlp' = static, R2.3 baseline)
+    arch: str = "time_tabr_t"        # mlp | mlp_t | tabr | tabr_t | time_tabr | time_tabr_t
+    feature_modulation: bool = False  # R2.3: Cai&Ye-style time-conditioned input modulation
     time_mode: str = "value"         # value | metric | both (time_tabr* arms only)
     value_hook: str = "mlp"          # mlp | gate | linear(LEGACY — collapses, see tabr.py)
     time_basis: str = "trend"        # trend (extrapolation-safe) | fourier
@@ -152,11 +153,12 @@ def train_timetabr(data: TabReDDataset, cfg: TabRConfig) -> dict:
         time_basis=cfg.time_basis, trend_degree=cfg.trend_degree, time_out=cfg.time_out,
         topk=cfg.topk, predictor_hidden=cfg.predictor_hidden, dropout=cfg.dropout,
         value_hook=cfg.value_hook, sim_scale=cfg.sim_scale, key_proj=cfg.key_proj,
+        feature_modulation=cfg.feature_modulation,
     ).to(device)
 
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
     n_train = x["train"].shape[0]
-    needs_ctx = cfg.arch != "mlp_t"
+    needs_ctx = cfg.arch not in ("mlp", "mlp_t")
 
     # eval context pool: full train (V2 default) or a fixed legacy subsample drawn
     # from a DEDICATED generator (same pool for every arm at the same run seed).

@@ -31,6 +31,10 @@
   "full modulation 단 MLP도 대부분 DL 능가". **단 그들이 'concept drift'라 부르는 건 피처 *분포/통계* 변화
   = X-side 적응**(P(y|x) 변화 아님). → **R2.3 판결의 핵심**: 우리 분해로 그들 이득이 X-side임을 보이면
   용어 혼동 교정 + 경쟁 서사 포섭.
+  - **★코드 확인(R2.3 정의적 절반)**: `model/lib/temporal_modulation.py` 원문 =
+    `gamma=fc_gamma(t); beta=fc_beta(t); lam=fc_lambda(t); x=γ·YeoJohnson(x,λ)+β` — **y에 전혀 의존 안 함**
+    (학습 손실은 표준 `criterion(model(X,M),y)`). 즉 **시간-인덱싱 covariate 정규화**라 P(y|x) 착취가
+    *원리적으로 불가능*. → 우리 충실 재현 = `src/models/temporal_modulation.py`. 경험적 절반 = `run_modulation_adjudication.py`.
 - **Drift-Resilient TabPFN** — NeurIPS 2024, arXiv 2411.10634. 시간-인지가 *도움*(SCM-shift prior).
   → **반례**: Claim B를 "검색 *구조*"로 명시 한정해야 반례 회피.
 - **Model Assessment & Selection under Temporal Distribution Shift** — Han, Huang, Wang. arXiv 2402.08672.
