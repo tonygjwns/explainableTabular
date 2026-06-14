@@ -129,6 +129,32 @@ train sampled-4096/eval full-train context, val-fair+oracle 병기, **주 대비
 - **부수 발견**: trend 기저는 비단조 drift(abrupt·reoccurring)에서 외삽 붕괴 → temporal 모델선택 무력화(ρ<0.3) → Claim A(측정 신뢰성) 먹이.
 → **R1 완료: 교락 없는 V2-유효 음성(유의). A' method 경로 최종 닫힘. 헤드라인은 Claim A, B는 보조(이 깨끗한 분해와 함께).**
 
+## 13. R2.2 — DISDE 퇴화 vs within-overlap (Claim A 정량 엔진, 10 데이터셋)  [solid] ★Claim A
+`run_disde_degeneration.py` (sklearn HGB만, 학습 없음). 데이터셋별 early/late(median t): covariate AUC +
+**DISDE식 density-ratio 재가중 건강도**(overlap_mass / ESS% / CV / max-weight) + within-overlap transfer gap.
+| 데이터셋 | cov_AUC | drop5 | overlap | ESS% | n_ov | gap | 판정 |
+|---|---|---|---|---|---|---|---|
+| sberbank_housing | 1.000 | 1.000 | 0.000 | 14 | 0 | — | disjoint → **측정불가** |
+| homesite_insurance | 1.000 | 1.000 | 0.000 | 99* | 0 | — | disjoint → **측정불가** |
+| ecom_offers | 1.000 | 0.953 | 0.000 | 100* | 0 | — | disjoint → **측정불가** |
+| homecredit_default | 1.000 | 0.999 | 0.000 | 100* | 0 | — | disjoint → **측정불가** |
+| weather | 1.000 | 0.907 | 0.000 | 100* | 0 | — | disjoint → **측정불가** |
+| delivery_eta | 0.997 | 0.994 | 0.061 | 0.21 | 568 | −0.048 | heavy-tail, 프레임 작동(gap 소/음) |
+| **elec2** | 0.993 | 0.449 | 0.438 | 0.55 | 4721 | **+0.132** | heavy-tail, **프레임 승**(실concept) |
+| cooking_time | 0.753 | 0.627 | 0.880 | 45 | 16960 | −0.005 | DISDE-ok, **concept≈0** |
+| maps_routing | 0.566 | 0.568 | 1.000 | 93 | 20000 | −0.003 | DISDE-ok, **concept≈0** |
+| **insects_incremental** | 0.707 | 0.707 | 0.973 | 39 | 19000 | **+0.144** | DISDE-ok, **실concept(설계drift)** |
+- *ESS%=99~100*은 **완전분리 아티팩트**(early p 전부 clip 바닥→가중치 균일). overlap_mass=0.000이 진짜 신호
+  = **disjoint support**(bias 모드). 두 퇴화 모드 분리: **disjoint**(overlap~0: 고-covariate 5개) /
+  **heavy-tail**(ESS%~0, overlap>0: delivery·elec2).
+- **3분법 확정(10개)**: ①고-covariate 5개 ⇒ support disjoint ⇒ concept 표준렌즈로 **측정불가** /
+  ②저-covariate(cooking/maps) ⇒ 측정가능하나 **concept≈0** / ③concept-drift 벤치(elec2/insects) ⇒
+  **실concept 큼**(+0.132/+0.144), elec2는 DISDE 재가중 붕괴(ESS 0.55%)지만 within-overlap이 복원.
+- **★측정 프레임 검증**: INSECTS는 *설계된* concept drift(ground truth=drift 존재) → 프레임이 **+0.144로 정확 복원**
+  (elec2 +0.132와 동급). "측정불가"가 *방법 결함*이 아니라 *support 부재*임을 양방향으로 입증.
+→ **Claim A 정량 근거 완성**: "covariate 지배가 concept을 표준 조건부/재가중 렌즈로 측정불가하게 만든다;
+  공통 support 있는 곳에선 within-overlap이 복원한다(DISDE의 시간축·model-transfer 적응)." DISDE/WhyShift 위 위치(REFERENCES §0).
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)

@@ -1,0 +1,295 @@
+{
+  "thresholds": {
+    "cov_auc_hi": 0.9,
+    "ess_pct_floor": 5.0,
+    "overlap_mass_floor": 0.05,
+    "overlap_min": 200
+  },
+  "rows": [
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "cov_auc": 1.0,
+      "cov_auc_drop_top5": 1.0,
+      "disde": {
+        "overlap_mass": 0.0,
+        "ess": 1327.0162405062422,
+        "ess_pct": 14.070790377544718,
+        "cv": 2.4712185883139335,
+        "max_weight_share": 0.0007535748913314193,
+        "n_early": 9431
+      },
+      "within_overlap": {
+        "measurable": false,
+        "n_overlap_early": 0,
+        "n_overlap_late": 0,
+        "note": "too few overlap points per half"
+      },
+      "n_overlap_min": 0,
+      "concept_gap": null,
+      "verdict": "DISDE-degenerate[disjoint-support]; concept TRULY UNMEASURABLE (no common support)"
+    },
+    {
+      "dataset": "homesite_insurance",
+      "task": "binclass",
+      "cov_auc": 1.0,
+      "cov_auc_drop_top5": 0.99985425,
+      "disde": {
+        "overlap_mass": 0.0,
+        "ess": 19815.633330295917,
+        "ess_pct": 99.07816665147959,
+        "cv": 0.09645777174476393,
+        "max_weight_share": 0.0007283291078469779,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": false,
+        "n_overlap_early": 0,
+        "n_overlap_late": 0,
+        "note": "too few overlap points per half"
+      },
+      "n_overlap_min": 0,
+      "concept_gap": null,
+      "verdict": "DISDE-degenerate[disjoint-support]; concept TRULY UNMEASURABLE (no common support)"
+    },
+    {
+      "dataset": "ecom_offers",
+      "task": "binclass",
+      "cov_auc": 1.0,
+      "cov_auc_drop_top5": 0.9530679027777779,
+      "disde": {
+        "overlap_mass": 0.0,
+        "ess": 19999.999999002,
+        "ess_pct": 99.99999999501,
+        "cv": 0.0,
+        "max_weight_share": 4.999999999999751e-05,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": false,
+        "n_overlap_early": 0,
+        "n_overlap_late": 0,
+        "note": "too few overlap points per half"
+      },
+      "n_overlap_min": 0,
+      "concept_gap": null,
+      "verdict": "DISDE-degenerate[disjoint-support]; concept TRULY UNMEASURABLE (no common support)"
+    },
+    {
+      "dataset": "homecredit_default",
+      "task": "binclass",
+      "cov_auc": 1.0,
+      "cov_auc_drop_top5": 0.9990522499999999,
+      "disde": {
+        "overlap_mass": 0.0,
+        "ess": 19999.999999002,
+        "ess_pct": 99.99999999501,
+        "cv": 0.0,
+        "max_weight_share": 4.999999999999751e-05,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": false,
+        "n_overlap_early": 0,
+        "n_overlap_late": 0,
+        "note": "too few overlap points per half"
+      },
+      "n_overlap_min": 0,
+      "concept_gap": null,
+      "verdict": "DISDE-degenerate[disjoint-support]; concept TRULY UNMEASURABLE (no common support)"
+    },
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "cov_auc": 0.7532804305555556,
+      "cov_auc_drop_top5": 0.6273437638888889,
+      "disde": {
+        "overlap_mass": 0.8799,
+        "ess": 8983.211188513289,
+        "ess_pct": 44.916055942566445,
+        "cv": 1.107418328872866,
+        "max_weight_share": 0.0014816877360803095,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": true,
+        "n_overlap_early": 16960,
+        "n_overlap_late": 18236,
+        "metric": "rmse",
+        "score_early_on_lateOverlap": 0.46284421431164063,
+        "score_late_on_lateOverlap": 0.4674921041876133,
+        "concept_gap_within_overlap": -0.004647889875972644,
+        "strata_gaps": [
+          -0.0183254040839555,
+          0.0001874012893994248,
+          0.005391202343025148
+        ],
+        "strata_gap_min": -0.0183254040839555,
+        "strata_gap_max": 0.005391202343025148,
+        "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); out-of-fold p; stable across p-strata => not residual covariate"
+      },
+      "n_overlap_min": 16960,
+      "concept_gap": -0.004647889875972644,
+      "verdict": "DISDE-ok; both usable (check gap\u22480 => no concept where measurable)"
+    },
+    {
+      "dataset": "delivery_eta",
+      "task": "regression",
+      "cov_auc": 0.9973066944444444,
+      "cov_auc_drop_top5": 0.9940948055555555,
+      "disde": {
+        "overlap_mass": 0.0612,
+        "ess": 41.161616908237995,
+        "ess_pct": 0.20580808454118996,
+        "cv": 22.020208031202742,
+        "max_weight_share": 0.06457262095274416,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": true,
+        "n_overlap_early": 1880,
+        "n_overlap_late": 568,
+        "metric": "rmse",
+        "score_early_on_lateOverlap": 0.5142517593428682,
+        "score_late_on_lateOverlap": 0.5618174806247882,
+        "concept_gap_within_overlap": -0.04756572128192005,
+        "strata_gaps": [
+          null,
+          -0.05712504691078124,
+          -0.030879671998001235
+        ],
+        "strata_gap_min": -0.05712504691078124,
+        "strata_gap_max": -0.030879671998001235,
+        "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); out-of-fold p; stable across p-strata => not residual covariate"
+      },
+      "n_overlap_min": 568,
+      "concept_gap": -0.04756572128192005,
+      "verdict": "DISDE-degenerate[heavy-tail]; OUR-FRAME-WINS (measurable on common support)"
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "cov_auc": 0.5661225138888889,
+      "cov_auc_drop_top5": 0.5676503888888889,
+      "disde": {
+        "overlap_mass": 1.0,
+        "ess": 18619.08030578329,
+        "ess_pct": 93.09540152891645,
+        "cv": 0.27233602809075774,
+        "max_weight_share": 0.00015852472736551838,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": true,
+        "n_overlap_early": 20000,
+        "n_overlap_late": 20000,
+        "metric": "rmse",
+        "score_early_on_lateOverlap": 0.16259417626783168,
+        "score_late_on_lateOverlap": 0.16590219808270543,
+        "concept_gap_within_overlap": -0.003308021814873746,
+        "strata_gaps": [
+          -0.0013185278327108307,
+          0.0006674198094094586,
+          -0.001406429842445156
+        ],
+        "strata_gap_min": -0.001406429842445156,
+        "strata_gap_max": 0.0006674198094094586,
+        "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); out-of-fold p; stable across p-strata => not residual covariate"
+      },
+      "n_overlap_min": 20000,
+      "concept_gap": -0.003308021814873746,
+      "verdict": "DISDE-ok; both usable (check gap\u22480 => no concept where measurable)"
+    },
+    {
+      "dataset": "weather",
+      "task": "regression",
+      "cov_auc": 0.9999999999999999,
+      "cov_auc_drop_top5": 0.9065213888888889,
+      "disde": {
+        "overlap_mass": 0.0,
+        "ess": 19999.999999002,
+        "ess_pct": 99.99999999501,
+        "cv": 0.0,
+        "max_weight_share": 4.999999999999751e-05,
+        "n_early": 20000
+      },
+      "within_overlap": {
+        "measurable": false,
+        "n_overlap_early": 0,
+        "n_overlap_late": 0,
+        "note": "too few overlap points per half"
+      },
+      "n_overlap_min": 0,
+      "concept_gap": null,
+      "verdict": "DISDE-degenerate[disjoint-support]; concept TRULY UNMEASURABLE (no common support)"
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "cov_auc": 0.9934692191607206,
+      "cov_auc_drop_top5": 0.4493640806899236,
+      "disde": {
+        "overlap_mass": 0.4380201765447667,
+        "ess": 86.85808121175022,
+        "ess_pct": 0.5476549887247807,
+        "cv": 13.475782409214533,
+        "max_weight_share": 0.03411587593088957,
+        "n_early": 15860
+      },
+      "within_overlap": {
+        "measurable": true,
+        "n_overlap_early": 9173,
+        "n_overlap_late": 4721,
+        "metric": "auc",
+        "score_early_on_lateOverlap": 0.7157596071496787,
+        "score_late_on_lateOverlap": 0.8477466250978121,
+        "concept_gap_within_overlap": 0.1319870179481334,
+        "strata_gaps": [
+          0.1259438236182422,
+          0.16842483707722,
+          0.12059782849724432
+        ],
+        "strata_gap_min": 0.12059782849724432,
+        "strata_gap_max": 0.16842483707722,
+        "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); out-of-fold p; stable across p-strata => not residual covariate"
+      },
+      "n_overlap_min": 4721,
+      "concept_gap": 0.1319870179481334,
+      "verdict": "DISDE-degenerate[heavy-tail]; OUR-FRAME-WINS (measurable on common support)"
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "cov_auc": 0.7068317917500834,
+      "cov_auc_drop_top5": 0.7074055828376311,
+      "disde": {
+        "overlap_mass": 0.9727664478629052,
+        "ess": 7840.668261672242,
+        "ess_pct": 39.28781010007638,
+        "cv": 1.2431085060370932,
+        "max_weight_share": 0.0021244647890599983,
+        "n_early": 19957
+      },
+      "within_overlap": {
+        "measurable": true,
+        "n_overlap_early": 19827,
+        "n_overlap_late": 19000,
+        "metric": "accuracy",
+        "score_early_on_lateOverlap": 0.5345263157894737,
+        "score_late_on_lateOverlap": 0.6783157894736842,
+        "concept_gap_within_overlap": 0.14378947368421047,
+        "strata_gaps": [
+          0.22409519087754093,
+          0.1277480689245395,
+          0.14518086914299588
+        ],
+        "strata_gap_min": 0.1277480689245395,
+        "strata_gap_max": 0.22409519087754093,
+        "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); out-of-fold p; stable across p-strata => not residual covariate"
+      },
+      "n_overlap_min": 19000,
+      "concept_gap": 0.14378947368421047,
+      "verdict": "DISDE-ok; both usable (check gap\u22480 => no concept where measurable)"
+    }
+  ]
+}
