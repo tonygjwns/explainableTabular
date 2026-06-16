@@ -29,8 +29,10 @@
   trend기저는 비단조 drift서 외삽붕괴(Claim A 먹이). RESULTS §12, FINDINGS "V2 RE-TEST VERDICT".
 - ✅ V2 인프라(R0): 비퇴화 훅(mlp/gate), learnable τ+key-proj, context 정합(sampled-4096/full), 5-arm,
   val-fair+oracle, `hedges_g_paired`, `run_anchors.py`, 선형-붕괴 표현력 smoke 가드, `--legacy`. PREREG_V2 잠금.
-- 🔄 **다음 = R2 (PLAN_V2 §R2)**: ①문헌 원문 검증[웹]·②DISDE 퇴화 실험·③**Cai&Ye 판결**(변조 이득 X-side 증명)·
-  ④도구킷 합성2×2+INSECTS 검증·⑤Q1 큰-회전 → R1 들고 지도교수 정렬(워크숍 now / **NeurIPS D&B 주타깃**). Claim A 리드, B 보조.
+- ✅ **R2 완료 (2026-06-17)**: ①문헌(A 미선점) ②DISDE 퇴화표 10데이터셋 3분법(RESULTS §13) ④도구킷 ground-truth
+  4/4 PASS(§14) ⑤Q1 큰-회전 바닥0.894→0.017·복원0.988 PASS(§15). ③**Cai&Ye 판결**: 정의적(label-free⇒X-side)
+  확정 / 경험적은 최소 재현이 그들 이득 재현 못 함 → PREREG §8대로 inconclusive·LAMDA repo 재현=future work(§16).
+- 🔄 **다음 = 지도교수 정렬 + D&B 범위확장**(데이터셋·방법 sweep, 도구킷 패키징, R2.3 faithful 재현). 워크숍 now / **NeurIPS D&B 주타깃**. Claim A 리드, B 보조.
 
 ## 아키텍처 (요지)
 - 백본: **TabM** (`pip install tabm`; `from tabm import TabM`). k=32 submodel.

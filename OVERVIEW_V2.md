@@ -83,26 +83,35 @@ V2 재검정(25시드, val-fair, 주 대비 `time_tabr_t − tabr_t`):
 ③**in-dist(random) 훅 도움 vs 외삽(temporal) 훅 해 = 외삽 장치 아님**(redundancy 뒷받침)
 ④trend기저 비단조 drift서 외삽붕괴.
 
-### 3.3 판결 — Cai & Ye 이득은 X-side (REFERENCES §0.1)
+### 3.3 판결 — Cai & Ye 이득은 X-side (RESULTS §16, REFERENCES §0.1)
 `temporal_modulation.py` = `γ·YeoJohnson(x,λ)+β`, **라벨 y 미의존** → 시간-인덱싱 covariate 정규화,
-P(y\|x) 착취 원리적 불가. 정의적 절반 완결, 경험적 절반(concept≈0 cooking/maps서도 이득>0) 서버 대기.
+P(y\|x) 착취 원리적 불가. **정의적 절반=확정(load-bearing)**. 경험적 절반(최소 재현 gain↔cov_AUC)은
+trend서 외삽붕괴(Spearman −0.5 무효)→fourier로도 변조 ~null(Spearman +0.231 약함)=최소 재현이 그들
+보고 이득 재현 못 함 → **PREREG §8대로 inconclusive, faithful 재현(LAMDA repo)은 future work**. 판결은
+정의적 논거로 성립, 경험적 확증 미결(과장 금지).
 
-### 3.4 방법론 산출물
-충실성 게이트(Q1), 사전등록(PREREG_V2), paired 통계, 합성 양성대조, 재사용 측정 도구킷(+ground-truth 검증).
+### 3.4 Q1 충실성 — 큰-회전 robust (RESULTS §15)
+2π 전회전 + Fourier 정합서 바닥 0.894→0.017(동적범위 [0.017,0.972]), 메커니즘 복원 0.988(10/10 PASS).
+→ "메커니즘은 충실"이 넓은 범위 robust 헤드라인 논거.
+
+### 3.5 방법론 산출물
+충실성 게이트(Q1, 큰-회전 robust), 사전등록(PREREG_V2), paired 통계, 합성 양성대조, 재사용 측정 도구킷(+ground-truth 검증).
 
 ---
 
 ## 4. 정직한 한계
 - Claim B 범위 좁음(clean 2 + elec2 보조). class 음성엔 다중 벤치·방법 필요.
 - 측정 프레임이 DISDE와 겹침 → "적응+확장"으로 정밀 포지셔닝.
-- R2.3 경험·R2.5(Q1 큰-회전) 미실행.
+- R2.3 경험적 절반 미확증(정의적으론 확정; 충실 재현=future work). R2.5는 완료(큰-회전 PASS).
 - redundancy는 가설(외삽 뒤집힘 경험적 일관일 뿐, 증명 아님).
 
 ---
 
 ## 5. 현재 위치와 다음
 기여 등급: "방법 실패"(논문 아님) → **"분야에서 시간-인지가 왜 안 통하는지를 측정 가능하게"**(논문).
-워크숍 지금 충분, **NeurIPS D&B 주 타깃**. 남은 것: R2.3 경험(서버), R2.5 Q1 큰-회전, 지도교수 정렬.
+워크숍 지금 충분, **NeurIPS D&B 주 타깃**. **R0~R2 코드·실험 전부 완료**(R2.3 정의적 확정/경험 future work,
+R2.5 PASS). 남은 것: 지도교수 정렬 + D&B 향한 범위 확장(데이터셋·방법 sweep, 도구킷 패키징, LAMDA repo
+gold-standard 재현으로 R2.3 경험 보강).
 
 ---
 

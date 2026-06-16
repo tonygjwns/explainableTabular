@@ -172,6 +172,26 @@ ground truth를 복원하는가 + 실패 모드를 아는가. 4×4 그리드, n=
 → 측정 프레임이 (a) ground truth 복원 (b) DISDE 죽는 곳서도 작동 (c) concept 없으면 0 (d) support 없으면 abstain.
   "측정불가"가 *방법 결함 아닌 support 부재*임을 통제 환경서 입증 — **D&B "도구킷 검증" 요건 충족.**
 
+## 15. R2.5 — Q1 충실성 큰-회전 robustness (헤드라인 논거 robust화)  [solid] ★Q1 헤드라인
+`run_q1_faithfulness.py --angle-max 6.283 --basis fourier`. 기존 게이트는 π/2(90°)+trend라 바닥 0.894로
+동적범위 좁았음. **2π 전회전 + Fourier 정합**(기저-불일치 교락 회피)으로 재측정:
+- 천장(MLP+t) 0.972 / **바닥(shuffle-t) 0.017**(0.894→폭락, 전회전이라 고정방향이 못 추종) / PASS선 0.685.
+- **메커니즘 복원 mean 0.988, lower95 0.986, 10/10 PASS** (PASS선 0.685 한참 상회).
+→ "메커니즘은 충실"이 좁은 동적범위 위 간신히가 아니라 **[0.017,0.972] 넓은 범위에 걸쳐 robust**.
+  헤드라인 논거("충실한 메커니즘조차 못 돕는다"의 충실 절반) 확보. (기존 90° 게이트 PASS도 유효·병기.)
+
+## 16. R2.3 — Cai&Ye 변조 판결 (정의적 confirmed / 경험적 inconclusive)  [정의적 solid]
+PREREG_V2 §8 규칙대로 처리.
+- **정의적 절반(load-bearing, 확정)**: 변조 `γ(t)·YeoJohnson(x,λ(t))+β(t)`는 **label-free**(y 무관, 코드
+  `temporal_modulation.py` 확인) → P(y|x) 착취 *구조적 불가* = **X-side**. 코드/수학 사실이라 재현 강약 무관.
+- **경험적 절반(inconclusive)**: 최소 재현(MLP, 단일 lr, 5시드, 무튜닝)의 gain↔cov_AUC.
+  - trend 기저: Spearman −0.5(외삽 붕괴, weather −0.092) = 교락된 무효 검정.
+  - **fourier 기저(교락 제거)**: 폭락 완화(weather −0.092→−0.046)되나 변조가 대부분 ~null/소-음수
+    (Spearman +0.231 약함; elec2 −0.029, insects −0.029, cooking/maps ≈0). → **최소 재현이 그들 보고 이득을
+    재현 못 함 = 충실 재현 아님** → 경험적 판정 보류.
+  - 사용자 결정(2026-06-15): **정의적 논거로 판결, 경험적 절반은 future work(LAMDA repo gold-standard 재현)**.
+→ **판결: 그들 'concept drift' 이득은 정의상 X-side(covariate 적응)** — 우리 Claim A에 포섭. 경험적 확증은 미결(과장 금지).
+
 ---
 
 ## 신뢰등급 요약 (무엇을 믿나)

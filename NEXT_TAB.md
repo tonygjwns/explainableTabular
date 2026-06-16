@@ -5,7 +5,15 @@
 > 읽는 순서: (배경부터면 OVERVIEW.md) → 이 파일 → **PLAN_V2.md(현행 계획)** → **PREREG_V2.md(결정규칙)**
 > → RESULTS.md → FINDINGS.md. (PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서.)
 
-## ★★ R1 완료 — V2 재검정 판정 = 구조 음성(유의), 다음 = R2 (2026-06-14)
+## ★★★ R0~R2 전부 완료 (2026-06-17) — 남은 건 지도교수 정렬 + D&B 범위확장
+- **R1**: V2 재검정 = 구조 음성(유의, CI<0). **R2.1** 문헌(A 미선점). **R2.2** DISDE 퇴화표 10데이터셋 3분법(RESULTS §13).
+  **R2.4** 도구킷 ground-truth 검증 4/4 PASS(§14). **R2.5** Q1 큰-회전: 바닥 0.894→0.017, 복원 0.988 10/10 PASS(§15).
+- **R2.3 판결**: 정의적(label-free⇒X-side)=확정. 경험적(최소 재현 gain↔cov_AUC)=trend 외삽붕괴(−0.5 무효)→
+  fourier도 ~null(+0.231 약함)=충실 재현 아님 → **PREREG §8대로 inconclusive, LAMDA repo gold 재현=future work**(§16).
+- **남은 것**: ①지도교수 정렬(R1+R2 들고) ②D&B 범위확장(데이터셋·방법 sweep, 도구킷 패키징, R2.3 faithful 재현).
+- 코드/실험 미실행 없음. 결과 artifact: `summary_fourier.json`, `q1_verdict_a6.28_fourier.json`, `disde_/toolkit_ 등`.
+
+## (이력) R1 완료 — V2 재검정 판정 = 구조 음성(유의) (2026-06-14)
 25시드 본 실행 완료. **PREREG §4 판정: 구조 우위 = NO**, 교락 없는 *유의* 음성.
 주 대비 `time_tabr_t − tabr_t`(temporal, val-fair): incremental −0.0067 [CI −.012,−.001] p=.006,
 incremental_abrupt −0.0205 [−.034,−.008] p<.001 — **두 clean 변종 모두 CI<0 유의 음성**. (abrupt ρ=−.43
