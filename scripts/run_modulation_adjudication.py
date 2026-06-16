@@ -54,10 +54,10 @@ def _early_late(data):
     return X[em], data.train.y[em], X[lm], data.train.y[lm]
 
 
-def _cfg(cfg, arch, seed, *, fmod, lr):
+def _cfg(cfg, arch, seed, *, fmod, lr, basis="trend"):
     tr = cfg.training
     return TabRConfig(
-        arch=arch, feature_modulation=fmod, time_basis="trend",
+        arch=arch, feature_modulation=fmod, time_basis=basis,
         trend_degree=int(OmegaConf.select(cfg, "memory.trend_degree", default=3)),
         lr=float(lr), weight_decay=1e-4, dropout=0.1,
         batch_size=int(tr.batch_size), eval_batch=int(tr.eval_batch),
@@ -75,6 +75,10 @@ def main():
     ap.add_argument("--insects-variant", default="incremental_balanced")
     ap.add_argument("--n-seeds", type=int, default=5)
     ap.add_argument("--lr", type=float, default=2e-3)
+    ap.add_argument("--mod-basis", default="trend", choices=["trend", "fourier"],
+                    help="time basis for the modulation. trend extrapolates badly on "
+                         "temporal splits (test t outside train range) -> use fourier "
+                         "(bounded/periodic) to remove the extrapolation confound (R2.3 re-run)")
     ap.add_argument("--seed", type=int, default=0, help="seed for the drift references")
     args = ap.parse_args()
     cfg = OmegaConf.load(args.config)
@@ -102,7 +106,7 @@ def main():
         return load_tabred(name, root, split=split)
 
     print(f"\n==== R2.3 modulation adjudication (static mlp vs +temporal feature "
-          f"modulation), {args.n_seeds} seeds, temporal ====")
+          f"modulation), {args.n_seeds} seeds, temporal, mod_basis={args.mod_basis} ====")
     print(f"  {'dataset':24s}{'metric':>8s}{'cov_AUC':>8s}{'concept':>9s} | "
           f"{'static':>8s}{'modul':>8s}{'gain':>9s}{'95%CI':>18s}{'g_z':>6s}")
     rows = []
@@ -119,9 +123,11 @@ def main():
         s_static, s_modul = [], []
         for s in range(args.n_seeds):
             seed_everything(s)
-            r0 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=False, lr=args.lr))
+            r0 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=False, lr=args.lr,
+                                           basis=args.mod_basis))
             seed_everything(s)
-            r1 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=True, lr=args.lr))
+            r1 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=True, lr=args.lr,
+                                           basis=args.mod_basis))
             s_static.append(r0["score"]); s_modul.append(r1["score"])
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
@@ -169,10 +175,11 @@ def main():
     print("     not concept exploitation (their 'concept drift' = feature-distribution drift).")
 
     rec = {"mode": "modulation_adjudication", "ts": time.time(), "n_seeds": args.n_seeds,
-           "lr": args.lr, "split": split, "rows": rows,
+           "lr": args.lr, "split": split, "mod_basis": args.mod_basis, "rows": rows,
            "spearman_gain_cov_auc": float(rho_cov)}
-    (out_dir / "summary.json").write_text(json.dumps(rec, indent=2, default=float))
-    print(f"\n  wrote {out_dir}/summary.json  <-- send me this")
+    out_path = out_dir / f"summary_{args.mod_basis}.json"
+    out_path.write_text(json.dumps(rec, indent=2, default=float))
+    print(f"\n  wrote {out_path}  <-- send me this (mod_basis={args.mod_basis})")
 
 
 if __name__ == "__main__":
