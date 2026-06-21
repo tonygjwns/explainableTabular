@@ -126,3 +126,72 @@ home-field 교락을 placebo로 falsify해야 — 통과 못 하면 +0.132/+0.14
 ## 메타
 honesty·prereg·paired 통계는 진짜 강점(에이전트들도 인정). 문제는 *그 엄밀함을 엉뚱한 데 씀* + *기여표면 과장*.
 red-team이 리드 청구의 구조적 구멍(R1)을 잡은 것 = 이 검토의 가장 큰 가치. 지금 아픈 게 리뷰어에게 아픈 것보다 낫다.
+
+---
+
+# 심층 패스 (foundations-level, 2026-06-17) — 3 에이전트
+
+> 1차(위)는 "리뷰어 수준"(증거가 주장 뒷받침하나). 심층은 "구성물이 잘 정의됐나". 더 근본적.
+
+## D1. ★표현(representation) 의존성 — Claim A 보편형은 자기 도구킷에 의해 자기반박 [FATAL→재범위화로 생존]
+- `P(x)P(y|x)` 분해는 불변이나 "covariate 지배"·"concept" *라벨*은 좌표 의존. **worked counterexample**: 순수 concept drift
+  데이터에 시간-프록시 피처 1개(`c=t+ε`, lag/expanding-window/calendar — 산업 파이프라인 기본) 추가 → cov_AUC→1,
+  overlap→0 → "측정불가". *같은 데이터·같은 concept인데 판정 뒤집힘.* "측정불가" = 단조(피처 풍부함 × 시간상관).
+- TabReD 261피처가 covariate 지배를 *제조*. drop-top-5(of 261)는 공선성으로 무력. HGB 용량도 분리 제조(논문은 ESS=100%를
+  "분리 아티팩트"라 인정하면서 *같은 분류기*의 overlap=0은 "진짜 신호" 취급 — 양다리 불가).
+- §4 합성검증은 covariate를 규칙과 직교·*고정 좌표*에 심어 이 모드를 구조상 못 봄.
+- **생존 형태**: "*배포된 표현*에서 표준 렌즈로 concept 접근불가 = 피처 엔지니어링이 concept을 측정불가하게 만든다"
+  (거짓 보편형보다 *더 신규*). ★결정 실험 **E1**: 시간-프록시 제거/희소표현서 3분법 재계산(양방향 win, 침묵만 패).
+
+## D2. ★형식적 estimand 없음 — "측정"이 아니라 ad-hoc 통계량 [FATAL→DISDE-term 명명으로 생존]
+- transfer gap = 두 HGB 추정량의 유한표본 성능차, 수렴하는 모집단 θ 없음. "자기 자신"엔 consistent, *분포 불변량*엔 아님.
+  부수: ①concept은 스칼라 아님(Δ(x) 함수) — AUC-gap은 **rank-보존 recalibration drift서 gap=0**(cooking/maps가 순수
+  recalibration일 수도 → 그 클래스에 맹목) ②median 이분화가 gradual≡abrupt aliasing, drift 형태 버림 ③AUC 선택 무근거
+  (Brier/Bayes-risk/KL이면 다른 데이터셋이 concept 보유; 밴드 내 prior leak).
+- **생존 형태**: θ := DISDE term-(ii)를 시간축에 정의 + **positivity/overlap 정리** 명시(겹침 밖 = identified set 전체
+  simplex = prior 없으면 비식별) + gap을 "overlap 위 θ 추정량, 밖에선 abstain"으로 강등. → §9 자기모순("no architecture
+  recovers" ↔ TabPFN) *해결*: "prior 없이 비식별, 올바른 prior는 자기 가정 안서 식별" → 설계공간={prior, online}.
+
+## D3. ★도구킷이 자신있게 틀리는 DGP 3개 + 합성검증은 순환 [FATAL: validation 무효]
+- **A1 거짓음성**: 부분영역 규칙뒤집힘(16% mass) → 전역 AUC가 평균내어 gap≈0. cooking/maps −0.005가 부분영역 drift를
+  숨길 수 있음. p-층 안정성 체크가 *틀린 답을 확증*(covariate 동일이라 모든 층 균일).
+- **A2 거짓양성**: 경계 *고정*인데 시간가변 Bayes 노이즈(H(y|x)↓) 또는 prior shift → **gap +0.15(elec2 +0.132와 동급)**,
+  concept 0. "difficulty 통제"는 covariate-난이도만, 라벨노이즈/조건부엔트로피 drift 미통제. elec2 +0.132가 이것과 *구분 안 됨*.
+- **A3 측정불가≠착취불가**: disjoint support지만 *매끄러운 궤적* 규칙drift → 도구킷 abstain, but drift-prior 방법(논문이
+  인정한 TabPFN)이 *외삽으로 착취*. §9 "no architecture recovers" 깨는 구체 구성.
+- **합성검증 4/4 PASS는 순환**: `make()`는 concept을 *전역 선형회전·대칭노이즈·균형prior·전support*로만 심음 = 추정량이
+  설계된 *유일* 클래스. 위 3 모드를 구조상 못 만듦. → 적대적 셀(부분영역·라벨노이즈·prior·궤적) 추가 전엔 "검증된 abstention" 주장 불가.
+
+## D4. 퍼즐이 애초에 drift 얘기가 아닐 수 있음 [Claim A의 동기 자체 위협]
+- "단순>복잡 on TabReD"의 비-thesis 대안 5개(논문 미배제): ①튜닝예산 비대칭(최강) ②딥 아키텍처 최적화 불안정(논문 자기
+  time-TabR이 std 4.3×) ③전처리가 트리 유리 ④용량/정규화 mismatch ⑤프로토콜 lag(Cai&Ye). 전부 covariate/concept 없이
+  퍼즐 예측. **thesis의 퍼즐에 대한 *증분* 설명력 ≈ 0** until `margin ~ cov_AUC + budget + seed_var` 회귀로 분리.
+- **핵심 전제 "no concept ⇒ structure 못 도움" 거짓**: 오설정 하 covariate shift서 시간-피처가 regime 지표로 재보정 도움
+  (Shimodaira 2000). 논문 §7(Cai&Ye 변조가 X-side인데 *이김*)이 *자기모순으로* 이를 입증. → Claim B 해석은 숫자 맞아도
+  틀림; "인스턴스 검색이 시간-피처와 in-dist redundant"로 한정해야지 "시간-구조 일반"이 아님.
+
+---
+
+# ★ 최종 종합 판정 (7 에이전트)
+
+## 수렴 진단 (한 문장)
+논문은 **절차-상대·추정량-특정·표현-의존적 진단을 *세계의 사실*로 제시**하고, "필요조건→충분조건"·"못 잼→없음/착취불가"로
+반복 격상한다 — 이게 모든 구멍의 공통 뿌리.
+
+## ★ 수렴 *구제* (3+ 에이전트 독립 → 가장 강한 신호 = 살릴 수 있다)
+1. **형식적 estimand**: θ = DISDE term-(ii) 시간축 (D2).
+2. **positivity/overlap 정리** 명시 → §9 자기모순 해결, abstention 정당화 (D2, §6 nucleus).
+3. **모든 보편형 → "배포된 표현에서, overlap/reweighting 렌즈로"** 재범위화 (D1).
+4. **transfer gap 강등** + **abstention을 정직 검증**(적대적 셀 A1/A2/A3 추가) (D3).
+5. **Claim B 한정**: "인스턴스 검색 ≤ 시간-피처, 2 concept 데이터서" — 일반법칙 아님 (D4).
+6. **A↔B 연결 실험**: `margin ~ cov_AUC + budget + seed_var` on TabReD (D4, R2).
+
+## 판정: **구제 가능, 단 대대적 재작업. v0.1 프레이밍은 방어 불가.**
+- 살아남는 nucleus(=더 흥미로움): "피처 엔지니어링이 concept을 측정불가하게 만든다 + 식별경계를 명시한 검증된-abstention 진단".
+- 현재 헤드라인(보편 측정불가성, 3분법, §7 subsumed, Claim B 일반화)은 도구가 지탱 못 함.
+- 워크숍: nucleus로 지금 가능. D&B: 위 6개(estimand·정리·E1·정직검증·A↔B·재범위화) = 수개월 재작업.
+
+## 메타 (깊이는 수확체감, 단 여기까진 판정을 바꿈)
+표면→심층으로 갈수록 *더 근본적* 발견(estimand 부재, 표현 의존성)이 나왔고 이는 판정을 "fixable"→"재작업 필요"로 바꿈.
+**단 심층 3 에이전트가 *같은 구제*에 수렴 = bedrock 도달 신호.** 추가 패스는 nit만 늘 뿐 판정·구제경로 불변 → red-team 종료,
+"재건할 것인가"의 결정 시점.
