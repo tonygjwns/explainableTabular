@@ -1,0 +1,22 @@
+{
+  "rows": [
+    {
+      "synthetic": "real_concept(+ctrl)",
+      "true_gap": 0.9852332713123877,
+      "placebo": 0.004515929995067718,
+      "expect": "LARGE>0"
+    },
+    {
+      "synthetic": "noise_drift_null",
+      "true_gap": 0.03433397944610268,
+      "placebo": -0.006146028886937258,
+      "expect": "~0"
+    },
+    {
+      "synthetic": "prior_shift_null",
+      "true_gap": -0.004748885713102918,
+      "placebo": -0.005643138734939657,
+      "expect": "~0"
+    }
+  ]
+}

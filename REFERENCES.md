@@ -53,6 +53,17 @@
   판결 기회) (2) **DISDE**(프레임 출처 — 인용·차별화 안 하면 재발명으로 보임) (3) **WhyShift**(가장 가까운
   표-분해 연구 — 단 반대 축/결론이라 *우군*으로 프레이밍 가능).
 
+### 0.2b G4 웹 선점/반박 체크 (2026-06-17, PLAN_V3 G4)
+- **adversarial validation = `covariate_shift_auc`의 기존 명명 기법** (classifier-two-sample-test; Kaggle 관행;
+  "Managing dataset shift by adversarial validation for credit scoring" arXiv:2112.10078; Lopez-Paz&Oquab 2017;
+  Rabanser *Failing Loudly* NeurIPS'19). → **기법 신규성 없음, 반드시 계보 인용.** TabReD에 적용해 covariate
+  지배→측정불가 보고한 선행은 미발견(경험 코어 미선점, 단 추가 확인).
+- **★WhyShift가 "temporal=X-shift 지배"를 *이미 관찰*** (본문: "X-shifts are only prominent in temporal shifts,
+  ACS Time dataset"; folktables 2014–2018). → (a) "공간=Y|X/시간=X" **대조는 *지지*됨**(반박 아님). (b) 단
+  "시간 표=covariate 지배"는 **부분 선점** → 우리 발견으로 주장 불가. → **신규성 = covariate가 *너무 심해
+  concept 측정불가*(산업규모 정량) + 검증된 abstention**으로 좁힘(D1 결론과 일치). [VERIFY: WhyShift ACS Time
+  정확 문구·정도를 원문 §에서 확인 후 인용.]
+
 ### 0.3 재포지셔닝 결론
 헤드라인 = **Claim A(분석)**, DISDE 위에 명시적으로 세우고(시간축 적응+퇴화 시연), WhyShift와 대조,
 Cai&Ye 판결을 중심 실험으로. Claim B(구조 음성)는 보조 — **검색 *구조*로 한정**(Drift-Resilient TabPFN 반례 회피),

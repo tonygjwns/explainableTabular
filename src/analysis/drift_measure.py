@@ -261,6 +261,7 @@ def _transfer_gap(Xe, ye, Xl, yl, task, seed):
 def concept_within_overlap(
     X_early, y_early, X_late, y_late, task, *,
     seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
+    permute_time: bool = False,
 ) -> dict:
     """Covariate-MATCHED concept measurement, restricted to the common-support band.
 
@@ -295,6 +296,12 @@ def concept_within_overlap(
     # OUT-OF-FOLD p for region selection (removes in-sample optimism in choosing overlap)
     p = cross_val_predict(clf, X, half, cv=5, method="predict_proba")[:, 1]
     ov = (p >= band[0]) & (p <= band[1])
+    if permute_time:
+        # PLACEBO (PLAN_V3 G1): permute the early/late label AMONG the overlap points,
+        # keeping the same region/x-distribution. Breaks any real early→late structure,
+        # so a non-zero gap here is the HOME-FIELD / N-asymmetry bias floor, not concept.
+        idx_ov = np.where(ov)[0]
+        half = half.copy(); half[idx_ov] = rng.permutation(half[idx_ov])
     eo, lo = ov & (half == 0), ov & (half == 1)
     n_e, n_l = int(eo.sum()), int(lo.sum())
     if min(n_e, n_l) < min_per_half:

@@ -22,6 +22,10 @@
 ## V3.0 — 결정적 게이트 (model-light, sklearn, 수일; 재작성 *전*)
 
 ### G1. within-overlap gap 통제 — concept인가 아티팩트인가 [R1, D3-A2] ★최우선
+**합성 부분 완료(2026-06-17, 로컬)**: 양성대조 true +0.985/placebo +0.005(메커니즘 작동), prior null +0.001(무시가능),
+**noise_drift null +0.034**(A2 교락 실재하나 red-team 추정 +0.15의 ~1/4 — elec2 +0.132 못 만듦, 단 "+0.132=concept+≤~0.03
+노이즈" caveat 필요). `gap_controls_synth_summary.json`. **남은 결정 게이트 = 실데이터 placebo(서버)**: elec2/insects
+true gap이 자기 placebo CI 위인가.
 신규 `run_gap_controls.py`(기존 `concept_within_overlap` 위):
 - **placebo**: overlap 밴드 내 시간라벨 셔플(early=late) → gap **반드시 ≈0**. 안 되면 home-field 확정.
 - **prior-shift null**: P(y) 바꾸고 P(y|x) 고정 → gap ≈0.
