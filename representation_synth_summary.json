@@ -1,0 +1,29 @@
+{
+  "results": [
+    {
+      "dataset": "E4_demo",
+      "reps": [
+        {
+          "rep": "measurable_base",
+          "n_feat": 6,
+          "cov_auc": 0.5185555555555555,
+          "overlap_mass": 0.996625,
+          "ess_pct": 59.385150816217006,
+          "measurable": true,
+          "concept_gap": 0.9835709744800655,
+          "n_overlap_min": 3982
+        },
+        {
+          "rep": "+timeproxy",
+          "n_feat": 7,
+          "cov_auc": 0.9948055555555555,
+          "overlap_mass": 0.025625,
+          "ess_pct": 7.139443080197985,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        }
+      ]
+    }
+  ]
+}

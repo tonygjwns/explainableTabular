@@ -35,6 +35,9 @@ true gap이 자기 placebo CI 위인가.
 - 게이트: elec2 +0.132 / insects +0.144가 **placebo·3 null 통과 + CI가 0 위** → concept 확정. 아니면 → 0.1 분기.
 
 ### G2. 표현 의존성 — disjoint가 데이터인가 피처 엔지니어링인가 [D1] ★최우선
+**E4 데모 완료(로컬)**: measurable(cov_AUC .52/overlap .997/gap +0.984)에 시간-프록시 1개 추가 → cov_AUC .995/
+overlap .026/**측정불가**. *같은 데이터·concept인데 피처 1개로 뒤집힘* = 3분법은 표현 함수(D1 확증). `representation_synth_summary.json`.
+**남은 = 실데이터 sweep(서버)**: 5 disjoint TabReD서 시간-프록시 제거/희소표현 후 overlap 살아나나.
 신규 `run_representation.py`:
 - 5 disjoint TabReD에서 **시간-프록시 제거**(|corr(feat,t)| 상위 제거) + **희소표현**(MI(feat,y) 상위 k∈{5,10,20,50})로
   cov_AUC·overlap_mass·concept_within_overlap 재계산.
@@ -43,6 +46,10 @@ true gap이 자기 placebo CI 위인가.
   안 살아나면 → "시간-프록시 제거 후에도 측정불가"라는 *더 강한* 결과.
 
 ### G3. 도구킷 적대적 검증 — "검증된 abstention"을 정직하게 [D3]
+**완료(로컬, `toolkit_adversarial_summary.json`)**: 도구킷이 red-team 우려보다 견고 — A1 부분영역(16%) *잡아냄*(gap +0.156),
+A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능 concept 안 숨김(time-aware 이득 +0.0008), REP 가역회전 *불변*
+(+0.355→+0.332). **유일 약점 = A2 노이즈 drift 거짓양성 +0.034**(G1과 일치, modest). ★정밀화: 표현 의존성은 *가역 좌표변환*이
+아니라 *시간-프록시 피처 추가*의 문제(REP 불변 + E4 변함) = D1의 더 방어 가능한 버전.
 `run_toolkit_validation.py`에 적대적 셀 추가:
 - A1: 부분영역 규칙뒤집힘(전역 AUC가 평균낼) → 거짓음성 측정.
 - A2: 시간가변 Bayes 노이즈 / prior shift, 경계 고정 → 거짓양성 측정.

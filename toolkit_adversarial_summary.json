@@ -1,0 +1,39 @@
+{
+  "rows": [
+    {
+      "cell": "A1_subregion",
+      "gt": "concept REAL (subregion)",
+      "gap": 0.15579212706690948,
+      "meas_frac": 1.0,
+      "class": "ok"
+    },
+    {
+      "cell": "A2 noise-drift",
+      "gt": "concept=0 (noise drift)",
+      "gap": 0.033889181661830435,
+      "meas_frac": 1.0,
+      "class": "FALSE_POS"
+    },
+    {
+      "cell": "A2b cov||rule",
+      "gt": "concept=0 (covariate||rule)",
+      "gap": -0.003842392790252913,
+      "meas_frac": 1.0,
+      "class": "ok"
+    },
+    {
+      "cell": "A3_trajectory",
+      "toolkit_measurable_frac": 0.0,
+      "aware_late_auc": 0.9921961244382482,
+      "unaware_late_auc": 0.9913649997054454,
+      "exploitable_gain": 0.0008311247328027793,
+      "class": "ok"
+    },
+    {
+      "cell": "REP_rotation",
+      "gap_base": 0.35473184093043175,
+      "gap_rotated": 0.3323578284181551,
+      "class": "ok"
+    }
+  ]
+}
