@@ -26,18 +26,28 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   python scripts/run_whyshift.py --states CA TX NY FL PA --years 2014 2018 --task income
   # → whyshift_summary.json 로 루트 환류. 예측: 공간 gap>시간 gap, 시간 cov_AUC>공간(X지배).
   ```
-- **⬜ 남은 것**: C5 결과 반영(§2·§6) → V3.3 위생(BH-FDR 전 contrast family / Claim A 임계 사전등록·민감도
-  그리드 / 모든 실 gap seed-CI / ℓ-robustness Brier·Bayes-risk·KL / rolling-origin gap 궤적) → C2 앵커
-  (no-change/GBDT+t/정품 TabR) → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
+- **🔄 V3.3 위생 = 코드 완료·배선 검증, 서버 실행 대기 (2026-06-22, 새 인계 지점)**: 5항목(BH-FDR contrast
+  family / Claim A 임계 사전등록·민감도 그리드 / 실 gap seed-CI / ℓ-robustness Brier·Bayes-risk·KL /
+  rolling-origin gap 궤적)을 **한 스크립트로 통합** = `scripts/run_gap_hygiene.py`. 사전등록 결정 규칙은
+  PLAN_V3 §V3.3에 결과 보기 전 박아둠(②정직성). 신규 코어 `drift_measure.concept_within_overlap_multi`(기존
+  함수 불변). 로컬 `--synth-only` 통과(flip 큼+invariant / noflip ~0).
+  ```
+  python scripts/run_gap_hygiene.py --elec2 --insects
+  # (선택) ... --tabred cooking_time maps_routing   # concept≈0 대조 동봉
+  # → results/phase1/gap_hygiene/summary.json 로 환류. CLAIM-A verdict 표가 핵심.
+  ```
+- **⬜ 남은 것**: C5(whyshift) + V3.3(gap_hygiene) 결과 반영(§2·§5·§6) → C2 앵커(no-change/GBDT+t/정품 TabR)
+  → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
-`run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5). 진단 코어
-`src/analysis/drift_measure.py`에 `concept_within_overlap(permute_time=)` 추가됨(placebo).
+`run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3
+위생 5항목)**. 진단 코어 `src/analysis/drift_measure.py`에 `concept_within_overlap(permute_time=)`(placebo) +
+**`concept_within_overlap_multi`(다중-메트릭 ℓ-robust + clf 선택)** 추가됨.
 **결과 artifact(루트, _synth=합성/없음=실데이터)**: gap_controls_*, representation_*, toolkit_adversarial_,
 c1_ranking_, disde_degeneration_, toolkit_validation_, modulation_adj_, summary_fourier, q1_verdict_*.
 
-**다음 탭 첫 행동**: (1) 서버서 C5 돌고 있으면 `whyshift_summary.json` 회수·반영. (2) 안 돌았으면 위 명령 전달.
-(3) 병렬로 V3.3 위생 코드 작성(로컬, 정렬 전 필수). 상세·우선순위 = PLAN_V3 §V3.2/§V3.3/우선순위.
+**다음 탭 첫 행동**: (1) 서버서 C5(`whyshift_summary.json`) + V3.3(`gap_hygiene/summary.json`) 회수·반영.
+(2) 안 돌았으면 위 두 명령 전달. (3) 두 결과 반영 후 C2 앵커. 상세·우선순위 = PLAN_V3 §V3.2/§V3.3/우선순위.
 
 ---
 

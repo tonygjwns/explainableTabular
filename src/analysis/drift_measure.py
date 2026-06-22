@@ -22,6 +22,10 @@ import numpy as np
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
 from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.metrics import roc_auc_score, mean_squared_error, accuracy_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
 from scipy.stats import spearmanr
 
 
@@ -329,6 +333,149 @@ def concept_within_overlap(
             "strata_gap_max": (float(max(sg)) if sg else None),
             "note": "transfer gap on a FIXED late-overlap test (concept, not difficulty); "
                     "out-of-fold p; stable across p-strata => not residual covariate"}
+
+
+# ============================================================================
+# V3.3 hygiene: loss-robust within-overlap concept gap (Brier / Bayes-risk / KL)
+# + classifier-choice for the overlap selector (sensitivity grid axis).
+# Additive — does NOT touch concept_within_overlap (gap_controls/representation/
+# whyshift keep their exact behaviour).
+# ============================================================================
+
+def _hgb_proba(Xtr, ytr, Xte, seed, classes):
+    """Fit HGB on (Xtr,ytr), return predict_proba on Xte aligned to `classes`.
+
+    Cleans the model's OWN training columns (all-NaN/constant break HGB's bin
+    mapper); the two transfer models can keep different column subsets while
+    predicting on the same Xte rows."""
+    Xtr = np.asarray(Xtr, float); Xte = np.asarray(Xte, float)
+    with np.errstate(all="ignore"):
+        keep = (~np.all(np.isnan(Xtr), axis=0)) & (np.nanstd(Xtr, axis=0) > 0)
+    if keep.any():
+        Xtr, Xte = Xtr[:, keep], Xte[:, keep]
+    m = HistGradientBoostingClassifier(max_iter=300, random_state=seed)
+    m.fit(Xtr, ytr)
+    proba = m.predict_proba(Xte)
+    out = np.zeros((len(Xte), len(classes)))
+    for i, c in enumerate(m.classes_):
+        out[:, classes.index(c)] = proba[:, i]
+    return out
+
+
+def _classif_gaps(yte, pe, pl, classes, eps=1e-12):
+    """All early-vs-late transfer gaps from aligned proba (positive => concept).
+
+    auc/accuracy : score_late - score_early   (higher better)
+    brier        : brier_early - brier_late   (proper score, lower better)
+    logloss      : logloss_early - logloss_late  ("Bayes-risk under log loss")
+    kl_late_early: mean KL(late_pred || early_pred) over test pts -- a RULE-MOVEMENT
+                   magnitude (>=0, corroborative; not an early-vs-late skill gap)."""
+    K = len(classes); idx = {c: i for i, c in enumerate(classes)}
+    yidx = np.array([idx[v] for v in yte]); onehot = np.eye(K)[yidx]
+    pe_c = np.clip(pe, eps, 1.0); pl_c = np.clip(pl, eps, 1.0)
+    ll_e = float(-np.mean(np.sum(onehot * np.log(pe_c), axis=1)))
+    ll_l = float(-np.mean(np.sum(onehot * np.log(pl_c), axis=1)))
+    br_e = float(np.mean(np.sum((pe - onehot) ** 2, axis=1)))
+    br_l = float(np.mean(np.sum((pl - onehot) ** 2, axis=1)))
+    gaps = {}
+    if K == 2:
+        gaps["auc"] = float(roc_auc_score(yidx, pl[:, 1]) - roc_auc_score(yidx, pe[:, 1]))
+    else:
+        gaps["accuracy"] = float(np.mean(np.argmax(pl, 1) == yidx)
+                                 - np.mean(np.argmax(pe, 1) == yidx))
+    gaps["brier"] = br_e - br_l
+    gaps["logloss"] = ll_e - ll_l
+    gaps["kl_late_early"] = float(np.mean(np.sum(pl_c * (np.log(pl_c) - np.log(pe_c)), axis=1)))
+    return gaps
+
+
+def _transfer_gap_multi(Xe, ye, Xl, yl, task, seed):
+    """Like _transfer_gap but returns a dict of gaps across loss functions.
+
+    classif -> {auc|accuracy, brier, logloss, kl_late_early}
+    regress -> {rmse, mae}  (early - late, >0 => concept)
+    Same fixed late-overlap test for early- and late-trained models."""
+    if min(len(ye), len(yl)) < 150:
+        return None
+    if task != "regression" and (len(np.unique(ye)) < 2 or len(np.unique(yl)) < 2):
+        return None
+    Xl_tr, Xl_te, yl_tr, yl_te = train_test_split(Xl, yl, test_size=0.5, random_state=seed)
+    if task != "regression" and (len(np.unique(yl_tr)) < 2 or len(np.unique(yl_te)) < 2):
+        return None
+    if task == "regression":
+        def reg(Xtr, ytr):
+            Xtr = np.asarray(Xtr, float); Xte = np.asarray(Xl_te, float)
+            with np.errstate(all="ignore"):
+                keep = (~np.all(np.isnan(Xtr), axis=0)) & (np.nanstd(Xtr, axis=0) > 0)
+            if keep.any():
+                Xtr, Xte = Xtr[:, keep], Xte[:, keep]
+            m = HistGradientBoostingRegressor(max_iter=300, random_state=seed)
+            m.fit(Xtr, ytr); return m.predict(Xte)
+        pe, pl = reg(Xe, ye), reg(Xl_tr, yl_tr)
+        rmse = lambda p: float(np.sqrt(mean_squared_error(yl_te, p)))
+        mae = lambda p: float(np.mean(np.abs(yl_te - p)))
+        return {"rmse": rmse(pe) - rmse(pl), "mae": mae(pe) - mae(pl)}
+    classes = sorted(set(np.unique(ye)) | set(np.unique(yl_tr)) | set(np.unique(yl_te)))
+    pe = _hgb_proba(Xe, ye, Xl_te, seed, classes)
+    pl = _hgb_proba(Xl_tr, yl_tr, Xl_te, seed, classes)
+    return _classif_gaps(yl_te, pe, pl, classes)
+
+
+def concept_within_overlap_multi(
+    X_early, y_early, X_late, y_late, task, *,
+    seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
+    permute_time: bool = False, clf: str = "hgb",
+) -> dict:
+    """Within-overlap concept gap reported across MULTIPLE loss functions (V3.3 §F2).
+
+    Same overlap-band selection as concept_within_overlap (out-of-fold P(late|x) in
+    `band`, covariate matched within the band), but:
+      - returns gaps in {auc/accuracy, brier, logloss(=Bayes-risk), kl} (classif) or
+        {rmse, mae} (regression) -> tests whether the concept VERDICT is metric-robust;
+      - `clf` selects the overlap classifier ('hgb' | 'logreg') -> sensitivity-grid axis.
+    The 'auc'/'accuracy' gap reproduces concept_within_overlap's primary number."""
+    rng = np.random.default_rng(seed)
+
+    def sub(X, y, n):
+        X = np.asarray(X, float); y = np.asarray(y)
+        if len(y) > n:
+            ii = rng.choice(len(y), n, replace=False); return X[ii], y[ii]
+        return X, y
+
+    n = min(len(y_early), len(y_late), max_n)
+    Xe, ye = sub(X_early, y_early, n); Xl, yl = sub(X_late, y_late, n)
+    with np.errstate(all="ignore"):
+        keep = ((~np.all(np.isnan(Xe), axis=0)) & (np.nanstd(Xe, axis=0) > 0)
+                & (~np.all(np.isnan(Xl), axis=0)) & (np.nanstd(Xl, axis=0) > 0))
+    if not keep.any():
+        return {"measurable": False, "note": "no usable columns"}
+    Xe, Xl = Xe[:, keep], Xl[:, keep]
+    X = np.concatenate([Xe, Xl]); half = np.concatenate([np.zeros(len(ye)), np.ones(len(yl))])
+    yy = np.concatenate([ye, yl])
+    if clf == "logreg":
+        model = make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
+                              LogisticRegression(max_iter=1000))
+    else:
+        model = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
+    p = cross_val_predict(model, X, half, cv=5, method="predict_proba")[:, 1]
+    ov = (p >= band[0]) & (p <= band[1])
+    if permute_time:
+        idx_ov = np.where(ov)[0]
+        half = half.copy(); half[idx_ov] = rng.permutation(half[idx_ov])
+    eo, lo = ov & (half == 0), ov & (half == 1)
+    n_e, n_l = int(eo.sum()), int(lo.sum())
+    if min(n_e, n_l) < min_per_half:
+        return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
+                "note": "too few overlap points per half"}
+    gaps = _transfer_gap_multi(X[eo], yy[eo], X[lo], yy[lo], task, seed)
+    if gaps is None:
+        return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
+                "note": "transfer gap undefined (class coverage)"}
+    primary = "rmse" if task == "regression" else ("auc" if task == "binclass" else "accuracy")
+    return {"measurable": True, "n_overlap_early": n_e, "n_overlap_late": n_l,
+            "clf": clf, "band": list(band), "gaps": gaps,
+            "primary_metric": primary,
+            "concept_gap_within_overlap": gaps.get(primary)}
 
 
 def disde_iw_degeneration(

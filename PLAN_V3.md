@@ -120,6 +120,23 @@ A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능
 - PAPER_DRAFT 재작성(nucleus 헤드라인, 기여 6개→정직 재구성, DISDE 전면 인용, estimand/정리 절 신설).
 - BH-FDR 전 contrast family 적용(R12). Claim A 임계 사전등록 or 민감도(R11). 모든 실데이터 수치 seed-CI.
 
+### 🔧 위생 5항목 통합 = `run_gap_hygiene.py` (코드 완료·배선 검증, 2026-06-22, 서버 실행 대기)
+한 스크립트가 5항목을 같은 overlap-band 머신·같은 실데이터(elec2/insects)로 한 번에 산출:
+③ **seed-CI**(N=15, true·placebo 메트릭별) / ④ **ℓ-robustness**(AUC/acc + **Brier·log-loss(=Bayes-risk)
+·KL** — concept *판정*이 메트릭에 안 달림 입증; D2 ②③) / ⑤ **rolling-origin g(t)**(median 단일 cut → 다중
+cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump) + cross-cut CI=replication, R7) /
+① **BH-FDR**(데이터셋당 one-sided paired Wilcoxon `true>placebo`를 BH로 묶음, R12) / ② **민감도 그리드**
+(band × min_per_half × classifier{hgb,logreg}서 verdict 불변 확인, R11).
+- 신규 코어: `drift_measure.concept_within_overlap_multi`(다중-메트릭 + clf 선택; 기존 `concept_within_overlap`
+  불변 → gap_controls/representation/whyshift 안 깨짐). `_classif_gaps`/`_transfer_gap_multi`.
+- **★사전등록(PRE-REG) 결정 규칙 — 결과 보기 *전* 여기 박음(②의 정직성 핵심)**: 데이터셋이
+  "배포된 표현서 genuine concept"이려면 4조건 동시 충족 — (a) true-gap 95%CI 하한 > placebo 95%CI 상한,
+  (b) bias-corrected gap(true−placebo) > **floor=0.034**(=G1 noise-drift null → Bayes-noise 교락 위로),
+  (c) BH-adjusted one-sided p < 0.05, (d) metric-invariant(auc/acc·brier·logloss 전부 late>early). 미충족 → §0.1 분기.
+  민감도 그리드는 (a)+(b)가 band/min_per_half/clf 선택에 불변임을 따로 보고(사전등록 임계의 robustness).
+- 서버 명령: `python scripts/run_gap_hygiene.py --elec2 --insects` (+선택 `--tabred cooking_time maps_routing`
+  로 concept≈0 대조). 로컬 배선: `--synth-only`(flip 큼·invariant / noflip ~0 확인 — 통과). → `summary.json` 환류.
+
 ---
 
 ## 우선순위 · 의존성
