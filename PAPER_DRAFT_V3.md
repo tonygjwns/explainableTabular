@@ -72,11 +72,18 @@ their term (ii) on the time axis; our "unmeasurability" is the regime where thei
 operationalization, the *representation-relativity* of the verdict, and the validated abstention.
 **Adversarial validation** (classifier-two-sample test; [Lopez-Paz & Oquab 2017]; [Rabanser et al.,
 *Failing Loudly*, 2019]; Kaggle practice; credit-scoring [Pang et al. 2021]) is the lineage of our
-covariate-AUC; we claim no novelty for the technique. **WhyShift** [Liu et al. 2023] finds Y|X-shift
-dominant on *spatial* tabular settings and *already notes X-shift dominant in its one temporal set*
-(ACS Time) — which **supports** our spatial-vs-temporal contrast while making "temporal=covariate"
-partly anticipated; our novelty is the unmeasurability/positivity result, not the covariate-dominance
-observation. **Tabular temporal methods**: TabReD does not decompose X vs Y|X; Cai & Ye [2025a,b]
+covariate-AUC; we claim no novelty for the technique. **WhyShift** [Liu et al. 2023] reports Y|X-shift
+dominant on *spatial* tabular settings under a *performance-degradation* measure. Running our
+conditional, overlap-lens toolkit on the same ACS family (ACSIncome via folktables, 5 states × 2 years)
+does **not** reproduce a spatial=Y|X / temporal=X contrast: both spatial (CA→{TX,NY,FL,PA}, 2018) and
+temporal (2014→2018, per state) settings show within-overlap concept ≈ 0 (gap ≈ placebo), and *spatial*
+was the **more** covariate-shifted axis (mean cov-AUC 0.94 vs temporal 0.68) — the opposite of the
+contrast we initially expected. We therefore make **no spatial/temporal axis claim**; WhyShift's
+Y|X finding rests on a different (loss-based) measure and is not in direct conflict with ours. The run
+does confirm our instrument (covariate-AUC, within-overlap gap, permutation placebo) transfers cleanly
+beyond TabReD to ACS, and that under folktables' ~10 raw features *both* axes stay measurable (overlap
+survives) — corroborating §6 that unmeasurability tracks *feature engineering*, not a spatial/temporal
+axis. Our novelty is the unmeasurability/positivity result, not any covariate-dominance observation. **Tabular temporal methods**: TabReD does not decompose X vs Y|X; Cai & Ye [2025a,b]
 fix protocol issues / modulate features. **Drift-Resilient TabPFN** [Helli et al. 2024] succeeds with
 an SCM drift prior — the existence proof our §3 corollary predicts. **Streams**: covariate-vs-concept
 is the field's founding taxonomy [Gama et al. 2014; Webb et al. 2016]; time-aware instance retrieval
@@ -174,6 +181,20 @@ concept that survives the placebo (§5) and representation change. So the practi
 their own feature pipeline destroys the overlap needed to ask whether concept drift is present, and when
 you reconstruct a checkable representation, there is (almost) nothing there.
 
+**External cross-validation (ACS/folktables).** The representation account makes a falsifiable
+out-of-benchmark prediction: a data family with *few raw* features should stay measurable even under
+strong distribution shift, because unmeasurability is an artifact of feature engineering rather than of
+the data or the shift axis. We test this on ACSIncome (folktables; ~10 raw demographic features; 5 states
+× years 2014/2018), running the same toolkit (cov-AUC, within-overlap gap, permutation placebo) used on
+TabReD. The prediction holds: **all** spatial (state→state, 2018) and temporal (2014→2018) settings remain
+**measurable** (overlap survives) despite high covariate shift (spatial mean cov-AUC 0.94, temporal 0.68) —
+in sharp contrast to TabReD's 261-feature pipelines, where 5/8 deployed representations are un-checkable.
+This is direct evidence that *unmeasurability tracks the representation, not a spatial/temporal axis*, and
+that the toolkit (including its placebo) transfers cleanly beyond TabReD. As a by-product, the
+within-overlap concept gap is ≈ 0 on both axes here (gap ≈ placebo), so we do **not** reproduce the
+spatial=Y|X / temporal=X contrast under our conditional measure (§2); WhyShift's Y|X result is a different,
+loss-based measure and not in conflict.
+
 ## 7. What Our Account Explains — and What It Does NOT (the C1 test)
 
 We tested whether covariate dominance predicts TabReD's per-dataset deep-vs-tree margin, using
@@ -233,7 +254,9 @@ reality is near-zero concept.
 aliases drift shape — a rolling-origin trajectory is [FUTURE]; (c) Claim B rests on 2 concept benchmarks;
 (d) the within-overlap frame is a temporal adaptation of DISDE, not a new identification strategy; (e) the
 A↔B link to TabReD rankings is asserted pending C1; (f) the §9 empirical adjudication is unreproduced; (g)
-no BH-FDR across the contrast family yet [hygiene PENDING].
+no BH-FDR across the contrast family yet [hygiene PENDING]; (h) the ACS cross-check (§6) used only
+ACSIncome — the WhyShift tasks reported as *more* Y|X-driven (ACSPublicCoverage, ACSMobility) are left to
+[FUTURE], so our "no spatial/temporal axis contrast" conclusion is scoped to ACSIncome under our measure.
 
 ## 12. Conclusion
 
@@ -259,6 +282,7 @@ permits the question.*
 1. C1: `margin ~ cov_AUC + budget + seed_var` on the TabReD leaderboard (earn §7's puzzle link).
 2. ℓ-robustness (Brier/Bayes-risk/KL) + rolling-origin gap trajectory (§3, limitations a,b).
 3. Faithful Cai & Ye reproduction (§9). No-change/GBDT+t/TabPFN anchors (§8).
-4. WhyShift datasets through the toolkit (earn the spatial/temporal contrast).
+4. ACSIncome done (§6: toolkit generalizes; no spatial/temporal contrast under our measure). Extend to
+   ACSPublicCoverage/ACSMobility — the WhyShift tasks reported as more Y|X-driven.
 5. Hygiene: BH-FDR; pre-register Claim-A thresholds / sensitivity grid; seed-CIs on every real gap.
 6. Toolkit packaging: API, datasheet/Croissant, reproducible pipeline.

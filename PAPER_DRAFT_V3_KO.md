@@ -53,8 +53,14 @@ covariate P(x) vs concept P(y|x) — 은 측정된 적 없다. 시간-인지 구
 term(iii) mass→1 영역.** DISDE를 프레임 출처로 인용하고, 시간축·model-transfer 운영화 + *판정의 표현-상대성*
 + 검증된 기권을 기여. **adversarial validation**(classifier-two-sample-test; Lopez-Paz&Oquab 2017; Rabanser
 *Failing Loudly* 2019; Kaggle; 신용평가 Pang 2021)이 covariate-AUC의 계보 — 기법 신규성 없음. **WhyShift**[Liu
-2023]는 *공간* 표서 Y|X 지배, 그리고 *자기 temporal 셋(ACS Time)서 X-shift 지배를 이미 언급* — 우리 공간/시간
-대조를 **지지**하되 "temporal=covariate"를 부분 선점; 우리 신규성은 covariate 지배가 아닌 측정불가성/positivity
+2023]는 *성능-저하* 측도 하에서 *공간* 표서 Y|X 지배를 보고. 우리는 같은 ACS 계열(ACSIncome, folktables,
+5주×2년)에 우리(conditional·overlap-lens) 도구킷을 돌렸고 — **공간=Y|X / 시간=X 대조를 *재현하지 못함***:
+공간(CA→{TX,NY,FL,PA}, 2018)·시간(2014→2018, 주별) 둘 다 within-overlap concept ≈ 0(gap ≈ placebo)이고,
+*공간*이 오히려 **더** covariate-shifted(평균 cov-AUC 0.94 vs 시간 0.68) — 우리가 처음 예상한 대조의 정반대.
+따라서 **공간/시간 축 주장은 하지 않음**; WhyShift의 Y|X는 다른(loss 기반) 측도라 우리와 직접 모순 아님(명시).
+이 실행이 입증하는 것: 우리 도구(covariate-AUC·within-overlap gap·permutation placebo)가 TabReD 밖 ACS로
+깨끗이 일반화되고, folktables의 ~10 raw 피처 하에선 *두 축 다 measurable*(overlap 생존) → §6의 "측정불가는
+*피처 엔지니어링* 탓이지 공간/시간 축 탓 아님"을 뒷받침. 우리 신규성은 covariate 지배가 아닌 측정불가성/positivity
 결과. TabReD는 X vs Y|X 분해 안 함; Cai&Ye는 프로토콜 수정/피처 변조. **Drift-Resilient TabPFN**[Helli 2024]은
 SCM drift prior로 성공 — 우리 §3 corollary가 예측하는 존재증명. **스트림**: covariate-vs-concept는 분야 창립
 분류[Gama 2014; Webb 2016]; 시간-인지 인스턴스 검색 존재[Žliobaitė 2011; Losing 2016] → "빈 교차점"은 현대
@@ -130,6 +136,16 @@ concept≈0(4) 또는 환원불가 disjoint(1); cooking/maps는 점검 가능+co
 변화 생존하는 concept. 즉 실무자 상황: *자기 피처 파이프라인*이 concept 점검에 필요한 overlap을 파괴하고, 점검
 가능 표현을 복원하면 (거의) 아무것도 없다.
 
+**외부 교차검증 (ACS/folktables).** 표현 설명은 반증가능한 벤치 밖 예측을 낳는다: raw 피처가 *적은* 데이터 계열은
+강한 분포 이동 하에서도 measurable로 남아야 한다 — 측정불가는 데이터/이동 축이 아니라 피처 엔지니어링의 아티팩트이기
+때문. ACSIncome(folktables; ~10 raw 인구통계 피처; 5주 × 2014/2018년)에 TabReD와 *동일* 도구킷(cov-AUC·
+within-overlap gap·permutation placebo)을 돌려 검정. 예측 성립: 공간(주→주, 2018)·시간(2014→2018) **모든** 설정이
+높은 covariate 이동(공간 평균 cov-AUC 0.94, 시간 0.68)에도 **measurable**(overlap 생존) — TabReD의 261-피처
+파이프라인서 배포 표현 5/8이 점검 불가인 것과 극명한 대조. 이는 *측정불가가 공간/시간 축이 아니라 표현을 따른다*는
+직접 증거이자, 도구킷(placebo 포함)이 TabReD 밖으로 깨끗이 일반화됨을 보임. 부산물로 두 축 모두 within-overlap
+concept ≈ 0(gap ≈ placebo)이라, 우리 conditional 측도론 spatial=Y|X / temporal=X 대조를 **재현하지 못함**(§2);
+WhyShift의 Y|X는 다른 loss 기반 측도라 모순 아님.
+
 ## 7. 우리 설명이 설명하는 것 — 그리고 *안 하는* 것 (C1 검정)
 
 covariate 지배가 TabReD per-dataset 딥-vs-트리 margin을 예측하는지, TabReD **자체 공개 점수**[Rubachev 2025
@@ -174,7 +190,9 @@ Cai&Ye[2025b]는 피처 통계를 시간 변조해 TabReD 능가, "concept drift
 
 **한계.** (a)ℓ=AUC가 recalibration drift에 맹목[robustness 미완]; (b)median early/late 분할이 drift 형태 aliasing
 — rolling-origin 궤적 [향후]; (c)Claim B는 2 concept 벤치; (d)within-overlap은 DISDE 시간축 적응이지 새 식별전략
-아님; (e)A↔B의 TabReD 랭킹 연결은 C1 대기 주장; (f)§9 경험 조정 미재현; (g)contrast family BH-FDR 아직[위생 미완].
+아님; (e)A↔B의 TabReD 랭킹 연결은 C1 대기 주장; (f)§9 경험 조정 미재현; (g)contrast family BH-FDR 아직[위생 미완];
+(h)ACS 교차검증(§6)은 ACSIncome만 사용 — WhyShift가 더 Y|X로 본 task(ACSPublicCoverage·ACSMobility)는 [향후]라,
+"공간/시간 축 대조 없음" 결론은 우리 측도 하 ACSIncome에 한정.
 
 ## 12. 결론
 
@@ -197,6 +215,7 @@ shift를 담는지뿐 아니라 *그 표현이 그 질문을 허용하는지*를
 1. C1: TabReD 리더보드서 `margin ~ cov_AUC + budget + seed_var`(§7 퍼즐 연결 입증).
 2. ℓ-robustness(Brier/Bayes-risk/KL) + rolling-origin gap 궤적(§3, 한계 a,b).
 3. Faithful Cai&Ye 재현(§9). no-change/GBDT+t/TabPFN 앵커(§8).
-4. WhyShift 데이터를 도구킷에(공간/시간 대조 입증).
+4. ACSIncome 완료(§6: 도구킷 일반화; 우리 측도론 공간/시간 대조 없음). ACSPublicCoverage/ACSMobility로 확장
+   — WhyShift가 더 Y|X로 본 task.
 5. 위생: BH-FDR; Claim-A 임계 사전등록/민감도 그리드; 모든 실 gap에 seed-CI.
 6. 도구킷 패키징: API, datasheet/Croissant, 재현 파이프라인.

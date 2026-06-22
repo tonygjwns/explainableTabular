@@ -111,8 +111,12 @@ A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능
 ### C4. Q1 고아 수정 [R6]
 - §8을 "오배선 아님"으로 축소. OR time-TabR(실제 쓴 메커니즘)이 실데이터서 알려진 drift 복원하는 진단 추가.
 
-### C5. 폭 [D1, R10, R7]
+### C5. 폭 [D1, R10, R7]  — ✅ 완료(2026-06-23, ACSIncome), 대조 *미지지*·일반화 WIN
 - WhyShift 데이터에 도구킷 크로스런(대조 입증 or 도메인효과 인정). 데이터셋 10→가능한 만큼 확장.
+- **결과(`whyshift_summary.json`)**: SPATIAL cov-AUC 0.94/gap≈0(4/4 measurable), TEMPORAL cov-AUC 0.68/gap≈0
+  (5/5 measurable). **예측한 공간=Y|X/시간=X 대조 *미지지***(둘 다 concept≈0, 공간이 *더* covariate). → 또 하나
+  overclaim retire. **WIN**: 도구킷 ACS 일반화(placebo까지) + folktables ~10피처서 둘 다 measurable = §6 표현논점
+  외부 증거(측정불가=피처엔지니어링 탓). RESULTS §17, PAPER_DRAFT_V3(_KO) §2·§6·§11 반영. 향후=pubcov/mobility.
 
 ---
 

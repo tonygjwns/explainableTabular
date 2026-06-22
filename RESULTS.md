@@ -194,6 +194,19 @@ PREREG_V2 §8 규칙대로 처리.
 
 ---
 
+## 17. V3.2 C5 — WhyShift 크로스런 (ACSIncome/folktables, `whyshift_summary.json`)  [solid — 대조 *미지지*, 일반화 WIN]
+도구킷(cov-AUC·within-overlap gap·permutation placebo)을 TabReD 밖 ACS 계열에 적용. 5주(CA,TX,NY,FL,PA)×2년(2014/2018).
+- **SPATIAL**(CA→TX/NY/FL/PA, 2018): 평균 cov-AUC **0.940**, 평균 gap **−0.0023**(≈0, gap≈placebo), **4/4 measurable**.
+- **TEMPORAL**(주별 2014→2018): 평균 cov-AUC **0.676**, 평균 gap **−0.0079**(≈0, gap≈placebo), **5/5 measurable**.
+- **판정 = 예측한 "공간=Y|X / 시간=X" 대조 *미지지***: (i) 두 축 다 within-overlap concept ≈ 0(공간이 Y|X-지배 *아님*);
+  (ii) 공간 cov-AUC(0.94) > 시간(0.68) — 예측(시간이 더 covariate)과 *정반대*. 리뷰 전에 잡은 또 하나의 overclaim retire.
+- **건진 것(WIN)**: ① 도구킷이 ACS로(placebo까지) 일반화 = TabReD 밖 작동 입증. ② folktables ~10 raw 피처 → *둘 다 measurable*
+  (overlap 생존) = §6 표현 논점의 직접 외부 증거(측정불가는 *축*이 아니라 *261-피처 엔지니어링* 탓). ③ WhyShift의 Y|X는
+  다른(성능-변동) 측도라 우리 conditional 프레임과 직접 모순 아님(명시).
+- **향후**: WhyShift가 더 Y|X로 본 task(ACSPublicCoverage·ACSMobility)로 재확인 = future work. PAPER_DRAFT_V3(_KO) §2·§6·§11 반영 완료.
+
+---
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
