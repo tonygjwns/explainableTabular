@@ -2,10 +2,46 @@
 
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
-> 읽는 순서: (배경부터면 OVERVIEW.md) → 이 파일 → **PLAN_V2.md(현행 계획)** → **PREREG_V2.md(결정규칙)**
-> → RESULTS.md → FINDINGS.md. (PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서.)
 
-## ★★★ R0~R2 전부 완료 (2026-06-17) — 남은 건 지도교수 정렬 + D&B 범위확장
+## ☆☆☆ 현행 = V3 재건 진행 중 (2026-06-17 갱신) — 새 탭은 여기부터
+> 읽는 순서: **이 블록 → `PLAN_V3.md`(현행 계획·게이트 판정) → `RED_TEAM.md`(7-에이전트 검토·왜 재건)
+> → `PAPER_DRAFT_V3.md`/`_KO.md`(현행 초안) → RESULTS.md**. (PLAN_V2/PREREG_V2/PAPER_DRAFT(v0.1)는 역사.)
+
+**무슨 일**: v0.1 초안을 7-에이전트 적대 검토(RED_TEAM.md)로 자가-red-team → 리드 청구(Claim A 보편형)에
+구조적 구멍 발견(home-field 교락·표현 의존성·estimand 부재·퍼즐 미입증) → **재건 결정(PLAN_V3)**. 규율 =
+nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
+
+**V3 진행 상태**:
+- **V3.0 게이트 전부 통과/재범위화 (PLAN_V3 상단 판정)**: G1 placebo → elec2 +0.146/insects +0.150이 placebo
+  한참 위 = 진짜 concept(home-field 아님). G2 표현 → disjoint TabReD 4/5가 희소표현서 측정가능+concept≈0,
+  ecom만 진짜 disjoint, concept 양성은 표현 바꿔도 생존. G3 도구킷 견고(노이즈 +0.034 caveat). G4 웹: 신규성=
+  측정불가성+abstention로 좁힘(adversarial-validation 계보 인용 필요, WhyShift가 대조 지지).
+- **V3.1 형식 척추 완료**: PAPER_DRAFT_V3(.md/_KO) — estimand(DISDE term-ii 시간축) + positivity 정리(§9
+  자기모순 해결) + 표현-인지 §6 + 게이트 통제(§5 placebo 표).
+- **V3.2 C1 완료**: cov_AUC가 TabReD per-dataset margin 예측 **못 함**(Spearman +0.22 p=.61; ecom 반례) →
+  §7 정직 축소("TabReD 퍼즐 설명 주장 안 함"). `c1_ranking_summary.json`.
+- **🔄 V3.2 C5 = 서버 실행 대기 (지금 인계 지점)**:
+  ```
+  pip install folktables
+  python scripts/run_whyshift.py --states CA TX NY FL PA --years 2014 2018 --task income
+  # → whyshift_summary.json 로 루트 환류. 예측: 공간 gap>시간 gap, 시간 cov_AUC>공간(X지배).
+  ```
+- **⬜ 남은 것**: C5 결과 반영(§2·§6) → V3.3 위생(BH-FDR 전 contrast family / Claim A 임계 사전등록·민감도
+  그리드 / 모든 실 gap seed-CI / ℓ-robustness Brier·Bayes-risk·KL / rolling-origin gap 궤적) → C2 앵커
+  (no-change/GBDT+t/정품 TabR) → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
+
+**V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
+`run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5). 진단 코어
+`src/analysis/drift_measure.py`에 `concept_within_overlap(permute_time=)` 추가됨(placebo).
+**결과 artifact(루트, _synth=합성/없음=실데이터)**: gap_controls_*, representation_*, toolkit_adversarial_,
+c1_ranking_, disde_degeneration_, toolkit_validation_, modulation_adj_, summary_fourier, q1_verdict_*.
+
+**다음 탭 첫 행동**: (1) 서버서 C5 돌고 있으면 `whyshift_summary.json` 회수·반영. (2) 안 돌았으면 위 명령 전달.
+(3) 병렬로 V3.3 위생 코드 작성(로컬, 정렬 전 필수). 상세·우선순위 = PLAN_V3 §V3.2/§V3.3/우선순위.
+
+---
+
+## (이력) R0~R2 완료 (2026-06-17) — V3 재건 *이전* 상태
 - **R1**: V2 재검정 = 구조 음성(유의, CI<0). **R2.1** 문헌(A 미선점). **R2.2** DISDE 퇴화표 10데이터셋 3분법(RESULTS §13).
   **R2.4** 도구킷 ground-truth 검증 4/4 PASS(§14). **R2.5** Q1 큰-회전: 바닥 0.894→0.017, 복원 0.988 10/10 PASS(§15).
 - **R2.3 판결**: 정의적(label-free⇒X-side)=확정. 경험적(최소 재현 gain↔cov_AUC)=trend 외삽붕괴(−0.5 무효)→

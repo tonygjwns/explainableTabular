@@ -14,10 +14,19 @@
 - 서버에선 Claude를 못 씀. **그래서 로컬에서 최대한 완성된 코드를 만들어 push**해야 함.
 - GitHub: https://github.com/tonygjwns/explainableTabular
 
-## 현재 상태 (2026-06-12) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
-**핵심 문서(읽는 순서)**: **`OVERVIEW.md`(전체 흐름·배경)** → `NEXT_TAB.md`(인계·다음 행동) →
-**`PLAN_V2.md`(현행 계획)** → **`PREREG_V2.md`(현행 결정규칙)** → `RESULTS.md`(ledger) → `FINDINGS.md`(증거).
-(PLAN_RESCUE/Q2B_PROPOSAL은 역사 문서. OVERVIEW의 Q2b 결론 단락도 V2 무효화 이전 서술임에 주의.)
+## 현재 상태 (2026-06-17, V3 재건) — ⚠ 새 탭은 먼저 `NEXT_TAB.md` 읽을 것
+**핵심 문서(읽는 순서)**: `NEXT_TAB.md`(인계·다음 행동·★최상단 V3 블록) → **`PLAN_V3.md`(현행 계획·게이트 판정)**
+→ **`RED_TEAM.md`(7-에이전트 검토·왜 재건)** → **`PAPER_DRAFT_V3.md`/`_KO.md`(현행 초안)** → `RESULTS.md`(ledger).
+(PLAN_V2/PREREG_V2/PAPER_DRAFT(v0.1)/OVERVIEW는 역사 — V3 재건 이전.)
+
+**V3 한 줄**: v0.1 초안을 자가 7-에이전트 red-team → 리드 청구 구조적 구멍(home-field·표현의존성·estimand 부재
+·퍼즐 미입증) → 재건. **V3.0 게이트 전부 통과/재범위화**(G1 placebo: elec2 +0.146/insects +0.150이 placebo 위 =
+진짜 concept / G2: disjoint TabReD 4/5가 희소표현서 측정가능+concept≈0, 표현의존성 확증 → "배포된 표현" 한정 /
+G3 도구킷 견고 / G4 신규성=측정불가성+abstention). **V3.1 형식척추**(estimand=DISDE term-ii 시간축 + positivity
+정리). **V3.2 C1**: cov_AUC가 TabReD margin 예측 못 함(ecom 반례) → §7 축소. **🔄 다음=C5 WhyShift(서버) →
+V3.3 위생 → 정렬.** 상세 NEXT_TAB 최상단.
+
+### (이력) V2 상태 (2026-06-12, V3 이전)
 
 한 줄: Phase 0 8/8 PASS, Q1 충실성 PASS, Elec2 within-overlap concept +0.132 — 유효.
 **R1(V2 재검정) 완료(2026-06-14): 구조 우위 = NO, 교락 없는 *유의* 음성.** 주 대비 `time_tabr_t−tabr_t`
