@@ -1,0 +1,90 @@
+{
+  "rows": [
+    {
+      "synthetic": "real_concept(+ctrl)",
+      "true_gap": 0.9851469357594864,
+      "placebo": -0.00301948644771792,
+      "expect": "LARGE>0"
+    },
+    {
+      "synthetic": "noise_drift_null",
+      "true_gap": 0.034877175964735246,
+      "placebo": -0.006515102933777467,
+      "expect": "~0"
+    },
+    {
+      "synthetic": "prior_shift_null",
+      "true_gap": -0.004058904188833909,
+      "placebo": -0.00519159186221535,
+      "expect": "~0"
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "n_seeds_used": 15,
+      "true_gap_mean": 0.14560969249750938,
+      "true_gap_ci": [
+        0.14053990768931351,
+        0.15067947730570525
+      ],
+      "placebo_mean": -0.035427635048641645,
+      "placebo_ci": [
+        -0.038402048231561695,
+        -0.032453221865721596
+      ],
+      "bias_corrected_gap": 0.18103732754615104,
+      "survives_placebo": true
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "n_seeds_used": 15,
+      "true_gap_mean": 0.1498241740546663,
+      "true_gap_ci": [
+        0.14724519006053172,
+        0.1524031580488009
+      ],
+      "placebo_mean": -0.01695288299246432,
+      "placebo_ci": [
+        -0.01931935458183647,
+        -0.014586411403092173
+      ],
+      "bias_corrected_gap": 0.16677705704713064,
+      "survives_placebo": true
+    },
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "n_seeds_used": 15,
+      "true_gap_mean": -0.008584177437912769,
+      "true_gap_ci": [
+        -0.01000217451331367,
+        -0.007166180362511867
+      ],
+      "placebo_mean": -0.011651561974191205,
+      "placebo_ci": [
+        -0.012781429699687607,
+        -0.010521694248694802
+      ],
+      "bias_corrected_gap": 0.003067384536278436,
+      "survives_placebo": true
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "n_seeds_used": 15,
+      "true_gap_mean": -0.0030424022794198996,
+      "true_gap_ci": [
+        -0.00350724776868532,
+        -0.002577556790154479
+      ],
+      "placebo_mean": -0.0030933136267602746,
+      "placebo_ci": [
+        -0.003401210389635359,
+        -0.00278541686388519
+      ],
+      "bias_corrected_gap": 5.091134734037505e-05,
+      "survives_placebo": false
+    }
+  ]
+}

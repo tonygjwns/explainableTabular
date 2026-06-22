@@ -19,6 +19,16 @@
 
 ---
 
+## ★ V3.0 게이트 판정 (2026-06-17, 실데이터 완료) — nucleus 생존(재범위화·강화)
+- **G1 ✅ 통과**: elec2 true +0.146[+.140,+.151] vs placebo −0.035 / insects +0.150[+.147,+.152] vs −0.017 →
+  양성이 placebo 한참 위 = **진짜 concept(home-field 아님)**. cooking/maps corr≈0(concept 없음 확정). `gap_controls_summary.json`.
+- **G2 ✅ 통과(재범위화)**: disjoint TabReD 4/5(sberbank/homecredit/homesite/weather)가 희소표현서 **측정가능+concept≈0**,
+  ecom만 진짜 disjoint. elec2/insects concept은 de-time-leak서도 생존(+0.078/+0.108). → 3분법은 표현 함수 →
+  "배포된 표현" 한정(강제). **NEW 스토리(더 강함)**: "피처 엔지니어링이 concept을 *점검 불가*하게 만든다; 점검하면
+  genuinely ≈0 or disjoint; 진짜 concept(elec2/insects)은 placebo+표현 양쪽 생존(삼중 확인)." `representation_summary.json`.
+- **G3 ✅ 견고**(A2 노이즈 +0.034 caveat만), **G4 ✅**(신규성=측정불가성+abstention로 좁힘).
+→ **판정: §0.1 분기 불필요. nucleus 생존. V3.1 진행.** §13 표 교체 필요(disjoint→배포표현-점검불가/de-time-leak-concept≈0/ecom-disjoint).
+
 ## V3.0 — 결정적 게이트 (model-light, sklearn, 수일; 재작성 *전*)
 
 ### G1. within-overlap gap 통제 — concept인가 아티팩트인가 [R1, D3-A2] ★최우선

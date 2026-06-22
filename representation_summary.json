@@ -1,0 +1,441 @@
+{
+  "results": [
+    {
+      "dataset": "E4_demo",
+      "reps": [
+        {
+          "rep": "measurable_base",
+          "n_feat": 6,
+          "cov_auc": 0.5120319444444444,
+          "overlap_mass": 0.995625,
+          "ess_pct": 56.52482044628495,
+          "measurable": true,
+          "concept_gap": 0.9831536129164062,
+          "n_overlap_min": 3978
+        },
+        {
+          "rep": "+timeproxy",
+          "n_feat": 7,
+          "cov_auc": 0.9949833333333334,
+          "overlap_mass": 0.027,
+          "ess_pct": 7.167473861774186,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        }
+      ]
+    },
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 392,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 14.070790377544718,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "drop_timeproxy(-84)",
+          "n_feat": 308,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.021541889955961162,
+          "ess_pct": 3.904170498870775,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.624582382188311,
+          "overlap_mass": 0.9959675279885393,
+          "ess_pct": 64.17358699218583,
+          "measurable": true,
+          "concept_gap": 0.020779457532975942,
+          "n_overlap_min": 9391
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.6256774133024798,
+          "overlap_mass": 0.9971878813604287,
+          "ess_pct": 66.20976284765385,
+          "measurable": true,
+          "concept_gap": 0.02165221266577816,
+          "n_overlap_min": 9368
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.6289112229900873,
+          "overlap_mass": 0.9959144691462832,
+          "ess_pct": 65.70815350693785,
+          "measurable": true,
+          "concept_gap": 0.02448027254495455,
+          "n_overlap_min": 9361
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 0.6846865130241722,
+          "overlap_mass": 0.952087865442776,
+          "ess_pct": 25.646476835190676,
+          "measurable": true,
+          "concept_gap": 0.01882338406730194,
+          "n_overlap_min": 8593
+        }
+      ]
+    },
+    {
+      "dataset": "homecredit_default",
+      "task": "binclass",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 696,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "drop_timeproxy(-25)",
+          "n_feat": 671,
+          "cov_auc": 0.9991228333333334,
+          "overlap_mass": 0.098175,
+          "ess_pct": 0.06627921222160431,
+          "measurable": true,
+          "concept_gap": -0.08956256358087489,
+          "n_overlap_min": 1911
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.501237875,
+          "overlap_mass": 1.0,
+          "ess_pct": 99.82609678395212,
+          "measurable": true,
+          "concept_gap": 3.470056635612728e-05,
+          "n_overlap_min": 20000
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.6028473888888889,
+          "overlap_mass": 0.9319,
+          "ess_pct": 79.42865217033729,
+          "measurable": true,
+          "concept_gap": -0.0025856850965760847,
+          "n_overlap_min": 17464
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.848318375,
+          "overlap_mass": 0.624725,
+          "ess_pct": 0.509615061999739,
+          "measurable": true,
+          "concept_gap": -0.05626784839216603,
+          "n_overlap_min": 7883
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 0.9346650972222222,
+          "overlap_mass": 0.63015,
+          "ess_pct": 0.9655702391161641,
+          "measurable": true,
+          "concept_gap": -0.10456704359143382,
+          "n_overlap_min": 7941
+        }
+      ]
+    },
+    {
+      "dataset": "ecom_offers",
+      "task": "binclass",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 119,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "drop_timeproxy(-2)",
+          "n_feat": 117,
+          "cov_auc": 1.0,
+          "overlap_mass": 5e-05,
+          "ess_pct": 0.008379634345826512,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        }
+      ]
+    },
+    {
+      "dataset": "homesite_insurance",
+      "task": "binclass",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 299,
+          "cov_auc": 1.0,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.07816665147959,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "drop_timeproxy(-7)",
+          "n_feat": 292,
+          "cov_auc": 1.0,
+          "overlap_mass": 5e-05,
+          "ess_pct": 0.0888273280184386,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.9070059444444445,
+          "overlap_mass": 0.589925,
+          "ess_pct": 0.4952547800898999,
+          "measurable": true,
+          "concept_gap": -0.009507114152275453,
+          "n_overlap_min": 11759
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.9113467361111112,
+          "overlap_mass": 0.58485,
+          "ess_pct": 0.6754556104476673,
+          "measurable": true,
+          "concept_gap": -0.010970578474873816,
+          "n_overlap_min": 11632
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.9363636666666666,
+          "overlap_mass": 0.526875,
+          "ess_pct": 0.5993852686958736,
+          "measurable": true,
+          "concept_gap": -0.007683207368662015,
+          "n_overlap_min": 9538
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 0.9972754444444444,
+          "overlap_mass": 0.09,
+          "ess_pct": 0.1382018753341006,
+          "measurable": true,
+          "concept_gap": -0.014372208734226621,
+          "n_overlap_min": 1314
+        }
+      ]
+    },
+    {
+      "dataset": "weather",
+      "task": "regression",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 103,
+          "cov_auc": 0.9999999999999999,
+          "overlap_mass": 0.0,
+          "ess_pct": 99.99999999501,
+          "measurable": false,
+          "concept_gap": null,
+          "n_overlap_min": 0
+        },
+        {
+          "rep": "drop_timeproxy(-3)",
+          "n_feat": 100,
+          "cov_auc": 0.9214,
+          "overlap_mass": 0.720125,
+          "ess_pct": 23.790541503948926,
+          "measurable": true,
+          "concept_gap": 0.01934445762135728,
+          "n_overlap_min": 13985
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.5761813055555556,
+          "overlap_mass": 0.998425,
+          "ess_pct": 81.57299527404608,
+          "measurable": true,
+          "concept_gap": -0.009536742648831975,
+          "n_overlap_min": 19947
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.6076071805555555,
+          "overlap_mass": 0.989575,
+          "ess_pct": 14.958311922336524,
+          "measurable": true,
+          "concept_gap": 0.003094457466664702,
+          "n_overlap_min": 19601
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.6927624444444445,
+          "overlap_mass": 0.960425,
+          "ess_pct": 22.297431714806663,
+          "measurable": true,
+          "concept_gap": 0.027212276404243285,
+          "n_overlap_min": 18863
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 0.8030015555555556,
+          "overlap_mass": 0.9003,
+          "ess_pct": 33.28122496023868,
+          "measurable": true,
+          "concept_gap": 0.017656420317079258,
+          "n_overlap_min": 17431
+        }
+      ]
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 7,
+          "cov_auc": 0.9934692191607206,
+          "overlap_mass": 0.4380201765447667,
+          "ess_pct": 0.5476549887247807,
+          "measurable": true,
+          "concept_gap": 0.1319870179481334,
+          "n_overlap_min": 4721
+        },
+        {
+          "rep": "drop_timeproxy(-2)",
+          "n_feat": 5,
+          "cov_auc": 0.9787800807507049,
+          "overlap_mass": 0.9439470365699874,
+          "ess_pct": 38.014339244459485,
+          "measurable": true,
+          "concept_gap": 0.07814406100532656,
+          "n_overlap_min": 14603
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.9925309971074138,
+          "overlap_mass": 0.45611601513240857,
+          "ess_pct": 0.6126144520525844,
+          "measurable": true,
+          "concept_gap": 0.07332007105167182,
+          "n_overlap_min": 5089
+        }
+      ]
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 33,
+          "cov_auc": 0.7068317917500834,
+          "overlap_mass": 0.9727664478629052,
+          "ess_pct": 39.28781010007638,
+          "measurable": true,
+          "concept_gap": 0.14378947368421047,
+          "n_overlap_min": 19000
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.695436332271469,
+          "overlap_mass": 0.9722152628150523,
+          "ess_pct": 31.698762968546422,
+          "measurable": true,
+          "concept_gap": 0.1076744431542278,
+          "n_overlap_min": 18946
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.7046997368714378,
+          "overlap_mass": 0.9731422558500776,
+          "ess_pct": 38.466931198292066,
+          "measurable": true,
+          "concept_gap": 0.11656312519743084,
+          "n_overlap_min": 18994
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.7065323230392637,
+          "overlap_mass": 0.9704113844766248,
+          "ess_pct": 35.147668509937496,
+          "measurable": true,
+          "concept_gap": 0.14030827702702708,
+          "n_overlap_min": 18943
+        }
+      ]
+    }
+  ]
+}
