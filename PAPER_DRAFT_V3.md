@@ -174,16 +174,22 @@ concept that survives the placebo (§5) and representation change. So the practi
 their own feature pipeline destroys the overlap needed to ask whether concept drift is present, and when
 you reconstruct a checkable representation, there is (almost) nothing there.
 
-## 7. Why This Explains "Simple ≥ Complex" (and what it does NOT explain)
+## 7. What Our Account Explains — and What It Does NOT (the C1 test)
 
-The puzzle is the *comparative* result (simple ≥ complex), which our account addresses: where concept
-is genuinely ≈0 (most TabReD, checked) or un-checkable, a concept-targeting structure has nothing extra
-to exploit, while a time *feature* captures the available covariate adaptation. We are explicit that this
-does **not** by itself explain the *efficacy* of the time feature — that comes from covariate
-recalibration under model misspecification [Shimodaira 2000], an X-side mechanism (§9). And alternative
-explanations of the TabReD rankings (tuning-budget asymmetry, deep-method optimization instability,
-preprocessing) are not ruled out by us; isolating our thesis's incremental power needs a
-`margin ~ cov_AUC + budget + seed_var` regression on the TabReD leaderboard [FUTURE, C1].
+We tested whether covariate dominance predicts TabReD's per-dataset deep-vs-tree margin, using
+TabReD's **own published scores** [Rubachev et al. 2025, Table 3] so the tuning budget is controlled by
+their comparable-tuning protocol (run_c1_ranking.py). **It does not.** Across the 8 datasets,
+Spearman(cov_AUC, GBDT−TabR relative margin) = +0.22 (p=.61), Pearson +0.13 (p=.76); for the best deep
+method the sign even reverses (Spearman −0.41). The decisive counterexample is **ecom-offers**: maximal
+covariate (cov_AUC 1.0, overlap 0) yet **TabR BEATS GBDT** there. The only large margin is sberbank, an
+outlier. So our diagnostics do **not** predict the per-dataset TabReD rankings, and we **do not claim to
+explain the TabReD puzzle**: "simple beats complex" has other drivers we cannot rule out (tuning-budget
+asymmetry, deep-method optimization instability, preprocessing). What our account *does* support is the
+narrower, conditional statement — where concept is genuinely ≈0 (most TabReD, checked on a sparse
+representation; §6), a concept-targeting structure has no extra signal to exploit — which is a claim about
+*exploitable signal*, not a prediction of the leaderboard. We also note the time feature's *efficacy* (as
+opposed to the structure's redundancy) is covariate recalibration under misspecification [Shimodaira 2000],
+an X-side mechanism (§9), not concept exploitation.
 
 ## 8. Time-Structure vs Time-Feature Where Concept Exists (re-scoped)
 

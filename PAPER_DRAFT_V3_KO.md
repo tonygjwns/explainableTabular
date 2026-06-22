@@ -130,13 +130,18 @@ concept≈0(4) 또는 환원불가 disjoint(1); cooking/maps는 점검 가능+co
 변화 생존하는 concept. 즉 실무자 상황: *자기 피처 파이프라인*이 concept 점검에 필요한 overlap을 파괴하고, 점검
 가능 표현을 복원하면 (거의) 아무것도 없다.
 
-## 7. 왜 "단순 ≥ 복잡"을 설명하나 (그리고 무엇은 설명 안 하나)
+## 7. 우리 설명이 설명하는 것 — 그리고 *안 하는* 것 (C1 검정)
 
-퍼즐은 *비교* 결과(단순 ≥ 복잡)이고 우리 설명이 이를 다룸: concept이 genuinely ≈0(대부분 TabReD, 점검됨)이거나
-점검 불가인 곳에선 concept-표적 구조가 더 착취할 게 없고, 시간 *피처*가 가용 covariate 적응을 포착. 단 이것이
-시간 피처의 *효능* 자체를 설명하진 **않음** — 그건 모델 오설정 하 covariate 재보정[Shimodaira 2000], X-side 기전
-(§9). 그리고 TabReD 랭킹의 대안 설명(튜닝예산 비대칭, 딥 최적화 불안정, 전처리)은 우리가 배제 못 함; thesis
-증분설명력 분리는 `margin ~ cov_AUC + budget + seed_var` 회귀 필요[향후, C1].
+covariate 지배가 TabReD per-dataset 딥-vs-트리 margin을 예측하는지, TabReD **자체 공개 점수**[Rubachev 2025
+Table 3]로 검정(튜닝예산은 그들 통제 프로토콜에 위임; run_c1_ranking.py). **예측 못 함.** 8개서
+Spearman(cov_AUC, GBDT−TabR 상대margin)=+0.22(p=.61), Pearson +0.13(p=.76); best deep는 부호마저 반대
+(Spearman −0.41). 결정적 반례 **ecom-offers**: 최대 covariate(cov_AUC 1.0, overlap 0)인데 **TabR가 GBDT를 이김**.
+큰 margin은 sberbank 하나(outlier). 즉 우리 진단은 per-dataset TabReD 랭킹을 예측 **못 하며, TabReD 퍼즐을
+설명한다고 주장하지 않음**: "단순>복잡"은 우리가 배제 못 하는 다른 동인(튜닝예산 비대칭, 딥 최적화 불안정,
+전처리)이 있음. 우리 설명이 *뒷받침*하는 건 더 좁은 조건부 명제 — concept이 genuinely ≈0(대부분 TabReD, 희소
+표현서 점검; §6)인 곳엔 concept-표적 구조가 착취할 신호가 없음 — 즉 *착취가능 신호*에 관한 주장이지 리더보드
+예측이 아님. 또 시간 피처의 *효능*(구조의 redundancy와 별개)은 오설정 하 covariate 재보정[Shimodaira 2000],
+X-side 기전(§9)이지 concept 착취 아님.
 
 ## 8. concept 있는 곳서 시간-구조 vs 시간-피처 (재범위화)
 

@@ -1,0 +1,76 @@
+{
+  "rows": [
+    {
+      "dataset": "homesite_insurance",
+      "cov_auc": 1.0,
+      "overlap_mass": 0.0,
+      "concept_gap": null,
+      "margin_gbdt_tabr": 0.011873763149671875,
+      "margin_gbdt_mlp": 0.0105197375273409,
+      "margin_gbdt_bestDL": -0.002187272159150195
+    },
+    {
+      "dataset": "ecom_offers",
+      "cov_auc": 1.0,
+      "overlap_mass": 0.0,
+      "concept_gap": null,
+      "margin_gbdt_tabr": -0.031233732431025535,
+      "margin_gbdt_mlp": -0.04372722540343571,
+      "margin_gbdt_bestDL": -0.04372722540343571
+    },
+    {
+      "dataset": "homecredit_default",
+      "cov_auc": 1.0,
+      "overlap_mass": 0.0,
+      "concept_gap": null,
+      "margin_gbdt_tabr": 0.019492502883506374,
+      "margin_gbdt_mlp": 0.01441753171856973,
+      "margin_gbdt_bestDL": 0.011418685121107289
+    },
+    {
+      "dataset": "sberbank_housing",
+      "cov_auc": 1.0,
+      "overlap_mass": 0.0,
+      "concept_gap": null,
+      "margin_gbdt_tabr": 0.136180499597099,
+      "margin_gbdt_mlp": 0.010475423045930778,
+      "margin_gbdt_bestDL": -0.016921837228041938
+    },
+    {
+      "dataset": "cooking_time",
+      "cov_auc": 0.7532804305555556,
+      "overlap_mass": 0.8799,
+      "concept_gap": -0.004647889875972644,
+      "margin_gbdt_tabr": 0.0004144218814754113,
+      "margin_gbdt_mlp": -0.0012432656444260038,
+      "margin_gbdt_bestDL": -0.0012432656444260038
+    },
+    {
+      "dataset": "delivery_eta",
+      "cov_auc": 0.9973066944444444,
+      "overlap_mass": 0.0612,
+      "concept_gap": -0.04756572128192005,
+      "margin_gbdt_tabr": 0.008412582297000822,
+      "margin_gbdt_mlp": 0.006583760058522399,
+      "margin_gbdt_bestDL": 0.0054864667154352655
+    },
+    {
+      "dataset": "maps_routing",
+      "cov_auc": 0.5661225138888889,
+      "overlap_mass": 1.0,
+      "concept_gap": -0.003308021814873746,
+      "margin_gbdt_tabr": 0.014232673267326712,
+      "margin_gbdt_mlp": 0.0037128712871288194,
+      "margin_gbdt_bestDL": 0.0037128712871288194
+    },
+    {
+      "dataset": "weather",
+      "cov_auc": 0.9999999999999999,
+      "overlap_mass": 0.0,
+      "concept_gap": null,
+      "margin_gbdt_tabr": 0.0028034188034187983,
+      "margin_gbdt_mlp": 0.057777777777777796,
+      "margin_gbdt_bestDL": 0.0028034188034187983
+    }
+  ]
+}
