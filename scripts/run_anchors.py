@@ -122,6 +122,33 @@ def run_no_change(task, data):
     return out
 
 
+def _ci95(a):
+    a = np.asarray(a, float)
+    if len(a) < 2:
+        return [float(a[0]), float(a[0])] if len(a) else [float("nan"), float("nan")]
+    m, se = a.mean(), a.std(ddof=1) / np.sqrt(len(a))
+    return [float(m - 1.96 * se), float(m + 1.96 * se)]
+
+
+def _run_one_seed(args, seed):
+    """All anchor arms for one seed; returns {arm: {test, ...}} on the primary metric.
+    no_change is reported as test_acc (+ test_auc for binclass)."""
+    data = _load(args, args.split, seed)
+    task = data.task
+    feats, _ = _build_features(data)   # same representation as the neural arms
+    t = {p: getattr(data, p).t for p in ("train", "val", "test")}
+    y = {p: getattr(data, p).y for p in ("train", "val", "test")}
+    rows = {}
+    for name, with_t in (("knn", False), ("knn_t", True)):
+        rows[name] = run_knn(task, feats, y, with_t, t)
+    for name, with_t in (("lgbm", False), ("lgbm_t", True)):
+        r = run_lgbm(task, feats, y, with_t, t, seed)
+        if r is not None:
+            rows[name] = r
+    rows["no_change"] = run_no_change(task, data)
+    return data.name, task, rows
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/phase1.yaml")
@@ -130,48 +157,71 @@ def main():
     ap.add_argument("--max-samples", type=int, default=None)
     ap.add_argument("--split", default="temporal", choices=["temporal", "random"])
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-seeds", type=int, default=5,
+                    help="seeds for mean±CI (lgbm random_state + insects subsample)")
     args = ap.parse_args()
 
     cfg = OmegaConf.load(args.config)
-    data = _load(args, args.split, args.seed)
-    task = data.task
-    metric = metric_name(task)
-    feats, _ = _build_features(data)   # same representation as the neural arms
-    t = {p: getattr(data, p).t for p in ("train", "val", "test")}
-    y = {p: getattr(data, p).y for p in ("train", "val", "test")}
-
-    print(f"\n==== ANCHORS [{data.name} / {args.split}]  metric={metric} ====")
-    rows = {}
-
-    for name, with_t in (("knn", False), ("knn_t", True)):
-        r = run_knn(task, feats, y, with_t, t)
-        rows[name] = r
-        print(f"  {name:10s} test={r['test']:.4f}  (val={r['val']:.4f}, k={r['k']})")
-
-    for name, with_t in (("lgbm", False), ("lgbm_t", True)):
-        r = run_lgbm(task, feats, y, with_t, t, args.seed)
-        if r is None:
-            print(f"  {name:10s} SKIPPED (pip install lightgbm)")
-            continue
-        rows[name] = r
-        print(f"  {name:10s} test={r['test']:.4f}  (val={r['val']:.4f}, "
-              f"iters={r['best_iter']})")
-
-    r = run_no_change(task, data)
-    rows["no_change"] = r
-    extra = f", auc={r['test_auc']:.4f}" if "test_auc" in r else ""
-    print(f"  {'no_change':10s} test_acc={r['test_acc']:.4f}{extra}  (n={r['n_eval']})")
-    print("\n  READ: if no_change >= the neural arms, the arm comparison sits below a")
-    print("  trivial baseline (Elec2 critique, Žliobaitė 2013) — must be reported.")
-
+    metric = None
+    # per-arm accumulators across seeds
+    acc = {}                       # arm -> {field -> [values]}
+    name_seen = None
     out_dir = Path(cfg.experiment.results_dir).parent / f"{args.dataset}_q2"
     out_dir.mkdir(parents=True, exist_ok=True)
-    rec = {"mode": "anchors", "ts": time.time(), "dataset": args.dataset,
-           "insects_variant": args.insects_variant, "max_samples": args.max_samples,
-           "split": args.split, "seed": args.seed, "metric": metric, "rows": rows}
-    with open(out_dir / "diagnostics.jsonl", "a", encoding="utf-8") as f:
-        f.write(json.dumps(rec) + "\n")
-    print(f"\n  appended to {out_dir / 'diagnostics.jsonl'}")
+    seeds = [args.seed + i for i in range(max(1, args.n_seeds))]
+    for s in seeds:
+        name_seen, task, rows = _run_one_seed(args, s)
+        metric = metric_name(task)
+        for arm, r in rows.items():
+            d = acc.setdefault(arm, {})
+            for k, v in r.items():
+                if isinstance(v, (int, float)):
+                    d.setdefault(k, []).append(float(v))
+        rec = {"mode": "anchors", "ts": time.time(), "dataset": args.dataset,
+               "insects_variant": args.insects_variant, "max_samples": args.max_samples,
+               "split": args.split, "seed": s, "metric": metric, "rows": rows}
+        with open(out_dir / "diagnostics.jsonl", "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec) + "\n")
+
+    # ---- aggregate + print ----
+    print(f"\n==== ANCHORS [{name_seen} / {args.split}]  metric={metric}  ({len(seeds)} seeds) ====")
+    summary = {}
+    for arm in ("knn", "knn_t", "lgbm", "lgbm_t", "no_change"):
+        if arm not in acc:
+            if arm.startswith("lgbm"):
+                print(f"  {arm:10s} SKIPPED (pip install lightgbm)")
+            continue
+        d = acc[arm]
+        if arm == "no_change":
+            ta = d.get("test_acc", [])
+            row = {"test_acc_mean": float(np.mean(ta)), "test_acc_ci": _ci95(ta),
+                   "n_seeds": len(ta)}
+            extra = ""
+            if "test_auc" in d:
+                row["test_auc_mean"] = float(np.mean(d["test_auc"]))
+                row["test_auc_ci"] = _ci95(d["test_auc"])
+                extra = f", auc={row['test_auc_mean']:.4f}"
+            summary[arm] = row
+            print(f"  {arm:10s} test_acc={row['test_acc_mean']:.4f}{extra}")
+        else:
+            te = d.get("test", [])
+            row = {"test_mean": float(np.mean(te)), "test_ci": _ci95(te),
+                   "val_mean": float(np.mean(d.get("val", [np.nan]))), "n_seeds": len(te)}
+            summary[arm] = row
+            ci = row["test_ci"]
+            print(f"  {arm:10s} test={row['test_mean']:.4f} [{ci[0]:.4f},{ci[1]:.4f}]")
+    print("\n  READ: if no_change (or lgbm_t) >= the neural arms (Q2b ledger), the arm")
+    print("  comparison sits below a trivial/strong baseline (Elec2 critique, Žliobaitė")
+    print("  2013) and must be reported as external calibration of §8.")
+
+    # ---- root summary JSON (V3 artifact convention; merge across datasets) ----
+    root = Path("anchors_summary.json")
+    blob = json.loads(root.read_text()) if root.exists() else {}
+    key = f"{args.dataset}_{args.insects_variant}" if args.dataset == "insects" else args.dataset
+    blob[key] = {"dataset": name_seen, "split": args.split, "metric": metric,
+                 "n_seeds": len(seeds), "arms": summary}
+    root.write_text(json.dumps(blob, indent=2, default=float))
+    print(f"\n  appended to {out_dir / 'diagnostics.jsonl'}  +  wrote/merged {root}  <-- send me this")
 
 
 if __name__ == "__main__":

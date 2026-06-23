@@ -100,9 +100,20 @@ A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능
 - **`margin ~ cov_AUC + budget + seed_var` 회귀**: 튜닝예산·시드분산 통제 후 cov_AUC가 유의해야 thesis 증분설명력 입증.
   안 되면 thesis가 퍼즐에 더하는 게 없음을 인정(Claim A를 측정-결과로만, 퍼즐 설명 주장 철회).
 
-### C2. Claim B 재범위화 + 앵커 [R7, R8, D4]
-- "인스턴스 검색이 시간-피처와 in-dist redundant, 2 concept 데이터서" — *일반 법칙 아님*. "no concept⇒구조 무용" 삭제
-  (오설정 재보정 반례; §7 자기모순). rolling-origin 다중 cut. **no-change/persistence·GBDT+t·정품 TabR 앵커**(R8).
+### C2. Claim B 재범위화 + 앵커 [R7, R8, D4]  — 🔄 글쓰기 완료 / 앵커 서버 실행 대기 (2026-06-23)
+- ✅ **재범위화(§8) 완료**: "인스턴스 검색이 시간-피처와 in-dist redundant, 2 concept 데이터서" = *일반 법칙 아님*
+  명시됨; "no concept⇒구조 무용" 자기모순 삭제됨(§8 "*not* a general law that time-aware structure cannot help").
+  rolling-origin 다중 cut = V3.3 위생 §5서 산출(elec2 gradual / insects 단조감소).
+- 🔄 **앵커(R8) = `run_anchors.py` 보강 완료(다중시드+루트 `anchors_summary.json`), 서버 실행 대기**:
+  no-change/persistence·GBDT(lgbm)±t·knn±t. **"정품 TabR"** = V2 R0서 경화된 `tabr_t` 기판(learnable τ+key-proj
+  +context 정합)이 충족 — 별도 외부 rtdl-TabR 신규구현은 GPU·테스트불가라 [선택/future]. 외부 rtdl-TabR이 진짜
+  필요하면 그때.
+  ```
+  python scripts/run_anchors.py --dataset elec2 --split temporal --n-seeds 5
+  python scripts/run_anchors.py --dataset insects --insects-variant incremental_balanced --n-seeds 5
+  python scripts/run_anchors.py --dataset insects --insects-variant incremental_abrupt --n-seeds 5
+  # → anchors_summary.json. 반영: §8에 "신경 arm이 trivial(no_change)·strong(lgbm_t) 앵커 위/아래?" 외부보정 문장.
+  ```
 
 ### C3. §7 Cai&Ye [R3]
 - 한 문단 *용어* 지적으로 강등 OR LAMDA repo faithful 재현 완료. **변조 이득↔concept ρ=−0.50(자기 데이터가 정반대)
