@@ -120,6 +120,16 @@ concept gap은 ~0이어야. 결과(gap_controls, 15시드, 95% CI):
 합성 양성대조 true +0.985 / placebo +0.005; prior·noise null은 +0.001, +0.034(§4 caveat). 순: Elec2/INSECTS는
 home-field 바닥 + 노이즈 caveat 둘 다 빼도 ~+0.11–0.15 concept 보유.
 
+**위생(gap_hygiene summary).** 리뷰어가 찌를 모든 축에서 판정을 굳혔다. *(i) seed-CI:* 위 CI는 15시드.
+*(ii) ℓ-robustness:* gap이 AUC/accuracy뿐 아니라 **Brier**(Elec2 +0.43, INSECTS +0.12)·**log-loss(Bayes-risk)**
+(+1.41, +0.16)서도 양성+CI가 0 제외, 예측분포도 이동(평균 KL late‖early 1.66, 0.73) → concept 판정이 메트릭에
+안 달림(recalibration-drift 맹점 해소). *(iii) rolling-origin g(t):* cut을 시간분위 {.3,.4,.5,.6,.7}로 sweep해도
+**모든** cut서 양성(Elec2 평균 +0.122 [.109,.135], gradual; INSECTS +0.157 [.095,.219], cut에 단조감소 — drift가
+앞쪽 집중 → median 단일값이 초기창 concept을 *과소*평가). *(iv) 민감도 그리드:* band×min-per-half×classifier
+(HGB/logreg)서 concept 판정이 각 데이터셋 **18/18** 셀 유지. *(v) 다중성:* one-sided paired Wilcoxon(true>placebo)이
+contrast family BH 통과(둘 다 BH-p ≈ 3×10⁻⁵). **사전등록** 규칙(CI>placebo ∧ bias-corr>0.034 노이즈 바닥 ∧ BH 유의
+∧ metric-invariant) 하에 **Elec2·INSECTS 둘 다 genuine concept**로 분류; cooking/maps는 아님.
+
 ## 6. 피처 엔지니어링이 측정가능성을 통제한다 (표현 결과)
 
 **역방향 시연.** 진짜 concept 합성(gap +0.98, overlap 0.997)이 시간-프록시 c = t + ε *하나* 추가로 "측정불가"
@@ -188,9 +198,10 @@ Cai&Ye[2025b]는 피처 통계를 시간 변조해 TabReD 능가, "concept drift
 **online 적응**(지표=적응 속도, 정적 외삽 아님)으로만 도달. 연구 벤치서 binding fact는 아키텍처 *상류*: 피처
 엔지니어링이 positivity를 파괴하고, 점검 가능 현실은 ~0 concept.
 
-**한계.** (a)ℓ=AUC가 recalibration drift에 맹목[robustness 미완]; (b)median early/late 분할이 drift 형태 aliasing
-— rolling-origin 궤적 [향후]; (c)Claim B는 2 concept 벤치; (d)within-overlap은 DISDE 시간축 적응이지 새 식별전략
-아님; (e)A↔B의 TabReD 랭킹 연결은 C1 대기 주장; (f)§9 경험 조정 미재현; (g)contrast family BH-FDR 아직[위생 미완];
+**한계.** (a)~~ℓ=AUC가 recalibration drift에 맹목~~ **해소**: 판정이 Brier/log-loss/KL서 metric-invariant(§5);
+(b)~~median 분할이 drift 형태 aliasing~~ **해소**: rolling-origin g(t)가 모든 cut서 양성(§5); (c)Claim B는 2 concept
+벤치; (d)within-overlap은 DISDE 시간축 적응이지 새 식별전략 아님; (e)A↔B의 TabReD 랭킹 연결은 C1 대기 주장;
+(f)§9 경험 조정 미재현; (g)~~contrast family BH-FDR 아직~~ **해소**: BH-FDR 적용, 둘 다 reject(§5);
 (h)ACS 교차검증(§6)은 ACSIncome만 사용 — WhyShift가 더 Y|X로 본 task(ACSPublicCoverage·ACSMobility)는 [향후]라,
 "공간/시간 축 대조 없음" 결론은 우리 측도 하 ACSIncome에 한정.
 
@@ -213,9 +224,10 @@ shift를 담는지뿐 아니라 *그 표현이 그 질문을 허용하는지*를
 
 ## [향후] 제출 전 (우선순위)
 1. C1: TabReD 리더보드서 `margin ~ cov_AUC + budget + seed_var`(§7 퍼즐 연결 입증).
-2. ℓ-robustness(Brier/Bayes-risk/KL) + rolling-origin gap 궤적(§3, 한계 a,b).
+2. ~~ℓ-robustness(Brier/Bayes-risk/KL) + rolling-origin gap 궤적~~ **완료(§5)**.
 3. Faithful Cai&Ye 재현(§9). no-change/GBDT+t/TabPFN 앵커(§8).
 4. ACSIncome 완료(§6: 도구킷 일반화; 우리 측도론 공간/시간 대조 없음). ACSPublicCoverage/ACSMobility로 확장
    — WhyShift가 더 Y|X로 본 task.
-5. 위생: BH-FDR; Claim-A 임계 사전등록/민감도 그리드; 모든 실 gap에 seed-CI.
+5. ~~위생: BH-FDR; Claim-A 임계 사전등록/민감도 그리드; 모든 실 gap에 seed-CI~~ **완료(§5: BH 둘 다 reject;
+   판정 18/18 셀 불변; 15시드 CI)**.
 6. 도구킷 패키징: API, datasheet/Croissant, 재현 파이프라인.

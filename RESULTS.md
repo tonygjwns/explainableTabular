@@ -207,6 +207,23 @@ PREREG_V2 §8 규칙대로 처리.
 
 ---
 
+## 18. V3.3 위생 — within-overlap gap 5축 경화 (`gap_hygiene_summary.json`, elec2+insects, 15시드)  [solid] ★Claim A 경화
+사전등록 결정 규칙(CI>placebo ∧ bias-corr>0.034 노이즈바닥 ∧ BH유의 ∧ metric-invariant)을 결과 보기 *전* 박고 검정.
+**판정: elec2·insects 둘 다 CONCEPT(4조건 전부 + 민감도 불변).** 5항목 결과:
+- **③ seed-CI(15시드)**: elec2 true +0.146 [.141,.151] / placebo −0.035 / bias-corr **+0.181**;
+  insects +0.150 [.147,.152] / −0.017 / **+0.167**. 둘 다 true-CI가 placebo-CI 위, 0 제외.
+- **④ ℓ-robustness(메트릭 불변)**: AUC/acc뿐 아니라 Brier(+0.43/+0.12)·log-loss=Bayes-risk(+1.41/+0.16) 전부 양성+CI 0제외,
+  예측분포 이동 KL(1.66/0.73). → **concept 판정이 측도에 안 달림**(recalibration-drift 맹점 해소, 한계 a 닫힘).
+- **⑤ rolling-origin g(t)** cut {.3–.7}: elec2 모든 cut 양성(평균 +0.122 [.109,.135], gradual, trend ρ=+0.5 n.s.);
+  insects 모든 cut 양성(+0.157 [.095,.219]) **but cut에 단조감소(ρ=−1.0)** = drift 앞쪽 집중 → median 단일값이 초기창 과소평가.
+  (한계 b 닫힘.)
+- **② 민감도 그리드** band×min_per_half×clf{hgb,logreg}: 각 데이터셋 **18/18 셀 concept**, verdict_invariant=True.
+- **① BH-FDR**: one-sided paired Wilcoxon(true>placebo) 둘 다 BH-p ≈ 3×10⁻⁵ reject(한계 g 닫힘).
+→ Claim A(elec2/insects가 배포표현서 genuine concept 보유)가 seed·측도·시간cut·측정선택·다중성 전 축서 robust.
+PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5 완료 반영.
+
+---
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

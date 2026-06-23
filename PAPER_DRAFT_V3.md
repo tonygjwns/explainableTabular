@@ -159,6 +159,20 @@ The two concept benchmarks' true-gap CIs lie far above their placebo CIs: the ga
 placebo +0.005; prior-shift and noise-drift nulls give +0.001 and +0.034 (the §4 caveat). Net: Elec2/
 INSECTS retain ~+0.11–0.15 of concept after subtracting both the home-field floor and the noise caveat.
 
+**Hygiene (gap_hygiene summary).** The verdict is hardened along every axis a reviewer would probe.
+*(i) Seed-CI:* the CIs above are over 15 seeds. *(ii) Loss-robustness:* the gap is positive with CI
+excluding 0 not only for AUC/accuracy but for **Brier** (Elec2 +0.43, INSECTS +0.12) and **log-loss
+(Bayes-risk)** (+1.41, +0.16), and the predictive laws move (mean KL late‖early 1.66, 0.73) — the concept
+verdict does not hinge on the metric (resolving the recalibration-drift blind spot). *(iii) Rolling-origin
+g(t):* sweeping the cut over time-quantiles {.3,.4,.5,.6,.7}, **every** cut-point is positive (Elec2 mean
++0.122 [.109,.135], gradual; INSECTS +0.157 [.095,.219], monotone-decreasing in the cut — drift is
+front-loaded, so the median single number *understates* early-window concept). *(iv) Sensitivity grid:*
+across band × min-per-half × classifier (HGB/logreg), the concept verdict holds in **18/18** cells for
+each dataset. *(v) Multiplicity:* the one-sided paired Wilcoxon (true > placebo) survives Benjamini-Hochberg
+across the contrast family (both BH-p ≈ 3×10⁻⁵). Under the **pre-registered** rule (CI > placebo ∧
+bias-corrected > 0.034 noise floor ∧ BH-significant ∧ metric-invariant), **both Elec2 and INSECTS are
+classified as genuine concept**; cooking/maps are not.
+
 ## 6. Feature Engineering Controls Measurability (representation result)
 
 **Reverse demonstration.** A synthetic stream with real concept (gap +0.98, overlap 0.997) becomes
@@ -250,11 +264,12 @@ adaptation** (where the metric is adaptation speed, not static extrapolation). O
 the binding fact is upstream of architecture: feature engineering destroys positivity, and the checkable
 reality is near-zero concept.
 
-**Limitations.** (a) ℓ=AUC blind to recalibration drift [robustness PENDING]; (b) median early/late split
-aliases drift shape — a rolling-origin trajectory is [FUTURE]; (c) Claim B rests on 2 concept benchmarks;
-(d) the within-overlap frame is a temporal adaptation of DISDE, not a new identification strategy; (e) the
+**Limitations.** (a) ~~ℓ=AUC blind to recalibration drift~~ **resolved**: the verdict is metric-invariant
+across Brier/log-loss/KL (§5); (b) ~~median split aliases drift shape~~ **resolved**: the rolling-origin
+g(t) trajectory is positive at every cut (§5); (c) Claim B rests on 2 concept benchmarks; (d) the
+within-overlap frame is a temporal adaptation of DISDE, not a new identification strategy; (e) the
 A↔B link to TabReD rankings is asserted pending C1; (f) the §9 empirical adjudication is unreproduced; (g)
-no BH-FDR across the contrast family yet [hygiene PENDING]; (h) the ACS cross-check (§6) used only
+~~no BH-FDR across the contrast family~~ **resolved**: BH-FDR applied, both reject (§5); (h) the ACS cross-check (§6) used only
 ACSIncome — the WhyShift tasks reported as *more* Y|X-driven (ACSPublicCoverage, ACSMobility) are left to
 [FUTURE], so our "no spatial/temporal axis contrast" conclusion is scoped to ACSIncome under our measure.
 
@@ -280,9 +295,10 @@ permits the question.*
 
 ## [FUTURE] before submission (priority)
 1. C1: `margin ~ cov_AUC + budget + seed_var` on the TabReD leaderboard (earn §7's puzzle link).
-2. ℓ-robustness (Brier/Bayes-risk/KL) + rolling-origin gap trajectory (§3, limitations a,b).
+2. ~~ℓ-robustness (Brier/Bayes-risk/KL) + rolling-origin gap trajectory~~ **done (§5)**.
 3. Faithful Cai & Ye reproduction (§9). No-change/GBDT+t/TabPFN anchors (§8).
 4. ACSIncome done (§6: toolkit generalizes; no spatial/temporal contrast under our measure). Extend to
    ACSPublicCoverage/ACSMobility — the WhyShift tasks reported as more Y|X-driven.
-5. Hygiene: BH-FDR; pre-register Claim-A thresholds / sensitivity grid; seed-CIs on every real gap.
+5. ~~Hygiene: BH-FDR; pre-register Claim-A thresholds / sensitivity grid; seed-CIs on every real gap~~
+   **done (§5: BH both reject; verdict invariant 18/18 cells; 15-seed CIs)**.
 6. Toolkit packaging: API, datasheet/Croissant, reproducible pipeline.

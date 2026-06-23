@@ -124,7 +124,11 @@ A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능
 - PAPER_DRAFT 재작성(nucleus 헤드라인, 기여 6개→정직 재구성, DISDE 전면 인용, estimand/정리 절 신설).
 - BH-FDR 전 contrast family 적용(R12). Claim A 임계 사전등록 or 민감도(R11). 모든 실데이터 수치 seed-CI.
 
-### 🔧 위생 5항목 통합 = `run_gap_hygiene.py` (코드 완료·배선 검증, 2026-06-22, 서버 실행 대기)
+### 🔧 위생 5항목 통합 = `run_gap_hygiene.py` — ✅ 완료(2026-06-23, `gap_hygiene_summary.json`)
+**판정: elec2·insects 둘 다 CLAIM-A CONCEPT(4조건 전부 + 민감도 18/18 셀 불변).** seed-CI(bias-corr +0.181/+0.167),
+ℓ-robustness(Brier·log-loss·KL 전부 양성=메트릭 불변, 한계 a 닫힘), rolling-origin(모든 cut 양성; insects는 cut에
+단조감소=drift 앞쪽집중, 한계 b 닫힘), BH-FDR(둘 다 reject, 한계 g 닫힘). RESULTS §18, PAPER_DRAFT_V3(_KO) §5 반영.
+
 한 스크립트가 5항목을 같은 overlap-band 머신·같은 실데이터(elec2/insects)로 한 번에 산출:
 ③ **seed-CI**(N=15, true·placebo 메트릭별) / ④ **ℓ-robustness**(AUC/acc + **Brier·log-loss(=Bayes-risk)
 ·KL** — concept *판정*이 메트릭에 안 달림 입증; D2 ②③) / ⑤ **rolling-origin g(t)**(median 단일 cut → 다중

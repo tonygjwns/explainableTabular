@@ -24,18 +24,13 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   cov-AUC 0.94/gap≈0(4/4 meas), TEMPORAL cov-AUC 0.68/gap≈0(5/5 meas). **예측한 공간=Y|X/시간=X 대조 *미지지***
   (둘 다 concept≈0, 공간이 *더* covariate=정반대) → 또 하나 overclaim retire. **WIN**: 도구킷 ACS 일반화 +
   ~10피처서 둘 다 measurable=§6 표현논점 외부 증거. PAPER_DRAFT_V3(_KO) §2·§6·§11 + RESULTS §17 + PLAN §C5 반영 완료.
-- **🔄 V3.3 위생 = 코드 완료·배선 검증, 서버 실행 대기 (2026-06-22, 현 인계 지점)**: 5항목(BH-FDR contrast
-  family / Claim A 임계 사전등록·민감도 그리드 / 실 gap seed-CI / ℓ-robustness Brier·Bayes-risk·KL /
-  rolling-origin gap 궤적)을 **한 스크립트로 통합** = `scripts/run_gap_hygiene.py`. 사전등록 결정 규칙은
-  PLAN_V3 §V3.3에 결과 보기 전 박아둠(②정직성). 신규 코어 `drift_measure.concept_within_overlap_multi`(기존
-  함수 불변). 로컬 `--synth-only` 통과(flip 큼+invariant / noflip ~0).
-  ```
-  python scripts/run_gap_hygiene.py --elec2 --insects
-  # (선택) ... --tabred cooking_time maps_routing   # concept≈0 대조 동봉
-  # → results/phase1/gap_hygiene/summary.json 로 환류. CLAIM-A verdict 표가 핵심.
-  ```
-- **⬜ 남은 것**: V3.3(gap_hygiene) 서버 실행·결과 반영(§3·§5·§6 + CLAIM-A verdict) → C2 앵커(no-change/GBDT+t/
-  정품 TabR) → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
+- **✅ V3.3 위생 완료 (2026-06-23, `gap_hygiene_summary.json`)**: 5항목(seed-CI / ℓ-robustness / rolling-origin
+  / BH-FDR / 민감도 그리드)을 `run_gap_hygiene.py` 한 스크립트로. **판정: elec2·insects 둘 다 CLAIM-A CONCEPT**
+  (4조건 전부 + 민감도 18/18 셀 불변). bias-corr +0.181/+0.167, 메트릭 불변(Brier·log-loss·KL), 모든 cut 양성
+  (insects는 cut에 단조감소=drift 앞쪽집중), BH 둘 다 reject. **한계 a/b/g 닫힘.** RESULTS §18 + PAPER_DRAFT_V3(_KO)
+  §5 경화 문단 + 향후-작업 2·5 완료 반영.
+- **⬜ 남은 것**: **C2 앵커(no-change/GBDT+t/정품 TabR)** → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
+  (V3.0 게이트·V3.1 형식척추·V3.2 C1·C5·V3.3 위생 전부 완료 — nucleus 경화됨. 정렬 거의 준비됨.)
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3
