@@ -238,6 +238,20 @@ in-distribution device, consistent with representational redundancy. **Scope (ho
 benchmarks," *not* a general law that time-aware structure cannot help — covariate recalibration helps
 (§9), and our own §9 adjudication concedes a time-aware modulation winning under covariate shift.
 
+**External calibration (anchors).** To rule out that the arm comparison sits below a trivial or a strong
+baseline, we ran — on the *same temporal split and features* — k-NN±t, GBDT (LightGBM)±t, and a
+no-change/persistence baseline (5 seeds, anchors_summary). Two things follow. *(i) The arms clear the
+floors.* On Elec2 the neural arms (mlp_t ≈ 0.905 AUC) sit **above** both the strong GBDT anchor (lgbm
+0.887) and the persistence baseline (no_change AUC 0.845), so the well-known Elec2 autocorrelation
+critique [Žliobaitė 2013] does not explain our numbers; on INSECTS-incremental the arms (≈ 0.67 acc) are
+competitive with the strongest anchor (lgbm_t 0.679) and far above persistence (0.163, multiclass).
+*(ii) A non-neural model independently reproduces the regime-dependence of the time signal.* Adding the
+time feature to GBDT **helps** under incremental drift (lgbm→lgbm_t **+0.070** on INSECTS-incremental) but
+**hurts sharply under abrupt drift** (**−0.192** on INSECTS-incremental-abrupt; ≈0 on Elec2) — the same
+in-distribution-help / extrapolation-hurt signature our neural time hook shows. That a tree model exhibits
+it too confirms *time-as-feature is an in-distribution device, not an extrapolation one*, corroborating the
+redundancy reading rather than resting on it.
+
 ## 9. Adjudicating a Recent Positive (a remark, not a refutation)
 
 Cai & Ye [2025b] modulate feature statistics over time and beat baselines on TabReD, calling the target

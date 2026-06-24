@@ -29,17 +29,12 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   (4조건 전부 + 민감도 18/18 셀 불변). bias-corr +0.181/+0.167, 메트릭 불변(Brier·log-loss·KL), 모든 cut 양성
   (insects는 cut에 단조감소=drift 앞쪽집중), BH 둘 다 reject. **한계 a/b/g 닫힘.** RESULTS §18 + PAPER_DRAFT_V3(_KO)
   §5 경화 문단 + 향후-작업 2·5 완료 반영.
-- **🔄 C2 앵커 = 코드 보강 완료, 서버 실행 대기 (2026-06-23)**: §8 재범위화 글쓰기는 이미 완료(자기모순 삭제·
-  "일반 법칙 아님" 명시). `run_anchors.py`를 다중시드+루트 `anchors_summary.json`로 보강. "정품 TabR"=R0-경화
-  `tabr_t` 기판이 충족(외부 rtdl-TabR은 선택/future). 서버:
-  ```
-  python scripts/run_anchors.py --dataset elec2 --split temporal --n-seeds 5
-  python scripts/run_anchors.py --dataset insects --insects-variant incremental_balanced --n-seeds 5
-  python scripts/run_anchors.py --dataset insects --insects-variant incremental_abrupt --n-seeds 5
-  # → anchors_summary.json 환류. §8에 외부보정 문장(신경 arm vs no_change/lgbm_t) 반영.
-  ```
-- **⬜ 남은 것**: C2 앵커 결과 §8 반영 → C3 §9 faithful Cai&Ye(선택) → 지도교수 정렬.
-  (V3.0 게이트·V3.1 형식척추·V3.2 C1·C5·V3.3 위생 완료 — nucleus 경화됨. C2 앵커가 마지막 실행 항목.)
+- **✅ C2 앵커 완료 (2026-06-23, `anchors_summary.json`)**: knn±t/GBDT±t/no-change를 elec2+insects 2변종서.
+  **2결과**: ① 신경 arm floor 통과(elec2 mlp_t≈0.905 > lgbm 0.887 > no_change 0.845 → Žliobaitė 비판 해소);
+  ② **GBDT±t가 메커니즘 독립 재현**(시간피처 incremental +0.070 / abrupt −0.192 = 신경 훅 in-dist도움/외삽해).
+  §8 외부보정 문단 + RESULTS §19 반영. "정품 TabR"=R0-경화 tabr_t 충족.
+- **⬜ 남은 것**: **C3 §9 faithful Cai&Ye(선택)** → 지도교수 정렬.
+  (V3.0~V3.3 + C1·C2·C5 전부 완료 — nucleus 완전 경화. 실행 항목 사실상 끝, C3는 선택. **정렬 준비됨.**)
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3

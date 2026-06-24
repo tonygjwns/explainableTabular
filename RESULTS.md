@@ -224,6 +224,18 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
 
 ---
 
+## 19. V3.2 C2 — 앵커 외부보정 (`anchors_summary.json`, elec2+insects 2변종, 5시드)  [solid] ★§8 외부보정
+같은 temporal split·피처로 knn±t / lgbm(GBDT)±t / no-change(persistence). **두 결론:**
+- **① arm이 바닥 통과**: elec2 신경 arm(mlp_t≈0.905 AUC; grid_report) > lgbm 0.887 > **no_change AUC 0.845** →
+  Elec2 자기상관 비판(Žliobaitė 2013) 해소(persistence 위). insects-incr arm(≈0.67; §11) ≈ lgbm_t 0.679, no_change 0.163 훨씬 위.
+- **② GBDT±t가 메커니즘 독립 재현**: 시간피처 추가가 **incremental서 +0.070**(lgbm 0.609→lgbm_t 0.679) / **abrupt서 −0.192**
+  (0.708→0.514; elec2 ≈0) = 우리 신경 시간훅의 "in-dist 도움/외삽 해" 서명을 *비신경 트리*가 그대로 → "시간-as-피처=in-dist
+  장치, 외삽 장치 아님" 확증(redundancy 해석 뒷받침).
+- 부수: elec2서 knn_t<knn(시간이 knn 해침), insects서 knn_t>knn(도움) — 변종별 시간 효능 차이 일관.
+→ §8 외부보정 문단으로 PAPER_DRAFT_V3(_KO) 반영. "정품 TabR"=R0-경화 tabr_t 기판이 충족, 외부 rtdl-TabR은 선택/future.
+
+---
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

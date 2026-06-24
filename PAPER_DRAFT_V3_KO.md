@@ -178,6 +178,16 @@ p<.001; 25시드 paired). 기판 경쟁력(tabr_t ≈ mlp_t), 훅은 **in-dist �
 in-dist redundant, 2 concept 벤치서", *시간-구조 일반 무용 법칙 아님* — covariate 재보정은 도움(§9), 우리 §9가
 covariate shift 하 시간-변조 승리를 인정.
 
+**외부 보정(앵커).** arm 비교가 trivial·strong 베이스라인 밑에 깔리지 않았음을 배제하기 위해 *같은 temporal
+split·피처*로 k-NN±t, GBDT(LightGBM)±t, no-change/persistence를 돌림(5시드, anchors_summary). 둘이 따라온다.
+*(i) arm이 바닥을 넘는다.* Elec2서 신경 arm(mlp_t ≈ 0.905 AUC)이 strong GBDT 앵커(lgbm 0.887)와 persistence
+(no_change AUC 0.845) **위** → 유명한 Elec2 자기상관 비판[Žliobaitė 2013]이 우리 숫자를 설명 못 함; INSECTS-
+incremental서도 arm(≈0.67 acc)이 최강 앵커(lgbm_t 0.679)와 대등, persistence(0.163, multiclass) 훨씬 위.
+*(ii) 비신경 모델이 시간 신호의 regime 의존성을 독립 재현.* GBDT에 시간피처 추가가 incremental drift서 **도움**
+(lgbm→lgbm_t **+0.070**, INSECTS-incremental)이나 abrupt drift서 **급락**(**−0.192**, INSECTS-incremental-abrupt;
+Elec2 ≈0) — 우리 신경 시간 훅의 "in-dist 도움/외삽 해" 서명과 동일. 트리 모델도 보이니 *시간-as-피처는 in-dist
+장치이지 외삽 장치 아님*이 확증되어, redundancy 해석을 (의존이 아니라) 뒷받침.
+
 ## 9. 최근 양성 결과의 조정 (반박 아닌 remark)
 
 Cai&Ye[2025b]는 피처 통계를 시간 변조해 TabReD 능가, "concept drift" 처리라 칭함. 변조는 label-free(변환에 y
