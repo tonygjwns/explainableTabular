@@ -33,8 +33,16 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   **2결과**: ① 신경 arm floor 통과(elec2 mlp_t≈0.905 > lgbm 0.887 > no_change 0.845 → Žliobaitė 비판 해소);
   ② **GBDT±t가 메커니즘 독립 재현**(시간피처 incremental +0.070 / abrupt −0.192 = 신경 훅 in-dist도움/외삽해).
   §8 외부보정 문단 + RESULTS §19 반영. "정품 TabR"=R0-경화 tabr_t 충족.
-- **⬜ 남은 것**: **C3 §9 faithful Cai&Ye(선택)** → 지도교수 정렬.
-  (V3.0~V3.3 + C1·C2·C5 전부 완료 — nucleus 완전 경화. 실행 항목 사실상 끝, C3는 선택. **정렬 준비됨.**)
+- **🔄 C3 §9 Cai&Ye faithful = 코드 완료, 서버 실행 대기 (2026-06-23)**: `run_modulation_adjudication.py`에
+  `--lr-grid`(양 arm 각자 val-튜닝 lr=그들 튜닝 프로토콜) 추가. "튜닝 안 해서 그들 이득 못 냈다"는 반박 봉쇄용.
+  서버:
+  ```
+  python scripts/run_modulation_adjudication.py --config configs/phase1.yaml --all --elec2 --insects \
+    --mod-basis fourier --lr-grid 2e-3 1e-3 5e-4 2e-4 --n-seeds 10
+  # → modulation_adj/summary_fourier_tuned.json 환류. §9에 "튜닝 후에도 X-side" 반영.
+  ```
+- **⬜ 남은 것**: C3 결과 §9 반영 → 지도교수 정렬.
+  (V3.0~V3.3 + C1·C2·C5 완료, C3 코드 대기 — 그 외 실행 항목 끝. **정렬 임박.**)
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3

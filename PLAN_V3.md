@@ -110,9 +110,18 @@ A2b covariate∥규칙 거짓양성 없음(−0.004), A3 abstain이 착취가능
   재현**(시간피처 incremental +0.070 / abrupt −0.192 = 신경 훅의 in-dist도움/외삽해 서명). RESULTS §19, §8 외부보정 반영.
   **"정품 TabR"** = R0-경화 `tabr_t` 기판이 충족 — 외부 rtdl-TabR은 [선택/future].
 
-### C3. §7 Cai&Ye [R3]
-- 한 문단 *용어* 지적으로 강등 OR LAMDA repo faithful 재현 완료. **변조 이득↔concept ρ=−0.50(자기 데이터가 정반대)
-  정직 보고**. "cannot exploit"/"subsumed" 삭제.
+### C3. §9 Cai&Ye [R3]  — 🔄 faithful 프로토콜 코드 완료, 서버 실행 대기 (2026-06-23)
+- ✅ 글쓰기: §9 이미 *용어* 지적으로 강등 + "cannot exploit/subsumed" 삭제 + ρ=−0.50 정직 보고됨.
+- 🔄 **faithful 재현 = `run_modulation_adjudication.py --lr-grid` 추가(양 arm 각자 val-튜닝 lr=그들 튜닝
+  프로토콜)**. 최소 재현(고정 lr)이 그들 이득 재현 못 한 게 "튜닝 안 해서"라는 반박을 봉쇄: 공정 튜닝 후에도
+  modulation이 (a) 안 이기면 adjudication이 strawman 아님 / (b) 이기면 cross-dataset Spearman(gain~cov vs concept)이
+  그 이득이 X-side임을 판정. **결정 규칙**: 어느 쪽이든 §9 결론(그들 'concept'=X-side, 정의적 확정) 강화.
+  ```
+  python scripts/run_modulation_adjudication.py --config configs/phase1.yaml --all --elec2 --insects \
+    --mod-basis fourier --lr-grid 2e-3 1e-3 5e-4 2e-4 --n-seeds 10
+  # → results/phase1/modulation_adj/summary_fourier_tuned.json 환류. §9에 "튜닝 후에도 …" 문장 반영.
+  ```
+- (선택, gold) LAMDA repo(github.com/LAMDA-Tabular/Tabular-Temporal-Modulation) 직접 실행은 별도 future.
 
 ### C4. Q1 고아 수정 [R6]
 - §8을 "오배선 아님"으로 축소. OR time-TabR(실제 쓴 메커니즘)이 실데이터서 알려진 drift 복원하는 진단 추가.

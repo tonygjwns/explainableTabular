@@ -66,6 +66,22 @@ def _cfg(cfg, arch, seed, *, fmod, lr, basis="trend"):
     )
 
 
+def _tune_lr(cfg, data, arch, *, fmod, basis, grid, tune_seed, metric):
+    """C3 faithful: pick the lr with best VAL score for THIS arm (their tuning
+    protocol — each arm gets its own best lr so neither is handicapped). Returns
+    (best_lr, best_val)."""
+    best_lr, best_val = grid[0], -np.inf
+    for lr in grid:
+        seed_everything(tune_seed)
+        r = train_timetabr(data, _cfg(cfg, arch, tune_seed, fmod=fmod, lr=lr, basis=basis))
+        v = float(orient_higher_is_better([r["val_score"]], metric)[0])
+        if v > best_val:
+            best_val, best_lr = v, float(lr)
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    return best_lr, best_val
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/phase1.yaml")
@@ -75,6 +91,11 @@ def main():
     ap.add_argument("--insects-variant", default="incremental_balanced")
     ap.add_argument("--n-seeds", type=int, default=5)
     ap.add_argument("--lr", type=float, default=2e-3)
+    ap.add_argument("--lr-grid", type=float, nargs="+", default=None,
+                    help="C3 FAITHFUL: per-arm val-tuned lr over this grid (their tuning "
+                         "protocol). Each arm locks its own best-val lr, then all seeds run "
+                         "at it. Omit -> single fixed --lr (the old minimal reproduction).")
+    ap.add_argument("--tune-seed", type=int, default=0, help="seed for the lr-tuning pass")
     ap.add_argument("--mod-basis", default="trend", choices=["trend", "fourier"],
                     help="time basis for the modulation. trend extrapolates badly on "
                          "temporal splits (test t outside train range) -> use fourier "
@@ -119,14 +140,22 @@ def main():
         cov = covariate_shift_auc(Xe, Xl, seed=args.seed).get("auc")
         con = concept_within_overlap(Xe, ye, Xl, yl, data.task, seed=args.seed)
         gap = con.get("concept_gap_within_overlap") if con.get("measurable") else None
-        # trained: static vs modulated, paired per seed
+        # per-arm lr: faithful (val-tuned per arm) or fixed (minimal reproduction)
+        if args.lr_grid:
+            lr_st, _ = _tune_lr(cfg, data, "mlp", fmod=False, basis=args.mod_basis,
+                                grid=args.lr_grid, tune_seed=args.tune_seed, metric=metric)
+            lr_mo, _ = _tune_lr(cfg, data, "mlp", fmod=True, basis=args.mod_basis,
+                                grid=args.lr_grid, tune_seed=args.tune_seed, metric=metric)
+        else:
+            lr_st = lr_mo = args.lr
+        # trained: static vs modulated, paired per seed (each arm at its locked lr)
         s_static, s_modul = [], []
         for s in range(args.n_seeds):
             seed_everything(s)
-            r0 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=False, lr=args.lr,
+            r0 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=False, lr=lr_st,
                                            basis=args.mod_basis))
             seed_everything(s)
-            r1 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=True, lr=args.lr,
+            r1 = train_timetabr(data, _cfg(cfg, "mlp", s, fmod=True, lr=lr_mo,
                                            basis=args.mod_basis))
             s_static.append(r0["score"]); s_modul.append(r1["score"])
             if torch.cuda.is_available():
@@ -138,11 +167,13 @@ def main():
         h = float(_t.ppf(0.975, n - 1)) * se if n > 1 else float("nan")
         gz = hedges_g_paired(a, b)
         gtxt = f"{gap:+.3f}" if isinstance(gap, (int, float)) else "    -"
+        lrtxt = f" lr(s/m)={lr_st:.0e}/{lr_mo:.0e}" if args.lr_grid else ""
         print(f"  {ds:24s}{metric:>8s}{cov:8.3f}{gtxt:>9s} | "
               f"{np.mean(s_static):8.4f}{np.mean(s_modul):8.4f}{m:+9.4f}"
-              f"  [{m-h:+.4f},{m+h:+.4f}]{gz:+6.2f}")
+              f"  [{m-h:+.4f},{m+h:+.4f}]{gz:+6.2f}{lrtxt}")
         rows.append({"dataset": ds, "task": data.task, "metric": metric,
                      "cov_auc": cov, "concept_gap": gap,
+                     "lr_static": lr_st, "lr_modulated": lr_mo,
                      "mean_static": float(np.mean(s_static)),
                      "mean_modulated": float(np.mean(s_modul)),
                      "gain_oriented": m, "gain_ci95": [m - h, m + h],
@@ -174,12 +205,19 @@ def main():
     print("  => modulation helps even with NO concept to exploit = covariate adaptation,")
     print("     not concept exploitation (their 'concept drift' = feature-distribution drift).")
 
+    tuned = bool(args.lr_grid)
     rec = {"mode": "modulation_adjudication", "ts": time.time(), "n_seeds": args.n_seeds,
-           "lr": args.lr, "split": split, "mod_basis": args.mod_basis, "rows": rows,
+           "lr": args.lr, "lr_grid": args.lr_grid, "tuned_per_arm": tuned,
+           "split": split, "mod_basis": args.mod_basis, "rows": rows,
            "spearman_gain_cov_auc": float(rho_cov)}
-    out_path = out_dir / f"summary_{args.mod_basis}.json"
+    tag = f"{args.mod_basis}_tuned" if tuned else args.mod_basis
+    out_path = out_dir / f"summary_{tag}.json"
     out_path.write_text(json.dumps(rec, indent=2, default=float))
-    print(f"\n  wrote {out_path}  <-- send me this (mod_basis={args.mod_basis})")
+    if tuned:
+        print("\n  [FAITHFUL] both arms val-tuned per dataset (their protocol). If modulation")
+        print("  STILL fails to win, the adjudication is not on a strawman; if it wins, the")
+        print("  cross-dataset Spearman tests whether that gain is X-side (cov) or concept.")
+    print(f"\n  wrote {out_path}  <-- send me this (mod_basis={args.mod_basis}, tuned={tuned})")
 
 
 if __name__ == "__main__":
