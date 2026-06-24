@@ -46,8 +46,10 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
       homesite_insurance weather --elec2 --insects --n-seeds 5
     python scripts/run_gap_hygiene.py --elec2 --insects   # elec2/insects가 ess≥5로 생존하는지=Claim A 확인
     ```
-  - **P1 ⬜**: Elec2 +0.146을 noise/자기상관과 분해(washout-gap, Bayes-error early/late). **P2 ⬜**: D'Amour 2021 등
-    인용·§6 신규성 재범위화. **P3 ⬜**: floor 단위·placebo 음수오프셋·C1 §7.
+  - **P1 🔄 코드 완료, 서버 대기**: `run_elec2_decompose.py` — thinning(자기상관 파괴) + lagged-label ablation +
+    Bayes-noise proxy로 Elec2 +0.146 분해. **결정적 go/no-go**(Elec2 생존=concept 2개 / 탈락=INSECTS 1개). 서버:
+    `python scripts/run_elec2_decompose.py --elec2 --insects`. **P2 ⬜**: D'Amour 2021 등 인용·§6 신규성 재범위화.
+    **P3 ⬜**: floor 단위·placebo 음수오프셋·C1 §7.
 - **⬜ 남은 것**: C3 결과 §9 반영 → V3.4 P0 서버 재확인 → P1/P2/P3.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),

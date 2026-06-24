@@ -169,9 +169,11 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
   None-guard. `toolkit_validation` 재검증 = **PASS 유지하며 mu=0.70(ess2.3%)·1.5·3.0 전부 abstain** → 배포규칙=검증규칙.
   `run_representation` 다중시드 CI+사전등록 verdict로 §5급 엄격화. **서버 재실행 대기**(representation 실TabReD /
   gap_hygiene = elec2·insects가 ess≥5로 생존하는지=Claim A 확인). RESULTS §20.
-- **P1 ⬜ (반론B·C: Elec2 +0.146 분해)**: ① 실 H(y|x) drift 매칭 noise-null 또는 Bayes-error early/late 차 추정으로
-  noise 성분 분리(placebo는 noise-drift에 직교 — 충분조건 아님). ② Elec2 **washout-gap 분할**+lagged-label 분해로
-  자기상관 기여 제거(no_change 앵커는 arm AUC에만 적용됨, gap엔 미적용). 분리 후 floor 못 넘으면 Elec2 빼고 3번째 concept셋 필요.
+- **P1 🔄 (반론B·C: Elec2 +0.146 분해) — 코드 완료, 서버 실행 대기**: `run_elec2_decompose.py`. 3프로브:
+  ① **thinning**(stride 5/25로 단기 자기상관 파괴, 장기 rule-change 보존), ② **lagged-label ablation**(y_{t-1} 추가 시
+  gap 줄면 자기상관 기여), ③ **Bayes-noise proxy**(achievable-acc early/late 드리프트). 사전등록: gap이 thinning·lag
+  ablation 후에도 CI가 0.034 floor 위면 Elec2 concept 생존, 무너지면 자기상관/노이즈 교락 → Claim A를 INSECTS 단일로
+  재범위화(W1). 로컬 합성 검증 통과(진짜 rule-flip은 3프로브 다 생존). 서버: `python scripts/run_elec2_decompose.py --elec2 --insects`.
 - **P2 ⬜ (신규성 선점)**: **D'Amour et al. 2021**(고차원 strict-overlap 붕괴 정리, arXiv 1711.02582) 인용 →
   §6 형식 신규성을 "알려진 결과의 시간·표현축 경험 시연 + 검증된 abstention"으로 재범위화. Budhathoki 2021 / Zhang
   2210.10769(shift attribution) 인용. adversarial-validation 완전분리 temporal-tabular 선점(Pang 2021류) 확인.
