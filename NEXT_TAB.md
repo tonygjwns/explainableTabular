@@ -33,16 +33,22 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   **2결과**: ① 신경 arm floor 통과(elec2 mlp_t≈0.905 > lgbm 0.887 > no_change 0.845 → Žliobaitė 비판 해소);
   ② **GBDT±t가 메커니즘 독립 재현**(시간피처 incremental +0.070 / abrupt −0.192 = 신경 훅 in-dist도움/외삽해).
   §8 외부보정 문단 + RESULTS §19 반영. "정품 TabR"=R0-경화 tabr_t 충족.
-- **🔄 C3 §9 Cai&Ye faithful = 코드 완료, 서버 실행 대기 (2026-06-23)**: `run_modulation_adjudication.py`에
-  `--lr-grid`(양 arm 각자 val-튜닝 lr=그들 튜닝 프로토콜) 추가. "튜닝 안 해서 그들 이득 못 냈다"는 반박 봉쇄용.
-  서버:
-  ```
-  python scripts/run_modulation_adjudication.py --config configs/phase1.yaml --all --elec2 --insects \
-    --mod-basis fourier --lr-grid 2e-3 1e-3 5e-4 2e-4 --n-seeds 10
-  # → modulation_adj/summary_fourier_tuned.json 환류. §9에 "튜닝 후에도 X-side" 반영.
-  ```
-- **⬜ 남은 것**: C3 결과 §9 반영 → 지도교수 정렬.
-  (V3.0~V3.3 + C1·C2·C5 완료, C3 코드 대기 — 그 외 실행 항목 끝. **정렬 임박.**)
+- **🔄 C3 §9 Cai&Ye faithful = 코드 완료, 서버 실행 대기 (2026-06-23)**: `run_modulation_adjudication.py --lr-grid`
+  (양 arm val-튜닝). 서버: `... --all --elec2 --insects --mod-basis fourier --lr-grid 2e-3 1e-3 5e-4 2e-4 --n-seeds 10`
+  → `modulation_adj/summary_fourier_tuned.json`.
+- **🔄 V3.4 외부 적대리뷰 대응 (2026-06-24~) — 현 작업**: 별도 LLM 비판검증(`Desktop/ExplainableTab_ReviewPackage`).
+  - **P0 ✅ 완료**: ess-floor 미집행(MISSED-1)+§6 cherry-pick(반론A)=같은 뿌리. `drift_measure` measurable 게이트에
+    `ess_pct≥5.0` 추가(전 caller 일관)+None-guard. **ground-truth 로컬 재검증 PASS**(mu=0.70/1.5/3.0 abstain). `run_representation`
+    §5급 엄격화(다중시드CI+사전등록 verdict). RESULTS §20, PLAN_V3 §V3.4.
+    **서버 재실행 대기**(pull 후):
+    ```
+    python scripts/run_representation.py --tabred sberbank_housing homecredit_default ecom_offers \
+      homesite_insurance weather --elec2 --insects --n-seeds 5
+    python scripts/run_gap_hygiene.py --elec2 --insects   # elec2/insects가 ess≥5로 생존하는지=Claim A 확인
+    ```
+  - **P1 ⬜**: Elec2 +0.146을 noise/자기상관과 분해(washout-gap, Bayes-error early/late). **P2 ⬜**: D'Amour 2021 등
+    인용·§6 신규성 재범위화. **P3 ⬜**: floor 단위·placebo 음수오프셋·C1 §7.
+- **⬜ 남은 것**: C3 결과 §9 반영 → V3.4 P0 서버 재확인 → P1/P2/P3.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3

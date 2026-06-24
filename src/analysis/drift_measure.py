@@ -262,10 +262,21 @@ def _transfer_gap(Xe, ye, Xl, yl, task, seed):
             "n_early": int(len(ye)), "n_late": int(len(yl))}
 
 
+def _iw_ess_pct(p, half, clip=1e-3):
+    """IW effective-sample-size % over EARLY points from an OOF P(late|x).
+
+    Same quantity as disde_iw_degeneration.ess_pct. Low (near-disjoint support) =>
+    the common-support band is a thin sliver and ANY within-overlap transfer estimate
+    there is unreliable. Used to ENFORCE the abstention floor (not just report it)."""
+    pe = np.clip(p[half == 0], clip, 1.0 - clip)
+    w = pe / (1.0 - pe)
+    return float(100.0 * (w.sum() ** 2) / ((w ** 2).sum() + 1e-12) / max(len(w), 1))
+
+
 def concept_within_overlap(
     X_early, y_early, X_late, y_late, task, *,
     seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
-    permute_time: bool = False,
+    permute_time: bool = False, ess_floor: float = 5.0,
 ) -> dict:
     """Covariate-MATCHED concept measurement, restricted to the common-support band.
 
@@ -273,6 +284,11 @@ def concept_within_overlap(
     region with P(late|x)∈band and comparing P(y|x) early-vs-late WITHIN it (no global
     reweighting). Both train pools and the eval set sit in the same band → covariate
     is matched → the gap is concept, not covariate.
+
+    ABSTAINS (measurable=False) when min(n_overlap per half) < min_per_half OR the
+    IW-ESS over early points < ess_floor%% — the latter ENFORCES the pre-declared
+    ess_pct_floor so near-disjoint-support cells (e.g. high-k sparse reps where the
+    band is a sliver) no longer emit a spurious gap. Set ess_floor=0 to disable.
 
     gap_concept (>0 => rule moved within common support):
       regression: rmse(early→late_test) − rmse(late→late_test)
@@ -299,6 +315,7 @@ def concept_within_overlap(
     clf = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
     # OUT-OF-FOLD p for region selection (removes in-sample optimism in choosing overlap)
     p = cross_val_predict(clf, X, half, cv=5, method="predict_proba")[:, 1]
+    ess_pct = _iw_ess_pct(p, half)        # support adequacy on the TRUE split (pre-permute)
     ov = (p >= band[0]) & (p <= band[1])
     if permute_time:
         # PLACEBO (PLAN_V3 G1): permute the early/late label AMONG the overlap points,
@@ -308,10 +325,15 @@ def concept_within_overlap(
         half = half.copy(); half[idx_ov] = rng.permutation(half[idx_ov])
     eo, lo = ov & (half == 0), ov & (half == 1)
     n_e, n_l = int(eo.sum()), int(lo.sum())
-    if min(n_e, n_l) < min_per_half:
+    if min(n_e, n_l) < min_per_half or ess_pct < ess_floor:
         return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
-                "note": "too few overlap points per half"}
+                "ess_pct": ess_pct,
+                "note": ("too few overlap points per half" if min(n_e, n_l) < min_per_half
+                         else f"IW-ESS {ess_pct:.2f}% < floor {ess_floor}% (near-disjoint support)")}
     full = _transfer_gap(X[eo], yy[eo], X[lo], yy[lo], task, seed)
+    if full is None:                       # too few / single-class in a half -> not estimable
+        return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
+                "ess_pct": ess_pct, "note": "transfer gap undefined (class coverage)"}
 
     # p-stratified stability: if the gap were residual covariate, it would vary across
     # P(late|x) strata. Compute the transfer gap within p-tertiles of the overlap band.
@@ -324,6 +346,7 @@ def concept_within_overlap(
         strata.append(None if g is None else g["gap"])
     sg = [g for g in strata if g is not None]
     return {"measurable": True, "n_overlap_early": n_e, "n_overlap_late": n_l,
+            "ess_pct": ess_pct,
             "metric": {"regression": "rmse", "multiclass": "accuracy"}.get(task, "auc"),
             "score_early_on_lateOverlap": full["score_early"],
             "score_late_on_lateOverlap": full["score_late"],
@@ -424,7 +447,7 @@ def _transfer_gap_multi(Xe, ye, Xl, yl, task, seed):
 def concept_within_overlap_multi(
     X_early, y_early, X_late, y_late, task, *,
     seed: int = 0, max_n: int = 20_000, band=(0.1, 0.9), min_per_half: int = 200,
-    permute_time: bool = False, clf: str = "hgb",
+    permute_time: bool = False, clf: str = "hgb", ess_floor: float = 5.0,
 ) -> dict:
     """Within-overlap concept gap reported across MULTIPLE loss functions (V3.3 §F2).
 
@@ -458,22 +481,25 @@ def concept_within_overlap_multi(
     else:
         model = HistGradientBoostingClassifier(max_iter=200, random_state=seed)
     p = cross_val_predict(model, X, half, cv=5, method="predict_proba")[:, 1]
+    ess_pct = _iw_ess_pct(p, half)        # support adequacy on the TRUE split (pre-permute)
     ov = (p >= band[0]) & (p <= band[1])
     if permute_time:
         idx_ov = np.where(ov)[0]
         half = half.copy(); half[idx_ov] = rng.permutation(half[idx_ov])
     eo, lo = ov & (half == 0), ov & (half == 1)
     n_e, n_l = int(eo.sum()), int(lo.sum())
-    if min(n_e, n_l) < min_per_half:
+    if min(n_e, n_l) < min_per_half or ess_pct < ess_floor:
         return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
-                "note": "too few overlap points per half"}
+                "ess_pct": ess_pct,
+                "note": ("too few overlap points per half" if min(n_e, n_l) < min_per_half
+                         else f"IW-ESS {ess_pct:.2f}% < floor {ess_floor}% (near-disjoint support)")}
     gaps = _transfer_gap_multi(X[eo], yy[eo], X[lo], yy[lo], task, seed)
     if gaps is None:
         return {"measurable": False, "n_overlap_early": n_e, "n_overlap_late": n_l,
                 "note": "transfer gap undefined (class coverage)"}
     primary = "rmse" if task == "regression" else ("auc" if task == "binclass" else "accuracy")
     return {"measurable": True, "n_overlap_early": n_e, "n_overlap_late": n_l,
-            "clf": clf, "band": list(band), "gaps": gaps,
+            "ess_pct": ess_pct, "clf": clf, "band": list(band), "gaps": gaps,
             "primary_metric": primary,
             "concept_gap_within_overlap": gaps.get(primary)}
 

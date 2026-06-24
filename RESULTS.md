@@ -236,6 +236,23 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
 
 ---
 
+## 20. P0 — 외부 적대리뷰 대응: ess-floor 집행 + ground-truth 재검증  [solid] ★기여 #3(검증된 abstention) 복구
+외부 LLM 적대리뷰가 두 결함을 정확히 지적(artifact로 검증함): (반론A) §6 gap이 sparse-MI k에 따라 흔들리고
+큰 셀은 cherry-pick / (MISSED-1) **`ess_pct_floor=5.0`이 선언만 되고 배포 `measurable()` 게이트엔 미집행** —
+배포 코드가 `n_overlap≥200`만 봐서 ess 0.07~0.97% 셀(예: homecredit sparse@50 gap −0.105, delivery_eta "OUR-FRAME-WINS")이
+기권 안 하고 숫자를 뱉음. 두 지적은 **같은 뿌리**.
+- **수정(`drift_measure._iw_ess_pct` + 게이트)**: `concept_within_overlap`/`_multi`의 measurable 게이트에
+  `ess_pct ≥ 5.0` 추가(모든 caller 일관). near-disjoint 셀은 이제 abstain. None-guard도 hardening(_transfer_gap None 크래시).
+- **ground-truth 재검증(로컬, ess 집행 하)**: `toolkit_validation` 4×4 그리드 — mu=0(ess 57%) measurable, recovery
+  Spearman(θ,gap)=+1.000, no-false-pos 0.001; **mu=0.70(ess 2.33%)·1.50(0.84%)·3.00(0.05%) 전부 abstain**(이전엔
+  mu=0.70이 measurable이었음). **PASS 유지** → 이제 *배포 규칙 = 검증된 규칙* = MISSED-1 해소.
+- **§6 엄격화(`run_representation`)**: 다중시드 gap-CI + ess 일관 보고 + **사전등록 데이터셋 verdict**(ess-통과 rep
+  전부 '~0'면 all-~0 / 하나라도 floor 넘으면 concept-somewhere / 부호·크기 swing이면 mixed-unstable). §5와 동급 엄격성.
+- **서버 재실행 대기**: representation(실 TabReD)·gap_hygiene(elec2/insects가 ess≥5로 여전히 measurable인지=Claim A 생존 확인).
+→ 반론A·MISSED-1 닫힘. 남은 적대리뷰 항목 = P1(Elec2 noise/자기상관 분해), P2(D'Amour 2021 등 인용·신규성 재범위화), P3(floor 단위). PLAN_V3 §V3.4.
+
+---
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

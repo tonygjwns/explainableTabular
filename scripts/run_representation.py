@@ -47,19 +47,55 @@ from src.analysis.drift_measure import (  # noqa: E402
 )
 
 TIMEPROXY_CORR = 0.30   # |corr(feature, t)| above this = "time-leaking" feature
+NOISE_FLOOR = 0.034     # gap_hygiene/G1 noise-drift floor; |gap| must clear it to be non-≈0
 
 
-def _row(tag, Xe, ye, Xl, yl, task, seed):
-    cov = covariate_shift_auc(Xe, Xl, seed=seed).get("auc")
-    deg = disde_iw_degeneration(Xe, Xl, seed=seed)
-    con = concept_within_overlap(Xe, ye, Xl, yl, task, seed=seed)
-    meas = bool(con.get("measurable"))
+def _ci95(a):
+    a = np.asarray(a, float)
+    if len(a) < 2:
+        return [float(a[0]), float(a[0])] if len(a) else [float("nan"), float("nan")]
+    m, se = a.mean(), a.std(ddof=1) / np.sqrt(len(a))
+    return [float(m - 1.96 * se), float(m + 1.96 * se)]
+
+
+def _row(tag, Xe, ye, Xl, yl, task, seeds, ess_floor=5.0):
+    """Multi-seed row (P0 §6 hardening): the measurable gate now enforces ess_floor
+    (drift_measure), so a rep abstains where the support is near-disjoint. Reports the
+    ESS-gated `measurable`, the seed-CI of the gap over measurable seeds, and whether
+    the |gap| clears the NOISE_FLOOR (so a swinging high-k cell can't be read as concept)."""
+    if isinstance(seeds, int):
+        seeds = [seeds]
+    cov = covariate_shift_auc(Xe, Xl, seed=seeds[0]).get("auc")
+    deg = disde_iw_degeneration(Xe, Xl, seed=seeds[0])
+    gaps, esss, meas_flags = [], [], []
+    for s in seeds:
+        con = concept_within_overlap(Xe, ye, Xl, yl, task, seed=s, ess_floor=ess_floor)
+        meas_flags.append(bool(con.get("measurable")))
+        if con.get("ess_pct") is not None:
+            esss.append(con["ess_pct"])
+        if con.get("measurable"):
+            gaps.append(con["concept_gap_within_overlap"])
+    measurable = sum(meas_flags) > len(seeds) / 2          # majority of seeds measurable
+    gap_mean = float(np.mean(gaps)) if gaps else None
+    gap_ci = _ci95(gaps) if gaps else None
+    # verdict over the noise floor: concept (CI fully above +floor) / anti (below -floor) /
+    # ≈0 (CI inside [-floor,+floor]) / unstable (CI straddles a floor)
+    verdict = "abstain"
+    if measurable and gap_ci is not None:
+        lo, hi = gap_ci
+        if lo > NOISE_FLOOR:
+            verdict = "concept"
+        elif hi < -NOISE_FLOOR:
+            verdict = "anti"
+        elif -NOISE_FLOOR <= lo and hi <= NOISE_FLOOR:
+            verdict = "~0"
+        else:
+            verdict = "unstable"
     return {"rep": tag, "n_feat": int(Xe.shape[1]), "cov_auc": cov,
-            "overlap_mass": deg.get("overlap_mass"), "ess_pct": deg.get("ess_pct"),
-            "measurable": meas,
-            "concept_gap": con.get("concept_gap_within_overlap") if meas else None,
-            "n_overlap_min": (min(con.get("n_overlap_early", 0), con.get("n_overlap_late", 0))
-                              if meas else 0)}
+            "overlap_mass": deg.get("overlap_mass"),
+            "ess_pct": float(np.mean(esss)) if esss else None,
+            "measurable": measurable, "n_meas_seeds": int(sum(meas_flags)),
+            "concept_gap": gap_mean, "concept_gap_ci": gap_ci, "verdict": verdict}
 
 
 def _timeproxy_mask(X, t):
@@ -83,23 +119,42 @@ def _topk_mi(X, y, task, k):
     return np.argsort(-mi)[:min(k, X.shape[1])]
 
 
-def reps_for_dataset(name, Xe, ye, Xl, yl, t_e, t_l, task, seed, ks=(5, 10, 20, 50)):
+def _dataset_verdict(reps):
+    """Pre-registered §6 verdict over the ESS-PASSING (measurable) reps only:
+      - 'concept-somewhere' if ANY measurable rep has verdict 'concept' (|gap| CI > floor),
+      - 'all-~0'           if every measurable rep is '~0',
+      - 'no-checkable-rep' if no rep is measurable (positivity fails in all reps),
+      - 'mixed/unstable'   otherwise (sign/magnitude swings across k -> representation artifact).
+    This applies Claim-A-grade rigor to §6: 'checkable ⇒ ≈0' must hold across ALL ess-passing k,
+    not at a single cherry-picked k."""
+    meas = [r for r in reps if r["measurable"]]
+    if not meas:
+        return "no-checkable-rep"
+    vs = {r["verdict"] for r in meas}
+    if "concept" in vs:
+        return "concept-somewhere"
+    if vs == {"~0"}:
+        return "all-~0"
+    return "mixed/unstable"
+
+
+def reps_for_dataset(name, Xe, ye, Xl, yl, t_e, t_l, task, seeds, ks=(5, 10, 20, 50),
+                     ess_floor=5.0):
     X = np.concatenate([Xe, Xl]); t = np.concatenate([t_e, t_l]); y = np.concatenate([ye, yl])
-    ne = len(ye)
-    rows = [_row("full", Xe, ye, Xl, yl, task, seed)]
+    rows = [_row("full", Xe, ye, Xl, yl, task, seeds, ess_floor)]
     # drop time-proxy features
     leak = _timeproxy_mask(X, t)
     if leak.any() and (~leak).any():
         keep = ~leak
-        rows.append({**_row(f"drop_timeproxy(-{int(leak.sum())})",
-                            Xe[:, keep], ye, Xl[:, keep], yl, task, seed)})
+        rows.append(_row(f"drop_timeproxy(-{int(leak.sum())})",
+                         Xe[:, keep], ye, Xl[:, keep], yl, task, seeds, ess_floor))
     # sparse top-k MI-with-y (computed on pooled; selection is y-driven not t-driven)
     for k in ks:
         if k >= X.shape[1]:
             continue
         sel = _topk_mi(X, y, task, k)
-        rows.append({**_row(f"sparse_MI@{k}", Xe[:, sel], ye, Xl[:, sel], yl, task, seed)})
-    return {"dataset": name, "task": task, "reps": rows}
+        rows.append(_row(f"sparse_MI@{k}", Xe[:, sel], ye, Xl[:, sel], yl, task, seeds, ess_floor))
+    return {"dataset": name, "task": task, "reps": rows, "verdict": _dataset_verdict(rows)}
 
 
 # ---- E4 reverse demo (synthetic, runs anywhere): add a time-proxy to a measurable set ----
@@ -111,10 +166,10 @@ def e4_demo(seed=0, n=8000, d=6):
     # real concept: rule flips early->late, P(x) identical -> measurable
     ye = (3 * Xe_[:, 0] + rng.normal(0, .4, len(Xe_)) > 0).astype(int)
     yl = (-3 * Xl_[:, 0] + rng.normal(0, .4, len(Xl_)) > 0).astype(int)
-    base = _row("measurable_base", Xe_, ye, Xl_, yl, "binclass", seed)
+    base = _row("measurable_base", Xe_, ye, Xl_, yl, "binclass", [seed])
     # append a time-proxy c = t + noise  -> should push toward "unmeasurable"
     ce = (te + rng.normal(0, .05, len(te)))[:, None]; cl = (tl + rng.normal(0, .05, len(tl)))[:, None]
-    addc = _row("+timeproxy", np.hstack([Xe_, ce]), ye, np.hstack([Xl_, cl]), yl, "binclass", seed)
+    addc = _row("+timeproxy", np.hstack([Xe_, ce]), ye, np.hstack([Xl_, cl]), yl, "binclass", [seed])
     return [base, addc]
 
 
@@ -126,16 +181,24 @@ def main():
     ap.add_argument("--insects", action="store_true")
     ap.add_argument("--insects-variant", default="incremental_balanced")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--n-seeds", type=int, default=5, help="seeds for the gap CI (§6 rigor)")
+    ap.add_argument("--ess-floor", type=float, default=5.0,
+                    help="IW-ESS%% abstain floor enforced in the measurable gate")
     ap.add_argument("--synth-only", action="store_true")
     args = ap.parse_args()
+    seeds = [args.seed + i for i in range(max(1, args.n_seeds))]
     out_dir = Path("results/phase1/representation"); out_dir.mkdir(parents=True, exist_ok=True)
 
     def show(rows):
         for r in rows:
-            g = r["concept_gap"]; gt = f"{g:+.3f}" if isinstance(g, (int, float)) else "   -"
-            print(f"    {r['rep']:22s} nF={r['n_feat']:>4d} cov_AUC={r['cov_auc']:.3f} "
-                  f"ovlap={r.get('overlap_mass', float('nan')):.3f} "
-                  f"meas={str(r['measurable']):>5s} gap={gt} n_ov={r['n_overlap_min']}")
+            g = r["concept_gap"]; ci = r.get("concept_gap_ci")
+            gt = (f"{g:+.3f}[{ci[0]:+.3f},{ci[1]:+.3f}]" if isinstance(g, (int, float)) and ci
+                  else "        -")
+            es = r.get("ess_pct"); est = f"{es:5.1f}" if isinstance(es, (int, float)) else "   - "
+            print(f"    {r['rep']:22s} nF={r['n_feat']:>4d} cov={r['cov_auc']:.3f} "
+                  f"ovlap={r.get('overlap_mass', float('nan')):.3f} ess%={est} "
+                  f"meas={str(r['measurable']):>5s}({r.get('n_meas_seeds',0)}/{len(seeds)}) "
+                  f"gap={gt} [{r.get('verdict','')}]")
 
     results = []
     print("\n==== E4 reverse demo (add a time-proxy to a measurable set) ====")
@@ -168,11 +231,17 @@ def main():
         em, lm = t <= med, t > med
         print(f"\n  [{name}] task={data.task}")
         r = reps_for_dataset(name, X[em], data.train.y[em], X[lm], data.train.y[lm],
-                             t[em], t[lm], data.task, args.seed)
-        show(r["reps"]); results.append(r)
-    print("\n  GATE: a disjoint TabReD set becoming measurable under drop_timeproxy/sparse")
-    print("  => Claim A re-scopes to 'deployed representation' (survives). Staying overlap~0")
-    print("  => stronger ('unmeasurable even de-time-leaked'). Either is a result; report it.")
+                             t[em], t[lm], data.task, seeds, ess_floor=args.ess_floor)
+        show(r["reps"])
+        print(f"    => DATASET VERDICT (ess-passing reps only): {r['verdict']}")
+        results.append(r)
+    print("\n  PRE-REGISTERED §6 READ (ess_floor=%.1f%%, noise_floor=%.3f, %d seeds):" %
+          (args.ess_floor, NOISE_FLOOR, len(seeds)))
+    print("  - 'all-~0'           => where checkable, concept is genuinely ~0 (Claim A re-scope holds)")
+    print("  - 'concept-somewhere'=> a measurable rep clears the floor => the §6 headline is WRONG for it")
+    print("  - 'mixed/unstable'   => gap sign/size swings across k = representation artifact, not concept")
+    print("  - 'no-checkable-rep' => positivity fails in every rep (irreducibly disjoint, e.g. ecom)")
+    print("  ESS gate now ENFORCED: near-disjoint cells abstain (no spurious high-k gap).")
     (out_dir / "summary.json").write_text(json.dumps({"results": results}, indent=2, default=float))
     print(f"\n  wrote {out_dir}/summary.json  <-- send me this")
 

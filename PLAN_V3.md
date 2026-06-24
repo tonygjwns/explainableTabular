@@ -162,6 +162,22 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
 
 ---
 
+## V3.4 — 외부 적대리뷰 대응 (2026-06-24~, 별도 LLM red-team)
+외부 LLM 비판검증(패키지 `Desktop/ExplainableTab_ReviewPackage`) → 핵심 수치 artifact로 검증, 대부분 정확. 우선순위:
+- **P0 ✅ 완료 (ess-floor 집행 + ground-truth 재검증)**: (반론A §6 cherry-pick) + (MISSED-1 `ess_pct_floor=5.0`
+  선언만·미집행)은 같은 뿌리. `drift_measure`의 measurable 게이트에 `ess_pct≥5.0` 추가(전 caller 일관) +
+  None-guard. `toolkit_validation` 재검증 = **PASS 유지하며 mu=0.70(ess2.3%)·1.5·3.0 전부 abstain** → 배포규칙=검증규칙.
+  `run_representation` 다중시드 CI+사전등록 verdict로 §5급 엄격화. **서버 재실행 대기**(representation 실TabReD /
+  gap_hygiene = elec2·insects가 ess≥5로 생존하는지=Claim A 확인). RESULTS §20.
+- **P1 ⬜ (반론B·C: Elec2 +0.146 분해)**: ① 실 H(y|x) drift 매칭 noise-null 또는 Bayes-error early/late 차 추정으로
+  noise 성분 분리(placebo는 noise-drift에 직교 — 충분조건 아님). ② Elec2 **washout-gap 분할**+lagged-label 분해로
+  자기상관 기여 제거(no_change 앵커는 arm AUC에만 적용됨, gap엔 미적용). 분리 후 floor 못 넘으면 Elec2 빼고 3번째 concept셋 필요.
+- **P2 ⬜ (신규성 선점)**: **D'Amour et al. 2021**(고차원 strict-overlap 붕괴 정리, arXiv 1711.02582) 인용 →
+  §6 형식 신규성을 "알려진 결과의 시간·표현축 경험 시연 + 검증된 abstention"으로 재범위화. Budhathoki 2021 / Zhang
+  2210.10769(shift attribution) 인용. adversarial-validation 완전분리 temporal-tabular 선점(Pang 2021류) 확인.
+- **P3 ⬜ (사소)**: floor 단위 일관화(raw 0.034 vs bias-corrected 0.041), placebo 음수 오프셋 해명·raw를 헤드라인,
+  C1 negative를 §7에 "동기-결과 단절"로 명시.
+
 ## 우선순위 · 의존성
 1. **V3.0 G1·G2·G3(서버/로컬 sklearn) + G4(웹, 내가 즉시)** — nucleus 생사. 다른 모든 것의 전제.
 2. G1·G2 통과 → V3.1 F1(형식 척추) — 이게 #2~#5 모호함을 "가정 하 robustness"로 격하.

@@ -46,9 +46,9 @@
       "cov_auc": 0.8081472222222222,
       "overlap_mass": 0.67775,
       "ess_pct": 2.3256938109693173,
-      "measurable": true,
-      "concept_gap": -0.001479087289695702,
-      "n_overlap_min": 2687
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 0.7,
@@ -56,9 +56,9 @@
       "cov_auc": 0.8081472222222222,
       "overlap_mass": 0.67775,
       "ess_pct": 2.3256938109693173,
-      "measurable": true,
-      "concept_gap": 0.09066639307294899,
-      "n_overlap_min": 2687
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 0.7,
@@ -66,9 +66,9 @@
       "cov_auc": 0.8081472222222222,
       "overlap_mass": 0.67775,
       "ess_pct": 2.3256938109693173,
-      "measurable": true,
-      "concept_gap": 0.272447675774938,
-      "n_overlap_min": 2687
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 0.7,
@@ -76,9 +76,9 @@
       "cov_auc": 0.8081472222222222,
       "overlap_mass": 0.67775,
       "ess_pct": 2.3256938109693173,
-      "measurable": true,
-      "concept_gap": 0.46245331764190467,
-      "n_overlap_min": 2687
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 1.5,
@@ -86,9 +86,9 @@
       "cov_auc": 0.9810125000000001,
       "overlap_mass": 0.120375,
       "ess_pct": 0.8402574763603522,
-      "measurable": true,
-      "concept_gap": -0.001584240253478364,
-      "n_overlap_min": 481
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 1.5,
@@ -96,9 +96,9 @@
       "cov_auc": 0.9810125000000001,
       "overlap_mass": 0.120375,
       "ess_pct": 0.8402574763603522,
-      "measurable": true,
-      "concept_gap": 0.07155647382920116,
-      "n_overlap_min": 481
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 1.5,
@@ -106,9 +106,9 @@
       "cov_auc": 0.9810125000000001,
       "overlap_mass": 0.120375,
       "ess_pct": 0.8402574763603522,
-      "measurable": true,
-      "concept_gap": 0.2277131782945736,
-      "n_overlap_min": 481
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 1.5,
@@ -116,9 +116,9 @@
       "cov_auc": 0.9810125000000001,
       "overlap_mass": 0.120375,
       "ess_pct": 0.8402574763603522,
-      "measurable": true,
-      "concept_gap": 0.39296046287367403,
-      "n_overlap_min": 481
+      "measurable": false,
+      "concept_gap": null,
+      "n_overlap_min": 0
     },
     {
       "mu_cov": 3.0,
