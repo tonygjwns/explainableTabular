@@ -253,6 +253,17 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
 
 ---
 
+## 21. V3.4 P1 — Elec2/INSECTS concept 분해 (`elec2_decompose_summary.json`, de-time-leaked, 10시드)  [decisive] ★Claim A 운명
+적대리뷰 반론 B/C: within-overlap gap이 P(y|x) rule 변화인가, 자기상관(Žliobaitė)·노이즈 드리프트인가. 3프로브로 분해.
+- **Elec2 ❌ 탈락**: de-time-leaked +0.073이 ① thinning stride1→5서 +0.073→**+0.033(floor 걸침)** ② **lagged-label
+  +0.073→+0.013(below-floor)**, y_{t-1}→y AUC **0.849**(자기상관 극강) ③ noise late +0.046 easier. → 자기상관·노이즈가
+  대부분, **genuine concept ≈ 0**. Elec2는 깨끗한 concept anchor에서 제외(reviewer 반론 C 확증).
+- **INSECTS ⚠️ 부분생존**: thinning stride1 +0.149/stride5 +0.157 **둘 다 concept(>floor)** = *자기상관 아님*(Elec2와
+  결정적 차이, river 설계 concept과 일관). 단 **achievable-acc drift +0.192**(early 0.488→late 0.680)가 +0.149와 엉켜
+  깨끗이 분리 안 됨. lagged-label은 multiclass라 미수행. → matched-noise-null로 추가 분리 필요(반론 B 잔여).
+- **종합**: 완전 분리된 "깨끗한 concept" 증거 얇음(Elec2 死, INSECTS 노이즈 교락). → **§5/§6의 concept 헤드라인 약화**,
+  생성 테스트(V3.5 `correct_assumption`)가 "정직 측정 vs 생성적 프레임 vs 피벗"의 진짜 심판. PAPER 반영은 생성 테스트 후.
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

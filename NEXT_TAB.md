@@ -51,9 +51,11 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
     `python scripts/run_elec2_decompose.py --elec2 --insects`. **P2 ⬜**: D'Amour 2021 등 인용·§6 신규성 재범위화.
     **P3 ⬜**: floor 단위·placebo 음수오프셋·C1 §7.
 - **🔄 V3.4 적대리뷰 대응 = P0·P2·P3 완료, P1 서버 결과 중간 도착 (2026-06-25)**:
-  - **P1 Elec2 중간판정 = 무너짐**: de-time-leaked +0.073이 thinning(stride5 +0.033)·lagged-label(+0.073→+0.013,
-    y_{t-1}→y AUC 0.849)·noise(late +0.046 easier)로 분해 → 자기상관·노이즈가 대부분 = genuine concept≈0.
-    **Claim A positive가 INSECTS 단일 위기**(insects decompose 결과 대기).
+  - **P1 decompose 완료 (둘 다)**: **Elec2 ❌ 탈락** — de-time-leaked +0.073이 thinning(stride5 +0.033)·
+    **lagged-label(+0.073→+0.013 below-floor, y_{t-1}→y AUC 0.849)**·noise(late +0.046)로 자기상관·노이즈가 대부분.
+    **INSECTS ⚠️ 부분생존** — thinning 통과(stride1 +0.149/stride5 +0.157 둘 다 concept = *자기상관 아님*, Elec2와 차이)
+    BUT **achievable-acc drift +0.192**(late 훨씬 쉬움)가 +0.149와 엉켜 깨끗이 분리 안 됨; lagged-label은 multiclass라 없음.
+    → **깨끗한 concept 증거 얇음** → 생성 테스트(V3.5)가 진짜 심판. (INSECTS는 matched-noise-null로 추가 분리 필요.)
   - **P0/P2/P3 완료**: ess-gate 집행·ground-truth 재검증 / D'Amour 2021 인용·§6 재범위화 / floor 단위·placebo·C1 §7.
 - **🔄 V3.5 = 생성 테스트 (사용자 falsification, 코드 완료·서버 대기)**: `run_correct_assumption.py` — recency-적응이
   concept 측정된 곳서만 정적 모델 이기나? 양수+패턴=진단 생성적(긍정 결과) / 무패턴=피벗 신호. 로컬 합성 통과
