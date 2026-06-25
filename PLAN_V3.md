@@ -182,9 +182,11 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
   gap 줄면 자기상관 기여), ③ **Bayes-noise proxy**(achievable-acc early/late 드리프트). 사전등록: gap이 thinning·lag
   ablation 후에도 CI가 0.034 floor 위면 Elec2 concept 생존, 무너지면 자기상관/노이즈 교락 → Claim A를 INSECTS 단일로
   재범위화(W1). 로컬 합성 검증 통과(진짜 rule-flip은 3프로브 다 생존). 서버: `python scripts/run_elec2_decompose.py --elec2 --insects`.
-- **P2 ⬜ (신규성 선점)**: **D'Amour et al. 2021**(고차원 strict-overlap 붕괴 정리, arXiv 1711.02582) 인용 →
-  §6 형식 신규성을 "알려진 결과의 시간·표현축 경험 시연 + 검증된 abstention"으로 재범위화. Budhathoki 2021 / Zhang
-  2210.10769(shift attribution) 인용. adversarial-validation 완전분리 temporal-tabular 선점(Pang 2021류) 확인.
+- **P2 ✅ 완료 (신규성 재범위화·글쓰기)**: D'Amour 2021(고차원 strict-overlap 붕괴 정리)·Budhathoki 2021·Zhang
+  ICML 2023 인용 추가(REFERENCES §0.1b). §2에 attribution/overlap 계보 + "분해·overlap-붕괴 = 알려진 것, 우리=시간·표현축
+  경험 시연+검증된 기권" 명시. §6은 ess-gate fresh 결과로 재작성(Elec2-full un-checkable·de-time-leak +0.074·homecredit
+  garbage abstain). §5에 +0.146 supersede 캐비엇. §11 한계 (c)positive 좁음·(d)D'Amour 선점. 영/한 둘 다. (Pang 2021류
+  adversarial-validation temporal-tabular 선점 확인은 잔여.)
 - **P3 ⬜ (사소)**: floor 단위 일관화(raw 0.034 vs bias-corrected 0.041), placebo 음수 오프셋 해명·raw를 헤드라인,
   C1 negative를 §7에 "동기-결과 단절"로 명시.
 

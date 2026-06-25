@@ -21,6 +21,23 @@
   github.com/namkoong-lab/whyshift. 5개 표 데이터(주로 **공간/인구 folktables**), 86k config.
   **헤드라인: 그들 세팅에선 Y|X-shift가 지배적**, 큰-Y|X 영역 식별 알고리즘 제안.
   → **대조 헤드라인 성립**: *공간 표 shift = Y|X 지배(WhyShift) ↔ 시간 표 shift = X 지배(우리)*.
+  ⚠ **C5 결과로 이 대조는 철회됨**(ACSIncome서 둘 다 concept≈0, 공간이 더 covariate) — §2 본문은 "다른 측도"로 정정.
+
+### 0.1b 신규성 선점 검토 (외부 적대리뷰 P2, 2026-06-25) — §6 형식 신규성 재범위화 필수
+적대리뷰가 §6의 형식 기여("피처 엔지니어링이 overlap을 무너뜨려 concept을 측정불가하게 한다")가 선점됐다고 지적 → 검증·수용:
+- **D'Amour, Ding, Feller, Lei, Sekhon. *Overlap in Observational Studies with High-Dimensional Covariates*.
+  J. Econometrics 221(2):644–654, 2021; arXiv 1711.02582.** **고차원에서 strict overlap(positivity)이 정보이론적으로
+  필연 붕괴**함을 정리로 증명(공변량 차원↑ → propensity가 0/1로 밀려 평균 불균형 상한이 더 빡빡). → **우리 "261-피처가
+  covariate 지배를 제조 → overlap→0", "피처 1개 추가로 측정불가"는 이 정리의 *시간/표현축 재적용*.** positivity 경계(§3)도
+  이 계보. **반드시 인용**; 인용 시 §6 형식 신규성은 "알려진 결과의 경험적 시연"으로 정직 축소.
+- **Budhathoki, Janzing, Bloebaum, Ng. *Why did the distribution change?* AISTATS 2021; arXiv 2102.13384.**
+  결합분포 변화를 인과 메커니즘(marginal vs conditional)에 Shapley 귀속 — conditional shift를 분리·정량화하는 더 일반 틀.
+- **Zhang, Kumar, ... *"Why did the Model Fail?": Attributing Model Performance Changes to Distribution Shifts*.
+  ICML 2023; arXiv 2210.10769.** DISDE류 성능변화 분해를 직접 다룸. §2가 DISDE/WhyShift만 인용한 건 attribution 계보 누락.
+- **남는 진짜 신규 동사** = (a) **검증된 abstention**(ess-gate 집행 + ground-truth 4/4, P0서 경화) (b) **시간축
+  model-transfer 운영화** (c) **배포-표현 상대성의 경험적 시연**(플래그십 Elec2 자신이 full서 un-checkable·de-time-leak서
+  concept 복원). → 신규성을 "정리"가 아니라 "이 셋"으로 정직 포지셔닝. (adversarial-validation 완전분리의 temporal-tabular
+  선점은 Pang 2021류 추가 확인 권장.)
 - **TabReD** — Rubachev et al. ICLR 2025, arXiv 2406.19380. **X vs Y|X 분해 안 함**(원문 확인):
   "gradual temporal shift"로 holistic 특성화 + **앙상블-std 프록시**(Fig 3)만. TabR 실패 설명 =
   "train이 test에 유용하다는 가정이 gradual shift로 위배" + 다중공선성/노이즈. → **분해는 우리 고유.**

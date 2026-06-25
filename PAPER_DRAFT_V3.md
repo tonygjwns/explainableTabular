@@ -64,12 +64,21 @@ we make the *measurability* the object of study.
 
 ## 2. Related Work
 
-**Shift decomposition.** DISDE [Cai, Namkoong, Yadlowsky, *Oper. Res.* 2025] decomposes a
+**Shift decomposition / attribution.** DISDE [Cai, Namkoong, Yadlowsky, *Oper. Res.* 2025] decomposes a
 performance drop into (i) harder seen examples, (ii) a within-overlap Y|X term, (iii) an
-unseen-region X term, via a shared overlap measure S and density ratios. **Our concept estimand is
-their term (ii) on the time axis; our "unmeasurability" is the regime where their term (iii) mass →
-1.** We cite DISDE as the source of the frame and contribute the temporal/model-transfer
-operationalization, the *representation-relativity* of the verdict, and the validated abstention.
+unseen-region X term, via a shared overlap measure S and density ratios; related attribution work splits
+a distribution change into causal mechanisms (marginal vs conditional) [Budhathoki et al., *AISTATS* 2021]
+or attributes a performance change to specific shifts [Zhang et al., *ICML* 2023]. **Our concept estimand is
+DISDE's term (ii) on the time axis; our "unmeasurability" is the regime where their term (iii) mass → 1.**
+We claim no novelty for the decomposition frame itself — we cite it as the source and contribute the
+*temporal/model-transfer operationalization*, the *representation-relativity* of the verdict, and the
+*adversarially-validated abstention*. **Overlap/positivity.** That a high-dimensional covariate map can
+*destroy* common support is a known theorem, not our discovery: [D'Amour, Ding, Feller, Lei & Sekhon,
+*J. Econometrics* 2021] prove strict overlap fails as covariate dimension grows. Our §6 is the *empirical
+demonstration* of that mechanism on the time/representation axis (industrial feature pipelines manufacture
+the positivity failure), and our positivity boundary (§3) is the time-axis instance of their result — we
+cite it as the formal basis and scope our §6 contribution to the demonstration plus the abstention, not a
+new theorem.
 **Adversarial validation** (classifier-two-sample test; [Lopez-Paz & Oquab 2017]; [Rabanser et al.,
 *Failing Loudly*, 2019]; Kaggle practice; credit-scoring [Pang et al. 2021]) is the lineage of our
 covariate-AUC; we claim no novelty for the technique. **WhyShift** [Liu et al. 2023] reports Y|X-shift
@@ -171,7 +180,10 @@ across band × min-per-half × classifier (HGB/logreg), the concept verdict hold
 each dataset. *(v) Multiplicity:* the one-sided paired Wilcoxon (true > placebo) survives Benjamini-Hochberg
 across the contrast family (both BH-p ≈ 3×10⁻⁵). Under the **pre-registered** rule (CI > placebo ∧
 bias-corrected > 0.034 noise floor ∧ BH-significant ∧ metric-invariant), **both Elec2 and INSECTS are
-classified as genuine concept**; cooking/maps are not.
+classified as genuine concept**; cooking/maps are not. *(Update, in progress: these numbers are on the
+full deployed representation; §6 shows Elec2-full is un-checkable once the IW-ESS floor is enforced, so the
+honest Elec2 figure is the de-time-leaked +0.074 and this hygiene panel is being re-run on that
+representation. INSECTS is unaffected — it is measurable at ess 41% on the full representation.)*
 
 ## 6. Feature Engineering Controls Measurability (representation result)
 
@@ -179,21 +191,33 @@ classified as genuine concept**; cooking/maps are not.
 "unmeasurable" (overlap 0.027) by appending **one** time-proxy feature c = t + ε. Same data, same
 concept. The dichotomy is a representation functional.
 
-**On TabReD** (representation summary): the 5 "disjoint" datasets, recomputed under de-time-leaked /
-sparse-MI(@5–50) representations:
-- **4/5 become measurable with concept ≈ 0**: sberbank (sparse: cov 0.63, overlap 0.996, gap +0.02),
-  homecredit (cov 0.50, overlap 1.0, gap +0.00), homesite (cov 0.91, gap −0.01), weather (de-time-leak:
-  cov 0.92, overlap 0.72, gap +0.02).
-- **ecom stays genuinely disjoint** at every representation (cov 1.0, overlap 0) — the irreducible case.
-- The concept benchmarks **survive de-time-leaking**: Elec2 +0.132→+0.078, INSECTS +0.144→+0.108
-  (concept is representation-robust, not a feature artifact).
+That a high-dimensional feature map *must* eventually destroy common support is a theorem [D'Amour et al.
+2021]; what follows is its empirical instance on the time axis, under a measurement rule that **abstains**
+where the support is too thin to trust. Concretely, the measurable gate enforces an IW-ESS floor (≥5%) —
+the *same* rule the ground-truth validation passes (§4) — so near-disjoint cells abstain rather than emit a
+spurious gap (multi-seed CIs, ess-gated; representation summary):
+- **sberbank, homecredit → all-≈0 where checkable**: sberbank sparse-MI@{5–50} (ess 46–73%) gap +0.02
+  [≈0] at every k; homecredit @5/@10 (ess 100/83%) gap +0.00/+0.006 [≈0], while @20/@50 (ess 0.6/1.1%)
+  now **abstain** — the high-k cells that *looked* like a large negative gap (−0.06/−0.11) were thin-overlap
+  artifacts and are correctly withheld under the enforced floor.
+- **ecom, homesite → no checkable representation** (every rep abstains: ecom cov 1.0/overlap 0; homesite
+  sparse ess 0.1–0.6%) — positivity fails throughout; we make no concept claim either way.
+- **weather → mixed/unstable**: its sparse reps are measurable (ess 30–80%) but the gap swings −0.023…+0.021
+  across k, so we honestly report it as representation-unstable, not as concept or as ≈0.
+- **The flagship Elec2 obeys the same law**: on the *full* deployed representation it is **un-checkable**
+  (ess 0.6% — two time-proxy features collapse the overlap), and concept is recovered only after
+  de-time-leaking (ess 35%, gap **+0.074 [concept]**, > the 0.034 floor). INSECTS is the robust case —
+  concept on the full representation (ess 41%, +0.147) and across sparse reps (+0.11…+0.14).
 
-**Re-scoped three-way picture** (replaces the old §13): *in the deployed representation*, 5/8 TabReD
-datasets are un-checkable (positivity fails); *checked on a sparse representation*, they are concept≈0
-(4) or irreducibly disjoint (1); cooking/maps are checkable and concept≈0 in either; Elec2/INSECTS carry
-concept that survives the placebo (§5) and representation change. So the practitioner's situation is:
-their own feature pipeline destroys the overlap needed to ask whether concept drift is present, and when
-you reconstruct a checkable representation, there is (almost) nothing there.
+**Re-scoped picture** (replaces the old §13, now ess-gated): *in the deployed representation*, the TabReD
+sets and even Elec2 are largely un-checkable (positivity fails); *checked on a representation where overlap
+survives*, they are concept ≈ 0 (sberbank/homecredit), irreducibly disjoint (ecom/homesite), or
+representation-unstable (weather); only **INSECTS (robustly) and de-time-leaked Elec2 (+0.074)** carry
+concept. This **supersedes the full-representation +0.146 Elec2 headline of §5**: the honest Elec2 concept
+is the de-time-leaked +0.074, and §5's hygiene is being re-run on that representation (the earlier number
+ran through the pre-enforcement gate). The practitioner's situation: your own feature pipeline destroys the
+overlap needed to ask whether concept drift is present, and where you reconstruct a checkable
+representation, there is little — except INSECTS and, modestly, Elec2.
 
 **External cross-validation (ACS/folktables).** The representation account makes a falsifiable
 out-of-benchmark prediction: a data family with *few raw* features should stay measurable even under
@@ -280,8 +304,13 @@ reality is near-zero concept.
 
 **Limitations.** (a) ~~ℓ=AUC blind to recalibration drift~~ **resolved**: the verdict is metric-invariant
 across Brier/log-loss/KL (§5); (b) ~~median split aliases drift shape~~ **resolved**: the rolling-origin
-g(t) trajectory is positive at every cut (§5); (c) Claim B rests on 2 concept benchmarks; (d) the
-within-overlap frame is a temporal adaptation of DISDE, not a new identification strategy; (e) the
+g(t) trajectory is positive at every cut (§5); (c) the **positive concept evidence is narrow**: under the
+enforced ESS floor, INSECTS is the only robust case (concept on the full representation) and Elec2 carries
+concept only on the de-time-leaked representation (+0.074), so Claim A's positive rests heavily on one
+designed-drift stream — broadening it is the priority; (d) the within-overlap frame is a temporal
+adaptation of DISDE, and the overlap-collapse mechanism of §6 is a known theorem [D'Amour et al. 2021] — we
+contribute the empirical demonstration on the time/representation axis and the validated abstention, **not a
+new identification theorem**; (e) the
 A↔B link to TabReD rankings is asserted pending C1; (f) the §9 empirical adjudication is unreproduced; (g)
 ~~no BH-FDR across the contrast family~~ **resolved**: BH-FDR applied, both reject (§5); (h) the ACS cross-check (§6) used only
 ACSIncome — the WhyShift tasks reported as *more* Y|X-driven (ACSPublicCoverage, ACSMobility) are left to
