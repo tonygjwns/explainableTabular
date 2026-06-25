@@ -169,7 +169,15 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
   None-guard. `toolkit_validation` 재검증 = **PASS 유지하며 mu=0.70(ess2.3%)·1.5·3.0 전부 abstain** → 배포규칙=검증규칙.
   `run_representation` 다중시드 CI+사전등록 verdict로 §5급 엄격화. **서버 재실행 대기**(representation 실TabReD /
   gap_hygiene = elec2·insects가 ess≥5로 생존하는지=Claim A 확인). RESULTS §20.
-- **P1 🔄 (반론B·C: Elec2 +0.146 분해) — 코드 완료, 서버 실행 대기**: `run_elec2_decompose.py`. 3프로브:
+- **★ P0 서버결과 (2026-06-25, fresh ess-gate 런)**: ① **§6 representation 깨끗해짐** — homecredit 고-k 쓰레기
+  (ess 0.6/1.1%) 이제 abstain → verdict `all-~0`; ecom/homesite `no-checkable`; weather `mixed/unstable`; **반론A·MISSED-1
+  완전 해소**. ② **반전(중요)**: **elec2 FULL은 ess 0.6%로 abstain**(시간-프록시 2개가 overlap 붕괴) → §6 논지가
+  *Elec2 자신에도* 적용; concept은 **de-time-leaked서만 +0.074 [concept]** 생존(G2 +0.078 일치). insects는 full(ess41%,
+  +0.147)·sparse 모두 robust concept. ③ **`p0_gap_hygiene`는 stale**(elec2 +0.14560969가 P0前과 비트동일=구코드)
+  → **재실행 필요**(새 코드면 elec2-full abstain). **함의: 헤드라인 +0.146(full)은 폐기, 정직한 elec2 concept=de-time-leaked
+  +0.074(autocorr 검증 대기). Claim A = insects(강건) + elec2(de-time-leaked only).** ④ **C3 tuned 완료**: 공정 튜닝
+  후에도 modulation 이득 ≤+0.005(대부분 ~0/음수), Spearman(gain,cov)=+0.43 → §9 strawman 반박 봉쇄, 결론 유지.
+- **P1 🔄 (반론B·C: de-time-leaked Elec2 +0.074 분해) — 코드 수정 완료(de-time-leak+None-guard+ess기록), 서버 대기**: `run_elec2_decompose.py`. 3프로브:
   ① **thinning**(stride 5/25로 단기 자기상관 파괴, 장기 rule-change 보존), ② **lagged-label ablation**(y_{t-1} 추가 시
   gap 줄면 자기상관 기여), ③ **Bayes-noise proxy**(achievable-acc early/late 드리프트). 사전등록: gap이 thinning·lag
   ablation 후에도 CI가 0.034 floor 위면 Elec2 concept 생존, 무너지면 자기상관/노이즈 교락 → Claim A를 INSECTS 단일로
