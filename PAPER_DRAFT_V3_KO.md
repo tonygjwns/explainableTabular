@@ -125,6 +125,12 @@ concept gap은 ~0이어야. 결과(gap_controls, 15시드, 95% CI):
 합성 양성대조 true +0.985 / placebo +0.005; prior·noise null은 +0.001, +0.034(§4 caveat). 순: Elec2/INSECTS는
 home-field 바닥 + 노이즈 caveat 둘 다 빼도 ~+0.11–0.15 concept 보유.
 
+*정직한 보고 2건.* (a) **placebo가 약간 음수**(−0.035, −0.017) — 순수 home-field면 ≥0이어야 하므로, 이를 밴드-제한
+추정량의 작은 구조적 음의 편향으로 해석. 따라서 **raw** gap(+0.146/+0.150)을 1차 수치로, bias-corrected(raw−placebo
+=+0.181/+0.167)는 상한으로 보고(헤드라인 아님). (b) **floor 단위**: noise-drift null의 raw gap은 +0.034지만
+*bias-corrected*는 +0.041(=+0.0349−(−0.0065)). 사전등록 규칙이 *bias-corrected* gap을 임계하므로 거기선 floor=0.041
+(0.034 아님)이고 Elec2/INSECTS는 어느 쪽이든 통과. raw per-cell gap을 임계할 땐(§6, per-cell placebo 없음) raw 0.034가 맞다.
+
 **위생(gap_hygiene summary).** 리뷰어가 찌를 모든 축에서 판정을 굳혔다. *(i) seed-CI:* 위 CI는 15시드.
 *(ii) ℓ-robustness:* gap이 AUC/accuracy뿐 아니라 **Brier**(Elec2 +0.43, INSECTS +0.12)·**log-loss(Bayes-risk)**
 (+1.41, +0.16)서도 양성+CI가 0 제외, 예측분포도 이동(평균 KL late‖early 1.66, 0.73) → concept 판정이 메트릭에
@@ -185,6 +191,12 @@ Spearman(cov_AUC, GBDT−TabR 상대margin)=+0.22(p=.61), Pearson +0.13(p=.76); 
 표현서 점검; §6)인 곳엔 concept-표적 구조가 착취할 신호가 없음 — 즉 *착취가능 신호*에 관한 주장이지 리더보드
 예측이 아님. 또 시간 피처의 *효능*(구조의 redundancy와 별개)은 오설정 하 covariate 재보정[Shimodaira 2000],
 X-side 기전(§9)이지 concept 착취 아님.
+
+**동기–결과 단절, 정직하게.** 우리 서두 동기는 *shift 종류를 측정*하면 TabReD류(단순>복잡) 벤치서 방법 선택에
+도움 된다는 것. C1은 우리 측도가 그 랭킹을 **예측 못 함**을 보임 — 즉 이 구체적 실용 약속은 *이행 안 됨*이고, 프레이밍이
+달리 암시하지 않도록 명시한다. 기여는 그 단절에도 살아남는데, 위치가 옮겨졌기 때문 — 가치는 **측정·기권** 결과(무엇이
+점검 가능/불가능, 어디서 질문이 ill-posed인지)이지 리더보드 레시피가 아님. "shift 진단→모델 선택"을 기대한 독자는, 적어도
+covariate/concept 렌즈로는 그 파이프라인이 TabReD서 성립 안 함의 증거로 읽어야 한다.
 
 ## 8. concept 있는 곳서 시간-구조 vs 시간-피처 (재범위화)
 

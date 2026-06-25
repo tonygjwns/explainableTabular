@@ -47,7 +47,9 @@ from src.analysis.drift_measure import (  # noqa: E402
 )
 
 TIMEPROXY_CORR = 0.30   # |corr(feature, t)| above this = "time-leaking" feature
-NOISE_FLOOR = 0.034     # gap_hygiene/G1 noise-drift floor; |gap| must clear it to be non-≈0
+NOISE_FLOOR = 0.034     # RAW noise-drift null (G1 true_gap +0.0349); applied to the RAW per-rep gap
+                        # here (no per-cell placebo subtraction), so 0.034 is the correct unit. (In
+                        # gap_hygiene the floor is on the BIAS-CORRECTED gap => 0.041 there. Not a typo.)
 
 
 def _ci95(a):

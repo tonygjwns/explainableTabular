@@ -19,7 +19,7 @@ concept datasets (elec2, insects), so a single server run discharges them togeth
 Pre-registered decision rule (committed here, BEFORE looking at the numbers):
   Claim "genuine concept on the deployed representation" for a dataset IFF
     (a) true-gap 95% CI lower bound > placebo 95% CI upper bound, AND
-    (b) bias-corrected gap (true - placebo) > --floor   (default 0.034 = the G1
+    (b) bias-corrected gap (true - placebo) > --floor   (default 0.041 = the G1
         noise-drift null, so the gap must clear the documented Bayes-noise confound), AND
     (c) BH-adjusted one-sided p (true > placebo) < --alpha, AND
     (d) metric-invariant: every proper-scoring gap (auc/accuracy, brier, logloss) is
@@ -194,8 +194,11 @@ def main():
     ap.add_argument("--tabred", nargs="*", default=[], help="TabReD dataset names (controls)")
     ap.add_argument("--n-seeds", type=int, default=15)
     ap.add_argument("--grid-seeds", type=int, default=5, help="seeds per sensitivity/cut cell")
-    ap.add_argument("--floor", type=float, default=0.034,
-                    help="pre-registered noise floor (G1 noise-drift null)")
+    ap.add_argument("--floor", type=float, default=0.041,
+                    help="pre-registered noise floor applied to the BIAS-CORRECTED gap. The G1 "
+                         "noise-drift null has true +0.0349 / placebo -0.0065 => its bias-corrected "
+                         "value is 0.041, so the floor MUST be 0.041 in bias-corrected units (the raw "
+                         "0.034 would be a unit mismatch). Elec2 +0.181 / INSECTS +0.167 clear it either way.")
     ap.add_argument("--alpha", type=float, default=0.05)
     ap.add_argument("--band", type=float, nargs=2, default=(0.1, 0.9))
     ap.add_argument("--min-per-half", type=int, default=200)

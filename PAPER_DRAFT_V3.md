@@ -168,6 +168,15 @@ The two concept benchmarks' true-gap CIs lie far above their placebo CIs: the ga
 placebo +0.005; prior-shift and noise-drift nulls give +0.001 and +0.034 (the §4 caveat). Net: Elec2/
 INSECTS retain ~+0.11–0.15 of concept after subtracting both the home-field floor and the noise caveat.
 
+*Two reporting points (honest accounting).* (a) **The placebo is slightly negative** (−0.035, −0.017), not
+≥0 as a pure home-field advantage would predict; we read this as a small structural negative bias of the
+band-restricted estimator, so we report the **raw** gap (+0.146 / +0.150) as the primary figure and the
+bias-corrected gap (raw − placebo = +0.181 / +0.167) as an upper bound, not the headline. (b) **Floor
+units:** the noise-drift null's raw gap is +0.034 but its *bias-corrected* value is +0.041 (= +0.0349 −
+(−0.0065)); since the pre-registered rule thresholds the *bias-corrected* gap, the floor there is 0.041
+(not 0.034), and Elec2/INSECTS clear it either way. When a raw per-cell gap is thresholded instead (§6,
+no per-cell placebo), the correct floor is the raw 0.034.
+
 **Hygiene (gap_hygiene summary).** The verdict is hardened along every axis a reviewer would probe.
 *(i) Seed-CI:* the CIs above are over 15 seeds. *(ii) Loss-robustness:* the gap is positive with CI
 excluding 0 not only for AUC/accuracy but for **Brier** (Elec2 +0.43, INSECTS +0.12) and **log-loss
@@ -249,6 +258,15 @@ representation; §6), a concept-targeting structure has no extra signal to explo
 *exploitable signal*, not a prediction of the leaderboard. We also note the time feature's *efficacy* (as
 opposed to the structure's redundancy) is covariate recalibration under misspecification [Shimodaira 2000],
 an X-side mechanism (§9), not concept exploitation.
+
+**A motivation–result gap, stated plainly.** Our opening motivation is that *measuring* the kind of shift
+should inform method choice on benchmarks like TabReD, where simple models beat deep ones. C1 shows our
+measure does **not** predict that ranking — so this specific practical promise is *not* delivered, and we
+say so rather than letting the framing imply otherwise. The contribution survives the gap because it is
+relocated: the value is the **measurement-and-abstention** result (what is checkable, what is not, and where
+the question is ill-posed), not a recipe for the leaderboard. A reader expecting "diagnose the shift →
+pick the model" should read this as evidence that, at least via the covariate/concept lens, that pipeline
+does not hold on TabReD.
 
 ## 8. Time-Structure vs Time-Feature Where Concept Exists (re-scoped)
 

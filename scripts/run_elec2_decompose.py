@@ -48,7 +48,8 @@ from sklearn.metrics import roc_auc_score  # noqa: E402
 
 from src.analysis.drift_measure import _stack, concept_within_overlap  # noqa: E402
 
-NOISE_FLOOR = 0.034     # gap_hygiene/G1 noise-drift floor
+NOISE_FLOOR = 0.034     # RAW noise-drift null (G1 true_gap +0.0349); applied to the RAW gap here
+                        # (no per-cell placebo). gap_hygiene's bias-corrected floor is 0.041 — different unit.
 TIMEPROXY_CORR = 0.30   # |corr(feature, t)| above this = engineered time-leak (drop it)
 
 

@@ -187,8 +187,9 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
   경험 시연+검증된 기권" 명시. §6은 ess-gate fresh 결과로 재작성(Elec2-full un-checkable·de-time-leak +0.074·homecredit
   garbage abstain). §5에 +0.146 supersede 캐비엇. §11 한계 (c)positive 좁음·(d)D'Amour 선점. 영/한 둘 다. (Pang 2021류
   adversarial-validation temporal-tabular 선점 확인은 잔여.)
-- **P3 ⬜ (사소)**: floor 단위 일관화(raw 0.034 vs bias-corrected 0.041), placebo 음수 오프셋 해명·raw를 헤드라인,
-  C1 negative를 §7에 "동기-결과 단절"로 명시.
+- **P3 ✅ 완료 (사소 정직화)**: floor 단위 일관화 — gap_hygiene 기본 floor 0.034→**0.041**(bias-corrected 단위;
+  raw 0.041=0.0349−(−0.0065)), representation/decompose는 raw gap이라 0.034 유지(주석 명시). §5에 placebo 음수
+  오프셋 해명(raw +0.146을 1차 수치·bias-corrected +0.181은 상한). §7에 C1 negative를 "동기-결과 단절"로 명시. 영/한 둘 다.
 
 ## 우선순위 · 의존성
 1. **V3.0 G1·G2·G3(서버/로컬 sklearn) + G4(웹, 내가 즉시)** — nucleus 생사. 다른 모든 것의 전제.
