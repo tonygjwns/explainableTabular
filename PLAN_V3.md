@@ -191,6 +191,18 @@ cut 그리드 {.3,.4,.5,.6,.7} 궤적 + 형태통계(trend ρ / abrupt max-jump)
   raw 0.041=0.0349−(−0.0065)), representation/decompose는 raw gap이라 0.034 유지(주석 명시). §5에 placebo 음수
   오프셋 해명(raw +0.146을 1차 수치·bias-corrected +0.181은 상한). §7에 C1 negative를 "동기-결과 단절"로 명시. 영/한 둘 다.
 
+## V3.5 — 진단이 *생성적*인가? (사용자 falsification 질문, 2026-06-25)
+"우리 진단이 맞으면 올바른-가정 방법이 작동해야 한다." 우리 진단 = covariate 지배 + concept 있는 곳엔 **online/recency
+적응**이 올바른 편향(정적 시간-인덱싱 검색이 아님 — Claim B 실패가 그래서 *일관*). **결정적 생성 테스트**:
+recency-적응 모델이 **concept 측정된 곳에서만** 정적 모델을 이기고 concept≈0서는 안 이기는가?
+- `run_correct_assumption.py` (model-light HGB): static_all vs recent_{25,50} vs recency_weighted, temporal test.
+  `recency_gain = best(recency) − static`. cross-dataset **Spearman(concept_gap, recency_gain)**.
+- 사전등록: **양수 + concept셋서 이김/concept≈0서 ~0 → 진단 생성적**(논문이 필요로 하는 긍정 결과). **~0/무패턴 →
+  서술적일 뿐, concept이 측정돼도 착취 불가 → 정직한 피벗 신호.** 로컬 합성 검증 통과(concept gain +0.91 / covariate +0.03).
+- 서버: `python scripts/run_correct_assumption.py --tabred <8개> --elec2 --insects`.
+- **맥락**: P1서 Elec2가 자기상관·노이즈로 무너짐(+0.073 중 자기상관 ~0.060, late 노이즈 −0.046) → Claim A positive가
+  INSECTS 단일 위기 → 이 생성 테스트가 "정직한 negative 측정" vs "생성적 프레임"을 가르는 진짜 go/no-go.
+
 ## 우선순위 · 의존성
 1. **V3.0 G1·G2·G3(서버/로컬 sklearn) + G4(웹, 내가 즉시)** — nucleus 생사. 다른 모든 것의 전제.
 2. G1·G2 통과 → V3.1 F1(형식 척추) — 이게 #2~#5 모호함을 "가정 하 robustness"로 격하.

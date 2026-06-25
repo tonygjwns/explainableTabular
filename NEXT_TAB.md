@@ -50,7 +50,15 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
     Bayes-noise proxy로 Elec2 +0.146 분해. **결정적 go/no-go**(Elec2 생존=concept 2개 / 탈락=INSECTS 1개). 서버:
     `python scripts/run_elec2_decompose.py --elec2 --insects`. **P2 ⬜**: D'Amour 2021 등 인용·§6 신규성 재범위화.
     **P3 ⬜**: floor 단위·placebo 음수오프셋·C1 §7.
-- **⬜ 남은 것**: C3 결과 §9 반영 → V3.4 P0 서버 재확인 → P1/P2/P3.
+- **🔄 V3.4 적대리뷰 대응 = P0·P2·P3 완료, P1 서버 결과 중간 도착 (2026-06-25)**:
+  - **P1 Elec2 중간판정 = 무너짐**: de-time-leaked +0.073이 thinning(stride5 +0.033)·lagged-label(+0.073→+0.013,
+    y_{t-1}→y AUC 0.849)·noise(late +0.046 easier)로 분해 → 자기상관·노이즈가 대부분 = genuine concept≈0.
+    **Claim A positive가 INSECTS 단일 위기**(insects decompose 결과 대기).
+  - **P0/P2/P3 완료**: ess-gate 집행·ground-truth 재검증 / D'Amour 2021 인용·§6 재범위화 / floor 단위·placebo·C1 §7.
+- **🔄 V3.5 = 생성 테스트 (사용자 falsification, 코드 완료·서버 대기)**: `run_correct_assumption.py` — recency-적응이
+  concept 측정된 곳서만 정적 모델 이기나? 양수+패턴=진단 생성적(긍정 결과) / 무패턴=피벗 신호. 로컬 합성 통과
+  (concept gain +0.91 / covariate +0.03). 서버: `... --tabred <8개> --elec2 --insects`. **현 최우선 go/no-go.**
+- **⬜ 남은 것**: insects decompose 결과 → V3.5 생성 테스트 → 그 결과로 "정직 측정 D&B 확정 vs 피벗" 판단.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3
