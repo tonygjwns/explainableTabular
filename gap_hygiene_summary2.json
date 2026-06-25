@@ -1,0 +1,573 @@
+{
+  "floor": 0.041,
+  "alpha": 0.05,
+  "band": [
+    0.1,
+    0.9
+  ],
+  "datasets": [
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "measurable": false
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "measurable": true,
+      "primary_metric": "accuracy",
+      "n_seeds_used": 15,
+      "per_metric": {
+        "accuracy": {
+          "true_mean": 0.1498241740546663,
+          "true_ci": [
+            0.14724519006053172,
+            0.1524031580488009
+          ],
+          "placebo_mean": -0.01695288299246432,
+          "placebo_ci": [
+            -0.01931935458183647,
+            -0.014586411403092173
+          ],
+          "bias_corrected": 0.16677705704713064,
+          "ci_above_placebo": true,
+          "ci_excludes_0": true
+        },
+        "brier": {
+          "true_mean": 0.12213921371632971,
+          "true_ci": [
+            0.11924614956131464,
+            0.1250322778713448
+          ],
+          "placebo_mean": -0.08164995982434793,
+          "placebo_ci": [
+            -0.08425808261000575,
+            -0.07904183703869011
+          ],
+          "bias_corrected": 0.20378917354067766,
+          "ci_above_placebo": true,
+          "ci_excludes_0": true
+        },
+        "logloss": {
+          "true_mean": 0.15499664611149572,
+          "true_ci": [
+            0.14919953965209962,
+            0.16079375257089182
+          ],
+          "placebo_mean": -0.2873396417175383,
+          "placebo_ci": [
+            -0.295668558193779,
+            -0.27901072524129755
+          ],
+          "bias_corrected": 0.442336287829034,
+          "ci_above_placebo": true,
+          "ci_excludes_0": true
+        },
+        "kl_late_early": {
+          "true_mean": 0.7251683908759639,
+          "true_ci": [
+            0.7179188008834244,
+            0.7324179808685033
+          ],
+          "placebo_mean": 0.2630258020064806,
+          "placebo_ci": [
+            0.26024800554782973,
+            0.2658035984651315
+          ],
+          "bias_corrected": 0.46214258886948323,
+          "ci_above_placebo": true,
+          "ci_excludes_0": true
+        }
+      },
+      "primary_one_sided_p": 3.0517578125e-05,
+      "metric_invariant": true,
+      "floor": 0.041
+    }
+  ],
+  "rolling": [
+    {
+      "dataset": "elec2",
+      "cuts": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7
+      ],
+      "primary_metric": "auc",
+      "trajectory": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "shape": {}
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "cuts": [
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7
+      ],
+      "primary_metric": "accuracy",
+      "trajectory": [
+        0.2594527176940265,
+        0.19114710294470355,
+        0.14724933208411067,
+        0.10689721871774346,
+        0.07975778877684336
+      ],
+      "shape": {
+        "trend_spearman": -0.9999999999999999,
+        "trend_p": 1.4042654220543602e-24,
+        "max_adjacent_jump": 0.06830561474932295,
+        "cross_cut_mean": 0.1569008320434855,
+        "cross_cut_ci": [
+          0.09455825972528996,
+          0.21924340436168105
+        ],
+        "all_positive": true,
+        "regime": "gradual"
+      }
+    }
+  ],
+  "sensitivity": [
+    {
+      "dataset": "elec2",
+      "n_cells": 9,
+      "n_verdict_concept": 9,
+      "verdict_invariant": true,
+      "cells": [
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14405594983897368,
+          "placebo_mean": -0.008634885901099176,
+          "bias_corrected": 0.15269083574007286,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14405594983897368,
+          "placebo_mean": -0.008634885901099176,
+          "bias_corrected": 0.15269083574007286,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14405594983897368,
+          "placebo_mean": -0.008634885901099176,
+          "bias_corrected": 0.15269083574007286,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14414117216514977,
+          "placebo_mean": -0.015555534446725815,
+          "bias_corrected": 0.15969670661187557,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14414117216514977,
+          "placebo_mean": -0.015555534446725815,
+          "bias_corrected": 0.15969670661187557,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14414117216514977,
+          "placebo_mean": -0.015555534446725815,
+          "bias_corrected": 0.15969670661187557,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14122781113129723,
+          "placebo_mean": -0.008389978024271615,
+          "bias_corrected": 0.14961778915556884,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14122781113129723,
+          "placebo_mean": -0.008389978024271615,
+          "bias_corrected": 0.14961778915556884,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": 0.14122781113129723,
+          "placebo_mean": -0.008389978024271615,
+          "bias_corrected": 0.14961778915556884,
+          "verdict_concept": true
+        }
+      ]
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "n_cells": 9,
+      "n_verdict_concept": 9,
+      "verdict_invariant": true,
+      "cells": [
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14724933208411067,
+          "placebo_mean": -0.019396657158564267,
+          "bias_corrected": 0.16664598924267493,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14724933208411067,
+          "placebo_mean": -0.019396657158564267,
+          "bias_corrected": 0.16664598924267493,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14724933208411067,
+          "placebo_mean": -0.019396657158564267,
+          "bias_corrected": 0.16664598924267493,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14694318283629848,
+          "placebo_mean": -0.016562266377737965,
+          "bias_corrected": 0.16350544921403645,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14694318283629848,
+          "placebo_mean": -0.016562266377737965,
+          "bias_corrected": 0.16350544921403645,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.14694318283629848,
+          "placebo_mean": -0.016562266377737965,
+          "bias_corrected": 0.16350544921403645,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.15256546266325358,
+          "placebo_mean": -0.01449315618401643,
+          "bias_corrected": 0.16705861884727,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.15256546266325358,
+          "placebo_mean": -0.01449315618401643,
+          "bias_corrected": 0.16705861884727,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": 0.15256546266325358,
+          "placebo_mean": -0.01449315618401643,
+          "bias_corrected": 0.16705861884727,
+          "verdict_concept": true
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": false
+        }
+      ]
+    }
+  ],
+  "bh_fdr": {
+    "insects_incremental_balanced": {
+      "raw_p": 3.0517578125e-05,
+      "bh_p": 3.0517578125e-05,
+      "reject": true
+    }
+  },
+  "claim_a_verdict": {
+    "elec2": {
+      "concept": false,
+      "reason": "not measurable"
+    },
+    "insects_incremental_balanced": {
+      "concept": true,
+      "ci_above_placebo": true,
+      "bias_above_floor": true,
+      "bh_reject": true,
+      "metric_invariant": true,
+      "sensitivity_invariant": true
+    }
+  }
+}

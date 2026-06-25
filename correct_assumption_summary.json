@@ -1,0 +1,345 @@
+{
+  "results": [
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.48432040657946807,
+            "recent_25": 0.48582379284478117,
+            "recent_50": 0.48453378815214887,
+            "recency_weighted": 0.48385340958379786
+          },
+          "recency_gain_mean": 0.00046699699567017696,
+          "recency_gain_ci": [
+            0.00019445819968957076,
+            0.0007395357916507832
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.004647889875972644,
+          "ess_pct": 44.91605594256645
+        }
+      }
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.16388492810038632,
+            "recent_25": 0.1664830884771857,
+            "recent_50": 0.1651649649265604,
+            "recency_weighted": 0.1644714553163468
+          },
+          "recency_gain_mean": -0.0005865272159604251,
+          "recency_gain_ci": [
+            -0.0007135665054789932,
+            -0.00045948792644185695
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.003308021814873746,
+          "ess_pct": 93.09540152891644
+        }
+      }
+    },
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.25508669367473785,
+            "recent_25": 0.27004599018664804,
+            "recent_50": 0.2604147005348089,
+            "recency_weighted": 0.2486723354181794
+          },
+          "recency_gain_mean": 0.0064143582565584336,
+          "recency_gain_ci": [
+            0.002827417413271456,
+            0.010001299099845411
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.99999998940099
+        },
+        "de_time_leak": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.268663971828786,
+            "recent_25": 0.26030483168784235,
+            "recent_50": 0.29070919535567585,
+            "recency_weighted": 0.26057942451724436
+          },
+          "recency_gain_mean": 0.008983766024628859,
+          "recency_gain_ci": [
+            0.006715866698110294,
+            0.011251665351147423
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.99500034942473
+        }
+      }
+    },
+    {
+      "dataset": "homecredit_default",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.8501327821161674,
+            "recent_25": 0.8340112903571797,
+            "recent_50": 0.8415555360584364,
+            "recency_weighted": 0.8436786579495725
+          },
+          "recency_gain_mean": -0.006393354458755818,
+          "recency_gain_ci": [
+            -0.008859042881647003,
+            -0.003927666035864631
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.99999999501001
+        },
+        "de_time_leak": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.8513305323044321,
+            "recent_25": 0.8336855239000383,
+            "recent_50": 0.8443655931888252,
+            "recency_weighted": 0.8469692692191202
+          },
+          "recency_gain_mean": -0.004361263085311995,
+          "recency_gain_ci": [
+            -0.006114025725339285,
+            -0.0026085004452847055
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 0.06627921222160431
+        }
+      }
+    },
+    {
+      "dataset": "ecom_offers",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.5615121760001304,
+            "recent_25": 0.5622385866732091,
+            "recent_50": 0.5546115024175999,
+            "recency_weighted": 0.5665698304658047
+          },
+          "recency_gain_mean": 0.005611259877156693,
+          "recency_gain_ci": [
+            0.00019311997046737427,
+            0.011029399783846011
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.99999999501001
+        },
+        "de_time_leak": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.579886424049439,
+            "recent_25": 0.5805042810440082,
+            "recent_50": 0.5822921703449446,
+            "recency_weighted": 0.5892674880641847
+          },
+          "recency_gain_mean": 0.0093810640147457,
+          "recency_gain_ci": [
+            0.005194539357181713,
+            0.013567588672309686
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 0.008379634345826512
+        }
+      }
+    },
+    {
+      "dataset": "homesite_insurance",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9584858257554665,
+            "recent_25": 0.9583140244188261,
+            "recent_50": 0.9583847934348853,
+            "recency_weighted": 0.9591745774904418
+          },
+          "recency_gain_mean": 0.0007198244771830176,
+          "recency_gain_ci": [
+            0.00010282803900995966,
+            0.0013368209153560755
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.07816665147959
+        },
+        "de_time_leak": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9580445251616242,
+            "recent_25": 0.95817930016066,
+            "recent_50": 0.9585824025444275,
+            "recency_weighted": 0.9593040778552442
+          },
+          "recency_gain_mean": 0.0013228386394913637,
+          "recency_gain_ci": [
+            0.0005755256273213191,
+            0.002070151651661408
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 0.08882732801843861
+        }
+      }
+    },
+    {
+      "dataset": "weather",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 1.5433637078162052,
+            "recent_25": 1.6231142149612214,
+            "recent_50": 1.6055704550225531,
+            "recency_weighted": 1.5759594853516397
+          },
+          "recency_gain_mean": -0.032595777535434724,
+          "recency_gain_ci": [
+            -0.035202870776615186,
+            -0.02998868429425426
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 99.99999999501001
+        },
+        "de_time_leak": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 1.544961157765608,
+            "recent_25": 1.6263953728406975,
+            "recent_50": 1.6084150109030773,
+            "recency_weighted": 1.5787038932084871
+          },
+          "recency_gain_mean": -0.03374273544287902,
+          "recency_gain_ci": [
+            -0.03570607272660909,
+            -0.03177939815914895
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.01934445762135728,
+          "ess_pct": 23.790541503948926
+        }
+      }
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.8840317129980961,
+            "recent_25": 0.7880459783281323,
+            "recent_50": 0.8780426486403601,
+            "recency_weighted": 0.8814402578776794
+          },
+          "recency_gain_mean": -0.001732756673411906,
+          "recency_gain_ci": [
+            -0.003742937307904753,
+            0.0002774239610809411
+          ],
+          "n_seeds": 5,
+          "concept_gap": null,
+          "ess_pct": 0.5476549887247808
+        },
+        "de_time_leak": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.8805122842222177,
+            "recent_25": 0.7826480572091905,
+            "recent_50": 0.8811084085420159,
+            "recency_weighted": 0.879145072942898
+          },
+          "recency_gain_mean": 0.001332569336170386,
+          "recency_gain_ci": [
+            -0.0017780427872735774,
+            0.004443181459614349
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.07814406100532656,
+          "ess_pct": 38.014339244459485
+        }
+      }
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "reps": {
+        "full": {
+          "metric": "accuracy",
+          "method_means": {
+            "static_all": 0.6042563143124415,
+            "recent_25": 0.6445275958840038,
+            "recent_50": 0.6579981290926099,
+            "recency_weighted": 0.65
+          },
+          "recency_gain_mean": 0.05374181478016837,
+          "recency_gain_ci": [
+            0.04926323347123618,
+            0.05822039608910057
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.14378947368421047,
+          "ess_pct": 39.28781010007638
+        }
+      }
+    }
+  ],
+  "cross_dataset": {
+    "spearman_concept_recencygain": 0.6,
+    "p": 0.28475697986529386,
+    "n_pairs": 5,
+    "pairs": [
+      [
+        -0.004647889875972644,
+        0.00046699699567017696,
+        "cooking_time/full"
+      ],
+      [
+        -0.003308021814873746,
+        -0.0005865272159604251,
+        "maps_routing/full"
+      ],
+      [
+        0.01934445762135728,
+        -0.03374273544287902,
+        "weather/de_time_leak"
+      ],
+      [
+        0.07814406100532656,
+        0.001332569336170386,
+        "elec2/de_time_leak"
+      ],
+      [
+        0.14378947368421047,
+        0.05374181478016837,
+        "insects_incremental_balanced/full"
+      ]
+    ]
+  }
+}

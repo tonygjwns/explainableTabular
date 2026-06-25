@@ -60,7 +60,13 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
 - **🔄 V3.5 = 생성 테스트 (사용자 falsification, 코드 완료·서버 대기)**: `run_correct_assumption.py` — recency-적응이
   concept 측정된 곳서만 정적 모델 이기나? 양수+패턴=진단 생성적(긍정 결과) / 무패턴=피벗 신호. 로컬 합성 통과
   (concept gain +0.91 / covariate +0.03). 서버: `... --tabred <8개> --elec2 --insects`. **현 최우선 go/no-go.**
-- **⬜ 남은 것**: insects decompose 결과 → V3.5 생성 테스트 → 그 결과로 "정직 측정 D&B 확정 vs 피벗" 판단.
+- **✅ V3.5 생성 테스트 결과 (2026-06-26)**: `Spearman(concept_gap, recency_gain)=+0.60`(p=.28, n=5) — 방향 양수.
+  **INSECTS(concept +0.144)→recency_gain +0.054** = 깨끗한 concept 유일 데이터셋이 유일하게 적응 이김; cooking/maps
+  (≈0)→≈0. **프레임이 예측하는 모양이나 INSECTS 단일 의존(n=1)** → 피벗 아님, **"폭 확장" 신호.** gap_hygiene2 확정:
+  elec2 abstain(claim_a False)/INSECTS measurable(claim_a True, floor 0.041).
+- **⬜ 남은 것 (현 최우선) = concept 데이터셋 폭 확장**: river 합성 concept-drift 스트림 10–15개(INSECTS 변종·SEA·
+  rotating-hyperplane 등 known-drift)로 within-overlap measure + 생성 테스트 재실행 → Spearman 검정력 확보. 양수 유지면
+  "측정+생성적 프레임" 강한 D&B; 무너지면 피벗. (INSECTS noise-confound matched-null은 폭 확장에 흡수.)
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3

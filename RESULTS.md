@@ -264,6 +264,17 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
 - **종합**: 완전 분리된 "깨끗한 concept" 증거 얇음(Elec2 死, INSECTS 노이즈 교락). → **§5/§6의 concept 헤드라인 약화**,
   생성 테스트(V3.5 `correct_assumption`)가 "정직 측정 vs 생성적 프레임 vs 피벗"의 진짜 심판. PAPER 반영은 생성 테스트 후.
 
+## 22. V3.5 — 생성 테스트: recency-적응이 concept 측정된 곳서 이기나 (`correct_assumption_summary.json`)  [긍정·underpowered] ★진단=생성적?
+사용자 falsification: 진단이 맞으면 올바른-가정 방법(online/recency 적응)이 concept 측정된 곳서만 이겨야.
+- **Spearman(concept_gap, recency_gain) = +0.60** (p=0.28, n=5 measurable reps) — 방향 양수, 검정력 부족.
+- **패턴은 예측대로(깨끗한 케이스서)**: **INSECTS concept +0.144 → recency_gain +0.054**(static 0.604→recent50 0.658,
+  +5.4점) = concept 큰 곳서 적응 크게 이김; cooking(−0.005)→+0.0005, maps(−0.003)→−0.0006 = concept≈0서 적응≈0.
+  elec2 de-tl(+0.078)→+0.001(concept이 자기상관이라 적응 무용 — decompose 일관), weather(+0.019)→−0.034(mixed).
+- **판정**: 생성 방향 **확증되나 INSECTS 단일에 의존**(또 n=1). 깨끗한 concept을 가진 유일 데이터셋이 유일하게 적응이
+  이기는 곳 = 프레임이 예측하는 모양이지만, 통계력 위해 **concept 데이터셋 확장 필수**(river 합성 drift 스트림 10–15개).
+- **함의**: 피벗 신호 아님 — "프레임이 작동, 폭을 키워라"는 신호. gap_hygiene2 확정(elec2 abstain/claim_a False,
+  INSECTS measurable/claim_a True, floor 0.041). → **다음 = concept 데이터셋 폭 확장 후 measure+생성 테스트 재실행.**
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
