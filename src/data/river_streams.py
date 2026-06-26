@@ -23,31 +23,48 @@ from .tabred_loader import TabularSplit, TabReDDataset
 
 # Each builder takes (seed, n) and returns a river stream iterator yielding (x_dict, y).
 # Drift streams switch the labelling function at the midpoint => a real concept change.
+def _concat(a, b, n):
+    """Truly-abrupt concept switch: first n/2 from stream a, then from b (a HARD switch
+    at the midpoint — same feature keys since a,b are the same generator family). Avoids
+    river's ConceptDriftStream sigmoid, which OVERFLOWS at small width (exp(-4·Δ/width))."""
+    def gen():
+        h = n // 2
+        for i, xy in enumerate(a):
+            if i >= h:
+                break
+            yield xy
+        for i, xy in enumerate(b):
+            if i >= n - h:
+                break
+            yield xy
+    return gen()
+
+
 def _panel(n):
     from river.datasets import synth
 
-    def cds(a, b, seed, width):                       # concept-drift composition A->B at n/2
+    def grad(a, b, seed):                             # gradual blend A->B (wide sigmoid: safe)
         return synth.ConceptDriftStream(stream=a, drift_stream=b, seed=seed,
-                                        position=n // 2, width=width)
+                                        position=n // 2, width=n // 5)
     P = {}
     # ---- SEA (4 variants = 4 thresholds) ----
     P["sea_nodrift"] = lambda s: synth.SEA(variant=0, seed=s)
-    P["sea_abrupt"] = lambda s: cds(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s), s, 1)
-    P["sea_gradual"] = lambda s: cds(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s), s, n // 5)
+    P["sea_abrupt"] = lambda s: _concat(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s), n)
+    P["sea_gradual"] = lambda s: grad(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s), s)
     # ---- Agrawal (10 functions) ----
     P["agrawal_nodrift"] = lambda s: synth.Agrawal(classification_function=0, seed=s)
-    P["agrawal_abrupt"] = lambda s: cds(synth.Agrawal(classification_function=0, seed=s),
-                                        synth.Agrawal(classification_function=4, seed=s), s, 1)
-    P["agrawal_gradual"] = lambda s: cds(synth.Agrawal(classification_function=0, seed=s),
-                                         synth.Agrawal(classification_function=4, seed=s), s, n // 5)
+    P["agrawal_abrupt"] = lambda s: _concat(synth.Agrawal(classification_function=0, seed=s),
+                                            synth.Agrawal(classification_function=4, seed=s), n)
+    P["agrawal_gradual"] = lambda s: grad(synth.Agrawal(classification_function=0, seed=s),
+                                          synth.Agrawal(classification_function=4, seed=s), s)
     # ---- STAGGER (3 concepts) ----
     P["stagger_nodrift"] = lambda s: synth.STAGGER(classification_function=0, seed=s)
-    P["stagger_abrupt"] = lambda s: cds(synth.STAGGER(classification_function=0, seed=s),
-                                        synth.STAGGER(classification_function=2, seed=s), s, 1)
+    P["stagger_abrupt"] = lambda s: _concat(synth.STAGGER(classification_function=0, seed=s),
+                                            synth.STAGGER(classification_function=2, seed=s), n)
     # ---- Sine (4 concepts) ----
     P["sine_nodrift"] = lambda s: synth.Sine(classification_function=0, seed=s)
-    P["sine_abrupt"] = lambda s: cds(synth.Sine(classification_function=0, seed=s),
-                                     synth.Sine(classification_function=2, seed=s), s, 1)
+    P["sine_abrupt"] = lambda s: _concat(synth.Sine(classification_function=0, seed=s),
+                                         synth.Sine(classification_function=2, seed=s), n)
     # ---- Hyperplane (incremental drift via mag_change) ----
     P["hyperplane_static"] = lambda s: synth.Hyperplane(seed=s, n_features=10, n_drift_features=0,
                                                         mag_change=0.0)
