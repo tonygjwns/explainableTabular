@@ -64,9 +64,14 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   **INSECTS(concept +0.144)→recency_gain +0.054** = 깨끗한 concept 유일 데이터셋이 유일하게 적응 이김; cooking/maps
   (≈0)→≈0. **프레임이 예측하는 모양이나 INSECTS 단일 의존(n=1)** → 피벗 아님, **"폭 확장" 신호.** gap_hygiene2 확정:
   elec2 abstain(claim_a False)/INSECTS measurable(claim_a True, floor 0.041).
-- **⬜ 남은 것 (현 최우선) = concept 데이터셋 폭 확장**: river 합성 concept-drift 스트림 10–15개(INSECTS 변종·SEA·
-  rotating-hyperplane 등 known-drift)로 within-overlap measure + 생성 테스트 재실행 → Spearman 검정력 확보. 양수 유지면
-  "측정+생성적 프레임" 강한 D&B; 무너지면 피벗. (INSECTS noise-confound matched-null은 폭 확장에 흡수.)
+- **🔄 폭 확장 = 코드 완료, 서버 대기 (2026-06-26, 현 최우선)**: `src/data/river_streams.py`(SEA/Agrawal/STAGGER/Sine/
+  Hyperplane × {no-drift/abrupt/gradual/incremental} = ~12 스트림, concept 크기 다이얼) + `run_correct_assumption.py
+  --river all --insects-variants ...`. 한 번에 concept_gap + recency_gain + Spearman. 로컬 river 미설치라 서버서 검증.
+  서버: `pip install river && python scripts/run_correct_assumption.py --river all --insects-variants incremental_balanced
+  abrupt_balanced incremental_abrupt_balanced incremental_reoccurring_balanced --tabred cooking_time maps_routing --n-seeds 5`
+  → `correct_assumption_summary.json`(맨 끝 Spearman이 핵심).
+- **⬜ 남은 것**: 폭 확장 결과 → Spearman 양수·유의면 "검증된 측정+생성적 프레임" D&B 확정(§5/§6/§8 재작성·INSECTS n=1 탈출);
+  무너지면 피벗 설계. 그 후 적대리뷰 패키지 "전 항목 대응" 갱신.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3

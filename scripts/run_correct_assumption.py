@@ -175,6 +175,12 @@ def main():
     ap.add_argument("--elec2", action="store_true")
     ap.add_argument("--insects", action="store_true")
     ap.add_argument("--insects-variant", default="incremental_balanced")
+    ap.add_argument("--river", nargs="*", default=None,
+                    help="river synth streams to include; 'all' = the full panel "
+                         "(known-drift breadth for the generative test). e.g. --river all")
+    ap.add_argument("--river-n", type=int, default=8000, help="samples per river stream")
+    ap.add_argument("--insects-variants", nargs="*", default=None,
+                    help="multiple INSECTS variants (more designed-drift breadth)")
     ap.add_argument("--n-seeds", type=int, default=5)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--synth-only", action="store_true")
@@ -214,6 +220,17 @@ def main():
         from src.data.insects_loader import load_insects
         jobs.append((f"insects_{args.insects_variant}",
                      load_insects(variant=args.insects_variant, split="temporal", seed=0)))
+    for v in (args.insects_variants or []):
+        from src.data.insects_loader import load_insects
+        jobs.append((f"insects_{v}", load_insects(variant=v, split="temporal", seed=0)))
+    if args.river is not None:
+        from src.data.river_streams import load_river_stream, list_streams
+        names = list_streams(args.river_n) if args.river == ["all"] else args.river
+        for nm in names:
+            try:
+                jobs.append((f"river_{nm}", load_river_stream(nm, n_samples=args.river_n, seed=0)))
+            except Exception as e:
+                print(f"  SKIP river/{nm}: {type(e).__name__}: {e}")
 
     print("\n==== GENERATIVE test: does recency-adaptation win where concept is measured? ====")
     pairs = []     # (concept_gap, recency_gain) over measurable reps for the Spearman

@@ -202,6 +202,15 @@ recency-적응 모델이 **concept 측정된 곳에서만** 정적 모델을 이
 - 서버: `python scripts/run_correct_assumption.py --tabred <8개> --elec2 --insects`.
 - **맥락**: P1서 Elec2가 자기상관·노이즈로 무너짐(+0.073 중 자기상관 ~0.060, late 노이즈 −0.046) → Claim A positive가
   INSECTS 단일 위기 → 이 생성 테스트가 "정직한 negative 측정" vs "생성적 프레임"을 가르는 진짜 go/no-go.
+- **결과(2026-06-26)**: Spearman +0.60(p=.28, n=5) — 방향 양수·검정력 부족. INSECTS(concept +0.144)→recency +0.054(이김),
+  cooking/maps(≈0)→≈0 = 예측 패턴이나 **INSECTS 단일 의존(n=1)** → 피벗 아님, **폭 확장 신호.**
+- **🔄 폭 확장 = 코드 완료, 서버 대기**: `src/data/river_streams.py`(river 합성 패널: SEA/Agrawal/STAGGER/Sine/Hyperplane
+  × {no-drift 대조 / abrupt / gradual / incremental} = ~12 스트림, concept 크기 다이얼). `run_correct_assumption.py`에
+  `--river all` + `--insects-variants` 추가. 한 번에 measure(concept_gap) + 생성(recency_gain) + Spearman 산출.
+  서버: `pip install river && python scripts/run_correct_assumption.py --river all --insects-variants
+  incremental_balanced abrupt_balanced incremental_abrupt_balanced incremental_reoccurring_balanced --tabred
+  cooking_time maps_routing --n-seeds 5`. **사전등록**: ~18셋서 Spearman 양수·유의 유지 → 생성적 프레임 확정
+  (n=1 탈출) = 강한 D&B; 무너지면 피벗. (INSECTS noise-confound도 다스트림 일관성으로 흡수.)
 
 ## 우선순위 · 의존성
 1. **V3.0 G1·G2·G3(서버/로컬 sklearn) + G4(웹, 내가 즉시)** — nucleus 생사. 다른 모든 것의 전제.
