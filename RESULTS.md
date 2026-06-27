@@ -304,6 +304,20 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
   측정가능한 재발-진단기 필요); agrawal=kNN 한계. → **다음 = 학습형 TimeTabR을 reoccurring서 kNN·recency와 비교** —
   plain kNN보다 나으면 원 method가 *재발 niche*서 부활 + Claim B가 "구조 redundant"에서 "구조는 재발 drift서 둘 다 이김"으로 조건부 양전.
 
+## 25. V3.5-C 2단계 — 학습형 retrieval(tabr_t) vs recency vs 파라메트릭, drift 구조별 (`learned_retrieval_summary.json`)  [POWERED 양성] ★Claim B 부활
+1단계(kNN)에 이어 학습형 retrieval 구조를 reoccurring 패널서. mlp_t(all)·mlp_t(recent)·tabr_t(all)·time_tabr_t(all), n=3시드.
+- **struct−recency 평균**: reoccurring **+0.209 [+0.102, +0.315] (n=11, CI 0 제외)** / monotonic −0.061 [−.149,+.028] /
+  nodrift +0.002. **struct_gain(tabr_t−mlp_t)**: reoccurring +0.061 / **monotonic −0.001 ≈ 0** / nodrift ~0.
+- **사전등록 패턴 확정**: ① 학습형 retrieval >> recency on reoccurring(+0.209 유의) ② **monotonic서 구조 redundant
+  (struct_gain≈0) = 원 Claim B 음성이 *단조 한정*임을 입증.**
+- **2번째 예측 적중(학습형 > plain kNN)**: agrawal_reoccur kNN struct−rec −0.103 → **학습형 +0.316**; agrawal_reoccur2
+  +0.049 → +0.242. 학습 metric이 kNN 피처공간 약점 메움 = method가 단순 kNN보다 나음 직접 입증. stagger_early full +0.649 최고.
+- **판정**: **Claim B 조건부 양성 부활** — "구조는 단조 drift선 redundant(원 음성 범위화), *재발 drift*선 recency·kNN 둘 다
+  유의하게 이김(옛 concept 회수)." 측정(concept)+drift구조(재발) 진단이 *언제 retrieval이 옳은지* 예측 = 생성적.
+- **caveat(정직)**: 이 2단계 런은 `--river all`만(합성 23개), **실 INSECTS-reoccurring 미포함** → `--insects-variants
+  incremental_reoccurring_balanced`로 실데이터 점 추가 필요(1단계 kNN선 +0.018). struct_gain(vs 파라메트릭)은 +0.06로 modest
+  — 강한 승리는 vs recency(+0.21). → §8(Claim B) "재발 niche 구조 우위"로 재작성.
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
