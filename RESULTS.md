@@ -287,6 +287,19 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
   (b) 누적 증거를 피벗 신호로 수용, (c) 재발-drift=retrieval 우위 가설로 원 method 부활 검증(아이러니: reoccurring이
   retrieval이 recency 이겨야 할 곳). 사용자 판단 대기.
 
+## 24. V3.5-C — retrieval vs recency by drift structure (`retrieval_vs_recency_summary.json`)  [부활 신호·underpowered]
+사용자 선택 C: reoccurring drift(옛 concept 재발)는 retrieval의 home field인가? static/recency/retrieval(kNN) 비교.
+- **구조별 mean(retr−rec)**: monotonic **−0.098** [−.194,−.002] (recency 우위, 유의) / nodrift −0.005 (~0) /
+  **reoccurring +0.137** [−.159,+.434] (양수지만 CI 0 포함, underpowered n=5).
+- **메커니즘 입증(깨끗한 케이스)**: stagger_reoccur retr−rec **+0.735**(retrieval 압도), sine_reoccur +0.037,
+  **실제 insects_incremental_reoccurring +0.018**(recency −0.051 < retrieval −0.032 = 방향 정확). 합성 검증 +0.42/−0.59.
+- **약점**: agrawal_reoccur −0.103 — 단 kNN이 Agrawal 피처공간서 원래 약함(monotonic agrawal도 −0.18) = retrieval
+  *방법(kNN)* 한계지 가설 반증 아님. sea는 concept +0.015로 너무 작아 무의미.
+- **판정**: 5번 dissolution 끝 **첫 긍정 방향**. 핵심 패턴(재발=retrieval/단조=recency) 평균 분리(0.235), monotonic 유의,
+  실 벤치 방향 정확. 단 reoccurring CI가 0 넘어 약함 + plain kNN 한계. → **다음 = (a) reoccurring 스트림 늘려 검정력,
+  (b) 학습형 time-indexed retrieval(원 TimeTabR)을 reoccurring서 kNN·recency와 비교** — plain kNN보다 나으면 원 method가
+  *재발 drift niche*서 부활 + Claim B가 "구조 redundant"에서 "구조는 재발 drift서 recency·kNN 둘 다 이김"으로 조건부 양전.
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
