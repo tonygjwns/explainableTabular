@@ -319,6 +319,18 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
   [+0.150, +0.370]**. monotonic INSECTS struct_gain ~0(redundant 유지). **합성+실데이터 모두 확정.** struct_gain(vs
   파라메트릭)은 +0.07로 modest — 강한 승리는 vs recency. → §8(Claim B) "재발 niche 구조 우위"로 재작성 완료(영/한).
 
+## 26. V3.5-C 2차 적대검증 — niche 양성 *기각* (artifact로 자가검증)  [NEGATIVE 확정]
+fresh LLM 2차 검토 + 내 artifact 재계산으로 §24-25 헤드라인이 무너짐. **세 정량 주장 모두 사실**(learned_retrieval_summary.json):
+- **항등식**: struct−recency = retrieval_struct_gain − recency_gain (9/9행). 즉 "+0.26"은 (구조 +0.07)+(recency −0.18).
+  recency가 재발서 깊게 음수인 건 *재발 정의상 구성*(옛 concept 복귀, recent train=틀린 B) → 승리의 ~80%가 동어반복.
+- **배포될 full method(time_tabr_t−mlp_t)가 실 INSECTS-reoccurring서 −0.006(음수), 재발 9개 중 5개 음수.** 정당 baseline
+  (all-data 파라메트릭) 대비 유일 실데이터서 진다. 나는 struct−recency만 헤드라인 썼고 이 열을 표로 안 냈음(over-sell).
+- **struct_gain +0.074는 STAGGER 의존**(−0.029/+0.188/+0.455), STAGGER 제외 평균 +0.009(≈0, 실데이터 포함) = 단일 generator.
+- **HARKing**: niche는 §23(n=18) 실패 데이터서 "recency가 재발서 짐" 관측 후 사후 carve-out, 다중성 보정 없음, 합성 의사반복.
+- **측정 코어**: 실데이터 0개서 발화(TabReD ≈0/disjoint, WhyShift 0/9, INSECTS 단일+§21 achievable-acc +0.192 미해소).
+→ **판정: method 부활 헤드라인 죽음.** 리뷰어 = "D&B reject, 강한 workshop/negative-results". §8/§1/abstract over-claim
+  정정 필요. **사용자 결정(2026-06-27): 누적 실험 바탕 새 피벗 모색.** = 5번 dissolution + niche 기각의 종합.
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
