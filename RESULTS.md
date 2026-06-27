@@ -331,6 +331,17 @@ fresh LLM 2차 검토 + 내 artifact 재계산으로 §24-25 헤드라인이 무
 → **판정: method 부활 헤드라인 죽음.** 리뷰어 = "D&B reject, 강한 workshop/negative-results". §8/§1/abstract over-claim
   정정 필요. **사용자 결정(2026-06-27): 누적 실험 바탕 새 피벗 모색.** = 5번 dissolution + niche 기각의 종합.
 
+## 27. V4.0 pre-test — disjointness는 harmful인가 benign artifact인가 (`positivity_regime_summary.json`)  [benign 확정]
+사용자 반론("전처리 artifact 아니냐")을 kill-test로. TabReD 8개+elec2/insects, model-light(cov-AUC·label-relevant
+overlap·split-conformal late coverage·perf_drop).
+- **Spearman(cov_auc_raw, perf_drop)=−0.106 (p=.77)** — raw disjointness가 예측 harm 예측 못 함. disjoint 7개 중
+  harmful 2(elec2 자기상관·非TabReD / ecom 약함).
+- **간판 disjoint가 benign**: homecredit cov1.0 → drop 0.009/conf 0.855; homesite cov1.0 → 0.008/0.904; delivery 0.997 → 0.065.
+  covLR(예측방향 overlap) homecredit 0.60·weather 0.61·delivery 0.54 = **disjoint는 nuisance 방향뿐, 예측방향 겹침.**
+- **판정: 사전등록 kill 충족. 261-dim 안 겹침은 benign 전처리 artifact**(cov-AUC 1.0이어도 예측·conformal 전이 멀쩡).
+  사용자 직감 적중. "harmful positivity-failure regime" 척추 사망. → 정직한 측정/datasheet(제안1·3) 또는 도메인 피벗.
+- 규율: 7번째 dissolution을 commit 전 1.5일 사전등록 실험으로 차단(2차 리뷰어 HARKing 경고 준수).
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

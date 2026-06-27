@@ -36,7 +36,15 @@ TabReD 8개(+elec2/insects)에 3블록:
 - 서버: `python scripts/run_positivity_regime.py --tabred sberbank_housing homecredit_default ecom_offers
   homesite_insurance weather cooking_time maps_routing delivery_eta --elec2 --insects` → `positivity_regime/summary.json`.
 
-## 후속 (pre-test 통과 시)
+## ★ V4.0 pre-test 결과 (2026-06-27, 서버) — 척추 *기각*(사전등록 kill 충족)
+**Spearman(cov_auc_raw, perf_drop) = −0.106 (p=0.77)** — disjointness가 harm 예측 못 함. disjoint(cov>0.9) 7개 중
+harmful 2개뿐(elec2=자기상관교락·非TabReD / ecom=drop 0.087인데 conformal 0.987 멀쩡). **간판 disjoint가 benign**:
+homecredit(cov1.0/drop0.009/conf0.855), homesite(cov1.0/drop0.008/conf0.904), delivery(cov0.997/drop0.065).
+covLR(예측방향 overlap)이 homecredit0.60/weather0.61/delivery0.54 → **disjoint는 nuisance 방향뿐, 예측방향은 겹침.**
+→ **261-dim 안 겹침 = benign 전처리 artifact**(사용자 직감 적중). "harmful positivity-failure regime" 척추 사망.
+규율 성공: 7번째 dissolution을 commit 전에 1.5일 사전등록 실험으로 차단. RESULTS §27.
+
+## 후속 (pre-test 통과 시 — *해당 없음*, 척추 기각됨)
 - E1 MDE/검정력 곡선(제안1: 기권이 반증가능한지), E3 표현 dose-response(제안1/제안4#5), overlap-gated conformal
   정리+경험(제안4#3 methods 각도), positivity stress suite(제안3#4). 통과 못 하면 측정/datasheet(제안1·3)로.
 - 상세 발상 = `Desktop/ExplainableTab_ReviewPackage/제안1~4` + `IDEATION_BRIEF.md`.
