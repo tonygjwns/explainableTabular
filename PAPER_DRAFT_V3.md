@@ -27,12 +27,17 @@ lens, and where you can check it (a sparse predictive representation) it is genu
 support is irreducibly disjoint."** (3) **A validated, abstaining diagnostic.** Our toolkit
 (adversarial-validation covariate AUC, density-ratio degeneration, within-overlap transfer gap)
 recovers planted concept (Spearman 1.0), abstains under positivity failure, and we *adversarially*
-characterize its two real failure modes (a ~0.03 conditional-entropy confound; representation
-sensitivity to feature *addition*, not invertible re-coordinatization). The two benchmarks with
-genuine concept (Elec2 +0.146, INSECTS +0.150) survive a permutation placebo (so the gap is not a
-train/test home-field artifact) *and* representation change. (4) Where concept is genuinely
-present, a time-indexed retrieval *structure* does not beat a time *feature* (paired, 25 seeds),
-and is an in-distribution device. We release the diagnostic and state its identification boundary.
+characterize its real failure modes; the ESS-floor abstention is *enforced* in the deployed rule
+(the same rule the ground-truth test passes). The flagship within-overlap gaps survive a permutation
+placebo, but a deeper decomposition shows **Elec2's gap is largely serial autocorrelation plus a
+noise-difficulty drift** (it drops as a clean concept anchor); INSECTS' concept survives thinning,
+and a synthetic river panel supplies ground-truth concept of dial-able size. (4) **The retrieval
+structure has an identified niche.** Under *monotonic* drift a time-indexed retrieval structure does
+not beat a time feature (the original negative, paired, 25 seeds); but under *reoccurring* drift —
+where an old concept returns and recency fails — the **learned retrieval beats recency and a
+fixed-metric k-NN** (struct−recency **+0.26**, CI excludes 0; real INSECTS-reoccurring **+0.21**),
+recalling the returned concept. The within-overlap measure plus a reoccurrence signal thus predict
+*which* adaptation pays. We release the diagnostic and state its identification boundary.
 
 ---
 
@@ -56,10 +61,15 @@ we make the *measurability* the object of study.
    empirical picture to the deployed vs. sparse representation.
 3. **A ground-truth- AND adversarially-validated abstaining diagnostic** (§4–5): it recovers
    planted concept, abstains under positivity failure, and we publish its measured failure modes.
-4. **Controls that the flagship positives are concept, not artifacts** (§5): a permutation placebo
-   refutes the home-field confound (Elec2/INSECTS survive); noise/prior nulls bound the residual.
-5. **A confound-controlled negative** (§8): where concept exists, time-indexed retrieval structure
-   ≤ a time feature, with an in-distribution (not extrapolation) mechanism.
+4. **Controls that separate concept from its confounds** (§5, §8): a permutation placebo refutes the
+   home-field confound, and a decomposition (thinning, lagged-label, noise proxy) shows **Elec2's
+   apparent concept is mostly serial autocorrelation + noise drift** (we retire it as a clean anchor),
+   while INSECTS' concept survives — so the positive concept evidence is reported narrowly and honestly.
+5. **A conditional method positive: the reoccurring-drift niche** (§8): the time-indexed retrieval
+   structure is redundant under *monotonic* drift (the original negative, now scoped) but **beats
+   recency and a fixed-metric k-NN under *reoccurring* drift** (learned struct−recency +0.26, CI>0;
+   real INSECTS-reoccurring +0.21), recalling the returned concept — and the measure plus a
+   reoccurrence signal predict *when* it is the right tool (the diagnostic is **generative**).
 6. **Released toolkit** with its identification boundary stated.
 
 ## 2. Related Work
@@ -346,10 +356,12 @@ reality is near-zero concept.
 
 **Limitations.** (a) ~~ℓ=AUC blind to recalibration drift~~ **resolved**: the verdict is metric-invariant
 across Brier/log-loss/KL (§5); (b) ~~median split aliases drift shape~~ **resolved**: the rolling-origin
-g(t) trajectory is positive at every cut (§5); (c) the **positive concept evidence is narrow**: under the
-enforced ESS floor, INSECTS is the only robust case (concept on the full representation) and Elec2 carries
-concept only on the de-time-leaked representation (+0.074), so Claim A's positive rests heavily on one
-designed-drift stream — broadening it is the priority; (d) the within-overlap frame is a temporal
+g(t) trajectory is positive at every cut (§5); (c) the **positive evidence is narrow on real data**: under
+the enforced ESS floor Elec2 retires (its gap is autocorrelation + noise, §8) and INSECTS is the only real
+robust-concept stream, so the *real-data* concept and the *real-data* reoccurring-niche result each rest on
+one stream (INSECTS / INSECTS-reoccurring); the reoccurring method positive is otherwise carried by a
+synthetic river panel, and the structure's edge over an all-data parametric model is modest (the strong win
+is over recency) — broadening the real reoccurring evidence is the priority; (d) the within-overlap frame is a temporal
 adaptation of DISDE, and the overlap-collapse mechanism of §6 is a known theorem [D'Amour et al. 2021] — we
 contribute the empirical demonstration on the time/representation axis and the validated abstention, **not a
 new identification theorem**; (e) the
