@@ -314,9 +314,10 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
   +0.049 → +0.242. 학습 metric이 kNN 피처공간 약점 메움 = method가 단순 kNN보다 나음 직접 입증. stagger_early full +0.649 최고.
 - **판정**: **Claim B 조건부 양성 부활** — "구조는 단조 drift선 redundant(원 음성 범위화), *재발 drift*선 recency·kNN 둘 다
   유의하게 이김(옛 concept 회수)." 측정(concept)+drift구조(재발) 진단이 *언제 retrieval이 옳은지* 예측 = 생성적.
-- **caveat(정직)**: 이 2단계 런은 `--river all`만(합성 23개), **실 INSECTS-reoccurring 미포함** → `--insects-variants
-  incremental_reoccurring_balanced`로 실데이터 점 추가 필요(1단계 kNN선 +0.018). struct_gain(vs 파라메트릭)은 +0.06로 modest
-  — 강한 승리는 vs recency(+0.21). → §8(Claim B) "재발 niche 구조 우위"로 재작성.
+- **★실데이터 확정 (caveat 닫힘)**: `--insects-variants` 포함 재실행 — **실 INSECTS-reoccurring struct−recency = +0.211**
+  (recency −0.175, 학습 retrieval +0.036; 1단계 kNN +0.018의 ~10배). reoccurring 집계(n=9) struct−recency **+0.260
+  [+0.150, +0.370]**. monotonic INSECTS struct_gain ~0(redundant 유지). **합성+실데이터 모두 확정.** struct_gain(vs
+  파라메트릭)은 +0.07로 modest — 강한 승리는 vs recency. → §8(Claim B) "재발 niche 구조 우위"로 재작성 완료(영/한).
 
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).

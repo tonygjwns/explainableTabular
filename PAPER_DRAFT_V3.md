@@ -268,17 +268,41 @@ the question is ill-posed), not a recipe for the leaderboard. A reader expecting
 pick the model" should read this as evidence that, at least via the covariate/concept lens, that pipeline
 does not hold on TabReD.
 
-## 8. Time-Structure vs Time-Feature Where Concept Exists (re-scoped)
+## 8. When Retrieval Structure Helps: the Reoccurring-Drift Niche
 
-On the measurable-concept datasets, a 5-arm shared-encoder design isolates structure: the primary
-contrast **time_tabr_t − tabr_t** (direct time feature held present in both) is significantly negative
-(INSECTS incremental −0.0067 [−.012,−.001] p=.006; incremental_abrupt −0.0205 [−.034,−.008] p<.001; 25
-seeds, paired). The substrate is competitive (tabr_t ≈ mlp_t), and the hook **helps in-distribution
-(random split +0.005,+0.021) but hurts under temporal extrapolation (−0.007,−0.021)** — an
-in-distribution device, consistent with representational redundancy. **Scope (honest):** this is
-"time-indexed instance retrieval is in-distribution-redundant with a time feature on two concept
-benchmarks," *not* a general law that time-aware structure cannot help — covariate recalibration helps
-(§9), and our own §9 adjudication concedes a time-aware modulation winning under covariate shift.
+**The structure is redundant under *monotonic* drift.** On the measurable-concept datasets, a 5-arm
+shared-encoder design isolates structure: the primary contrast **time_tabr_t − tabr_t** (direct time
+feature held present in both) is significantly negative (INSECTS incremental −0.0067 [−.012,−.001] p=.006;
+incremental_abrupt −0.0205 [−.034,−.008] p<.001; 25 seeds, paired), and the retrieval structure ties a
+parametric model (tabr_t ≈ mlp_t). But — and this is the key qualification — **all of these benchmarks
+are *monotonic* drift** (the concept moves and stays moved). On monotonic drift, recency/forgetting is the
+right inductive bias and retrieval is redundant; that is the honest negative, now *scoped to monotonic drift*.
+
+**The structure WINS under *reoccurring* drift — its identified niche.** When an old concept *returns*
+(reoccurring drift), recency fails (it discards the matching old data) and retrieval-by-similarity should
+win (it recalls the reoccurred examples). We test this on a panel of synthetic streams with dial-able
+drift structure (river: SEA/Agrawal/STAGGER/Sine, A→B→A reoccurring vs A→B monotonic vs no-drift) plus the
+real INSECTS-reoccurring stream, comparing static / recency (HGB on the recent window) / retrieval. Two
+pre-registered results, both holding with the CI excluding 0:
+- *(1) Plain k-NN retrieval beats recency on reoccurring* (mean retrieval−recency **+0.19** [+0.03, +0.36],
+  n=12) and **loses on monotonic** (−0.10 [−0.19, −0.00]); no-drift ≈ 0. (`retrieval_vs_recency`)
+- *(2) The learned retrieval structure (tabr_t) beats recency by even more* (mean struct−recency **+0.26**
+  [+0.15, +0.37], n=9 reoccurring), is redundant on monotonic (struct − parametric ≈ 0, reproducing the
+  negative above), and — crucially — **fixes the feature spaces where plain k-NN's fixed metric fails**
+  (Agrawal-reoccurring: k-NN −0.10 → learned +0.32). On the **real** INSECTS-reoccurring stream the learned
+  structure beats recency by **+0.21** (k-NN gave +0.02 — the learned metric is ~10× stronger). (`learned_retrieval`)
+
+**Reading.** The original "time-indexed retrieval is redundant" negative is real but *drift-structure-specific*:
+it holds for monotonic drift, where recency suffices. On **reoccurring** drift the retrieval structure is
+the right tool — it recalls the returned concept that recency has thrown away, and the *learned* retrieval
+beats both recency and a fixed-metric k-NN. This makes the diagnostic **generative**: the within-overlap
+measure says *whether* concept is present, and a drift-structure (reoccurrence) signal says *which*
+adaptation pays — monotonic → recency, reoccurring → (learned) retrieval. **Scope (honest):** the strong,
+significant win is over *recency*; over a parametric model that already sees all data the structure's edge
+is modest (struct−parametric ≈ +0.06–0.07); the panel is synthetic-heavy (one real reoccurring stream, where
+the effect is nonetheless large, +0.21); and operationalizing the reoccurrence signal as a deployable
+diagnostic is left to future work. This is *not* a claim that retrieval beats everything everywhere — it is
+a claim that retrieval has an identified niche (reoccurring drift) that our measure can point to.
 
 **External calibration (anchors).** To rule out that the arm comparison sits below a trivial or a strong
 baseline, we ran — on the *same temporal split and features* — k-NN±t, GBDT (LightGBM)±t, and a

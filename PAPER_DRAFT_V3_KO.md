@@ -198,14 +198,30 @@ X-side 기전(§9)이지 concept 착취 아님.
 점검 가능/불가능, 어디서 질문이 ill-posed인지)이지 리더보드 레시피가 아님. "shift 진단→모델 선택"을 기대한 독자는, 적어도
 covariate/concept 렌즈로는 그 파이프라인이 TabReD서 성립 안 함의 증거로 읽어야 한다.
 
-## 8. concept 있는 곳서 시간-구조 vs 시간-피처 (재범위화)
+## 8. 검색 구조가 도움 되는 곳: 재발-drift niche
 
-measurable-concept 데이터서 5-arm 공유인코더가 구조 격리: 주 대비 **time_tabr_t − tabr_t**(직접 시간피처 양쪽
-보유)가 유의 음성(INSECTS incremental −0.0067 [−.012,−.001] p=.006; incremental_abrupt −0.0205 [−.034,−.008]
-p<.001; 25시드 paired). 기판 경쟁력(tabr_t ≈ mlp_t), 훅은 **in-dist 도움(random +0.005,+0.021)/temporal 외삽
-해(−0.007,−0.021)** — in-dist 장치, redundancy와 일관. **범위(정직):** "시간-인덱싱 인스턴스 검색이 시간 피처와
-in-dist redundant, 2 concept 벤치서", *시간-구조 일반 무용 법칙 아님* — covariate 재보정은 도움(§9), 우리 §9가
-covariate shift 하 시간-변조 승리를 인정.
+**단조 drift선 구조 redundant.** measurable-concept 데이터서 5-arm 공유인코더가 구조 격리: 주 대비
+**time_tabr_t − tabr_t**(직접 시간피처 양쪽)가 유의 음성(INSECTS incremental −0.0067 [−.012,−.001] p=.006;
+incremental_abrupt −0.0205 p<.001; 25시드 paired), 검색 구조는 파라메트릭과 동급(tabr_t ≈ mlp_t). **단 핵심 단서**:
+이 벤치들은 전부 *단조* drift(concept이 이동 후 유지). 단조선 recency/망각이 올바른 편향이라 검색이 redundant —
+이게 정직한 음성, 이제 *단조 drift에 한정*.
+
+**재발 drift선 구조가 이김 — 식별된 niche.** 옛 concept이 *돌아오면*(재발 drift) recency는 실패(매칭 옛 데이터 버림),
+유사도 검색은 이김(재발 예시 회수). dial-able drift 합성 패널(river SEA/Agrawal/STAGGER/Sine, A→B→A 재발 vs A→B 단조
+vs no-drift) + 실 INSECTS-reoccurring서 static/recency(recent-window HGB)/retrieval 비교. **사전등록 2결과, 둘 다 CI 0 제외**:
+- *(1) plain kNN이 재발서 recency 이김*(retrieval−recency 평균 **+0.19** [+.03,+.36], n=12), **단조선 짐**(−0.10
+  [−.19,−.00]), no-drift ≈0. (`retrieval_vs_recency`)
+- *(2) 학습형 검색(tabr_t)은 더 크게 이김*(struct−recency 평균 **+0.26** [+.15,+.37], n=9 재발), 단조선 redundant
+  (struct−파라메트릭 ≈0, 위 음성 재현), 그리고 **plain kNN 고정-metric이 실패하는 피처공간을 메움**(Agrawal-재발:
+  kNN −0.10 → 학습 +0.32). **실** INSECTS-reoccurring서 학습 구조가 recency를 **+0.21** 이김(kNN은 +0.02 — 학습 metric
+  ~10×). (`learned_retrieval`)
+
+**해석.** "시간-인덱싱 검색 redundant" 음성은 실재하나 *drift 구조 한정* — 단조선 성립(recency로 충분). **재발** drift선
+검색이 올바른 도구 — recency가 버린 돌아온 concept을 회수하고, *학습형* 검색이 recency·고정-metric kNN 둘 다 이김. 이로써
+진단이 **생성적**이 됨: within-overlap 측도가 concept *유무*를, drift구조(재발) 신호가 *어떤* 적응이 값하는지를 — 단조→recency,
+재발→(학습)검색 — 예측. **범위(정직):** 강한·유의 승리는 *recency* 대비; all-data 파라메트릭 대비 구조 우위는 modest
+(struct−파라메트릭 ≈+0.06~0.07); 패널은 합성 위주(실 재발 1개, 단 거기서도 효과 큼 +0.21); 재발 신호를 배포가능 진단기로
+운영화는 future work. retrieval이 *어디서나* 이긴다는 주장 아님 — *재발 drift라는 식별된 niche*가 있고 우리 측도가 그곳을 가리킨다는 주장.
 
 **외부 보정(앵커).** arm 비교가 trivial·strong 베이스라인 밑에 깔리지 않았음을 배제하기 위해 *같은 temporal
 split·피처*로 k-NN±t, GBDT(LightGBM)±t, no-change/persistence를 돌림(5시드, anchors_summary). 둘이 따라온다.
