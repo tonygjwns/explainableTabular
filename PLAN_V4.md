@@ -44,7 +44,18 @@ covLR(예측방향 overlap)이 homecredit0.60/weather0.61/delivery0.54 → **dis
 → **261-dim 안 겹침 = benign 전처리 artifact**(사용자 직감 적중). "harmful positivity-failure regime" 척추 사망.
 규율 성공: 7번째 dissolution을 commit 전에 1.5일 사전등록 실험으로 차단. RESULTS §27.
 
-## 후속 (pre-test 통과 시 — *해당 없음*, 척추 기각됨)
+## V4-B — 도메인 피벗: 도구킷을 *적대적 도메인*으로 (concept이 실제 사는 곳, 2026-06-27)
+경로 A(정직한 측정/datasheet)는 *바닥*으로 확보(천장 낮음). 상방 = 도구킷(도메인 불변, ACS 입증)을 공격자가 규칙을
+*실제로 바꾸는* 도메인(fraud/malware/spam)에. 이론상 concept이 식별되는 유일한 곳.
+- `run_adversarial_probe.py` (generic CSV loader): 지난 7번 함정을 다 내장한 단일 verdict —
+  **REAL-HARMFUL-CONCEPT := 측정가능(ess≥5%) ∧ gap−placebo>0.041 ∧ 자기상관 아님(lagged-label 생존) ∧ 유해(perf_drop/conformal).**
+- **사전등록**: 적대적 데이터셋 ≥1개가 REAL-HARMFUL-CONCEPT → 도구킷이 concept 사는 곳 발견 = 양성 방향(방법론 재배치).
+  0/N → 적대적 도메인서도 concept 부재 → 더 강한 일반 negative(측정 논문, 도메인-광역).
+- 로컬 검증 통과: 회전규칙→REAL-HARMFUL-CONCEPT / covariate-only→unmeasurable.
+- 데이터 후보(서버 kaggle API 보유): ① BAF(Bank Account Fraud, NeurIPS'22, month 시간축) ② IEEE-CIS Fraud(TransactionDT)
+  ③ EMBER(malware, appeared 날짜 — concept drift 유명). 서버: `kaggle datasets download ...` 후 `--csv --target --time`.
+
+## (역사) 후속 (pre-test 통과 시 — *해당 없음*, 척추 기각됨)
 - E1 MDE/검정력 곡선(제안1: 기권이 반증가능한지), E3 표현 dose-response(제안1/제안4#5), overlap-gated conformal
   정리+경험(제안4#3 methods 각도), positivity stress suite(제안3#4). 통과 못 하면 측정/datasheet(제안1·3)로.
 - 상세 발상 = `Desktop/ExplainableTab_ReviewPackage/제안1~4` + `IDEATION_BRIEF.md`.
