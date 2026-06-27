@@ -275,6 +275,18 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
 - **함의**: 피벗 신호 아님 — "프레임이 작동, 폭을 키워라"는 신호. gap_hygiene2 확정(elec2 abstain/claim_a False,
   INSECTS measurable/claim_a True, floor 0.041). → **다음 = concept 데이터셋 폭 확장 후 measure+생성 테스트 재실행.**
 
+## 23. V3.5 powered — 생성 테스트 18셋 (river 패널 + INSECTS 4 + cooking/maps, `correct_assumption_full_summary.json`)  [NEGATIVE-단순형]
+폭 확장(river SEA/Agrawal/STAGGER/Sine/Hyperplane × {no-drift/abrupt/gradual} + INSECTS 4변종)으로 n=5→18.
+- **Spearman(concept, recency_gain) = +0.147 (p=0.56, n=18)** — **단순 생성 법칙 미지지**(검정력 갖추니 평탄).
+- **구조적 패턴(우연 아님)**: recency가 *단조/지속* drift서 이김(stagger_abrupt +0.37→+0.35, hyperplane_incr
+  +0.16→+0.13, insects_incr +0.14→+0.05, sine_abrupt +0.10→+0.055) / *reoccurring·일부 abrupt*서 짐
+  (insects_reoccurring +0.32→**−0.03**, insects_abrupt +0.12→**−0.04**) — 순수 recency의 알려진 실패(옛 concept 재발).
+  no-drift 대조 6 + cooking/maps 전부 ~0(정상). → recency_gain은 concept *크기*가 아니라 *구조*(단조 vs 재발) 추종.
+- **판정**: 단순 "측정이 적응 이득 예측" = **falsified**. 다섯 번째 깨끗한 양성 dissolution(B/C1/C5/Elec2/생성-단순).
+  **피벗-급 신호.** 세 갈래: (a) drift-구조 인지(단조=recency / 재발=retrieval) 정교화 — 더 큰 주장·재축소 위험,
+  (b) 누적 증거를 피벗 신호로 수용, (c) 재발-drift=retrieval 우위 가설로 원 method 부활 검증(아이러니: reoccurring이
+  retrieval이 recency 이겨야 할 곳). 사용자 판단 대기.
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).

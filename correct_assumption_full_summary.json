@@ -1,0 +1,515 @@
+{
+  "results": [
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.48432040657946807,
+            "recent_25": 0.48582379284478117,
+            "recent_50": 0.48453378815214887,
+            "recency_weighted": 0.48385340958379786
+          },
+          "recency_gain_mean": 0.00046699699567017696,
+          "recency_gain_ci": [
+            0.00019445819968957076,
+            0.0007395357916507832
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.004647889875972644,
+          "ess_pct": 44.91605594256645
+        }
+      }
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "reps": {
+        "full": {
+          "metric": "rmse",
+          "method_means": {
+            "static_all": 0.16388492810038632,
+            "recent_25": 0.1664830884771857,
+            "recent_50": 0.1651649649265604,
+            "recency_weighted": 0.1644714553163468
+          },
+          "recency_gain_mean": -0.0005865272159604251,
+          "recency_gain_ci": [
+            -0.0007135665054789932,
+            -0.00045948792644185695
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.003308021814873746,
+          "ess_pct": 93.09540152891644
+        }
+      }
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "reps": {
+        "full": {
+          "metric": "accuracy",
+          "method_means": {
+            "static_all": 0.6042563143124415,
+            "recent_25": 0.6445275958840038,
+            "recent_50": 0.6579981290926099,
+            "recency_weighted": 0.65
+          },
+          "recency_gain_mean": 0.05374181478016837,
+          "recency_gain_ci": [
+            0.04926323347123618,
+            0.05822039608910057
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.14378947368421047,
+          "ess_pct": 39.28781010007638
+        }
+      }
+    },
+    {
+      "dataset": "insects_abrupt_balanced",
+      "task": "multiclass",
+      "reps": {
+        "full": {
+          "metric": "accuracy",
+          "method_means": {
+            "static_all": 0.6610571464614609,
+            "recent_25": 0.463100794752113,
+            "recent_50": 0.6217989151002902,
+            "recency_weighted": 0.6191497413901854
+          },
+          "recency_gain_mean": -0.03925823136117066,
+          "recency_gain_ci": [
+            -0.04142986735080563,
+            -0.03708659537153569
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.11773801634636627,
+          "ess_pct": 56.50475546607375
+        }
+      }
+    },
+    {
+      "dataset": "insects_incremental_abrupt_balanced",
+      "task": "multiclass",
+      "reps": {
+        "full": {
+          "metric": "accuracy",
+          "method_means": {
+            "static_all": 0.7048595482203884,
+            "recent_25": 0.7162290572643161,
+            "recent_50": 0.697157622739018,
+            "recency_weighted": 0.708993915145453
+          },
+          "recency_gain_mean": 0.01136950904392764,
+          "recency_gain_ci": [
+            0.009393694413068934,
+            0.013345323674786344
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.0121,
+          "ess_pct": 99.18854010331356
+        }
+      }
+    },
+    {
+      "dataset": "insects_incremental_reoccurring_balanced",
+      "task": "multiclass",
+      "reps": {
+        "full": {
+          "metric": "accuracy",
+          "method_means": {
+            "static_all": 0.5616904226056515,
+            "recent_25": 0.5277986163207469,
+            "recent_50": 0.4203884304409435,
+            "recency_weighted": 0.5111777944486121
+          },
+          "recency_gain_mean": -0.03389180628490458,
+          "recency_gain_ci": [
+            -0.03607552691667891,
+            -0.031708085653130255
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.3171999999999999,
+          "ess_pct": 70.397035024895
+        }
+      }
+    },
+    {
+      "dataset": "river_sea_nodrift",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.999822316986496,
+            "recent_25": 0.9996726891856506,
+            "recent_50": 0.9997568548236263,
+            "recency_weighted": 0.9999127171161735
+          },
+          "recency_gain_mean": 9.040012967753697e-05,
+          "recency_gain_ci": [
+            9.040012967753697e-05,
+            9.040012967753697e-05
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.0004955447720026429,
+          "ess_pct": 47.424852577417624
+        }
+      }
+    },
+    {
+      "dataset": "river_sea_abrupt",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.998197792295562,
+            "recent_25": 0.9987512480566473,
+            "recent_50": 0.9958894089704332,
+            "recency_weighted": 0.9979474856699457
+          },
+          "recency_gain_mean": 0.0005534557610851198,
+          "recency_gain_ci": [
+            0.0005534557610851198,
+            0.0005534557610851198
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.005781511758259694,
+          "ess_pct": 68.10180903143129
+        }
+      }
+    },
+    {
+      "dataset": "river_sea_gradual",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9982816101701986,
+            "recent_25": 0.9953369907045676,
+            "recent_50": 0.995859737125284,
+            "recency_weighted": 0.9979062337510671
+          },
+          "recency_gain_mean": -0.0003753764191314346,
+          "recency_gain_ci": [
+            -0.0003753764191314346,
+            -0.0003753764191314346
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.006459302549117751,
+          "ess_pct": 67.57556553014848
+        }
+      }
+    },
+    {
+      "dataset": "river_agrawal_nodrift",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 1.0,
+            "recent_25": 1.0,
+            "recent_50": 1.0,
+            "recency_weighted": 1.0
+          },
+          "recency_gain_mean": 0.0,
+          "recency_gain_ci": [
+            0.0,
+            0.0
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.0,
+          "ess_pct": 50.56421253406565
+        }
+      }
+    },
+    {
+      "dataset": "river_agrawal_abrupt",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9748049360391133,
+            "recent_25": 0.9995939655749781,
+            "recent_50": 0.973302190074342,
+            "recency_weighted": 0.9757844417654544
+          },
+          "recency_gain_mean": 0.024789029535864815,
+          "recency_gain_ci": [
+            0.024789029535864815,
+            0.024789029535864815
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.044269911877200974,
+          "ess_pct": 67.89318070985033
+        }
+      }
+    },
+    {
+      "dataset": "river_agrawal_gradual",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9814818748380356,
+            "recent_25": 0.9667531893742751,
+            "recent_50": 0.9708952338874468,
+            "recency_weighted": 0.9730321040311651
+          },
+          "recency_gain_mean": -0.008449770806870371,
+          "recency_gain_ci": [
+            -0.008449770806870371,
+            -0.008449770806870371
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.08379727069047438,
+          "ess_pct": 65.05731817074255
+        }
+      }
+    },
+    {
+      "dataset": "river_stagger_nodrift",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 1.0,
+            "recent_25": 1.0,
+            "recent_50": 1.0,
+            "recency_weighted": 1.0
+          },
+          "recency_gain_mean": 0.0,
+          "recency_gain_ci": [
+            0.0,
+            0.0
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.0,
+          "ess_pct": 96.7703661723868
+        }
+      }
+    },
+    {
+      "dataset": "river_stagger_abrupt",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.6487804878048781,
+            "recent_25": 1.0,
+            "recent_50": 1.0,
+            "recency_weighted": 1.0
+          },
+          "recency_gain_mean": 0.35121951219512193,
+          "recency_gain_ci": [
+            0.35121951219512193,
+            0.35121951219512193
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.3704290755087025,
+          "ess_pct": 98.60599093255726
+        }
+      }
+    },
+    {
+      "dataset": "river_sine_nodrift",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9997524475524473,
+            "recent_25": 0.9994167832167833,
+            "recent_50": 0.9995902097902098,
+            "recency_weighted": 0.9996517482517483
+          },
+          "recency_gain_mean": -0.00010069930069922517,
+          "recency_gain_ci": [
+            -0.00010069930069922517,
+            -0.00010069930069922517
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.0005300971673254384,
+          "ess_pct": 57.26425609108124
+        }
+      }
+    },
+    {
+      "dataset": "river_sine_abrupt",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9438877471476153,
+            "recent_25": 0.9989270781659698,
+            "recent_50": 0.944174048614556,
+            "recency_weighted": 0.9449450783077034
+          },
+          "recency_gain_mean": 0.055039331018354565,
+          "recency_gain_ci": [
+            0.055039331018354565,
+            0.055039331018354565
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.09872518808700348,
+          "ess_pct": 73.6647129392105
+        }
+      }
+    },
+    {
+      "dataset": "river_hyperplane_static",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.9417489217909385,
+            "recent_25": 0.9358437819572275,
+            "recent_50": 0.9414154550709173,
+            "recency_weighted": 0.9429605175403493
+          },
+          "recency_gain_mean": 0.0012115957494108764,
+          "recency_gain_ci": [
+            0.0012115957494108764,
+            0.0012115957494108764
+          ],
+          "n_seeds": 5,
+          "concept_gap": -0.008236715225224067,
+          "ess_pct": 45.02759031668965
+        }
+      }
+    },
+    {
+      "dataset": "river_hyperplane_incr",
+      "task": "binclass",
+      "reps": {
+        "full": {
+          "metric": "roc_auc",
+          "method_means": {
+            "static_all": 0.7043589650966019,
+            "recent_25": 0.8326715368220985,
+            "recent_50": 0.7753633860269702,
+            "recency_weighted": 0.7353499370621792
+          },
+          "recency_gain_mean": 0.1283125717254966,
+          "recency_gain_ci": [
+            0.1283125717254966,
+            0.1283125717254966
+          ],
+          "n_seeds": 5,
+          "concept_gap": 0.1616691591890993,
+          "ess_pct": 48.58533445849822
+        }
+      }
+    }
+  ],
+  "cross_dataset": {
+    "spearman_concept_recencygain": 0.1466942148760331,
+    "p": 0.561343501538284,
+    "n_pairs": 18,
+    "pairs": [
+      [
+        -0.004647889875972644,
+        0.00046699699567017696,
+        "cooking_time/full"
+      ],
+      [
+        -0.003308021814873746,
+        -0.0005865272159604251,
+        "maps_routing/full"
+      ],
+      [
+        0.14378947368421047,
+        0.05374181478016837,
+        "insects_incremental_balanced/full"
+      ],
+      [
+        0.11773801634636627,
+        -0.03925823136117066,
+        "insects_abrupt_balanced/full"
+      ],
+      [
+        -0.0121,
+        0.01136950904392764,
+        "insects_incremental_abrupt_balanced/full"
+      ],
+      [
+        0.3171999999999999,
+        -0.03389180628490458,
+        "insects_incremental_reoccurring_balanced/full"
+      ],
+      [
+        -0.0004955447720026429,
+        9.040012967753697e-05,
+        "river_sea_nodrift/full"
+      ],
+      [
+        0.005781511758259694,
+        0.0005534557610851198,
+        "river_sea_abrupt/full"
+      ],
+      [
+        0.006459302549117751,
+        -0.0003753764191314346,
+        "river_sea_gradual/full"
+      ],
+      [
+        0.0,
+        0.0,
+        "river_agrawal_nodrift/full"
+      ],
+      [
+        0.044269911877200974,
+        0.024789029535864815,
+        "river_agrawal_abrupt/full"
+      ],
+      [
+        0.08379727069047438,
+        -0.008449770806870371,
+        "river_agrawal_gradual/full"
+      ],
+      [
+        0.0,
+        0.0,
+        "river_stagger_nodrift/full"
+      ],
+      [
+        0.3704290755087025,
+        0.35121951219512193,
+        "river_stagger_abrupt/full"
+      ],
+      [
+        -0.0005300971673254384,
+        -0.00010069930069922517,
+        "river_sine_nodrift/full"
+      ],
+      [
+        0.09872518808700348,
+        0.055039331018354565,
+        "river_sine_abrupt/full"
+      ],
+      [
+        -0.008236715225224067,
+        0.0012115957494108764,
+        "river_hyperplane_static/full"
+      ],
+      [
+        0.1616691591890993,
+        0.1283125717254966,
+        "river_hyperplane_incr/full"
+      ]
+    ]
+  }
+}
