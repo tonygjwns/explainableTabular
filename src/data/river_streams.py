@@ -93,17 +93,37 @@ def _panel(n):
     P["hyperplane_incr"] = lambda s: synth.Hyperplane(seed=s, n_features=10, n_drift_features=5,
                                                       mag_change=0.5)
     # ---- REOCCURRING (A->B->A): retrieval's home field, recency's failure ----
-    P["sea_reoccur"] = lambda s: _concat3(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s),
-                                          synth.SEA(variant=0, seed=s), n)
-    P["agrawal_reoccur"] = lambda s: _concat3(synth.Agrawal(classification_function=0, seed=s),
-                                              synth.Agrawal(classification_function=4, seed=s),
-                                              synth.Agrawal(classification_function=0, seed=s), n)
-    P["stagger_reoccur"] = lambda s: _concat3(synth.STAGGER(classification_function=0, seed=s),
-                                              synth.STAGGER(classification_function=2, seed=s),
-                                              synth.STAGGER(classification_function=0, seed=s), n)
-    P["sine_reoccur"] = lambda s: _concat3(synth.Sine(classification_function=0, seed=s),
-                                           synth.Sine(classification_function=2, seed=s),
-                                           synth.Sine(classification_function=0, seed=s), n)
+    # diverse generators x concept pairs x reoccurrence timing -> power the reoccurring n.
+    def ro_sea(s, a, b, bb=(0.35, 0.78)):
+        return _concat3(synth.SEA(variant=a, seed=s), synth.SEA(variant=b, seed=s),
+                        synth.SEA(variant=a, seed=s), n, *bb)
+
+    def ro_agr(s, a, b, bb=(0.35, 0.78)):
+        return _concat3(synth.Agrawal(classification_function=a, seed=s),
+                        synth.Agrawal(classification_function=b, seed=s),
+                        synth.Agrawal(classification_function=a, seed=s), n, *bb)
+
+    def ro_stag(s, a, b, bb=(0.35, 0.78)):
+        return _concat3(synth.STAGGER(classification_function=a, seed=s),
+                        synth.STAGGER(classification_function=b, seed=s),
+                        synth.STAGGER(classification_function=a, seed=s), n, *bb)
+
+    def ro_sine(s, a, b, bb=(0.35, 0.78)):
+        return _concat3(synth.Sine(classification_function=a, seed=s),
+                        synth.Sine(classification_function=b, seed=s),
+                        synth.Sine(classification_function=a, seed=s), n, *bb)
+
+    P["sea_reoccur"] = lambda s: ro_sea(s, 0, 3)
+    P["sea_reoccur2"] = lambda s: ro_sea(s, 1, 3)
+    P["agrawal_reoccur"] = lambda s: ro_agr(s, 0, 4)
+    P["agrawal_reoccur2"] = lambda s: ro_agr(s, 2, 6)
+    P["stagger_reoccur"] = lambda s: ro_stag(s, 0, 2)
+    P["stagger_reoccur2"] = lambda s: ro_stag(s, 0, 1)
+    P["stagger_reoccur_early"] = lambda s: ro_stag(s, 0, 2, (0.25, 0.68))
+    P["sine_reoccur"] = lambda s: ro_sine(s, 0, 2)
+    P["sine_reoccur2"] = lambda s: ro_sine(s, 0, 3)
+    P["sine_reoccur3"] = lambda s: ro_sine(s, 1, 3)
+    P["sine_reoccur_late"] = lambda s: ro_sine(s, 0, 2, (0.42, 0.82))
     return P
 
 
