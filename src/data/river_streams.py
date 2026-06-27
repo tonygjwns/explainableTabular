@@ -40,6 +40,28 @@ def _concat(a, b, n):
     return gen()
 
 
+def _concat3(a, b, a2, n, b0=0.35, b1=0.78):
+    """REOCCURRING concept: A (0..b0) -> B (b0..b1) -> A (b1..1). With train=first 70%
+    and test=last 15%, the RECENT train (~35-70%) is concept B but the TEST is back in
+    concept A -> recency (trains on recent B) FAILS on the A test, while retrieval (recall
+    by similarity, incl. the OLD A block) should WIN. The home field for memory/retrieval."""
+    def gen():
+        e0, e1 = int(b0 * n), int(b1 * n)
+        for i, xy in enumerate(a):
+            if i >= e0:
+                break
+            yield xy
+        for i, xy in enumerate(b):
+            if i >= e1 - e0:
+                break
+            yield xy
+        for i, xy in enumerate(a2):
+            if i >= n - e1:
+                break
+            yield xy
+    return gen()
+
+
 def _panel(n):
     from river.datasets import synth
 
@@ -70,7 +92,28 @@ def _panel(n):
                                                         mag_change=0.0)
     P["hyperplane_incr"] = lambda s: synth.Hyperplane(seed=s, n_features=10, n_drift_features=5,
                                                       mag_change=0.5)
+    # ---- REOCCURRING (A->B->A): retrieval's home field, recency's failure ----
+    P["sea_reoccur"] = lambda s: _concat3(synth.SEA(variant=0, seed=s), synth.SEA(variant=3, seed=s),
+                                          synth.SEA(variant=0, seed=s), n)
+    P["agrawal_reoccur"] = lambda s: _concat3(synth.Agrawal(classification_function=0, seed=s),
+                                              synth.Agrawal(classification_function=4, seed=s),
+                                              synth.Agrawal(classification_function=0, seed=s), n)
+    P["stagger_reoccur"] = lambda s: _concat3(synth.STAGGER(classification_function=0, seed=s),
+                                              synth.STAGGER(classification_function=2, seed=s),
+                                              synth.STAGGER(classification_function=0, seed=s), n)
+    P["sine_reoccur"] = lambda s: _concat3(synth.Sine(classification_function=0, seed=s),
+                                           synth.Sine(classification_function=2, seed=s),
+                                           synth.Sine(classification_function=0, seed=s), n)
     return P
+
+
+# drift-structure tag per stream name (for grouping retrieval-vs-recency by structure)
+def drift_kind(name: str) -> str:
+    if "reoccur" in name:
+        return "reoccurring"
+    if "nodrift" in name or "static" in name:
+        return "nodrift"
+    return "monotonic"
 
 
 def list_streams(n=8000):

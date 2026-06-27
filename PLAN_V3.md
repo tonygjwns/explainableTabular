@@ -212,6 +212,18 @@ recency-적응 모델이 **concept 측정된 곳에서만** 정적 모델을 이
   cooking_time maps_routing --n-seeds 5`. **사전등록**: ~18셋서 Spearman 양수·유의 유지 → 생성적 프레임 확정
   (n=1 탈출) = 강한 D&B; 무너지면 피벗. (INSECTS noise-confound도 다스트림 일관성으로 흡수.)
 
+### V3.5-C — retrieval vs recency on reoccurring drift (사용자 선택 C, 코드 완료·서버 대기, 2026-06-26)
+powered 생성 테스트(n=18)서 recency가 *단조* drift만 이기고 *reoccurring*서 짐 → reoccurring은 retrieval의 home field
+(옛 concept 재발 시 recency는 매칭 옛 데이터 버림, retrieval은 유사도로 회수). **반증가능 검정**: retrieval(kNN)이
+reoccurring서 recency 이기고 monotonic서 지는가.
+- `src/data/river_streams.py`에 reoccurring(A→B→A `_concat3`) + `drift_kind()` 추가. `run_retrieval_vs_recency.py`:
+  static/recency/retrieval(kNN)/retrieval_recent × concept_gap, drift 구조별 `mean(retrieval−recency)`.
+- **사전등록**: reoccurring서 retr−rec>0 ∧ monotonic서 ≤0 → retrieval이 reoccurring의 올바른 도구 = 원 method 부활 +
+  "측정(concept) + drift구조 진단 → 적응법 선택"이라는 생성 스토리. null → memory가 home field서도 못 이김 = 피벗 수용.
+- **로컬 합성 검증 통과**: reoccurring ret−rec **+0.424**(recency −0.40 실패/retrieval 회수), monotonic **−0.591**(recency +0.57).
+- 서버: `pip install river && python scripts/run_retrieval_vs_recency.py --river all --insects-variants
+  incremental_balanced incremental_reoccurring_balanced abrupt_balanced --n-seeds 5`.
+
 ## 우선순위 · 의존성
 1. **V3.0 G1·G2·G3(서버/로컬 sklearn) + G4(웹, 내가 즉시)** — nucleus 생사. 다른 모든 것의 전제.
 2. G1·G2 통과 → V3.1 F1(형식 척추) — 이게 #2~#5 모호함을 "가정 하 robustness"로 격하.
