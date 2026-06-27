@@ -121,26 +121,32 @@ def assess(name, Xe, ye, Xl, yl, t_raw_e, task, seed=0):
 
 def _load_csv(path, target, time, drop, max_n):
     import pandas as pd
+    from pandas.api import types as pt
     df = pd.read_parquet(path) if str(path).endswith(".parquet") else pd.read_csv(path)
     if max_n and len(df) > max_n:
         df = df.sort_values(time).iloc[:: max(1, len(df) // max_n)].reset_index(drop=True)
-    y_raw = df[target].to_numpy()
-    t = df[time]
-    tnum = (t.astype("int64").to_numpy() if np.issubdtype(t.dtype, np.datetime64)
-            else t.astype("category").cat.codes.to_numpy() if t.dtype == object
-            else t.to_numpy())
+
+    def to_num(col):                                  # robust to pandas extension dtypes
+        if pt.is_numeric_dtype(col):
+            return pd.to_numeric(col, errors="coerce").to_numpy(dtype="float64")
+        if pt.is_datetime64_any_dtype(col):
+            return col.view("int64").to_numpy().astype("float64")
+        return col.astype("category").cat.codes.to_numpy().astype("float64")
+
+    y_raw = df[target]
+    tnum = to_num(df[time])
     drop_cols = set([target, time] + list(drop or []))
     feats = [c for c in df.columns if c not in drop_cols]
-    X = np.column_stack([
-        df[c].to_numpy(dtype="float64") if np.issubdtype(df[c].dtype, np.number)
-        else df[c].astype("category").cat.codes.to_numpy().astype("float64")
-        for c in feats])
-    task = "regression" if (np.issubdtype(y_raw.dtype, np.floating) and len(np.unique(y_raw)) > 20) \
-        else ("binclass" if len(np.unique(y_raw)) == 2 else "multiclass")
+    X = np.column_stack([to_num(df[c]) for c in feats])
+    yv = y_raw.to_numpy()
+    nuniq = len(pd.unique(y_raw.dropna()))
+    task = ("binclass" if nuniq == 2 else
+            "regression" if (pt.is_float_dtype(y_raw) and nuniq > 20) else "multiclass")
     if task != "regression":
-        cls = {c: i for i, c in enumerate(sorted(set(y_raw)))}; y = np.array([cls[v] for v in y_raw])
+        cls = {c: i for i, c in enumerate(sorted(pd.unique(y_raw.dropna())))}
+        y = np.array([cls.get(v, 0) for v in yv])
     else:
-        y = y_raw.astype(float)
+        y = pd.to_numeric(y_raw, errors="coerce").to_numpy(dtype="float64")
     o = np.argsort(tnum, kind="stable"); med = len(o) // 2
     em, lm = o[:med], o[med:]
     return X[em], y[em], X[lm], y[lm], tnum[em], task, len(feats)
