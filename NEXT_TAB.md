@@ -70,8 +70,15 @@ nucleus 죽일 결정적 게이트 *먼저*, 형식 재작성 *나중*.
   서버: `pip install river && python scripts/run_correct_assumption.py --river all --insects-variants incremental_balanced
   abrupt_balanced incremental_abrupt_balanced incremental_reoccurring_balanced --tabred cooking_time maps_routing --n-seeds 5`
   → `correct_assumption_summary.json`(맨 끝 Spearman이 핵심).
-- **⬜ 남은 것**: 폭 확장 결과 → Spearman 양수·유의면 "검증된 측정+생성적 프레임" D&B 확정(§5/§6/§8 재작성·INSECTS n=1 탈출);
-  무너지면 피벗 설계. 그 후 적대리뷰 패키지 "전 항목 대응" 갱신.
+- **✅ V3.5-C 1단계 POWERED 양성 (2026-06-26)**: retrieval(kNN) vs recency, reoccurring **+0.192 [+.026,+.358] CI>0** /
+  monotonic −0.098 / nodrift ~0. 사전등록 패턴 통계 확정 = retrieval이 재발 drift 도구. RESULTS §24. **5번 dissolution 끝 첫 양성.**
+- **🔄 V3.5-C 2단계 = 학습형 retrieval 부활 (코드 완료, 서버 GPU 대기)**: `run_learned_retrieval.py` — `tabr_t`(학습 retrieval
+  구조) vs `mlp_t`(파라메트릭) vs recency, reoccurring 패널서. **사전등록**: reoccurring서 retrieval_struct_gain>0 ∧
+  >recency, monotonic서 ≤0(원 Claim B 음성) → **죽은 Claim B가 *재발 niche* 조건부 양성으로 부활**. 서버(무거움, 부분셋 먼저):
+  `python scripts/run_learned_retrieval.py --river stagger_reoccur stagger_reoccur2 sine_reoccur2 agrawal_reoccur sea_abrupt
+  stagger_abrupt --insects-variants incremental_reoccurring_balanced incremental_balanced --n-seeds 3` → 검증 후 `--river all`.
+- **⬜ 남은 것**: 2단계 결과 → 학습형이 kNN·recency 이기면 §8(Claim B) "재발 drift서 구조 우위"로 재작성 = 논문 새 척추;
+  못 이기면 1단계 측정-결과로 마감. 적대리뷰 패키지 갱신.
 
 **V3 코드맵(새로 추가)**: `run_gap_controls.py`(G1 placebo+nulls), `run_representation.py`(G2 표현),
 `run_toolkit_adversarial.py`(G3), `run_c1_ranking.py`(C1), `run_whyshift.py`(C5), **`run_gap_hygiene.py`(V3.3
