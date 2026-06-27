@@ -1,0 +1,24 @@
+{
+  "rows": [
+    {
+      "dataset": "synth_reoccurring",
+      "kind": "reoccurring",
+      "task": "binclass",
+      "concept_gap": 0.9847235112721177,
+      "recency_gain": -0.3979152362524186,
+      "retrieval_gain": 0.026462663587375035,
+      "retrieval_recent_gain": -0.5119946736574911,
+      "retrieval_minus_recency": 0.4243778998397936
+    },
+    {
+      "dataset": "synth_monotonic",
+      "kind": "monotonic",
+      "task": "binclass",
+      "concept_gap": 0.1075730337078652,
+      "recency_gain": 0.5747775870142032,
+      "retrieval_gain": -0.015751001508766432,
+      "retrieval_recent_gain": 0.7643566932001457,
+      "retrieval_minus_recency": -0.5905285885229696
+    }
+  ]
+}

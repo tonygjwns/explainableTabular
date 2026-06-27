@@ -295,10 +295,14 @@ PAPER_DRAFT_V3(_KO) §5 경화 문단 + 한계 a/b/g 해소 + 향후-작업 2·5
   **실제 insects_incremental_reoccurring +0.018**(recency −0.051 < retrieval −0.032 = 방향 정확). 합성 검증 +0.42/−0.59.
 - **약점**: agrawal_reoccur −0.103 — 단 kNN이 Agrawal 피처공간서 원래 약함(monotonic agrawal도 −0.18) = retrieval
   *방법(kNN)* 한계지 가설 반증 아님. sea는 concept +0.015로 너무 작아 무의미.
-- **판정**: 5번 dissolution 끝 **첫 긍정 방향**. 핵심 패턴(재발=retrieval/단조=recency) 평균 분리(0.235), monotonic 유의,
-  실 벤치 방향 정확. 단 reoccurring CI가 0 넘어 약함 + plain kNN 한계. → **다음 = (a) reoccurring 스트림 늘려 검정력,
-  (b) 학습형 time-indexed retrieval(원 TimeTabR)을 reoccurring서 kNN·recency와 비교** — plain kNN보다 나으면 원 method가
-  *재발 drift niche*서 부활 + Claim B가 "구조 redundant"에서 "구조는 재발 drift서 recency·kNN 둘 다 이김"으로 조건부 양전.
+- **★POWERED 확정 (n=12 reoccurring, 패널 5→11 확장)**: reoccurring **+0.192 [+0.026, +0.358] = CI가 0 제외!** /
+  monotonic −0.098 [−.194,−.002] / nodrift −0.005. **사전등록 패턴 통계 확정**(두 그룹 분리·둘 다 유의). 메커니즘 다양:
+  stagger_reoccur +0.735/early +0.747/v2 +0.406, sine_reoccur2 +0.330, **실 INSECTS-reoccurring +0.018**(방향 정확).
+  agrawal만 −0.103(kNN 피처공간 약점).
+- **판정**: 5번 dissolution 끝 **첫 깨끗한 powered·사전등록 양성.** retrieval=재발 drift의 올바른 도구(recency=단조).
+  **caveat(정직)**: 합성 위주(실 reoccurring은 INSECTS 1개, 효과 +0.018로 작음); 스트림이 구성상 재발(정당한 실험 조건이나
+  측정가능한 재발-진단기 필요); agrawal=kNN 한계. → **다음 = 학습형 TimeTabR을 reoccurring서 kNN·recency와 비교** —
+  plain kNN보다 나으면 원 method가 *재발 niche*서 부활 + Claim B가 "구조 redundant"에서 "구조는 재발 drift서 둘 다 이김"으로 조건부 양전.
 
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
