@@ -55,6 +55,13 @@ covLR(예측방향 overlap)이 homecredit0.60/weather0.61/delivery0.54 → **dis
 - 데이터 후보(서버 kaggle API 보유): ① BAF(Bank Account Fraud, NeurIPS'22, month 시간축) ② IEEE-CIS Fraud(TransactionDT)
   ③ EMBER(malware, appeared 날짜 — concept drift 유명). 서버: `kaggle datasets download ...` 후 `--csv --target --time`.
 
+## ★ V4-B 결과 (2026-06-28) — 8도메인 전부 음성, 사냥 종료
+fraud(BAF concept~0, IEEE-CIS unmeasurable) + malware(EMBER concept~0). 0/3 적대적 = 0/8 전체.
+공격자가 규칙 바꾸는 도메인조차 측정가능 concept 부재. RESULTS §28.
+→ **결론: 산출물 = {검증된 도구킷 + 산업·적대적 8도메인 광역 negative}** (measurement / negative-results / D&B-tools).
+사냥(양성 찾기) 종료. 다음 = 논문 작성(이 negative를 정직·broad하게). 선택적 rigor: EMBER 충실 temporal-holdout 1회로
+"split artifact" 반박 선제 차단.
+
 ## (역사) 후속 (pre-test 통과 시 — *해당 없음*, 척추 기각됨)
 - E1 MDE/검정력 곡선(제안1: 기권이 반증가능한지), E3 표현 dose-response(제안1/제안4#5), overlap-gated conformal
   정리+경험(제안4#3 methods 각도), positivity stress suite(제안3#4). 통과 못 하면 측정/datasheet(제안1·3)로.

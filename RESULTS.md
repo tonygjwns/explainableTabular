@@ -342,6 +342,17 @@ overlap·split-conformal late coverage·perf_drop).
   사용자 직감 적중. "harmful positivity-failure regime" 척추 사망. → 정직한 측정/datasheet(제안1·3) 또는 도메인 피벗.
 - 규율: 7번째 dissolution을 commit 전 1.5일 사전등록 실험으로 차단(2차 리뷰어 HARKing 경고 준수).
 
+## 28. V4-B — 적대적 도메인 probe (fraud×2 + malware): 8도메인 전부 음성  [broad negative 확정]
+도구킷(검증됨, 도메인불변)을 공격자가 규칙을 실제 바꾸는 도메인에. 사전등록: ≥1개 REAL-HARMFUL-CONCEPT면 양성.
+- **BAF (NeurIPS'22 fraud)**: gap −0.013(음수), drop −0.017(late 더 쉬움) → **concept~0**.
+- **IEEE-CIS fraud**: ess 3.07%(<5%, near-disjoint=TabReD 패턴) → **unmeasurable**.
+- **EMBER malware**(626 피처 직접파싱, 60만): gap +0.026(floor 0.041 미달), drop +0.030(모델 거의 안 썩음),
+  cfU +0.097(약한 conformal harm이나 gap≈0) → **concept~0**. (단 우리 split=balanced median, TESSERACT 배포
+  프로토콜 아님 — 충실 temporal-holdout은 미수행; 단 drop 작아 toolkit-blunt보다 "이 split선 decay 작음"에 가까움.)
+- **판정: 0/3 적대적 = 0/8 전체 도메인 REAL-HARMFUL-CONCEPT.** 산업+적대적 표 시간데이터 전반에서 측정가능·착취가능·
+  유해한 concept drift **부재/측정불가**. 분야의 concept-drift 프레이밍이 실데이터와 어긋남을 8도메인으로 입증.
+  → **사냥 종료. 산출물 = 검증된 도구킷 + 광역 negative(measurement/negative-results/D&B-tools).**
+
 ## 신뢰등급 요약 (무엇을 믿나)
 - **Solid**: Phase0 재현 · 구현 정확(합성 +87%) · 강한 pervasive covariate drift · **elec2 within-overlap concept +0.166** · Q1 충실성 PASS(게이트).
 - **Tentative/대체됨**: 전역 concept gap(#6, 오염) · elec2 as-built 음성(#7, 부서진 메커니즘 — 재검 중).
