@@ -104,7 +104,10 @@ def assess(name, Xe, ye, Xl, yl, t_raw_e, task, seed=0):
     drop = _perf_drop(Xe, ye, Xl, yl, task, seed)
     under = _conformal_under(Xe, ye, Xl, yl, task, seed)
     measurable = gap is not None and (ess is not None and ess >= 5.0)
-    real = bool(measurable and plac is not None and (gap - plac) > FLOOR)
+    # real concept requires the gap ITSELF above floor (not just bias-corrected — a structurally
+    # negative placebo can inflate gap-placebo while the raw gap is ~0/negative, as on BAF).
+    real = bool(measurable and gap is not None and gap > FLOOR
+                and plac is not None and (gap - plac) > FLOOR)
     not_autocorr = bool(gap_lag is None or task != "binclass" or gap_lag > FLOOR)
     harmful = bool((drop is not None and drop > (0.5 if task == "regression" else 0.05))
                    or (under is not None and under > 0.05))
