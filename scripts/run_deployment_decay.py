@@ -67,21 +67,44 @@ MIN_POS = 10          # a usable binclass window/sample needs >= this many of th
 
 
 # ----------------------------------------------------------------------------- scoring
+_FIT_WARNED = set()
+
+
 def _fit_score(Xtr, ytr, Xte, yte, task, seed):
     """Higher-is-better score of a fresh HGB trained on (Xtr,ytr), eval on (Xte,yte).
-    Returns None if the window can't yield a valid score (single-class train/test, etc.).
-    Raw features (HGB handles NaN natively); imbalance is preserved (no resampling)."""
+    Returns None if the window can't yield a valid score (single-class train/test, fit error).
+    HGB handles NaN natively; imbalance is preserved (no resampling). Any fit/predict error is
+    swallowed to None (one-time warning) so a single degenerate window can't kill the batch."""
     Xtr = np.asarray(Xtr, float); Xte = np.asarray(Xte, float)
-    if task == "regression":
-        m = HistGradientBoostingRegressor(max_iter=300, random_state=seed).fit(Xtr, ytr)
-        return -float(np.sqrt(mean_squared_error(yte, m.predict(Xte))))   # -RMSE: higher better
-    if len(np.unique(ytr)) < 2 or len(np.unique(yte)) < 2:
+    try:
+        if task == "regression":
+            m = HistGradientBoostingRegressor(max_iter=300, random_state=seed).fit(Xtr, ytr)
+            return -float(np.sqrt(mean_squared_error(yte, m.predict(Xte))))   # -RMSE: higher better
+        if len(np.unique(ytr)) < 2 or len(np.unique(yte)) < 2:
+            return None
+        m = HistGradientBoostingClassifier(max_iter=300, random_state=seed).fit(Xtr, ytr)
+        if task == "binclass":
+            pos = list(m.classes_).index(m.classes_[-1])
+            return float(roc_auc_score(yte, m.predict_proba(Xte)[:, pos]))
+        return float(accuracy_score(yte, m.predict(Xte)))
+    except Exception as e:                                  # version-specific binning quirks, etc.
+        key = type(e).__name__
+        if key not in _FIT_WARNED:
+            _FIT_WARNED.add(key)
+            print(f"    [warn] HGB fit/score skipped a window: {key}: {e}", file=sys.stderr)
         return None
-    m = HistGradientBoostingClassifier(max_iter=300, random_state=seed).fit(Xtr, ytr)
-    if task == "binclass":
-        pos = list(m.classes_).index(m.classes_[-1])
-        return float(roc_auc_score(yte, m.predict_proba(Xte)[:, pos]))
-    return float(accuracy_score(yte, m.predict(Xte)))
+
+
+def _sanitize(X):
+    """inf -> NaN (HGB tolerates NaN, not always inf across versions) and drop all-NaN / constant
+    columns (a zero-variance or all-missing column breaks the parallel bin-mapper on some sklearn
+    builds — the most likely cause of the TabReD 'sliding_window_view' crash). Mirrors the cleanup
+    covariate_shift_auc already does."""
+    X = np.asarray(X, float)
+    X[~np.isfinite(X)] = np.nan
+    with np.errstate(all="ignore"):
+        keep = (~np.all(np.isnan(X), axis=0)) & (np.nanstd(X, axis=0) > 0)
+    return X[:, keep] if keep.any() else X
 
 
 def _ok_train(y, task):
@@ -119,29 +142,33 @@ def _per_seed(X, y, win, task, K, max_train, seed):
     (decay, recency_gain, staleness_harm) or Nones where not computable."""
     rng = np.random.default_rng(seed)
     by_w = [np.where(win == k)[0] for k in range(K)]
-    if not _ok_train(y[by_w[0]], task):
+    # robust "old" anchor: the EARLIEST window with enough data (skips a sparse historical tail,
+    # e.g. EMBER's pre-2017 months) instead of hard-failing on the literal oldest window.
+    old_w = next((k for k in range(K) if _ok_train(y[by_w[k]], task)), None)
+    if old_w is None:
         return None
-    # --- oldest-window model for the DECAY curve (its own held-out early baseline) ---
-    w0 = rng.permutation(by_w[0]); cut = int(len(w0) * 0.7)
-    tr0, ho0 = w0[:cut], w0[cut:]
-    tr0 = _sample(tr0, max_train, rng)
-    base = _fit_score(X[tr0], y[tr0], X[ho0], y[ho0], task, seed) if _ok_train(y[tr0], task) else None
+    old_pool = by_w[old_w]
+    # --- old-window model for the DECAY curve (its own held-out early baseline) ---
+    w0 = rng.permutation(old_pool); cut = int(len(w0) * 0.7)
+    tr0, ho0 = _sample(w0[:cut], max_train, rng), w0[cut:]
+    base = (_fit_score(X[tr0], y[tr0], X[ho0], y[ho0], task, seed)
+            if _ok_train(y[tr0], task) and len(ho0) >= 20 else None)
 
-    back = range(max(1, K // 2), K)                    # evaluate decay/gain on the back half
+    back = range(max(old_w + 1, K // 2), K)            # future windows, strictly after the old anchor
     decays, recs, stales = [], [], []
     for j in back:
         te = by_w[j]
         if len(te) < 20 or (task != "regression" and len(np.unique(y[te])) < 2):
             continue
-        # decay of the oldest model on this future window
-        if base is not None:
-            s = _fit_score(X[tr0], y[tr0], X[te], y[te], task, seed) if _ok_train(y[tr0], task) else None
+        # decay of the old model on this future window
+        if base is not None and _ok_train(y[tr0], task):
+            s = _fit_score(X[tr0], y[tr0], X[te], y[te], task, seed)
             if s is not None:
                 decays.append(base - s)
         # recent / old models on the SAME future window, size-matched at N.
         # recency_gain = recent - old. staleness_harm = recent - (recent + old): the recent rows
         # are IDENTICAL in both, so only the N extra OLD rows differ -> no density confound.
-        recent_pool, old_pool = by_w[j - 1], by_w[0]
+        recent_pool = by_w[j - 1]
         n = min(len(recent_pool), len(old_pool), max_train)
         if n < 50:
             continue
@@ -172,6 +199,14 @@ def _ci95(a):
 
 
 def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000):
+    X = _sanitize(X)
+    y = np.asarray(y)
+    t = np.asarray(t, float)
+    # drop rows with a non-finite target (regression) or non-finite time
+    good = np.isfinite(t)
+    if task == "regression":
+        good = good & np.isfinite(y.astype(float))
+    X, y, t = X[good], y[good], t[good]
     win, Keff = _assign_windows(t, K, by_value)
     X, y, win = X[win >= 0], y[win >= 0], win[win >= 0]
     decay_s, rec_s, stale_s = [], [], []
@@ -191,7 +226,12 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
                      and stale_ci[0] > 0 and stale > FLOOR_GAIN)
     rec_present = (rec is not None and rec_ci[0] is not None
                    and rec_ci[0] > 0 and rec > FLOOR_GAIN)
-    if stale_concept and decay_present:
+    # A null measurement is NOT evidence of stability. STABLE may only be declared when the
+    # deployment quantities were actually computed and came back flat — otherwise NO-DATA.
+    measured = decay is not None and rec is not None and stale is not None and len(decay_s) >= 2
+    if not measured:
+        verdict = "NO-DATA"
+    elif stale_concept and decay_present:
         verdict = "DEPLOYMENT-CONCEPT"
     elif rec_present and decay_present:
         verdict = "DEPLOYMENT-DECAY-COVARIATE"
@@ -200,7 +240,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     else:
         verdict = "INCONCLUSIVE"
     return {"dataset": name, "task": task, "n": int(len(y)), "n_windows": int(Keff),
-            "n_seeds_ok": len(decay_s),
+            "n_seeds_ok": len([v for v in decay_s if v is not None]),
             "decay": decay, "decay_ci": decay_ci,
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
@@ -334,8 +374,15 @@ def main():
     print("\n==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====")
     for name, X, y, t, task, nf in jobs:
         print(f"  [{name}] task={task} feats={nf} n={len(y)}")
-        r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
-                   n_seeds=args.n_seeds, max_train=args.max_train)
+        try:
+            r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
+                       n_seeds=args.n_seeds, max_train=args.max_train)
+        except Exception as e:                              # never let one dataset kill the batch
+            import traceback; traceback.print_exc()
+            r = {"dataset": name, "task": task, "verdict": "ERROR", "error": f"{type(e).__name__}: {e}",
+                 "decay": None, "decay_ci": [None, None], "recency_gain": None,
+                 "recency_gain_ci": [None, None], "staleness_harm": None,
+                 "staleness_harm_ci": [None, None], "n_windows": 0}
         rows.append(r); _show(r)
     print("\n  PRE-REG: DEPLOYMENT-CONCEPT => within-overlap negative is an INSTRUMENT ARTIFACT (real")
     print("  positive, overlap lens was blind here). DEPLOYMENT-DECAY-COVARIATE => exploitable but")
