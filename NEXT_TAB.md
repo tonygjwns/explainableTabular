@@ -3,6 +3,31 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
+## ☆☆☆ 현행 = V4 종료 + **도구 자기검증 필요** (2026-06-28, 새 탭 여기부터)
+**상황**: 1년/8도메인(TabReD8·ACS·elec2·insects·BAF·IEEE-CIS·EMBER) 전부 음성. 6번 dissolution(시간검색/concept/C1퍼즐/
+공간시간/생성법칙/재발niche) + V4 positivity 척추 기각(benign 전처리 artifact) + V4-B 적대도메인 0/8. RESULTS §17~28, PLAN_V4.
+**완성·검증된 자산**: 측정 도구킷(`drift_measure.py`: covariate_shift_auc·concept_within_overlap[ess-gated·placebo]·
+disde_iw_degeneration), run_positivity_regime(harm: perf_drop·conformal), run_adversarial_probe(generic CSV verdict),
+prep_ember(JSONL 직접파싱), river 패널. 적대리뷰 패키지·ideation 4제안 = `Desktop/ExplainableTab_ReviewPackage/`.
+
+**★사용자 핵심 의문(미해결·최우선)**: "착취가능 concept drift가 *부재*라는 게 말이 되나? *내 측정 방법이 틀린* 게 더
+현실적 아닌가?" → **타당. "absent"는 over-claim; earned된 건 "overlap 렌즈로 측정불가"뿐.**
+**가장 의심스러운 자산 = within-overlap 기구 자체**: ① 구조적 맹점 — covariate 강하면 overlap이 sliver고 거기서 abstain →
+concept 사는 *new 영역(non-overlap)*을 설계상 못 봄(DISDE term-ii를 초기 선택 후 무검증). ② malware=smoking gun: concept
+drift 문헌상 확립인데 EMBER가 concept~0/drop0.030 → 도구/split 문제 가능성(balanced median, 非TESSERACT).
+
+**다음 탭 최우선 = broad-negative 쓰기 *전에* 도구 자기검증**(within-overlap 버리고 현실 배포-decay):
+1. **EMBER TESSERACT 충실 holdout**: train ≤ month M → test month M+k, 불균형 유지(malware ~10%), 시간별 AUC decay 곡선.
+   (현 balanced-median 0.030 decay가 protocol artifact인지 판정.) prep_ember는 보유; split만 현실화.
+2. **rolling-origin decay + adaptation-gain**: TabReD/fraud/EMBER서 과거학습→미래테스트 decay + recency/재학습이 복구하나
+   (run_anchors의 recency·no_change 재활용). 우리가 "측정불가/부재"라 한 곳에서 **decay 크고 adaptation 복구**면
+   → negative는 도구 artifact, **진짜 양성** + 스토리("overlap 기반 concept 측정은 중요 regime서 맹목").
+3. 음성(decay 작음·adaptation 무효)이면 → broad-negative 논문 *확정*(이제 within-overlap+deployment 양쪽서 음성=단단).
+**판정 후**: 양성→피벗(deployment-decay 프레임). 음성→측정/negative-results/D&B-tools 논문 작성(골격: 도구킷+8도메인
+Shift Cards+positivity boundary+정직한 negative들). 지도교수 언급 금지(메모리).
+
+---
+
 ## ☆☆☆ 현행 = V3 재건 진행 중 (2026-06-17 갱신) — 새 탭은 여기부터
 > 읽는 순서: **이 블록 → `PLAN_V3.md`(현행 계획·게이트 판정) → `RED_TEAM.md`(7-에이전트 검토·왜 재건)
 > → `PAPER_DRAFT_V3.md`/`_KO.md`(현행 초안) → RESULTS.md**. (PLAN_V2/PREREG_V2/PAPER_DRAFT(v0.1)는 역사.)
