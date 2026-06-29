@@ -77,6 +77,17 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
     HGB handles NaN natively; imbalance is preserved (no resampling). Any fit/predict error is
     swallowed to None (one-time warning) so a single degenerate window can't kill the batch."""
     Xtr = np.asarray(Xtr, float); Xte = np.asarray(Xte, float)
+    # Drop columns constant WITHIN this training subset (not just globally). sklearn>=1.9's
+    # bin-mapper computes midpoints between consecutive distinct values via sliding_window_view(.,2),
+    # which raises "window shape cannot be larger than input array shape" on a single-distinct-value
+    # column. A within-subset constant carries no signal, so dropping it is lossless and removes the
+    # crash. (Bootstrap/sparse windows make this common on e.g. sberbank's 392 features.)
+    with np.errstate(all="ignore"):
+        keep = np.nanstd(Xtr, axis=0) > 0
+    if not keep.any():
+        return None
+    if not keep.all():
+        Xtr, Xte = Xtr[:, keep], Xte[:, keep]
     try:
         if task == "regression":
             m = HistGradientBoostingRegressor(max_iter=300, random_state=seed).fit(Xtr, ytr)
