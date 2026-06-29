@@ -82,8 +82,7 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
     # which raises "window shape cannot be larger than input array shape" on a single-distinct-value
     # column. A within-subset constant carries no signal, so dropping it is lossless and removes the
     # crash. (Bootstrap/sparse windows make this common on e.g. sberbank's 392 features.)
-    with np.errstate(all="ignore"):
-        keep = np.nanstd(Xtr, axis=0) > 0
+    keep = _nonconstant_mask(Xtr)
     if not keep.any():
         return None
     if not keep.all():
@@ -110,15 +109,27 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
         return None
 
 
+def _nonconstant_mask(X):
+    """Columns with >= 2 distinct non-NaN values. Computed WITHOUT triggering numpy's
+    'Degrees of freedom <= 0' warning: nanstd is evaluated only on columns that have at least one
+    non-NaN value (so N>=1, ddof=0 -> N>0), never on an all-NaN column (N=0, the warning's cause).
+    The all-NaN columns are simply excluded up front. Result is identical, output is clean."""
+    X = np.asarray(X, float)
+    not_all_nan = ~np.all(np.isnan(X), axis=0)
+    keep = np.zeros(X.shape[1], dtype=bool)
+    if not_all_nan.any():
+        with np.errstate(all="ignore"):
+            keep[not_all_nan] = np.nanstd(X[:, not_all_nan], axis=0) > 0
+    return keep
+
+
 def _sanitize(X):
     """inf -> NaN (HGB tolerates NaN, not always inf across versions) and drop all-NaN / constant
     columns (a zero-variance or all-missing column breaks the parallel bin-mapper on some sklearn
-    builds — the most likely cause of the TabReD 'sliding_window_view' crash). Mirrors the cleanup
-    covariate_shift_auc already does."""
+    builds — the cause of the TabReD 'sliding_window_view' crash). Mirrors covariate_shift_auc."""
     X = np.asarray(X, float)
     X[~np.isfinite(X)] = np.nan
-    with np.errstate(all="ignore"):
-        keep = (~np.all(np.isnan(X), axis=0)) & (np.nanstd(X, axis=0) > 0)
+    keep = _nonconstant_mask(X)
     return X[:, keep] if keep.any() else X
 
 
@@ -227,7 +238,32 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
         good = good & np.isfinite(y.astype(float))
     X, y, t = X[good], y[good], t[good]
     win, Keff = _assign_windows(t, K, by_value)
-    X, y, win = X[win >= 0], y[win >= 0], win[win >= 0]
+    keep_w = win >= 0
+    X, y, t, win = X[keep_w], y[keep_w], t[keep_w], win[keep_w]
+
+    # ---- domain guards / trust diagnostics (so a degenerate time axis or pure serial
+    #      correlation can't be read as a real deployment verdict) ----
+    uniq_t = int(np.unique(t).size)
+    cov_el = None                                          # covariate movement first->last window
+    try:
+        fw, lw = X[win == win.min()], X[win == win.max()]
+        if len(fw) >= 20 and len(lw) >= 20:
+            from src.analysis.drift_measure import covariate_shift_auc
+            cov_el = covariate_shift_auc(fw, lw).get("auc")
+    except Exception:
+        cov_el = None
+    ys = y[np.argsort(t, kind="stable")].astype(float)     # label autocorrelation in time order
+    ylag = (float(np.corrcoef(ys[1:], ys[:-1])[0, 1])
+            if ys.size > 2 and np.std(ys) > 0 else None)
+    flags = []
+    if uniq_t < Keff:
+        flags.append("few-unique-times")                   # can't form the windows we claim
+    if cov_el is not None and cov_el < 0.55:
+        flags.append("no-covariate-movement")              # the 'time' axis barely moves -> verdict weak
+    if task == "binclass" and ylag is not None and abs(ylag) > 0.5:
+        flags.append("autocorr-risk")                      # serial labels (elec2) can fake decay/recency
+    trust = "ok" if not flags else ";".join(flags)
+
     decay_s, rec_s, stale_s = [], [], []
     for s in range(n_seeds):
         out = _per_seed(X, y, win, task, Keff, max_train, s)
@@ -263,6 +299,8 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
             "decay": decay, "decay_ci": decay_ci,
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
+            "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
+            "y_lag1_autocorr": ylag, "trust": trust,
             "verdict": verdict}
 
 
@@ -336,9 +374,11 @@ def _synth(kind, seed=0, n=12000, d=10):
 def _show(r):
     f = lambda x: f"{x:+.3f}" if isinstance(x, (int, float)) else "   -"
     ci = lambda c: f"[{f(c[0])},{f(c[1])}]" if c and c[0] is not None else "   -"
+    trust = r.get("trust", "ok")
+    tnote = "" if trust == "ok" else f"  [TRUST: {trust}]"
     print(f"  {r['dataset'][:20]:20s} W={r['n_windows']:>2d} "
           f"decay={f(r['decay'])} rec={f(r['recency_gain'])}{ci(r['recency_gain_ci'])} "
-          f"stale={f(r['staleness_harm'])}{ci(r['staleness_harm_ci'])} => {r['verdict']}")
+          f"stale={f(r['staleness_harm'])}{ci(r['staleness_harm_ci'])} => {r['verdict']}{tnote}")
 
 
 def main():
