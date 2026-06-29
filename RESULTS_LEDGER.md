@@ -55,6 +55,15 @@
 |---|---|
 | retrieval_vs_recency_summary.json | run_retrieval_vs_recency.py = model-light(sklearn kNN+HGB), Fourier 미사용 → **CLEAN** (단 niche 결론은 은퇴) |
 
+## 3b. deployment-decay 도구 검증 (staleness_harm이 concept을 진짜 재나)
+synth ground-truth + **적대 대조**로 staleness_harm의 교란 면역을 검증(`run_deployment_decay.py --synth`):
+- concept(규칙회전)→CONCEPT / covariate(공변량이동·규칙고정)→DECAY-COVARIATE / stable→STABLE (PASS).
+- **adversarial covariate_mc** (multiclass·prior이동·규칙고정, accuracy 지표): stale −0.003(CI<0) →
+  DECAY-COVARIATE, **CONCEPT 거짓발화 안 함.** → insects=CONCEPT(stale+0.129)이 prior-이동/용량-타협
+  artifact가 아님을 입증. binclass(AUC)는 prior 불변이라 애초 면역.
+- 결과(2026-06-29 sweep): TabReD 8/8 stale≤0(concept 없음) / elec2 autocorr-risk 플래그 / insects=CONCEPT.
+  두 렌즈(within-overlap+deployment) 데이터셋별 일치.
+
 ## 4. 코드 신뢰성 — 박을 테스트 (미구현)
 - 시간 임베딩 ground-truth: 배포 범위서 앨리어싱 0, 매끈 드리프트 외삽 허용오차 내.
 - headroom 정규화: 변환 후 t≤1, train→[0,0.5].

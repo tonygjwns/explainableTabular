@@ -378,6 +378,15 @@ def _synth(kind, seed=0, n=12000, d=10):
         # (decay + recency_gain), yet old samples carry CORRECT labels -> staleness_harm <= 0.
         X[:, 0] = X[:, 0] + 6.0 * t
         y = (np.sin(1.5 * X[:, 0]) + 0.8 * X[:, 1] + rng.normal(0, .3, n) > 0).astype(int)
+    elif kind == "covariate_mc":
+        # ADVERSARIAL control for the insects (multiclass / accuracy) read: P(x) drifts AND the
+        # class PRIOR drifts with it, but P(y|x) is FIXED in observed-feature space. A true concept
+        # discriminator must NOT call this CONCEPT — if staleness_harm fires here, the multiclass/
+        # accuracy path is confounding prior-shift with a changed rule (the insects worry).
+        X[:, 0] = X[:, 0] + 6.0 * t                     # covariate drift -> also shifts class prior
+        logits = np.stack([np.sin(1.5 * X[:, 0]), 0.8 * X[:, 1], -0.7 * X[:, 2]], axis=1)
+        y = (logits + rng.normal(0, .3, (n, 3))).argmax(1)        # FIXED 3-class rule
+        return X, y, t, "multiclass"
     else:                                               # stable
         y = (3 * X[:, 0] + rng.normal(0, .4, n) > 0).astype(int)
     return X, y, t, "binclass"
@@ -423,16 +432,18 @@ def main():
     if args.synth:
         print("\n==== SYNTH ground-truth controls (instrument MUST land in the 3 regimes) ====")
         print("  EXPECT  concept=>DEPLOYMENT-CONCEPT  covariate=>DEPLOYMENT-DECAY-COVARIATE  stable=>DEPLOYMENT-STABLE")
-        for kind in ("concept", "covariate", "stable"):
+        print("  ADVERSARIAL  covariate_mc (multiclass prior-shift, FIXED rule) MUST NOT be CONCEPT")
+        for kind in ("concept", "covariate", "stable", "covariate_mc"):
             X, y, t, task = _synth(kind)
             r = assess(f"synth_{kind}", X, y, t, task, K=args.windows, n_seeds=args.n_seeds,
                        max_train=args.max_train)
             rows.append(r); _show(r)
         (out_dir / "synth_summary.json").write_text(json.dumps({"rows": rows}, indent=2, default=float))
-        ok = ({r["dataset"]: r["verdict"] for r in rows} ==
-              {"synth_concept": "DEPLOYMENT-CONCEPT",
-               "synth_covariate": "DEPLOYMENT-DECAY-COVARIATE",
-               "synth_stable": "DEPLOYMENT-STABLE"})
+        verdicts = {r["dataset"]: r["verdict"] for r in rows}
+        ok = (verdicts.get("synth_concept") == "DEPLOYMENT-CONCEPT"
+              and verdicts.get("synth_covariate") == "DEPLOYMENT-DECAY-COVARIATE"
+              and verdicts.get("synth_stable") == "DEPLOYMENT-STABLE"
+              and verdicts.get("synth_covariate_mc") != "DEPLOYMENT-CONCEPT")  # adversarial: must not false-fire
         print(f"\n  GROUND-TRUTH {'PASS' if ok else 'CHECK (verdicts above must match EXPECT)'}")
         print(f"  wrote {out_dir}/synth_summary.json")
         return
