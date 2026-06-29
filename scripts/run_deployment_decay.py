@@ -345,6 +345,19 @@ def _load_tabred(ds, cfg):
     return X, data.train.y, data.train.t, data.task, X.shape[1]
 
 
+def _load_stream(data):
+    """elec2 / insects: the natural deployment timeline is the WHOLE stream, so concatenate
+    train+val+test and order by t_raw (the global stream index each split carries). t_raw is the
+    time axis for windowing (a clean monotone order)."""
+    from src.analysis.drift_measure import _stack
+    parts = [data.train, data.val, data.test]
+    X = np.concatenate([_stack(p.X_num, p.X_bin, p.X_cat) for p in parts], axis=0)
+    y = np.concatenate([p.y for p in parts])
+    tr = np.concatenate([p.t_raw for p in parts]).astype(float)
+    o = np.argsort(tr, kind="stable")
+    return X[o], y[o], tr[o], data.task, X.shape[1]
+
+
 # ----------------------------------------------------------------------------- synthetic ground truth
 def _synth(kind, seed=0, n=12000, d=10):
     """Three regimes the instrument MUST separate, over a continuous time axis (-> quantile windows):
@@ -388,6 +401,9 @@ def main():
     ap.add_argument("--drop", nargs="*", default=[])
     ap.add_argument("--name", default=None)
     ap.add_argument("--tabred", nargs="*", default=[])
+    ap.add_argument("--elec2", action="store_true")
+    ap.add_argument("--insects", action="store_true")
+    ap.add_argument("--insects-variant", default="incremental_balanced")
     ap.add_argument("--config", default="configs/phase1.yaml")
     ap.add_argument("--by-value", action="store_true",
                     help="one window per unique time value (e.g. EMBER YYYYMM months)")
@@ -431,8 +447,16 @@ def main():
         for ds in args.tabred:
             X, y, t, task, nf = _load_tabred(ds, cfg)
             jobs.append((ds, X, y, t, task, nf))
+    if args.elec2:
+        from src.data.elec2_loader import load_elec2
+        jobs.append(("elec2", *_load_stream(load_elec2(split="temporal", seed=0))))
+    if args.insects:
+        from src.data.insects_loader import load_insects
+        jobs.append((f"insects_{args.insects_variant}",
+                     *_load_stream(load_insects(variant=args.insects_variant,
+                                                split="temporal", seed=0))))
     if not jobs:
-        print("provide --csv --target --time, or --tabred ..., or --synth"); return
+        print("provide --csv --target --time, --tabred ..., --elec2/--insects, or --synth"); return
 
     print("\n==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====")
     for name, X, y, t, task, nf in jobs:
