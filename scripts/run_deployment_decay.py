@@ -68,6 +68,7 @@ MIN_POS = 10          # a usable binclass window/sample needs >= this many of th
 
 # ----------------------------------------------------------------------------- scoring
 _FIT_WARNED = set()
+_DEBUG_RAISE = False     # set by --debug-raise: re-raise HGB errors with full traceback
 
 
 def _fit_score(Xtr, ytr, Xte, yte, task, seed):
@@ -88,10 +89,13 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
             return float(roc_auc_score(yte, m.predict_proba(Xte)[:, pos]))
         return float(accuracy_score(yte, m.predict(Xte)))
     except Exception as e:                                  # version-specific binning quirks, etc.
+        if _DEBUG_RAISE:
+            raise
         key = type(e).__name__
         if key not in _FIT_WARNED:
             _FIT_WARNED.add(key)
-            print(f"    [warn] HGB fit/score skipped a window: {key}: {e}", file=sys.stderr)
+            print(f"    [warn] HGB fit/score skipped a window: {key}: {e} "
+                  f"(Xtr={np.asarray(Xtr).shape})", file=sys.stderr)
         return None
 
 
@@ -131,8 +135,12 @@ def _assign_windows(t, K, by_value):
 
 
 def _sample(idx, n, rng):
+    """Draw n training indices. When the pool is larger than n, subsample WITHOUT replacement
+    (varies per seed). When the pool is <= n, BOOTSTRAP (with replacement) to size n so that
+    seeds still differ -> the across-seed CI reflects genuine sampling uncertainty instead of
+    collapsing to width 0 (which would make 'CI excludes 0' vacuously true)."""
     if len(idx) <= n:
-        return idx
+        return rng.choice(idx, n, replace=True)
     return rng.choice(idx, n, replace=False)
 
 
@@ -337,7 +345,11 @@ def main():
     ap.add_argument("--max-train", type=int, default=6000)
     ap.add_argument("--max-n", type=int, default=60000)
     ap.add_argument("--synth", action="store_true")
+    ap.add_argument("--debug-raise", action="store_true",
+                    help="re-raise HGB fit errors with full traceback (diagnose the binning crash)")
     args = ap.parse_args()
+    if args.debug_raise:
+        globals()["_DEBUG_RAISE"] = True
     out_dir = Path("results/phase1/deployment_decay"); out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
 
