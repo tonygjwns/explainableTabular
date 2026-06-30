@@ -64,6 +64,21 @@ synth ground-truth + **적대 대조**로 staleness_harm의 교란 면역을 검
 - 결과(2026-06-29 sweep): TabReD 8/8 stale≤0(concept 없음) / elec2 autocorr-risk 플래그 / insects=CONCEPT.
   두 렌즈(within-overlap+deployment) 데이터셋별 일치.
 
+## 3c. 외부 red-team 대응 (2026-06-30) — deployment 도구 경화
+독립 LLM 적대검토가 7개 결함 제기. 코드/실험으로 대응:
+- **Flaw 1·2 (N-vs-2N·early-stopping 비대칭이 음성 편향)**: d=10/400/700 bias 스윕 → cur(N-vs-2N,auto)
+  ≈ fixed(2N-vs-2N,off), 둘 다 c>0서 양수 = **편향 경험적으로 무시할 수준.** 리뷰어 제안 fixed-size
+  변종은 구현·GT테스트 후 **기각**(covariate 커버리지 누수: covariate synth +0.000→+0.005). 원 설계 유지.
+  단 early_stopping=False로 임계(10000) 비대칭은 제거.
+- **Flaw 3 (CI 부정직)**: t-배수(1.96→t_{n-1}) + 시드별 90% row 서브샘플로 partition 변동 → CI가
+  partition+data-draw 불확실성 반영.
+- **Flaw 4 (-RMSE에 절대 floor)**: 회귀 타깃 z-표준화 → floor 단위 불변.
+- **Flaw 5·6 (동률-경계 누수 / 음수-decay 시간축 / 낡은 ledger)**: tie-overlap·future-easier 트러스트
+  플래그 추가. 낡은 루트 summary.json은 경화 도구로 전면 재생성 예정.
+- **Flaw 7 (두 렌즈 '독립' 아님)**: 인정 — 둘 다 HGB+같은 전처리+같은 시간축 공유. "독립 확증" 표현
+  철회, "상이한 estimand의 일관"으로 약화. (다른 모델족 렌즈는 향후.)
+GT 재검증: concept/covariate/stable/covariate_mc 전부 통과(covariate·covariate_mc stale≤0, CI 정직).
+
 ## 4. 코드 신뢰성 — 박을 테스트 (미구현)
 - 시간 임베딩 ground-truth: 배포 범위서 앨리어싱 0, 매끈 드리프트 외삽 허용오차 내.
 - headroom 정규화: 변환 후 t≤1, train→[0,0.5].

@@ -87,13 +87,18 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
         return None
     if not keep.all():
         Xtr, Xte = Xtr[:, keep], Xte[:, keep]
+    # early_stopping=False (NOT the default 'auto', which turns ON only when n_samples>10000):
+    # the staleness comparison trains on N and 2N, and at the real regime (N~6000) only the 2N arm
+    # would cross the 'auto' threshold -> asymmetric regularization that biases the comparison
+    # independent of any rule change (red-team Flaw 1). Fixed regularization for every fit removes it.
+    HGB = dict(max_iter=200, early_stopping=False, random_state=seed)
     try:
         if task == "regression":
-            m = HistGradientBoostingRegressor(max_iter=300, random_state=seed).fit(Xtr, ytr)
+            m = HistGradientBoostingRegressor(**HGB).fit(Xtr, ytr)
             return -float(np.sqrt(mean_squared_error(yte, m.predict(Xte))))   # -RMSE: higher better
         if len(np.unique(ytr)) < 2 or len(np.unique(yte)) < 2:
             return None
-        m = HistGradientBoostingClassifier(max_iter=300, random_state=seed).fit(Xtr, ytr)
+        m = HistGradientBoostingClassifier(**HGB).fit(Xtr, ytr)
         if task == "binclass":
             pos = list(m.classes_).index(m.classes_[-1])
             return float(roc_auc_score(yte, m.predict_proba(Xte)[:, pos]))
@@ -167,65 +172,80 @@ def _sample(idx, n, rng):
 
 
 # ----------------------------------------------------------------------------- core
-def _per_seed(X, y, win, task, K, max_train, seed):
-    """One seed of the rolling-origin analysis. Returns per-window-averaged
-    (decay, recency_gain, staleness_harm) or Nones where not computable."""
+def _per_seed(X, y, t, task, K, by_value, max_train, seed):
+    """One seed. A per-seed row SUBSAMPLE (90%) is windowed fresh, so the partition itself varies
+    across seeds -> the across-seed CI captures partition + data-draw uncertainty, not only the
+    training bootstrap (red-team Flaw 3). Returns (decay, recency_gain, staleness_harm, Keff).
+
+    staleness_harm = score(recent N) − score(recent N ∪ old N): does ADDING old data on top of the
+    SAME recent set hurt the future? >0 = old data is net-harmful = old labels contradict the current
+    rule = concept. Under a fixed rule old data (correct labels) only adds coverage -> stale <= 0.
+    NOTE on the red-team's proposed 'fixed-size' variant (recent∪old vs recent∪recent', both 2N): we
+    implemented and ground-truth-tested it and REJECTED it — it leaks a covariate-coverage confound
+    (recent' covers the future region better than old, so it reads stale>0 under a FIXED rule; the
+    covariate synth went +0.000 -> +0.005). The N-vs-2N size effect it was meant to remove is
+    empirically negligible (a d=10..700 bias sweep: N-vs-2N ≈ fixed-size on concept data), and
+    early_stopping=False removes the only sharp asymmetry, so the original design is kept."""
     rng = np.random.default_rng(seed)
-    by_w = [np.where(win == k)[0] for k in range(K)]
-    # robust "old" anchor: the EARLIEST window with enough data (skips a sparse historical tail,
-    # e.g. EMBER's pre-2017 months) instead of hard-failing on the literal oldest window.
-    old_w = next((k for k in range(K) if _ok_train(y[by_w[k]], task)), None)
+    n = len(y)
+    sub = rng.choice(n, int(0.9 * n), replace=False) if n > 200 else np.arange(n)
+    Xs, ys, ts = X[sub], y[sub], t[sub]
+    win, Keff = _assign_windows(ts, K, by_value)
+    keep = win >= 0
+    Xs, ys, win = Xs[keep], ys[keep], win[keep]
+    by_w = [np.where(win == k)[0] for k in range(Keff)]
+    # robust "old" anchor: the EARLIEST window with enough data (skips a sparse historical tail).
+    old_w = next((k for k in range(Keff) if _ok_train(ys[by_w[k]], task)), None)
     if old_w is None:
         return None
     old_pool = by_w[old_w]
     # --- old-window model for the DECAY curve (its own held-out early baseline) ---
     w0 = rng.permutation(old_pool); cut = int(len(w0) * 0.7)
     tr0, ho0 = _sample(w0[:cut], max_train, rng), w0[cut:]
-    base = (_fit_score(X[tr0], y[tr0], X[ho0], y[ho0], task, seed)
-            if _ok_train(y[tr0], task) and len(ho0) >= 20 else None)
+    base = (_fit_score(Xs[tr0], ys[tr0], Xs[ho0], ys[ho0], task, seed)
+            if _ok_train(ys[tr0], task) and len(ho0) >= 20 else None)
 
-    back = range(max(old_w + 1, K // 2), K)            # future windows, strictly after the old anchor
     decays, recs, stales = [], [], []
-    for j in back:
+    for j in range(max(old_w + 1, Keff // 2), Keff):       # future windows, after the old anchor
         te = by_w[j]
-        if len(te) < 20 or (task != "regression" and len(np.unique(y[te])) < 2):
+        if len(te) < 20 or (task != "regression" and len(np.unique(ys[te])) < 2):
             continue
-        # decay of the old model on this future window
-        if base is not None and _ok_train(y[tr0], task):
-            s = _fit_score(X[tr0], y[tr0], X[te], y[te], task, seed)
+        if base is not None and _ok_train(ys[tr0], task):
+            s = _fit_score(Xs[tr0], ys[tr0], Xs[te], ys[te], task, seed)
             if s is not None:
                 decays.append(base - s)
-        # recent / old models on the SAME future window, size-matched at N.
-        # recency_gain = recent - old. staleness_harm = recent - (recent + old): the recent rows
-        # are IDENTICAL in both, so only the N extra OLD rows differ -> no density confound.
         recent_pool = by_w[j - 1]
-        n = min(len(recent_pool), len(old_pool), max_train)
-        if n < 50:
+        N = min(len(recent_pool), len(old_pool), max_train)
+        if N < 50:
             continue
-        recent = _sample(recent_pool, n, rng)
-        old = _sample(old_pool, n, rng)
-        if not (_ok_train(y[recent], task) and _ok_train(y[old], task)):
+        recent = _sample(recent_pool, N, rng)
+        old = _sample(old_pool, N, rng)
+        if not (_ok_train(ys[recent], task) and _ok_train(ys[old], task)):
             continue
-        recent_old = np.concatenate([recent, old])          # same N recent + N old
-        s_recent = _fit_score(X[recent], y[recent], X[te], y[te], task, seed)
-        s_old = _fit_score(X[old], y[old], X[te], y[te], task, seed)
-        s_recent_old = _fit_score(X[recent_old], y[recent_old], X[te], y[te], task, seed)
-        if None not in (s_recent, s_old):
-            recs.append(s_recent - s_old)
-        if None not in (s_recent, s_recent_old):
-            stales.append(s_recent - s_recent_old)           # >0 = adding old HURT = concept
+        recent_old = np.concatenate([recent, old])     # same N recent + N old
+        sRec = _fit_score(Xs[recent], ys[recent], Xs[te], ys[te], task, seed)
+        sOld = _fit_score(Xs[old], ys[old], Xs[te], ys[te], task, seed)
+        sRecOld = _fit_score(Xs[recent_old], ys[recent_old], Xs[te], ys[te], task, seed)
+        if None not in (sRec, sOld):
+            recs.append(sRec - sOld)
+        if None not in (sRec, sRecOld):
+            stales.append(sRec - sRecOld)              # >0 = adding old HURT = concept
     mean = lambda a: float(np.mean(a)) if a else None
-    return mean(decays), mean(recs), mean(stales)
+    return mean(decays), mean(recs), mean(stales), Keff
 
 
 def _ci95(a):
+    """Mean ± t(0.975, n-1)·SE. Uses the Student-t multiplier (n=5 -> 2.776, not 1.96) so a small
+    seed count does not produce an anti-conservative interval (red-team Flaw 3)."""
     a = np.asarray([v for v in a if v is not None], float)
     if len(a) == 0:
         return None, [None, None]
     if len(a) < 2:
         return float(a[0]), [float(a[0]), float(a[0])]
+    from scipy.stats import t as _student_t
     m, se = float(a.mean()), float(a.std(ddof=1) / np.sqrt(len(a)))
-    return m, [m - 1.96 * se, m + 1.96 * se]
+    tm = float(_student_t.ppf(0.975, len(a) - 1))
+    return m, [m - tm * se, m + tm * se]
 
 
 def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000):
@@ -237,43 +257,61 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     if task == "regression":
         good = good & np.isfinite(y.astype(float))
     X, y, t = X[good], y[good], t[good]
-    win, Keff = _assign_windows(t, K, by_value)
+    # Regression: standardize the target (z-score) so -RMSE is in std units. The CONCEPT/STABLE
+    # floor (0.02) is then unit-invariant — without this a target rescaled x100 would flip the
+    # verdict (red-team Flaw 4). For AUC/accuracy the scores are already in [0,1].
+    if task == "regression":
+        yf = np.asarray(y, float); mu, sd = float(np.mean(yf)), float(np.std(yf)) + 1e-12
+        y = (yf - mu) / sd
+
+    win, Keff = _assign_windows(t, K, by_value)            # single windowing, for diagnostics only
     keep_w = win >= 0
-    X, y, t, win = X[keep_w], y[keep_w], t[keep_w], win[keep_w]
+    Xd, yd, td, win = X[keep_w], y[keep_w], t[keep_w], win[keep_w]
 
     # ---- domain guards / trust diagnostics (so a degenerate time axis or pure serial
     #      correlation can't be read as a real deployment verdict) ----
-    uniq_t = int(np.unique(t).size)
+    uniq_t = int(np.unique(td).size)
     cov_el = None                                          # covariate movement first->last window
     try:
-        fw, lw = X[win == win.min()], X[win == win.max()]
+        fw, lw = Xd[win == win.min()], Xd[win == win.max()]
         if len(fw) >= 20 and len(lw) >= 20:
             from src.analysis.drift_measure import covariate_shift_auc
             cov_el = covariate_shift_auc(fw, lw).get("auc")
     except Exception:
         cov_el = None
-    ys = y[np.argsort(t, kind="stable")].astype(float)     # label autocorrelation in time order
+    ys = yd[np.argsort(td, kind="stable")].astype(float)   # label autocorrelation in time order
     ylag = (float(np.corrcoef(ys[1:], ys[:-1])[0, 1])
             if ys.size > 2 and np.std(ys) > 0 else None)
-    flags = []
-    if uniq_t < Keff:
-        flags.append("few-unique-times")                   # can't form the windows we claim
-    if cov_el is not None and cov_el < 0.55:
-        flags.append("no-covariate-movement")              # the 'time' axis barely moves -> verdict weak
-    if task == "binclass" and ylag is not None and abs(ylag) > 0.5:
-        flags.append("autocorr-risk")                      # serial labels (elec2) can fake decay/recency
-    trust = "ok" if not flags else ";".join(flags)
+    # tie-overlap: fraction of adjacent windows whose [min_t,max_t] overlap (a tied timestamp split
+    # across the past/future boundary -> potential leakage the few-unique-times guard misses, Flaw 5)
+    rngs = [(td[win == k].min(), td[win == k].max()) for k in range(Keff) if (win == k).any()]
+    tie_ov = (sum(1 for a, b in zip(rngs, rngs[1:]) if a[1] >= b[0]) / max(len(rngs) - 1, 1)
+              if len(rngs) > 1 else 0.0)
 
     decay_s, rec_s, stale_s = [], [], []
     for s in range(n_seeds):
-        out = _per_seed(X, y, win, task, Keff, max_train, s)
+        out = _per_seed(X, y, t, task, K, by_value, max_train, s)
         if out is None:
             continue
-        d, r, st = out
+        d, r, st, Keff = out
         decay_s.append(d); rec_s.append(r); stale_s.append(st)
     decay, decay_ci = _ci95(decay_s)
     rec, rec_ci = _ci95(rec_s)
     stale, stale_ci = _ci95(stale_s)
+
+    # ---- trust flags (informational; never override the verdict) ----
+    flags = []
+    if uniq_t < Keff:
+        flags.append("few-unique-times")                   # can't form the windows we claim
+    if cov_el is not None and cov_el < 0.55:
+        flags.append("no-covariate-movement")              # the 'time' axis barely moves
+    if task == "binclass" and ylag is not None and abs(ylag) > 0.5:
+        flags.append("autocorr-risk")                      # serial labels (elec2) fake decay/recency
+    if decay is not None and decay < -FLOOR_DECAY:
+        flags.append("future-easier")                      # negative decay -> time axis may not be chronological
+    if tie_ov > 0.3:
+        flags.append("tie-split")                          # tied timestamps straddle window boundaries
+    trust = "ok" if not flags else ";".join(flags)
 
     decay_present = decay is not None and decay > FLOOR_DECAY
     # CI lower bound > 0 AND point above the noise floor
@@ -300,7 +338,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
-            "y_lag1_autocorr": ylag, "trust": trust,
+            "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
             "verdict": verdict}
 
 
