@@ -212,20 +212,31 @@ def _ok_train(y, task):
 
 
 # ----------------------------------------------------------------------------- windows
-def _assign_windows(t, K, by_value):
+def _assign_windows(t, K, by_value, rng=None):
     """Return per-row window id in [0..K-1] (or fewer). by_value: one window per unique time
-    value (e.g. EMBER YYYYMM months = TESSERACT-faithful). else: K equal-count quantile bins."""
+    value (e.g. EMBER YYYYMM months = TESSERACT-faithful). else: K bins by TIMESTAMP-VALUE rank so
+    all rows sharing a timestamp land in the SAME window (ties never straddle the past/future
+    boundary — red-team Flaw 5). When rng is given, the K-1 window BOUNDARIES are jittered by a few
+    unique-value ranks (block-bootstrap over timestamp values): this varies the partition across
+    seeds even on COARSE timestamps, where a 90% row subsample leaves np.unique(t) unchanged and
+    would otherwise FREEZE the partition -> under-dispersed CI (red-team NEW-3, reproduced)."""
     t = np.asarray(t, float)
     if by_value:
         uniq = np.unique(t[np.isfinite(t)])
         remap = {v: i for i, v in enumerate(uniq)}
         return np.array([remap.get(v, -1) for v in t], int), len(uniq)
-    # K bins by the TIMESTAMP-VALUE rank (not the row rank), so all rows sharing a timestamp land in
-    # the SAME window. Row-rank binning splits tied timestamps across the past/future boundary — a
-    # leak on coarse-timestamp datasets (ecom has 45 unique t over 100k rows) that the tie-split flag
-    # exposed (red-team Flaw 5). Windows may be slightly unequal in row count; ties never straddle.
     uniq, inv = np.unique(t, return_inverse=True)      # inv = rank of each row's timestamp value
-    w = (inv * K // len(uniq)).clip(0, K - 1)
+    U = len(uniq)
+    if rng is not None and U > K:
+        edges = (np.arange(1, K) * U / K)              # K-1 interior boundaries in value-rank space
+        # jitter = a FEW unique timestamps (capped 1..3): meaningful when timestamps are chunky
+        # (coarse: ±1 value moves a whole block -> partition varies) and negligible when fine
+        # (±few rows). Scaling with U over-jittered fine datasets (±25% of a window).
+        b = int(np.clip(U // (4 * K), 1, 3))
+        edges = np.clip(np.sort(edges + rng.integers(-b, b + 1, size=K - 1)), 1, U - 1)
+        w = np.searchsorted(edges, inv, side="right")
+    else:
+        w = (inv * K // U).clip(0, K - 1)
     return w.astype(int), K
 
 
@@ -258,7 +269,7 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
     n = len(y)
     sub = rng.choice(n, int(0.9 * n), replace=False) if n > 200 else np.arange(n)
     Xs, ys, ts = X[sub], y[sub], t[sub]
-    win, Keff = _assign_windows(ts, K, by_value)
+    win, Keff = _assign_windows(ts, K, by_value, rng=rng)   # rng => per-seed boundary jitter (NEW-3)
     keep = win >= 0
     Xs, ys, win = Xs[keep], ys[keep], win[keep]
     by_w = [np.where(win == k)[0] for k in range(Keff)]
