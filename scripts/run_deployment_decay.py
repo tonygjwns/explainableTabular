@@ -373,6 +373,18 @@ def _ci95(a):
     return m, [m - tm * se, m + tm * se]
 
 
+def _delta(vals, alpha=0.05, power=0.8):
+    """Minimum staleness the test could DETECT at the given power (one-sided). Reported so a null
+    means 'staleness > delta is excluded' in the dataset's OWN units — metric-commensurate, so the
+    single 0.02 floor is not the only thing standing behind a 'no strong concept' read (NEW-5)."""
+    a = [v for v in vals if v is not None]
+    if len(a) < 2:
+        return None
+    from scipy.stats import norm
+    se = float(np.std(a, ddof=1) / np.sqrt(len(a)))
+    return float((norm.ppf(1 - alpha) + norm.ppf(power)) * se)   # ~2.49 * SE
+
+
 def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000):
     X = _sanitize(X)
     y = np.asarray(y)
@@ -512,7 +524,8 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
             "D_strip": D_strip, "D_full": D_full, "D_shuffle": D_shuffle, "injected_staleness": inj_stale,
-            "n_proxy_stripped": n_proxy, "min_window_n": min_window_n, "Dstar": DSTAR,
+            "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
+            "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
             "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
             "verdict": verdict}
