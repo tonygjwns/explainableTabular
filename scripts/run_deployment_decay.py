@@ -63,6 +63,9 @@ from sklearn.metrics import roc_auc_score, accuracy_score, mean_squared_error  #
 
 FLOOR_GAIN = 0.02     # a gain/harm below this (in AUC/acc units) is noise
 FLOOR_DECAY = 0.02    # a decay below this is not "the model meaningfully ages"
+DSTAR = 0.96          # identifiability gate: D_strip >= DSTAR => old data can't reach the future
+                      # covariate region, so a staleness null is UNIDENTIFIABLE (not "no concept").
+                      # Derived from the power curve (staleness alive to AUC~0.985, dead by ~0.999).
 MIN_POS = 10          # a usable binclass window/sample needs >= this many of the minority class
 
 
@@ -126,6 +129,67 @@ def _nonconstant_mask(X):
         with np.errstate(all="ignore"):
             keep[not_all_nan] = np.nanstd(X[:, not_all_nan], axis=0) > 0
     return keep
+
+
+def _proxy_mask(X, y, t, task, max_n=20000, seed=0):
+    """Return a KEEP mask (True = non-proxy). A time-PROXY feature is one that, ALONE, strongly
+    separates early from late (single-feature early/late AUC > 0.70) AND has ~no task-predictive
+    value (|rank-corr with y| < 0.05). Such a feature (a clock / row-id / drifting nuisance) does
+    two bad things, both validated on synth: it inflates the disjointness measure D toward 1.0, and
+    — critically — it BLINDS the staleness model (a drifting nuisance made staleness read +0.0004;
+    stripping it recovered the true +0.236). A time-separating feature that IS predictive is REAL
+    covariate drift and is KEPT. Predictive value is MUTUAL INFORMATION, not rank-correlation — a
+    non-monotonic predictive feature (a sin rule) has ~0 rank-corr but high MI and must NOT be stripped."""
+    from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
+    X = np.asarray(X, float); n, d = X.shape
+    rng = np.random.default_rng(seed)
+    idx = rng.choice(n, max_n, replace=False) if n > max_n else np.arange(n)
+    Xs = np.nan_to_num(X[idx], nan=0.0, posinf=0.0, neginf=0.0)
+    ts_ = np.asarray(t, float)[idx]; yv = np.asarray(y)[idx]
+    late = (ts_ > np.median(ts_)).astype(int)
+    keep = np.ones(d, bool)
+    if len(np.unique(late)) < 2:
+        return keep
+    tsep = np.full(d, 0.5)                                             # single-feat time separation
+    for j in range(d):
+        col = Xs[:, j]
+        if np.std(col) == 0:
+            continue
+        a = roc_auc_score(late, col); tsep[j] = max(a, 1 - a)
+    try:                                                              # single-feat predictive value (MI)
+        mi = (mutual_info_regression(Xs, yv.astype(float), random_state=seed) if task == "regression"
+              else mutual_info_classif(Xs, yv.astype(int), random_state=seed))
+    except Exception:
+        return keep                                                  # MI failed -> strip nothing (safe)
+    mi_cut = max(0.01, 0.05 * float(np.max(mi))) if mi.size else 0.01  # < 5% of the top feature's MI
+    keep[(tsep > 0.70) & (mi < mi_cut)] = False
+    return keep
+
+
+def _disjointness(X, win, Keff, seed=0):
+    """D = median over back-half windows W_j of held-out AUC(oldest-window vs W_j). Computed on the
+    (proxy-stripped) feature space -> 'can old data even reach the future covariate region?'."""
+    from sklearn.model_selection import train_test_split
+    by_w = [np.where(win == k)[0] for k in range(Keff)]
+    old = by_w[0]
+    if len(old) < 40:
+        return None
+    aucs = []
+    for j in range(max(1, Keff // 2), Keff):
+        fut = by_w[j]
+        if len(fut) < 40:
+            continue
+        nn = min(len(old), len(fut), 5000)
+        Xd = np.nan_to_num(np.vstack([X[old[:nn]], X[fut[:nn]]]))
+        yd = np.r_[np.zeros(nn), np.ones(nn)]
+        try:
+            a, b, c, dd = train_test_split(Xd, yd, test_size=0.3, random_state=seed, stratify=yd)
+            m = HistGradientBoostingClassifier(max_iter=100, early_stopping=False,
+                                               random_state=seed).fit(a, c)
+            aucs.append(roc_auc_score(dd, m.predict_proba(b)[:, 1]))
+        except Exception:
+            continue
+    return float(np.median(aucs)) if aucs else None
 
 
 def _sanitize(X):
@@ -268,9 +332,23 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
         yf = np.asarray(y, float); mu, sd = float(np.mean(yf)), float(np.std(yf)) + 1e-12
         y = (yf - mu) / sd
 
-    win, Keff = _assign_windows(t, K, by_value)            # single windowing, for diagnostics only
+    # PROXY-STRIP (load-bearing, validated on synth): remove time-proxy features (single-feature
+    # early/late AUC>0.70 AND ~no predictive value) from the MODEL space AND from D. A drifting
+    # nuisance feature both inflates D->1 and BLINDS the staleness model (nuisance made staleness
+    # read +0.0004; stripping recovered +0.236). Real (predictive) covariate drift is kept.
+    keep_px = _proxy_mask(X, y, t, task)
+    n_proxy = int((~keep_px).sum())
+    X_full = X
+    if not keep_px.all() and keep_px.any():
+        X = X[:, keep_px]
+
+    win, Keff = _assign_windows(t, K, by_value)            # single windowing, for diagnostics + D
     keep_w = win >= 0
     Xd, yd, td, win = X[keep_w], y[keep_w], t[keep_w], win[keep_w]
+    # disjointness on stripped (D_strip, used for the identifiability gate) and full (D_full) space:
+    # D_full>=D* but D_strip<D* => PROXY-SENSITIVE (the disjointness was a clock, not covariate).
+    D_strip = _disjointness(Xd, win, Keff)
+    D_full = _disjointness(X_full[keep_w], win, Keff)
 
     # ---- domain guards / trust diagnostics (so a degenerate time axis or pure serial
     #      correlation can't be read as a real deployment verdict) ----
@@ -315,32 +393,46 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
         flags.append("future-easier")                      # negative decay -> time axis may not be chronological
     if tie_ov > 0.3:
         flags.append("tie-split")                          # tied timestamps straddle window boundaries
-    trust = "ok" if not flags else ";".join(flags)
+    if n_proxy:
+        flags.append(f"proxy-stripped:{n_proxy}")
 
-    decay_present = decay is not None and decay > FLOOR_DECAY
-    # CI lower bound > 0 AND point above the noise floor
-    stale_concept = (stale is not None and stale_ci[0] is not None
-                     and stale_ci[0] > 0 and stale > FLOOR_GAIN)
     rec_present = (rec is not None and rec_ci[0] is not None
                    and rec_ci[0] > 0 and rec > FLOOR_GAIN)
-    # A null measurement is NOT evidence of stability. STABLE may only be declared when the
-    # deployment quantities were actually computed and came back flat — otherwise NO-DATA.
+    # v2 decision logic (3 converging reviewers): condition on staleness-CI-vs-floor AND the
+    # identifiability gate D_strip vs D*. POSITIVE staleness ALWAYS overrides the gate (never file
+    # a firing concept signal as unidentifiable). D is on the proxy-stripped space.
+    stale_pos = (stale is not None and stale_ci[0] is not None
+                 and stale_ci[0] > 0 and stale > FLOOR_GAIN)          # lower_CI > floor
+    stale_sub = (stale is not None and stale_ci[0] is not None
+                 and stale_ci[0] > 0 and not stale_pos)               # 0 < lower_CI <= floor
+    stale_null = (stale is not None and stale_ci[1] is not None
+                  and stale_ci[1] <= FLOOR_GAIN)                      # upper_CI <= floor
+    disjoint = D_strip is not None and D_strip >= DSTAR
+    if D_full is not None and D_strip is not None and D_full >= DSTAR and D_strip < DSTAR:
+        flags.append("proxy-sensitive")                    # high disjointness was a clock, not covariate
     measured = decay is not None and rec is not None and stale is not None and len(decay_s) >= 2
     if not measured:
         verdict = "NO-DATA"
-    elif stale_concept and decay_present:
+    elif stale_pos:                                         # concept fired — overrides D
         verdict = "DEPLOYMENT-CONCEPT"
-    elif rec_present and decay_present:
-        verdict = "DEPLOYMENT-DECAY-COVARIATE"
-    elif not decay_present and not rec_present:
-        verdict = "DEPLOYMENT-STABLE"
+        if disjoint:
+            flags.append("d-gate-invalid")                 # fired where D declared it blind
+    elif disjoint:                                          # staleness not positive AND support disjoint
+        verdict = "UNIDENTIFIABLE-EXPLOITABLE" if rec_present else "UNIDENTIFIABLE-INERT"
+        flags.append("needs-injection-control")            # counts toward SHIP only after injection confirms
+    elif stale_sub:
+        verdict = "SUBFLOOR-CONCEPT-SIGNAL"
+    elif stale_null:                                        # identifiable region, no strong concept
+        verdict = "DEPLOYMENT-DECAY-COVARIATE" if rec_present else "NO-STRONG-CONCEPT"
     else:
         verdict = "INCONCLUSIVE"
+    trust = "ok" if not flags else ";".join(flags)
     return {"dataset": name, "task": task, "n": int(len(y)), "n_windows": int(Keff),
             "n_seeds_ok": len([v for v in decay_s if v is not None]),
             "decay": decay, "decay_ci": decay_ci,
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
+            "D_strip": D_strip, "D_full": D_full, "n_proxy_stripped": n_proxy, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
             "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
             "verdict": verdict}
@@ -420,6 +512,13 @@ def _synth(kind, seed=0, n=12000, d=10):
         # (decay + recency_gain), yet old samples carry CORRECT labels -> staleness_harm <= 0.
         X[:, 0] = X[:, 0] + 6.0 * t
         y = (np.sin(1.5 * X[:, 0]) + 0.8 * X[:, 1] + rng.normal(0, .3, n) > 0).astype(int)
+    elif kind == "nuisance_proxy":
+        # strong concept on X0,X1 (stationary) + a DRIFTING NUISANCE feature X2 (not in the rule).
+        # Without proxy-strip the nuisance inflates D->1 and blinds the model -> wrongly reads
+        # UNIDENTIFIABLE/no-concept; WITH strip it must read DEPLOYMENT-CONCEPT. Validates the strip.
+        X[:, 2] = X[:, 2] + 8.0 * t
+        ang = 2.5 * t
+        y = (np.cos(ang) * X[:, 0] + np.sin(ang) * X[:, 1] + rng.normal(0, .3, n) > 0).astype(int)
     elif kind == "covariate_mc":
         # ADVERSARIAL control for the insects (multiclass / accuracy) read: P(x) drifts AND the
         # class PRIOR drifts with it, but P(y|x) is FIXED in observed-feature space. A true concept
@@ -440,8 +539,9 @@ def _show(r):
     ci = lambda c: f"[{f(c[0])},{f(c[1])}]" if c and c[0] is not None else "   -"
     trust = r.get("trust", "ok")
     tnote = "" if trust == "ok" else f"  [TRUST: {trust}]"
-    print(f"  {r['dataset'][:20]:20s} W={r['n_windows']:>2d} "
-          f"decay={f(r['decay'])} rec={f(r['recency_gain'])}{ci(r['recency_gain_ci'])} "
+    dstr = r.get("D_strip"); df = f"{dstr:.3f}" if isinstance(dstr, (int, float)) else "  -"
+    print(f"  {r['dataset'][:20]:20s} W={r['n_windows']:>2d} D={df} "
+          f"rec={f(r['recency_gain'])}{ci(r['recency_gain_ci'])} "
           f"stale={f(r['staleness_harm'])}{ci(r['staleness_harm_ci'])} => {r['verdict']}{tnote}")
 
 
@@ -475,17 +575,23 @@ def main():
         print("\n==== SYNTH ground-truth controls (instrument MUST land in the 3 regimes) ====")
         print("  EXPECT  concept=>DEPLOYMENT-CONCEPT  covariate=>DEPLOYMENT-DECAY-COVARIATE  stable=>DEPLOYMENT-STABLE")
         print("  ADVERSARIAL  covariate_mc (multiclass prior-shift, FIXED rule) MUST NOT be CONCEPT")
-        for kind in ("concept", "covariate", "stable", "covariate_mc"):
+        print("  ADVERSARIAL  nuisance_proxy (concept + drifting nuisance) MUST read CONCEPT (proxy-stripped)")
+        for kind in ("concept", "covariate", "stable", "covariate_mc", "nuisance_proxy"):
             X, y, t, task = _synth(kind)
             r = assess(f"synth_{kind}", X, y, t, task, K=args.windows, n_seeds=args.n_seeds,
                        max_train=args.max_train)
             rows.append(r); _show(r)
         (out_dir / "synth_summary.json").write_text(json.dumps({"rows": rows}, indent=2, default=float))
         verdicts = {r["dataset"]: r["verdict"] for r in rows}
-        ok = (verdicts.get("synth_concept") == "DEPLOYMENT-CONCEPT"
-              and verdicts.get("synth_covariate") == "DEPLOYMENT-DECAY-COVARIATE"
-              and verdicts.get("synth_stable") == "DEPLOYMENT-STABLE"
-              and verdicts.get("synth_covariate_mc") != "DEPLOYMENT-CONCEPT")  # adversarial: must not false-fire
+        C = lambda k: verdicts.get(f"synth_{k}", "")
+        # v2 invariants: CONCEPT fires ONLY for true concept + recovered-nuisance; NEVER for
+        # covariate/stable/prior-shift. And strong PREDICTIVE covariate drift must land UNIDENTIFIABLE
+        # (the gate correctly abstains — it can't be told from concept-in-the-new-region).
+        ok = (C("concept") == "DEPLOYMENT-CONCEPT"
+              and C("nuisance_proxy") == "DEPLOYMENT-CONCEPT"           # proxy-strip recovers concept
+              and C("covariate") != "DEPLOYMENT-CONCEPT" and C("covariate").startswith("UNIDENTIFIABLE")
+              and C("stable") != "DEPLOYMENT-CONCEPT"
+              and C("covariate_mc") != "DEPLOYMENT-CONCEPT")            # prior-shift adversarial
         print(f"\n  GROUND-TRUTH {'PASS' if ok else 'CHECK (verdicts above must match EXPECT)'}")
         print(f"  wrote {out_dir}/synth_summary.json")
         return
