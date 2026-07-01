@@ -156,8 +156,12 @@ def _assign_windows(t, K, by_value):
         uniq = np.unique(t[np.isfinite(t)])
         remap = {v: i for i, v in enumerate(uniq)}
         return np.array([remap.get(v, -1) for v in t], int), len(uniq)
-    ranks = np.argsort(np.argsort(t))                  # 0..n-1 rank, ties broken stably
-    w = (ranks * K // len(t)).clip(0, K - 1)
+    # K bins by the TIMESTAMP-VALUE rank (not the row rank), so all rows sharing a timestamp land in
+    # the SAME window. Row-rank binning splits tied timestamps across the past/future boundary — a
+    # leak on coarse-timestamp datasets (ecom has 45 unique t over 100k rows) that the tie-split flag
+    # exposed (red-team Flaw 5). Windows may be slightly unequal in row count; ties never straddle.
+    uniq, inv = np.unique(t, return_inverse=True)      # inv = rank of each row's timestamp value
+    w = (inv * K // len(uniq)).clip(0, K - 1)
     return w.astype(int), K
 
 
