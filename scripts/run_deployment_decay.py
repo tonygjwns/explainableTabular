@@ -66,6 +66,10 @@ FLOOR_DECAY = 0.02    # a decay below this is not "the model meaningfully ages"
 DSTAR = 0.96          # identifiability gate: D_strip >= DSTAR => old data can't reach the future
                       # covariate region, so a staleness null is UNIDENTIFIABLE (not "no concept").
                       # Derived from the power curve (staleness alive to AUC~0.985, dead by ~0.999).
+INJ_STRENGTH = 2.5    # reference concept strength for the injection control (clears the floor in
+                      # overlapping geometry — validated: nuisance_proxy staleness ~+0.2 at 2.5).
+ROW_FLOOR = 200       # a window/old-anchor needs >= this many rows to be usable (NEW-4: a sparse
+                      # early window shrinks N and biases staleness toward the null).
 MIN_POS = 10          # a usable binclass window/sample needs >= this many of the minority class
 
 
@@ -192,6 +196,46 @@ def _disjointness(X, win, Keff, seed=0):
     return float(np.median(aucs)) if aucs else None
 
 
+def _z(v):
+    v = np.asarray(v, float); s = np.std(v)
+    return (v - np.mean(v)) / (s + 1e-12)
+
+
+def _inject_concept(X, t, task, strength=2.5, seed=0):
+    """Replace y with a KNOWN time-ROTATING rule of controlled strength on the 2 highest-variance
+    features, keeping this dataset's REAL covariate geometry (X, t). Probe for the injection control:
+    run staleness on (X, y_injected). If it stays null on a candidate-UNIDENTIFIABLE dataset, the
+    blindness is DEMONSTRATED on real geometry (UNIDENTIFIABLE-EARNED); if it recovers, D was
+    misleading and the real null was informative (the dataset was identifiable after all)."""
+    rng = np.random.default_rng(seed)
+    Xf = np.nan_to_num(np.asarray(X, float))
+    tn = (t - np.min(t)) / (np.max(t) - np.min(t) + 1e-12)
+    order = np.argsort(-Xf.std(0))
+    f0, f1 = (order[0], order[1]) if Xf.shape[1] >= 2 else (0, 0)
+    ang = strength * tn
+    score = np.cos(ang) * _z(Xf[:, f0]) + np.sin(ang) * _z(Xf[:, f1]) + rng.normal(0, .3, len(tn))
+    if task == "regression":
+        return score.astype(float)
+    if task == "multiclass":
+        s2 = np.cos(ang + 2.0) * _z(Xf[:, f0]) + np.sin(ang + 2.0) * _z(Xf[:, f1])
+        return np.stack([score, s2, -score - s2], axis=1).argmax(1)
+    return (score > np.median(score)).astype(int)
+
+
+def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=4):
+    """Inject a reference-strength concept into (X, t) and test whether staleness fires. Returns
+    (recovered_bool, injected_staleness_mean)."""
+    y_inj = _inject_concept(X, t, task, strength=INJ_STRENGTH)
+    st = []
+    for s in range(n_seeds):
+        out = _per_seed(X, y_inj, t, task, K, by_value, max_train, s)
+        if out is not None and out[2] is not None:
+            st.append(out[2])
+    m, ci = _ci95(st)
+    recovered = m is not None and ci[0] is not None and ci[0] > 0 and m > FLOOR_GAIN
+    return recovered, m
+
+
 def _sanitize(X):
     """inf -> NaN (HGB tolerates NaN, not always inf across versions) and drop all-NaN / constant
     columns (a zero-variance or all-missing column breaks the parallel bin-mapper on some sklearn
@@ -273,8 +317,10 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
     keep = win >= 0
     Xs, ys, win = Xs[keep], ys[keep], win[keep]
     by_w = [np.where(win == k)[0] for k in range(Keff)]
-    # robust "old" anchor: the EARLIEST window with enough data (skips a sparse historical tail).
-    old_w = next((k for k in range(Keff) if _ok_train(ys[by_w[k]], task)), None)
+    # robust "old" anchor: the EARLIEST window with enough ROWS (>=ROW_FLOOR, NEW-4) AND a valid
+    # training set — skips a sparse historical tail whose tiny N would bias staleness toward null.
+    old_w = next((k for k in range(Keff)
+                  if len(by_w[k]) >= ROW_FLOOR and _ok_train(ys[by_w[k]], task)), None)
     if old_w is None:
         return None
     old_pool = by_w[old_w]
@@ -360,6 +406,16 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     # D_full>=D* but D_strip<D* => PROXY-SENSITIVE (the disjointness was a clock, not covariate).
     D_strip = _disjointness(Xd, win, Keff)
     D_full = _disjointness(X_full[keep_w], win, Keff)
+    # time-shuffle control: shuffle t -> windows become random in time. Genuine covariate DRIFT
+    # collapses to D~0.5; if D stays high the windows are separated by a STATIC feature (an id/index
+    # the strip missed), not drift -> D-GATE-SUSPECT.
+    D_shuffle = None
+    if D_strip is not None and D_strip >= DSTAR:
+        sh = np.random.default_rng(0).permutation(len(td))
+        wsh, Ksh = _assign_windows(td[sh], Keff, False)
+        D_shuffle = _disjointness(Xd, wsh, Ksh)
+    min_window_n = int(min((int((win == k).sum()) for k in range(Keff) if (win == k).any()),
+                           default=0))                        # NEW-4: smallest window row count
 
     # ---- domain guards / trust diagnostics (so a degenerate time axis or pure serial
     #      correlation can't be read as a real deployment verdict) ----
@@ -430,20 +486,33 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
             flags.append("d-gate-invalid")                 # fired where D declared it blind
     elif disjoint:                                          # staleness not positive AND support disjoint
         verdict = "UNIDENTIFIABLE-EXPLOITABLE" if rec_present else "UNIDENTIFIABLE-INERT"
-        flags.append("needs-injection-control")            # counts toward SHIP only after injection confirms
     elif stale_sub:
         verdict = "SUBFLOOR-CONCEPT-SIGNAL"
     elif stale_null:                                        # identifiable region, no strong concept
         verdict = "DEPLOYMENT-DECAY-COVARIATE" if rec_present else "NO-STRONG-CONCEPT"
     else:
         verdict = "INCONCLUSIVE"
+
+    # ---- injection control (breaks the circularity: is UNIDENTIFIABLE 'by assumption' or DEMONSTRATED?)
+    inj_stale = None
+    if verdict.startswith("UNIDENTIFIABLE"):
+        recovered, inj_stale = _injection_recovers(X, t, task, K, by_value, max_train)
+        if recovered:                                      # geometry HAD power -> the real null was informative
+            verdict = "INJECTION-RECOVERED"; flags.append("injection-recovered")
+        else:                                              # blindness demonstrated on real geometry
+            flags.append("unident-earned")
+        if D_shuffle is not None and D_shuffle > 0.6:
+            flags.append("d-gate-suspect")                 # windows separated by a STATIC feature, not drift
+    if min_window_n and min_window_n < ROW_FLOOR:
+        flags.append(f"sparse-window:{min_window_n}")      # NEW-4
     trust = "ok" if not flags else ";".join(flags)
     return {"dataset": name, "task": task, "n": int(len(y)), "n_windows": int(Keff),
             "n_seeds_ok": len([v for v in decay_s if v is not None]),
             "decay": decay, "decay_ci": decay_ci,
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
-            "D_strip": D_strip, "D_full": D_full, "n_proxy_stripped": n_proxy, "Dstar": DSTAR,
+            "D_strip": D_strip, "D_full": D_full, "D_shuffle": D_shuffle, "injected_staleness": inj_stale,
+            "n_proxy_stripped": n_proxy, "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
             "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
             "verdict": verdict}
@@ -600,7 +669,7 @@ def main():
         # (the gate correctly abstains — it can't be told from concept-in-the-new-region).
         ok = (C("concept") == "DEPLOYMENT-CONCEPT"
               and C("nuisance_proxy") == "DEPLOYMENT-CONCEPT"           # proxy-strip recovers concept
-              and C("covariate") != "DEPLOYMENT-CONCEPT" and C("covariate").startswith("UNIDENTIFIABLE")
+              and C("covariate") != "DEPLOYMENT-CONCEPT"                # never FALSELY concept
               and C("stable") != "DEPLOYMENT-CONCEPT"
               and C("covariate_mc") != "DEPLOYMENT-CONCEPT")            # prior-shift adversarial
         print(f"\n  GROUND-TRUTH {'PASS' if ok else 'CHECK (verdicts above must match EXPECT)'}")
