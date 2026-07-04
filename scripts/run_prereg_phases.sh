@@ -7,6 +7,8 @@
 # markers can be pre-created: touch markers/p1_K{5,8,10,12,20}.done
 set -u
 cd "$(dirname "$0")/.."
+export PYTHONUNBUFFERED=1   # stream per-dataset verdict lines to the log in real time (nohup
+                            # redirection otherwise block-buffers python stdout for hours)
 PY=${PY:-python}
 CFG=configs/phase1.yaml
 OUT=${OUT_DIR:-results/phase1/deployment_decay}
