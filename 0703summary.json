@@ -1,0 +1,644 @@
+{
+  "rows": [
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "n": 18847,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.07212926851842626,
+      "decay_ci": [
+        -0.15159593607551786,
+        0.29585447311237034
+      ],
+      "recency_gain": 0.3417046503629003,
+      "recency_gain_ci": [
+        0.27092641496412667,
+        0.41248288576167397
+      ],
+      "staleness_harm": 0.02613564070486976,
+      "staleness_harm_ci": [
+        0.013906899984369638,
+        0.03836438142536988
+      ],
+      "n_unique_t": 853,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.048973539655326616,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "homesite_insurance",
+      "task": "binclass",
+      "n": 224320,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.011250491531938859,
+      "decay_ci": [
+        -0.0014609636103503458,
+        0.023961946674228064
+      ],
+      "recency_gain": 0.008553650246510282,
+      "recency_gain_ci": [
+        0.005333179275689795,
+        0.01177412121733077
+      ],
+      "staleness_harm": -0.0037360672101451977,
+      "staleness_harm_ci": [
+        -0.004115500822714032,
+        -0.0033566335975763638
+      ],
+      "n_unique_t": 761,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.005680787492593127,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-STABLE"
+    },
+    {
+      "dataset": "ecom_offers",
+      "task": "binclass",
+      "n": 109341,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.05361445464779134,
+      "decay_ci": [
+        0.015069620132907857,
+        0.09215928916267482
+      ],
+      "recency_gain": 0.09567957285966845,
+      "recency_gain_ci": [
+        0.08478425927810013,
+        0.10657488644123678
+      ],
+      "staleness_harm": -0.01319539461284076,
+      "staleness_harm_ci": [
+        -0.019695530289718093,
+        -0.006695258935963426
+      ],
+      "n_unique_t": 45,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.03763479321892704,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-DECAY-COVARIATE"
+    },
+    {
+      "dataset": "homecredit_default",
+      "task": "binclass",
+      "n": 267645,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": -0.023579250003020365,
+      "decay_ci": [
+        -0.03893395745300521,
+        -0.008224542553035525
+      ],
+      "recency_gain": 0.03956710193045258,
+      "recency_gain_ci": [
+        0.033133594856231595,
+        0.04600060900467357
+      ],
+      "staleness_harm": -0.004158082304552111,
+      "staleness_harm_ci": [
+        -0.006416297955468245,
+        -0.0018998666536359779
+      ],
+      "n_unique_t": 365,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": -0.000392632937451537,
+      "tie_overlap": 0.0,
+      "trust": "future-easier",
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "n": 227087,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.047303152259986464,
+      "decay_ci": [
+        0.04364573582887833,
+        0.050960568691094596
+      ],
+      "recency_gain": 0.00876109196799638,
+      "recency_gain_ci": [
+        0.006685459433773011,
+        0.010836724502219747
+      ],
+      "staleness_harm": -0.01063457282643256,
+      "staleness_harm_ci": [
+        -0.011946663835147352,
+        -0.009322481817717767
+      ],
+      "n_unique_t": 212996,
+      "cov_auc_early_late": 0.9891945,
+      "y_lag1_autocorr": 0.018479988464201142,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "INCONCLUSIVE"
+    },
+    {
+      "dataset": "delivery_eta",
+      "task": "regression",
+      "n": 279415,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.09923277078895043,
+      "decay_ci": [
+        0.0857100934572147,
+        0.11275544812068616
+      ],
+      "recency_gain": 0.02892433677780646,
+      "recency_gain_ci": [
+        0.02288584266456218,
+        0.03496283089105074
+      ],
+      "staleness_harm": -0.012795255162690108,
+      "staleness_harm_ci": [
+        -0.013900910717863424,
+        -0.011689599607516792
+      ],
+      "n_unique_t": 266091,
+      "cov_auc_early_late": 0.9996818888888889,
+      "y_lag1_autocorr": 0.027344196822756597,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-DECAY-COVARIATE"
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "n": 160019,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": -0.008965014249596394,
+      "decay_ci": [
+        -0.013655594756681162,
+        -0.004274433742511627
+      ],
+      "recency_gain": 0.0011318331798228476,
+      "recency_gain_ci": [
+        0.000710182393627199,
+        0.0015534839660184961
+      ],
+      "staleness_harm": -0.007369775708855603,
+      "staleness_harm_ci": [
+        -0.0077338881913961086,
+        -0.007005663226315097
+      ],
+      "n_unique_t": 150283,
+      "cov_auc_early_late": 0.776216127471312,
+      "y_lag1_autocorr": 0.0520013563735822,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-STABLE"
+    },
+    {
+      "dataset": "weather",
+      "task": "regression",
+      "n": 340596,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.06879913030394558,
+      "decay_ci": [
+        0.06570683279740007,
+        0.07189142781049108
+      ],
+      "recency_gain": 0.02791544527371399,
+      "recency_gain_ci": [
+        0.025110478047846288,
+        0.03072041249958169
+      ],
+      "staleness_harm": -0.011275448346319116,
+      "staleness_harm_ci": [
+        -0.011955287467414017,
+        -0.010595609225224215
+      ],
+      "n_unique_t": 51554,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.13940562802138948,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-DECAY-COVARIATE"
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "n": 45312,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.1984155956200461,
+      "decay_ci": [
+        0.1916318239801221,
+        0.2051993672599701
+      ],
+      "recency_gain": 0.03285533599693829,
+      "recency_gain_ci": [
+        0.028429298388111063,
+        0.037281373605765514
+      ],
+      "staleness_harm": -0.0006531077692591134,
+      "staleness_harm_ci": [
+        -0.0031857631788212407,
+        0.0018795476403030138
+      ],
+      "n_unique_t": 45312,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.6997677901834326,
+      "tie_overlap": 0.0,
+      "trust": "autocorr-risk",
+      "verdict": "DEPLOYMENT-DECAY-COVARIATE"
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "n": 57018,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.4266160503958064,
+      "decay_ci": [
+        0.41748279402131055,
+        0.43574930677030227
+      ],
+      "recency_gain": 0.5031841535100703,
+      "recency_gain_ci": [
+        0.49940931174226577,
+        0.5069589952778748
+      ],
+      "staleness_harm": 0.13883430580216866,
+      "staleness_harm_ci": [
+        0.13644966006726886,
+        0.14121895153706845
+      ],
+      "n_unique_t": 57018,
+      "cov_auc_early_late": 0.8135671831048497,
+      "y_lag1_autocorr": -0.0013244280434971457,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "n": 18847,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.053680418601472414,
+      "decay_ci": [
+        -0.11510411025896333,
+        0.22246494746190815
+      ],
+      "recency_gain": 0.32854217723508106,
+      "recency_gain_ci": [
+        0.2610608238219194,
+        0.3960235306482427
+      ],
+      "staleness_harm": 0.023900573591226625,
+      "staleness_harm_ci": [
+        0.01775786068965817,
+        0.030043286492795078
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.8866407559823197,
+      "injected_staleness": null,
+      "delta_staleness": 0.006751830269067497,
+      "n_proxy_stripped": 1,
+      "min_window_n": 540,
+      "Dstar": 0.96,
+      "n_unique_t": 853,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.048973539655326616,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:1;d-gate-invalid",
+      "verdict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "homesite_insurance",
+      "task": "binclass",
+      "n": 224320,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.006555719494113696,
+      "decay_ci": [
+        0.0044948743481842655,
+        0.008616564640043126
+      ],
+      "recency_gain": 0.007082992819006484,
+      "recency_gain_ci": [
+        0.004397292882616626,
+        0.009768692755396342
+      ],
+      "staleness_harm": -0.003936336364376327,
+      "staleness_harm_ci": [
+        -0.004469218403873912,
+        -0.0034034543248787417
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.56811,
+      "injected_staleness": -0.053760206353556876,
+      "delta_staleness": 0.0005857231392343828,
+      "n_proxy_stripped": 3,
+      "min_window_n": 17356,
+      "Dstar": 0.96,
+      "n_unique_t": 761,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.005680787492593127,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:3;unident-earned",
+      "verdict": "UNIDENTIFIABLE-INERT"
+    },
+    {
+      "dataset": "ecom_offers",
+      "task": "binclass",
+      "n": 109341,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.036447274193322554,
+      "decay_ci": [
+        0.013500408789779789,
+        0.05939413959686532
+      ],
+      "recency_gain": 0.10604205306721684,
+      "recency_gain_ci": [
+        0.09030930491086424,
+        0.12177480122356944
+      ],
+      "staleness_harm": -0.0007955051906815445,
+      "staleness_harm_ci": [
+        -0.009573136479456932,
+        0.007982126098093845
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.7457972929267906,
+      "injected_staleness": 0.005273280296848182,
+      "delta_staleness": 0.009648029718454711,
+      "n_proxy_stripped": 0,
+      "min_window_n": 2165,
+      "Dstar": 0.96,
+      "n_unique_t": 45,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.03763479321892704,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned;d-gate-suspect",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "homecredit_default",
+      "task": "binclass",
+      "n": 267645,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": -0.0004234324841853201,
+      "decay_ci": [
+        -0.0167721333331437,
+        0.01592526836477306
+      ],
+      "recency_gain": 0.0355444414959139,
+      "recency_gain_ci": [
+        0.02856534436736065,
+        0.04252353862446716
+      ],
+      "staleness_harm": -0.006819113153649928,
+      "staleness_harm_ci": [
+        -0.010246583806610502,
+        -0.0033916425006893527
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.6194991111111111,
+      "injected_staleness": 0.0009015389907293863,
+      "delta_staleness": 0.003767341966298123,
+      "n_proxy_stripped": 80,
+      "min_window_n": 19101,
+      "Dstar": 0.96,
+      "n_unique_t": 365,
+      "cov_auc_early_late": 0.9999927777777778,
+      "y_lag1_autocorr": -0.000392632937451537,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:80;unident-earned;d-gate-suspect",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "cooking_time",
+      "task": "regression",
+      "n": 227087,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.05076423483862301,
+      "decay_ci": [
+        0.04608953151424108,
+        0.055438938163004936
+      ],
+      "recency_gain": 0.008868364503083733,
+      "recency_gain_ci": [
+        0.007406238397995537,
+        0.010330490608171929
+      ],
+      "staleness_harm": -0.01096533671924929,
+      "staleness_harm_ci": [
+        -0.012167531357162349,
+        -0.00976314208133623
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.5094391111111112,
+      "injected_staleness": 0.5577052152214333,
+      "delta_staleness": 0.0013214054238965761,
+      "n_proxy_stripped": 0,
+      "min_window_n": 22587,
+      "Dstar": 0.96,
+      "n_unique_t": 212996,
+      "cov_auc_early_late": 0.9891945,
+      "y_lag1_autocorr": 0.018479988464201142,
+      "tie_overlap": 0.0,
+      "trust": "injection-recovered",
+      "verdict": "INJECTION-RECOVERED"
+    },
+    {
+      "dataset": "delivery_eta",
+      "task": "regression",
+      "n": 279415,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.08882297553542634,
+      "decay_ci": [
+        0.07456781107491277,
+        0.10307813999593991
+      ],
+      "recency_gain": 0.028260112438702394,
+      "recency_gain_ci": [
+        0.02283583032622756,
+        0.03368439455117723
+      ],
+      "staleness_harm": -0.011931426388136393,
+      "staleness_harm_ci": [
+        -0.013004964500633955,
+        -0.01085788827563883
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.508224,
+      "injected_staleness": 0.32168148875707947,
+      "delta_staleness": 0.0011799911926712167,
+      "n_proxy_stripped": 5,
+      "min_window_n": 27763,
+      "Dstar": 0.96,
+      "n_unique_t": 266091,
+      "cov_auc_early_late": 0.9995871944444444,
+      "y_lag1_autocorr": 0.027344196822756597,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:5;injection-recovered",
+      "verdict": "INJECTION-RECOVERED"
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "n": 160019,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": -0.009222679877719776,
+      "decay_ci": [
+        -0.012317655290875106,
+        -0.006127704464564446
+      ],
+      "recency_gain": 0.0010321539863232764,
+      "recency_gain_ci": [
+        0.00010568153903776586,
+        0.0019586264336087867
+      ],
+      "staleness_harm": -0.007506631933771953,
+      "staleness_harm_ci": [
+        -0.008186535969930436,
+        -0.006826727897613468
+      ],
+      "D_strip": 0.7354733333333334,
+      "D_full": 0.7354733333333334,
+      "D_shuffle": null,
+      "injected_staleness": null,
+      "delta_staleness": 0.000747323979641613,
+      "n_proxy_stripped": 0,
+      "min_window_n": 15917,
+      "Dstar": 0.96,
+      "n_unique_t": 150283,
+      "cov_auc_early_late": 0.776216127471312,
+      "y_lag1_autocorr": 0.0520013563735822,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "weather",
+      "task": "regression",
+      "n": 340596,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.07037471537136374,
+      "decay_ci": [
+        0.06614066556820797,
+        0.0746087651745195
+      ],
+      "recency_gain": 0.025671722258716258,
+      "recency_gain_ci": [
+        0.02251364746544047,
+        0.028829797051992047
+      ],
+      "staleness_harm": -0.011497819331282823,
+      "staleness_harm_ci": [
+        -0.012073393678577635,
+        -0.010922244983988012
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.5228535555555556,
+      "injected_staleness": 0.0019349279900889916,
+      "delta_staleness": 0.0006326488576686686,
+      "n_proxy_stripped": 3,
+      "min_window_n": 31004,
+      "Dstar": 0.96,
+      "n_unique_t": 51554,
+      "cov_auc_early_late": 0.9999904166666667,
+      "y_lag1_autocorr": 0.13940562802138948,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:3;unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "n": 45312,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.19564315513842767,
+      "decay_ci": [
+        0.1865018000741846,
+        0.20478451020267074
+      ],
+      "recency_gain": 0.029596669702769883,
+      "recency_gain_ci": [
+        0.025461033995257648,
+        0.03373230541028212
+      ],
+      "staleness_harm": 0.001077945843910899,
+      "staleness_harm_ci": [
+        -0.0005840605006144676,
+        0.002739952188436265
+      ],
+      "D_strip": 1.0,
+      "D_full": 1.0,
+      "D_shuffle": 0.5122735683677444,
+      "injected_staleness": 0.018771472311214232,
+      "delta_staleness": 0.0018268125051853427,
+      "n_proxy_stripped": 0,
+      "min_window_n": 4531,
+      "Dstar": 0.96,
+      "n_unique_t": 45312,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.6997677901834326,
+      "tie_overlap": 0.0,
+      "trust": "autocorr-risk;unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "n": 57018,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.42467737124970695,
+      "decay_ci": [
+        0.4091661401231694,
+        0.4401886023762445
+      ],
+      "recency_gain": 0.503834644709212,
+      "recency_gain_ci": [
+        0.500419675628003,
+        0.507249613790421
+      ],
+      "staleness_harm": 0.13475388786675166,
+      "staleness_harm_ci": [
+        0.12332197157902285,
+        0.1461858041544805
+      ],
+      "D_strip": 0.843767111111111,
+      "D_full": 0.843767111111111,
+      "D_shuffle": null,
+      "injected_staleness": null,
+      "delta_staleness": 0.012565516191587713,
+      "n_proxy_stripped": 0,
+      "min_window_n": 5701,
+      "Dstar": 0.96,
+      "n_unique_t": 57018,
+      "cov_auc_early_late": 0.8135671831048497,
+      "y_lag1_autocorr": -0.0013244280434971457,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-CONCEPT"
+    }
+  ]
+}

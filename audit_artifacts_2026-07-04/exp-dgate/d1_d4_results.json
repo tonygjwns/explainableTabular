@@ -1,0 +1,93 @@
+{
+  "D1_duplicates_stable": {
+    "m=1": 0.49987654320987657,
+    "m=2": 0.8787866512345679,
+    "m=5": 0.993888888888889,
+    "m=20": 1.0
+  },
+  "D2_entities_random_times": 0.5090509259259259,
+  "D2b_entity_cohorts_no_drift": 1.0,
+  "D2b_reference_fresh_entities": 0.4856913580246913,
+  "D3_mild_drift": {
+    "cohorts_plus_drift": 0.9999922839506173,
+    "random_entities_plus_drift": 0.8380092592592592,
+    "iid_rows_plus_drift": 0.5735262345679013
+  },
+  "D4_shuffle": {
+    "cohorts_coarse": {
+      "D": 1.0,
+      "D_shuffle": 0.6892382803461521
+    },
+    "cohorts_drift_coarse": {
+      "D": 1.0,
+      "D_shuffle": 0.6874530279656659
+    },
+    "duplicates_m5": {
+      "D": 0.993888888888889,
+      "D_shuffle": 0.49473688888888884
+    },
+    "skewed_windows_drift": {
+      "D": 0.9363535397300811,
+      "D_shuffle": 0.6533397410548901,
+      "window_sizes": [
+        2423,
+        6710,
+        4067,
+        5060,
+        5745,
+        1504,
+        3843,
+        5475,
+        5238,
+        4935
+      ]
+    },
+    "skewed_shuffle_diagnostic": [
+      {
+        "j": 5,
+        "nn": 1504,
+        "len_old": 2423,
+        "len_fut": 1504,
+        "mean_t_old_used": 0.31377068557919624,
+        "mean_t_fut_used": 0.4913416075650119,
+        "mean_t_fut_all": 0.4913416075650119
+      },
+      {
+        "j": 6,
+        "nn": 2423,
+        "len_old": 2423,
+        "len_fut": 3843,
+        "mean_t_old_used": 0.5055257486128307,
+        "mean_t_fut_used": 0.31318384005135963,
+        "mean_t_fut_all": 0.4984531760488045
+      },
+      {
+        "j": 7,
+        "nn": 2423,
+        "len_old": 2423,
+        "len_fut": 5475,
+        "mean_t_old_used": 0.5055257486128307,
+        "mean_t_fut_used": 0.23147613151740262,
+        "mean_t_fut_all": 0.5061755454084221
+      },
+      {
+        "j": 8,
+        "nn": 2423,
+        "len_old": 2423,
+        "len_fut": 5238,
+        "mean_t_old_used": 0.5055257486128307,
+        "mean_t_fut_used": 0.23409914247718622,
+        "mean_t_fut_all": 0.5016588180391158
+      },
+      {
+        "j": 9,
+        "nn": 2423,
+        "len_old": 2423,
+        "len_fut": 4935,
+        "mean_t_old_used": 0.5055257486128307,
+        "mean_t_fut_used": 0.24543495207960744,
+        "mean_t_fut_all": 0.5041449960598896
+      }
+    ]
+  }
+}

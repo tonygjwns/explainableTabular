@@ -1,0 +1,152 @@
+{
+  "concept": {
+    "verdict": "DEPLOYMENT-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.7262535972999815,
+    "decay_ci": [
+      0.7203618035057804,
+      0.7321453910941826
+    ],
+    "recency_gain": 0.6969555433497213,
+    "recency_gain_ci": [
+      0.6953351117187265,
+      0.6985759749807161
+    ],
+    "staleness_harm": 0.30957745261768876,
+    "staleness_harm_ci": [
+      0.3019725070715934,
+      0.31718239816378413
+    ],
+    "D_strip": 0.5117283950617284,
+    "D_full": 0.5117283950617284,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.006810689640728886,
+    "n_proxy_stripped": 0,
+    "trust": "no-covariate-movement",
+    "wall_s": 24.8
+  },
+  "covariate": {
+    "verdict": "INJECTION-RECOVERED",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.1020579171895403,
+    "decay_ci": [
+      0.08832841792762523,
+      0.11578741645145536
+    ],
+    "recency_gain": 0.0056262815854971615,
+    "recency_gain_ci": [
+      -0.0012263145766042774,
+      0.0124788777475986
+    ],
+    "staleness_harm": -0.0018722061397646386,
+    "staleness_harm_ci": [
+      -0.00537650704299686,
+      0.0016320947634675832
+    ],
+    "D_strip": 0.9970524691358025,
+    "D_full": 0.9970524691358025,
+    "D_shuffle": 0.503125,
+    "injected_staleness": 0.14081516418029055,
+    "delta_staleness": 0.0031383138399846307,
+    "n_proxy_stripped": 0,
+    "trust": "injection-recovered",
+    "wall_s": 8.3
+  },
+  "stable": {
+    "verdict": "NO-STRONG-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.003991589574517817,
+    "decay_ci": [
+      0.0030998092502726206,
+      0.004883369898763014
+    ],
+    "recency_gain": 0.0003575658673766746,
+    "recency_gain_ci": [
+      -0.0001348734975293004,
+      0.0008500052322826496
+    ],
+    "staleness_harm": -0.00044831061950740826,
+    "staleness_harm_ci": [
+      -0.0005807004540734488,
+      -0.0003159207849413677
+    ],
+    "D_strip": 0.5117283950617284,
+    "D_full": 0.5117283950617284,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.00011856312045254404,
+    "n_proxy_stripped": 0,
+    "trust": "no-covariate-movement",
+    "wall_s": 6.0
+  },
+  "covariate_mc": {
+    "verdict": "DEPLOYMENT-CONCEPT",
+    "task": "multiclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.3686838700949252,
+    "decay_ci": [
+      0.35259226751836964,
+      0.38477547267148077
+    ],
+    "recency_gain": 0.31849671359934834,
+    "recency_gain_ci": [
+      0.3095245685994132,
+      0.3274688585992835
+    ],
+    "staleness_harm": 0.025671824565841134,
+    "staleness_harm_ci": [
+      0.02276217163599683,
+      0.028581477495685438
+    ],
+    "D_strip": 0.9970524691358025,
+    "D_full": 0.9970524691358025,
+    "D_shuffle": 0.503125,
+    "injected_staleness": null,
+    "delta_staleness": 0.002605770540668977,
+    "n_proxy_stripped": 0,
+    "trust": "d-gate-invalid",
+    "wall_s": 5.5
+  },
+  "nuisance_proxy": {
+    "verdict": "DEPLOYMENT-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.568462069596476,
+    "decay_ci": [
+      0.5590195465453078,
+      0.5779045926476443
+    ],
+    "recency_gain": 0.5476872268068814,
+    "recency_gain_ci": [
+      0.5429116847927254,
+      0.5524627688210374
+    ],
+    "staleness_harm": 0.22948220598427502,
+    "staleness_harm_ci": [
+      0.22416525927987752,
+      0.23479915268867252
+    ],
+    "D_strip": 0.4916203703703703,
+    "D_full": 0.9999382716049382,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.0047616480118703895,
+    "n_proxy_stripped": 1,
+    "trust": "no-covariate-movement;proxy-stripped:1;proxy-sensitive",
+    "wall_s": 5.9
+  }
+}

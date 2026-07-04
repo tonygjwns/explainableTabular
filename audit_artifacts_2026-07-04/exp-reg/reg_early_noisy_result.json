@@ -1,0 +1,1 @@
+{"dataset": "reg_early_noisy", "verdict": "DEPLOYMENT-CONCEPT", "staleness_harm": 0.021372781606285838, "staleness_harm_ci": [0.019610305546444787, 0.02313525766612689], "recency_gain": 0.07466120562252776, "decay": -0.18802299478911438, "D_strip": 0.49987654320987657, "injected_staleness": null, "trust": "no-covariate-movement;future-easier"}

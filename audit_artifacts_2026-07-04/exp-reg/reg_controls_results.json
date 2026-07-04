@@ -1,0 +1,184 @@
+{
+  "rows": [
+    {
+      "dataset": "reg_stable",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.004744738377103708,
+      "decay_ci": [
+        -0.004598009313580908,
+        0.014087486067788323
+      ],
+      "recency_gain": 0.003838638660996596,
+      "recency_gain_ci": [
+        0.0005273091809792937,
+        0.007149968141013898
+      ],
+      "staleness_harm": -0.01212078155656995,
+      "staleness_harm_ci": [
+        -0.013808560998674188,
+        -0.010433002114465713
+      ],
+      "D_strip": 0.49987654320987657,
+      "D_full": 0.49987654320987657,
+      "D_shuffle": null,
+      "injected_staleness": null,
+      "delta_staleness": 0.0015115087797145895,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.01588238682782964,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "reg_concept",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 1.3520539091242416,
+      "decay_ci": [
+        1.331684917914859,
+        1.3724229003336241
+      ],
+      "recency_gain": 1.2324103522038392,
+      "recency_gain_ci": [
+        1.22342004393155,
+        1.2414006604761285
+      ],
+      "staleness_harm": 0.5456411353118015,
+      "staleness_harm_ci": [
+        0.45275136252785453,
+        0.6385309080957484
+      ],
+      "D_strip": 0.49987654320987657,
+      "D_full": 0.49987654320987657,
+      "D_shuffle": null,
+      "injected_staleness": null,
+      "delta_staleness": 0.08318842119180031,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": -0.002748935855055641,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "reg_cov_linear",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.7220915662742111,
+      "decay_ci": [
+        0.6277476010918709,
+        0.8164355314565513
+      ],
+      "recency_gain": 0.906276301718739,
+      "recency_gain_ci": [
+        0.8865737701940491,
+        0.9259788332434288
+      ],
+      "staleness_harm": 0.0018038982154308658,
+      "staleness_harm_ci": [
+        0.0006608835041646466,
+        0.002946912926697085
+      ],
+      "D_strip": 0.9956018518518519,
+      "D_full": 0.9956018518518519,
+      "D_shuffle": 0.4907561728395062,
+      "injected_staleness": 0.014341440372240041,
+      "delta_staleness": 0.0010236389473187604,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.7420536931418427,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "reg_cov_nonlinear",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.5469678600160479,
+      "decay_ci": [
+        0.49093614361119015,
+        0.6029995764209057
+      ],
+      "recency_gain": 0.5287162778723703,
+      "recency_gain_ci": [
+        0.5018712805896665,
+        0.5555612751550741
+      ],
+      "staleness_harm": -0.005324503614830651,
+      "staleness_harm_ci": [
+        -0.009017644818586686,
+        -0.0016313624110746165
+      ],
+      "D_strip": 0.9956018518518519,
+      "D_full": 0.9956018518518519,
+      "D_shuffle": 0.4907561728395062,
+      "injected_staleness": 0.014341440372240041,
+      "delta_staleness": 0.0033074317739309176,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.029379201416254126,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "reg_hetero_noise",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.2506517652116186,
+      "decay_ci": [
+        0.238548288180049,
+        0.26275524224318814
+      ],
+      "recency_gain": -0.030413048561900347,
+      "recency_gain_ci": [
+        -0.031196626448648998,
+        -0.029629470675151696
+      ],
+      "staleness_harm": -0.02257039158462192,
+      "staleness_harm_ci": [
+        -0.02387876424045664,
+        -0.021262018928787197
+      ],
+      "D_strip": 0.49987654320987657,
+      "D_full": 0.49987654320987657,
+      "D_shuffle": null,
+      "injected_staleness": null,
+      "delta_staleness": 0.0011717270083388893,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.01567651154299277,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "NO-STRONG-CONCEPT"
+    }
+  ]
+}

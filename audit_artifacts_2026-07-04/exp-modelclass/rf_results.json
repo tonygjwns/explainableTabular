@@ -1,0 +1,152 @@
+{
+  "concept": {
+    "verdict": "DEPLOYMENT-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.7140606896451279,
+    "decay_ci": [
+      0.7041700724371728,
+      0.7239513068530831
+    ],
+    "recency_gain": 0.6846553659624256,
+    "recency_gain_ci": [
+      0.6825408714250517,
+      0.6867698604997995
+    ],
+    "staleness_harm": 0.28656511861208384,
+    "staleness_harm_ci": [
+      0.21588770621541015,
+      0.3572425310087575
+    ],
+    "D_strip": 0.49472222222222223,
+    "D_full": 0.49472222222222223,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.0632959062659819,
+    "n_proxy_stripped": 0,
+    "trust": "no-covariate-movement",
+    "wall_s": 42.2
+  },
+  "covariate": {
+    "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.17297718271048634,
+    "decay_ci": [
+      0.15879602177594238,
+      0.1871583436450303
+    ],
+    "recency_gain": 0.15770314310509356,
+    "recency_gain_ci": [
+      0.14486588931249222,
+      0.1705403968976949
+    ],
+    "staleness_harm": 0.004050025214406796,
+    "staleness_harm_ci": [
+      0.002561786584762406,
+      0.005538263844051186
+    ],
+    "D_strip": 0.9933603395061729,
+    "D_full": 0.9933603395061729,
+    "D_shuffle": 0.49313271604938264,
+    "injected_staleness": 0.005472353580442246,
+    "delta_staleness": 0.001332807888815946,
+    "n_proxy_stripped": 0,
+    "trust": "unident-earned",
+    "wall_s": 72.9
+  },
+  "stable": {
+    "verdict": "NO-STRONG-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.004568475322731698,
+    "decay_ci": [
+      -0.0010415365150507278,
+      0.010178487160514123
+    ],
+    "recency_gain": 0.0010277633411251053,
+    "recency_gain_ci": [
+      -0.0007926349119411749,
+      0.0028481615941913854
+    ],
+    "staleness_harm": -0.0007961635445283921,
+    "staleness_harm_ci": [
+      -0.0017053857089968849,
+      0.00011305861994010075
+    ],
+    "D_strip": 0.49472222222222223,
+    "D_full": 0.49472222222222223,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.0008142635524650217,
+    "n_proxy_stripped": 0,
+    "trust": "no-covariate-movement",
+    "wall_s": 47.3
+  },
+  "covariate_mc": {
+    "verdict": "INJECTION-RECOVERED",
+    "task": "multiclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.19451482891245347,
+    "decay_ci": [
+      0.14730010520309011,
+      0.24172955262181683
+    ],
+    "recency_gain": 0.17493733617868637,
+    "recency_gain_ci": [
+      0.15480117868361987,
+      0.19507349367375287
+    ],
+    "staleness_harm": 0.0034803856183556947,
+    "staleness_harm_ci": [
+      -0.0007368237148340472,
+      0.0076975949515454365
+    ],
+    "D_strip": 0.9933603395061729,
+    "D_full": 0.9933603395061729,
+    "D_shuffle": 0.49313271604938264,
+    "injected_staleness": 0.02846634730403692,
+    "delta_staleness": 0.0037767665454340343,
+    "n_proxy_stripped": 0,
+    "trust": "injection-recovered",
+    "wall_s": 87.1
+  },
+  "nuisance_proxy": {
+    "verdict": "DEPLOYMENT-CONCEPT",
+    "task": "binclass",
+    "n": 12000,
+    "n_windows": 10,
+    "n_seeds_ok": 5,
+    "decay": 0.5605329231198504,
+    "decay_ci": [
+      0.5528192492802337,
+      0.568246596959467
+    ],
+    "recency_gain": 0.5438432738407438,
+    "recency_gain_ci": [
+      0.5359402611931751,
+      0.5517462864883126
+    ],
+    "staleness_harm": 0.20004139867127582,
+    "staleness_harm_ci": [
+      0.15196672837642283,
+      0.2481160689661288
+    ],
+    "D_strip": 0.49429398148148146,
+    "D_full": 0.9996720679012345,
+    "D_shuffle": null,
+    "injected_staleness": null,
+    "delta_staleness": 0.043053780855369976,
+    "n_proxy_stripped": 1,
+    "trust": "no-covariate-movement;proxy-stripped:1;proxy-sensitive",
+    "wall_s": 47.0
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "instrument": "denoised_staleness (2-fold cross-fitted within-old-window HGB pseudo-labels, hard predict()) + noise-profile gate (per-window held-out noise proxy, ratio old/median-recent, pre-committed threshold 1.5)",
+  "fidelity_checks": {
+    "B1_raw_reproduces_audit_F1": {"ours": 0.021372781606285838, "audit": 0.021372781606285838, "match": "bit-for-bit"},
+    "B2_raw_reproduces_exp_reg_concept": {"ours": 0.5456411353118015, "exp_reg": 0.5459, "match": "same generator, exact rng parity"},
+    "B4d_raw_reproduces_late_noisy": {"ours": -0.02257, "audit": -0.023},
+    "B5_knn_raw_reproduces_F3": {"ours": 0.09822, "audit_F3": 0.098}
+  },
+  "gate_calibration_on_stable": {"reg_stable_ratio": 0.988, "binclass_stable_ratio": 0.746, "pre_committed_thresh": 1.5, "stands": true},
+  "battery": [
+    {"row": "B1 early-noisy (F1 killer, noise 1.5->0.3, fixed mean)", "raw": 0.02137, "raw_ci": [0.01961, 0.02314], "den": 0.00372, "den_ci": [0.00015, 0.00729], "gate_ratio": 3.54, "gate": true, "verdict": "NOISE-DRIFT-CONFOUNDED", "expect": "den<=floor AND gate flags", "PASS": true},
+    {"row": "B2 reg_concept (rotating rule)", "raw": 0.54564, "den": 0.54103, "den_ci": [0.44109, 0.64097], "gate_ratio": 0.91, "gate": false, "verdict": "CONCEPT", "expect": "den fires", "PASS": true},
+    {"row": "B3 concept (binclass)", "raw": 0.28012, "den": 0.28934, "den_ci": [0.21888, 0.35980], "gate": false, "verdict": "CONCEPT", "PASS": true},
+    {"row": "B3 covariate (fixed rule)", "raw": -0.00064, "den": -0.00033, "den_ci": [-0.00147, 0.00080], "gate": false, "verdict": "NO-CONCEPT-SIGNAL", "PASS": true},
+    {"row": "B3 stable", "raw": -0.00074, "den": -0.00022, "gate": false, "verdict": "NO-CONCEPT-SIGNAL", "PASS": true},
+    {"row": "B3 covariate_mc (prior shift, fixed rule)", "raw": -0.00281, "den": -0.00422, "gate": false, "verdict": "NO-CONCEPT-SIGNAL", "PASS": true},
+    {"row": "B4a concept + noise-decay simultaneously", "raw": 0.35741, "den": 0.31630, "den_ci": [0.24454, 0.38805], "gate_ratio": 3.67, "gate": true, "verdict": "CONCEPT (den overrides gate)", "expect": "den still fires", "PASS": true, "note": "shows the gate ALONE would misfile this as confounded -> gate must not veto a firing denoised arm (within envelope)"},
+    {"row": "B4b x-dependent noise drift (sd depends on X1, scale decays)", "raw": 0.02537, "raw_ci": [0.02306, 0.02767], "den": 0.00476, "den_ci": [0.00292, 0.00660], "gate_ratio": 3.76, "gate": true, "verdict": "NOISE-DRIFT-CONFOUNDED", "expect": "den must not fire", "PASS": true, "note": "NEW raw-instrument false-positive channel found: raw fires ABOVE floor with clean CI under a fixed mean rule"},
+    {"row": "B4c early-noisy, old window cut to 600", "raw": 0.02043, "den": 0.00427, "den_ci": [0.00269, 0.00585], "gate_ratio": 3.87, "gate": true, "verdict": "NOISE-DRIFT-CONFOUNDED", "expect": "no cross-fit false positive", "PASS": true},
+    {"row": "B4c reg_concept, old window cut to 600", "raw": 0.44307, "den": 0.42946, "den_ci": [0.42253, 0.43638], "gate": false, "verdict": "CONCEPT", "expect": "no cross-fit false negative", "PASS": true},
+    {"row": "B4d late-noisy (noise 0.3->1.5)", "raw": -0.02257, "den": -0.01932, "gate_ratio": 0.14, "gate": false, "verdict": "NO-CONCEPT-SIGNAL", "expect": "den must not fire", "PASS": true},
+    {"row": "B5 RandomForest on B1", "raw": 0.01442, "den": -0.00342, "den_ci": [-0.00642, -0.00043], "gate_ratio": 3.58, "gate": true, "verdict": "NO-CONCEPT-SIGNAL", "PASS": true},
+    {"row": "B5 RandomForest on B2", "raw": 0.52274, "den": 0.52232, "gate": false, "verdict": "CONCEPT", "PASS": true},
+    {"row": "B5 kNN on covariate (fixed rule)", "raw": 0.09822, "den": 0.11067, "den_ci": [0.10744, 0.11391], "gate": false, "verdict": "CONCEPT (FALSE)", "expect": "predicted to still false-fire (misspecification channel, F3) - CONFIRMED", "PASS": "prediction confirmed; guarantee must be scoped to flexible/well-specified classes"}
+  ],
+  "self_imposed_kill_tests_of_the_repair": [
+    {"row": "extreme noise 3.0->0.3 (fixed mean)", "raw": 0.06584, "den": 0.01397, "den_ci": [0.00903, 0.01890], "gate_ratio": 4.72, "verdict": "NOISE-DRIFT-CONFOUNDED (den under floor, but residual bias visibly scaling)"},
+    {"row": "extreme noise 6.0->0.3 (fixed mean)", "raw": 0.11841, "den": 0.02591, "den_ci": [0.02012, 0.03170], "gate_ratio": 5.71, "verdict_under_precommitted_rule": "CONCEPT (FALSE) - the unconditional den-overrides-gate rule is DEAD at this ratio", "verdict_under_conjunctive_rule": "NOISE-AMBIGUOUS (gate fired, den within residual band) - survives"},
+    {"row": "concept + extreme noise 6.0->0.3", "raw": 0.19306, "den": 0.08551, "den_ci": [0.06998, 0.10105], "gate_ratio": 6.00, "note": "den still 2.7x above the noise-only residual at the same ratio (0.086 vs 0.026, CIs disjoint) - separable at this point but the margin shrinks with ratio; beyond the tested envelope the estimator must abstain"}
+  ],
+  "residual_bias_curve_noise_only_nulls": [
+    {"gate_ratio": 3.54, "den_residual": 0.0037}, {"gate_ratio": 3.76, "den_residual": 0.0048},
+    {"gate_ratio": 3.87, "den_residual": 0.0043}, {"gate_ratio": 4.72, "den_residual": 0.0140},
+    {"gate_ratio": 5.71, "den_residual": 0.0259}
+  ],
+  "final_decision_rule": "den no-fire -> not concept (if raw fired + gate fired: noise-profile drift; remedy = self-train on old X, do not blame the rule). den fire + gate quiet -> CONCEPT. den fire + gate fired -> CONCEPT only while gate_ratio <= ~4.7 (tested envelope where noise-only residual stays under the 0.02 floor); beyond that ABSTAIN unless den exceeds the calibrated residual band by a wide margin. Guarantee scoped to flexible/well-specified model classes (HGB/RF verified; kNN/linear excluded, F3 channel untouched). Old window >= 600 rows verified safe for the cross-fit.",
+  "config": {"n": 12000, "d": 10, "K": 10, "n_seeds": 5, "max_train": 6000, "HGB": "max_iter=200, early_stopping=False", "python": "3.14, numpy 2.4.4, sklearn 1.8.0"}
+}
