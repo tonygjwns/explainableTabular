@@ -25,22 +25,33 @@ predict the FUTURE. Three quantities, rolling-origin, imbalance kept:
                    concept drift old labels are WRONG now -> adding them pollutes the fit -> the
                    future score drops -> staleness_harm > 0 = the rule P(y|x) changed = CONCEPT.
 
-PRE-REGISTERED verdict per dataset (binclass: AUC; multiclass: acc; regression: -RMSE):
-  DEPLOYMENT-CONCEPT          decay present AND staleness_harm CI>0  -> the within-overlap negative
-                              is an INSTRUMENT ARTIFACT; concept is real & exploitable in deployment.
-                              (pivot to the deployment-decay frame; overlap lens was blind here.)
-  DEPLOYMENT-DECAY-COVARIATE  decay present AND recency_gain CI>0 but staleness_harm ~0/<=0 -> real
-                              exploitable temporal structure (recency adaptation recovers it), but
-                              the mechanism is covariate coverage, not a changed rule.  Still
-                              contradicts "absent"; honest middle.
-  DEPLOYMENT-STABLE           no decay, no recency_gain, no staleness_harm -> the negative is
-                              hardened on BOTH lenses -> write the broad-negative measurement paper.
+v3 DECISION RULE (frozen in PREREG_DEPLOYMENT_V2.md; scores — binclass: AUC; multiclass: acc;
+regression: -RMSE on z-scored y). Two staleness arms per comparison:
+  RAW       staleness on logged labels (as v2).
+  DENOISED  old labels replaced by 2-fold cross-fitted within-old-window model predictions.
+            Under NOISE-ONLY drift (fixed rule, label-noise level changes) the pseudo-labels are
+            approximately-correct denoised labels -> harm vanishes; under a CHANGED rule they
+            still encode the OLD rule -> harm persists. (Audit F1: noise decay alone minted a
+            +0.021 'concept' under a provably fixed rule — the raw arm alone is not sound.)
+plus a NOISE GATE: per-window held-out noise proxy (regression: MSE; binclass: 1-AUC; multiclass:
+1-acc), statistic = old/median(recent); fires > GATE_THRESH, denoiser validity envelope ends at
+GATE_ENVELOPE (beyond it the denoiser's own bias can cross the floor -> abstain).
+  DEPLOYMENT-CONCEPT        denoised fires (CI>0 & mean>floor) and noise ratio within envelope
+  NOISE-AMBIGUOUS           denoised fires but ratio > envelope -> abstain (denoiser bias zone)
+  NOISE-DRIFT-CONFOUNDED    raw fires, denoised null, gate fired -> label-noise drift, not rule
+  RAW-ONLY-POSITIVE         raw fires, denoised null, gate quiet -> unresolved; NOT concept
+  UNIDENTIFIABLE-{EXPLOITABLE,INERT} / INJECTION-RECOVERED  staleness null + separability gate
+                            D>=D* -> learnability-gated injection decides earned/recovered/vacuous
+  SUBFLOOR-CONCEPT-SIGNAL / NO-STRONG-CONCEPT / DEPLOYMENT-DECAY-COVARIATE / INCONCLUSIVE / NO-DATA
+SCOPE (audit F2/F3, executed): D measures WINDOW SEPARABILITY, not support disjointness (group-
+aware split + random subsample fix the duplicate/cohort saturation channel; semantics stay
+separability). All verdicts are relative to the tree-ensemble hypothesis class — kNN/linear
+false-fire CONCEPT under fixed rules (+0.098/+0.026); do not transfer verdicts across classes.
 
-Discipline (lessons baked in): size-matched training (no "fewer-samples" confound), same-window
-gain comparison (controls window difficulty / INSECTS trap), staleness_harm controls covariate
-coverage so a covariate-only decay can't masquerade as concept, multi-seed CIs, and three local
-synthetic ground-truth controls that MUST land in the three regimes before any real-data read is
-trusted.  Complementary to the autocorrelation guard already in run_adversarial_probe.
+Discipline (lessons baked in): size-matched training, same-window gain comparison, denoised arm +
+noise gate (F1), group-aware D (F2), class scoping (F3), learnability-gated injection (L4),
+multi-seed CIs with per-seed window jitter, and a synthetic ground-truth battery (binclass +
+regression + adversarial noise-drift kinds) that MUST pass before any real-data read is trusted.
 
 Model-light (sklearn). Generic: point it at any time-ordered tabular CSV/parquet.
 
@@ -71,6 +82,17 @@ INJ_STRENGTH = 2.5    # reference concept strength for the injection control (cl
 ROW_FLOOR = 200       # a window/old-anchor needs >= this many rows to be usable (NEW-4: a sparse
                       # early window shrinks N and biases staleness toward the null).
 MIN_POS = 10          # a usable binclass window/sample needs >= this many of the minority class
+GATE_THRESH = 1.5     # noise gate: old/recent noise-proxy ratio above this = noise-drift present
+                      # (pre-committed; stable controls calibrate at ~0.75-0.99, well below).
+GATE_ENVELOPE = 4.7   # denoiser validity envelope: beyond this ratio the cross-fitted pseudo-labels
+                      # carry enough estimation bias to cross the 0.02 floor on a pure null
+                      # (executed: den +0.026 at ratio 5.7) -> abstain (NOISE-AMBIGUOUS).
+INJ_SEEDS = 10        # injection control seeds — same power as the real read (audit L4: was 4).
+LEARN_AUC = 0.65      # injection learnability gates: the injected rule must be learnable IN-WINDOW
+LEARN_R2 = 0.20       # (held-out AUC / R^2 / acc-over-majority margin) or the injection null is
+LEARN_ACC = 0.10      # VACUOUS (audit L4: junk top-variance features -> in-window AUC 0.506 ->
+                      # false 'unident-earned'). Unlearnable -> flag injection-vacuous, not earned.
+D_SEEDS = 5           # D is now a multi-seed median (audit L2: was a single seed-0 point estimate)
 
 
 # ----------------------------------------------------------------------------- scoring
@@ -135,10 +157,87 @@ def _nonconstant_mask(X):
     return keep
 
 
+def _fit_predict(Xtr, ytr, Xte, task, seed):
+    """Hard predictions of a fresh model (denoiser building block, ported from the audited
+    harness). None on degenerate train; single-class fold -> constant pseudo-label."""
+    Xtr = np.asarray(Xtr, float); Xte = np.asarray(Xte, float)
+    keep = _nonconstant_mask(Xtr)
+    if not keep.any():
+        return None
+    Xtr, Xte = Xtr[:, keep], Xte[:, keep]
+    HGB = dict(max_iter=200, early_stopping=False, random_state=seed)
+    if task == "regression":
+        return HistGradientBoostingRegressor(**HGB).fit(Xtr, ytr).predict(Xte)
+    u = np.unique(ytr)
+    if len(u) < 2:
+        return np.full(len(Xte), u[0])
+    return HistGradientBoostingClassifier(**HGB).fit(Xtr, ytr).predict(Xte)
+
+
+def _crossfit_pseudo(Xs, ys, pool, task, seed, rng2):
+    """Out-of-fold pseudo-labels for rows `pool` (2-fold cross-fit WITHIN the pool): fit half A ->
+    label half B, and vice versa. Under a fixed rule these are denoised approximately-correct
+    labels; under a changed rule they still encode the pool's (old) rule. Returns array aligned
+    with pool, or None on failure. (Validated: kills the noise-decay false positive +0.021 ->
+    +0.004 while retaining rotating-rule power +0.541; battery in audit_artifacts_2026-07-04.)"""
+    m = len(pool)
+    perm = rng2.permutation(m)
+    half = m // 2
+    foldA, foldB = pool[perm[:half]], pool[perm[half:]]
+    pseudo = np.empty(m, dtype=float)
+    posA, posB = perm[:half], perm[half:]
+    try:
+        pA = _fit_predict(Xs[foldB], ys[foldB], Xs[foldA], task, seed)
+        pB = _fit_predict(Xs[foldA], ys[foldA], Xs[foldB], task, seed)
+    except Exception:
+        return None
+    if pA is None or pB is None:
+        return None
+    pseudo[posA] = pA
+    pseudo[posB] = pB
+    if task != "regression":
+        pseudo = pseudo.astype(ys.dtype)
+    return pseudo
+
+
+def _window_noise_proxy(Xs, ys, idx, task, seed, rng2):
+    """Per-window noise proxy: held-out irreducible-error estimate with a fresh model.
+    regression -> held-out mean squared residual (y z-scored, unit-free); binclass -> 1-AUC;
+    multiclass -> 1-acc. Feeds the noise gate (old / median(recent))."""
+    if len(idx) < 60:
+        return None
+    p = rng2.permutation(idx)
+    cut = int(len(p) * 0.7)
+    tr, ho = p[:cut], p[cut:]
+    if not _ok_train(ys[tr], task):
+        return None
+    try:
+        if task == "regression":
+            pred = _fit_predict(Xs[tr], ys[tr], Xs[ho], task, seed)
+            return None if pred is None else float(np.mean((ys[ho] - pred) ** 2))
+        s = _fit_score(Xs[tr], ys[tr], Xs[ho], ys[ho], task, seed)
+        return None if s is None else float(1.0 - s)
+    except Exception:
+        return None
+
+
+def _row_groups(X, decimals=1):
+    """Group ids for the group-aware D split: rows identical after z-scoring + rounding share a
+    group (exact duplicates and tight near-duplicates cluster; honest iid rows stay singleton —
+    at d>=10 the collision probability of distinct N(0,1) rows is ~0). Validated fix for the
+    duplicate/cohort D-saturation channel (audit F2: dup m=5 D 0.994 -> 0.504 grouped; cohorts
+    1.000 -> 0.525) while honest drift D is unchanged."""
+    X = np.nan_to_num(np.asarray(X, float))
+    sd = X.std(0); sd[sd == 0] = 1.0
+    Z = np.round((X - X.mean(0)) / sd, decimals)
+    _, groups = np.unique(Z, axis=0, return_inverse=True)
+    return groups
+
+
 def _proxy_mask(X, y, t, task, max_n=20000, seed=0):
     """Return a KEEP mask (True = non-proxy). A time-PROXY feature is one that, ALONE, strongly
     separates early from late (single-feature early/late AUC > 0.70) AND has ~no task-predictive
-    value (|rank-corr with y| < 0.05). Such a feature (a clock / row-id / drifting nuisance) does
+    value (marginal MI < 5% of the top feature's MI). Such a feature (a clock / row-id / drifting nuisance) does
     two bad things, both validated on synth: it inflates the disjointness measure D toward 1.0, and
     — critically — it BLINDS the staleness model (a drifting nuisance made staleness read +0.0004;
     stripping it recovered the true +0.236). A time-separating feature that IS predictive is REAL
@@ -170,10 +269,19 @@ def _proxy_mask(X, y, t, task, max_n=20000, seed=0):
     return keep
 
 
-def _disjointness(X, win, Keff, seed=0):
-    """D = median over back-half windows W_j of held-out AUC(oldest-window vs W_j). Computed on the
-    (proxy-stripped) feature space -> 'can old data even reach the future covariate region?'."""
-    from sklearn.model_selection import train_test_split
+def _disjointness(X, win, Keff, seed=0, groups=None):
+    """D = median over back-half windows W_j of held-out AUC(oldest-window vs W_j) on the
+    (proxy-stripped) feature space. SEMANTICS (audit F2): D measures WINDOW SEPARABILITY, not
+    support disjointness — a single predictive drifting feature saturates it; do not read D>=D*
+    as 'old data cannot reach the future covariate region'. Two executed fixes vs v2:
+    (1) windows are size-matched by RANDOM subsample, not head-slice old[:nn]/fut[:nn] — the
+        head-slice on time-sorted rows made the time-SHUFFLE control read D>0.6 with no static
+        feature (truncation artifact, audit L3);
+    (2) the train/test split is GROUP-aware (groups = duplicate/near-dup clusters via _row_groups,
+        or caller-supplied entity ids) — a row-level split let HGB memorize duplicate/cohort rows
+        and saturate D to 1.000 with ZERO covariate shift (audit F2, executed)."""
+    from sklearn.model_selection import GroupShuffleSplit, train_test_split
+    rng = np.random.default_rng(seed)
     by_w = [np.where(win == k)[0] for k in range(Keff)]
     old = by_w[0]
     if len(old) < 40:
@@ -184,13 +292,24 @@ def _disjointness(X, win, Keff, seed=0):
         if len(fut) < 40:
             continue
         nn = min(len(old), len(fut), 5000)
-        Xd = np.nan_to_num(np.vstack([X[old[:nn]], X[fut[:nn]]]))
+        o = old if len(old) == nn else rng.choice(old, nn, replace=False)
+        f = fut if len(fut) == nn else rng.choice(fut, nn, replace=False)
+        sel = np.r_[o, f]
+        Xd = np.nan_to_num(X[sel])
         yd = np.r_[np.zeros(nn), np.ones(nn)]
         try:
-            a, b, c, dd = train_test_split(Xd, yd, test_size=0.3, random_state=seed, stratify=yd)
+            if groups is not None:
+                tr, te = next(GroupShuffleSplit(n_splits=1, test_size=0.3,
+                                                random_state=seed).split(Xd, yd, groups[sel]))
+                if len(np.unique(yd[tr])) < 2 or len(np.unique(yd[te])) < 2:
+                    continue
+                Xa, ya, Xb, yb = Xd[tr], yd[tr], Xd[te], yd[te]
+            else:
+                Xa, Xb, ya, yb = train_test_split(Xd, yd, test_size=0.3, random_state=seed,
+                                                  stratify=yd)
             m = HistGradientBoostingClassifier(max_iter=100, early_stopping=False,
-                                               random_state=seed).fit(a, c)
-            aucs.append(roc_auc_score(dd, m.predict_proba(b)[:, 1]))
+                                               random_state=seed).fit(Xa, ya)
+            aucs.append(roc_auc_score(yb, m.predict_proba(Xb)[:, 1]))
         except Exception:
             continue
     return float(np.median(aucs)) if aucs else None
@@ -211,29 +330,62 @@ def _inject_concept(X, t, task, strength=2.5, seed=0):
     Xf = np.nan_to_num(np.asarray(X, float))
     tn = (t - np.min(t)) / (np.max(t) - np.min(t) + 1e-12)
     order = np.argsort(-Xf.std(0))
-    f0, f1 = (order[0], order[1]) if Xf.shape[1] >= 2 else (0, 0)
+    f0, f1 = (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0)
     ang = strength * tn
     score = np.cos(ang) * _z(Xf[:, f0]) + np.sin(ang) * _z(Xf[:, f1]) + rng.normal(0, .3, len(tn))
     if task == "regression":
-        return score.astype(float)
+        return score.astype(float), (f0, f1)
     if task == "multiclass":
         s2 = np.cos(ang + 2.0) * _z(Xf[:, f0]) + np.sin(ang + 2.0) * _z(Xf[:, f1])
-        return np.stack([score, s2, -score - s2], axis=1).argmax(1)
-    return (score > np.median(score)).astype(int)
+        return np.stack([score, s2, -score - s2], axis=1).argmax(1), (f0, f1)
+    return (score > np.median(score)).astype(int), (f0, f1)
 
 
-def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=4):
-    """Inject a reference-strength concept into (X, t) and test whether staleness fires. Returns
-    (recovered_bool, injected_staleness_mean)."""
-    y_inj = _inject_concept(X, t, task, strength=INJ_STRENGTH)
+def _injection_learnable(X, y_inj, t, task, K, by_value, seed=0):
+    """Is the injected rule learnable IN-WINDOW at all? Without this check an injection null is
+    VACUOUS (audit L4, executed: junk heavy-tailed top-variance features -> in-window AUC 0.506
+    -> false 'unident-earned'; learnable control AUC 0.964 recovers +0.195). Fit on 70% of the
+    LARGEST window, score the held-out 30%. Returns (learnable_bool, score, kind)."""
+    win, Keff = _assign_windows(t, K, by_value)
+    sizes = [(int((win == k).sum()), k) for k in range(Keff)]
+    _, kbig = max(sizes)
+    idx = np.where(win == kbig)[0]
+    rng = np.random.default_rng(seed)
+    p = rng.permutation(idx); cut = int(len(p) * 0.7)
+    tr, ho = p[:cut], p[cut:]
+    if len(ho) < 30 or not _ok_train(y_inj[tr], task):
+        return False, None, "degenerate"
+    if task == "regression":
+        pred = _fit_predict(X[tr], y_inj[tr], X[ho], task, seed)
+        if pred is None:
+            return False, None, "r2"
+        ss = float(np.var(y_inj[ho])) + 1e-12
+        r2 = 1.0 - float(np.mean((y_inj[ho] - pred) ** 2)) / ss
+        return r2 >= LEARN_R2, r2, "r2"
+    s = _fit_score(X[tr], y_inj[tr], X[ho], y_inj[ho], task, seed)
+    if s is None:
+        return False, None, "score"
+    if task == "binclass":
+        return s >= LEARN_AUC, float(s), "auc"
+    maj = float(np.bincount(y_inj[ho].astype(int)).max()) / len(ho)
+    return (s - maj) >= LEARN_ACC, float(s), "acc-over-majority"
+
+
+def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS):
+    """Inject a reference-strength concept into (X, t) and test whether staleness fires.
+    v3: learnability-gated (an unlearnable injection cannot 'earn' blindness), n_seeds matches the
+    real read (audit L4: was 4), injected features logged. Returns
+    (recovered, injected_staleness_mean, learnable, learn_score, feats)."""
+    y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH)
+    learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value)
     st = []
     for s in range(n_seeds):
         out = _per_seed(X, y_inj, t, task, K, by_value, max_train, s)
-        if out is not None and out[2] is not None:
-            st.append(out[2])
+        if out is not None and out["stale"] is not None:
+            st.append(out["stale"])
     m, ci = _ci95(st)
     recovered = m is not None and ci[0] is not None and ci[0] > 0 and m > FLOOR_GAIN
-    return recovered, m
+    return recovered, m, learnable, lscore, feats
 
 
 def _sanitize(X):
@@ -310,6 +462,9 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
     empirically negligible (a d=10..700 bias sweep: N-vs-2N ≈ fixed-size on concept data), and
     early_stopping=False removes the only sharp asymmetry, so the original design is kept."""
     rng = np.random.default_rng(seed)
+    rng2 = np.random.default_rng(seed + 100000)  # ALL v3 additions draw from rng2 ONLY, so the
+    #                                              raw arm's stream stays bit-identical to v2
+    #                                              (parity proven in the audited harness).
     n = len(y)
     sub = rng.choice(n, int(0.9 * n), replace=False) if n > 200 else np.arange(n)
     Xs, ys, ts = X[sub], y[sub], t[sub]
@@ -329,8 +484,16 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
     tr0, ho0 = _sample(w0[:cut], max_train, rng), w0[cut:]
     base = (_fit_score(Xs[tr0], ys[tr0], Xs[ho0], ys[ho0], task, seed)
             if _ok_train(ys[tr0], task) and len(ho0) >= 20 else None)
+    # --- v3: cross-fitted pseudo-labels for the whole old pool (once per seed) + noise proxies ---
+    pseudo = _crossfit_pseudo(Xs, ys, old_pool, task, seed, rng2)
+    pos_of = {int(i): k for k, i in enumerate(old_pool)}
+    noise_old = _window_noise_proxy(Xs, ys, old_pool, task, seed, rng2)
+    recent_ws = sorted({j - 1 for j in range(max(old_w + 1, Keff // 2), Keff) if j - 1 != old_w})
+    noise_rec = [v for v in (_window_noise_proxy(Xs, ys, by_w[k], task, seed, rng2)
+                             for k in recent_ws) if v is not None]
+    noise_rec_med = float(np.median(noise_rec)) if noise_rec else None
 
-    decays, recs, stales = [], [], []
+    decays, recs, stales, dens = [], [], [], []
     for j in range(max(old_w + 1, Keff // 2), Keff):       # future windows, after the old anchor
         te = by_w[j]
         if len(te) < 20 or (task != "regression" and len(np.unique(ys[te])) < 2):
@@ -354,9 +517,15 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
         if None not in (sRec, sOld):
             recs.append(sRec - sOld)
         if None not in (sRec, sRecOld):
-            stales.append(sRec - sRecOld)              # >0 = adding old HURT = concept
+            stales.append(sRec - sRecOld)              # >0 = adding old HURT = concept OR noise drift
+        if pseudo is not None and sRec is not None:    # v3 denoised arm: same rows, pseudo old-labels
+            y_den = np.concatenate([ys[recent], pseudo[[pos_of[int(i)] for i in old]]])
+            sRecOldD = _fit_score(Xs[recent_old], y_den, Xs[te], ys[te], task, seed)
+            if sRecOldD is not None:
+                dens.append(sRec - sRecOldD)           # >0 here = the RULE changed (noise removed)
     mean = lambda a: float(np.mean(a)) if a else None
-    return mean(decays), mean(recs), mean(stales), Keff
+    return {"decay": mean(decays), "rec": mean(recs), "stale": mean(stales),
+            "den": mean(dens), "noise_old": noise_old, "noise_rec": noise_rec_med, "Keff": Keff}
 
 
 def _ci95(a):
@@ -414,18 +583,22 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     win, Keff = _assign_windows(t, K, by_value)            # single windowing, for diagnostics + D
     keep_w = win >= 0
     Xd, yd, td, win = X[keep_w], y[keep_w], t[keep_w], win[keep_w]
-    # disjointness on stripped (D_strip, used for the identifiability gate) and full (D_full) space:
-    # D_full>=D* but D_strip<D* => PROXY-SENSITIVE (the disjointness was a clock, not covariate).
-    D_strip = _disjointness(Xd, win, Keff)
-    D_full = _disjointness(X_full[keep_w], win, Keff)
-    # time-shuffle control: shuffle t -> windows become random in time. Genuine covariate DRIFT
-    # collapses to D~0.5; if D stays high the windows are separated by a STATIC feature (an id/index
-    # the strip missed), not drift -> D-GATE-SUSPECT.
-    D_shuffle = None
-    if D_strip is not None and D_strip >= DSTAR:
-        sh = np.random.default_rng(0).permutation(len(td))
-        wsh, Ksh = _assign_windows(td[sh], Keff, False)
-        D_shuffle = _disjointness(Xd, wsh, Ksh)
+    # separability on stripped (D_strip, gate) and full (D_full) space. v3: group-aware split +
+    # random size-matching (audit F2/L3) and a multi-seed median instead of a seed-0 point
+    # estimate (audit L2). D_full>=D* but D_strip<D* => PROXY-SENSITIVE (a clock, not covariate).
+    groups = _row_groups(Xd)
+    D_list = [v for v in (_disjointness(Xd, win, Keff, seed=s, groups=groups)
+                          for s in range(D_SEEDS)) if v is not None]
+    D_strip = float(np.median(D_list)) if D_list else None
+    D_spread = ([float(np.min(D_list)), float(np.max(D_list))] if D_list else [None, None])
+    dup_frac = float(np.mean(np.bincount(groups) [groups] > 1))   # rows sharing a near-dup group
+    D_full = _disjointness(X_full[keep_w], win, Keff, seed=0, groups=_row_groups(X_full[keep_w]))
+    # time-shuffle control (now ALWAYS computed, any branch may earn the flag — audit L3: v2 only
+    # ran it in the UNIDENTIFIABLE branch, so sberbank's 0.887 went unflagged). With the random
+    # size-matching fix a high D_shuffle can no longer be the head-truncation artifact.
+    sh = np.random.default_rng(0).permutation(len(td))
+    wsh, Ksh = _assign_windows(td[sh], Keff, False)
+    D_shuffle = _disjointness(Xd, wsh, Ksh, seed=0, groups=groups)
     min_window_n = int(min((int((win == k).sum()) for k in range(Keff) if (win == k).any()),
                            default=0))                        # NEW-4: smallest window row count
 
@@ -449,16 +622,21 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     tie_ov = (sum(1 for a, b in zip(rngs, rngs[1:]) if a[1] >= b[0]) / max(len(rngs) - 1, 1)
               if len(rngs) > 1 else 0.0)
 
-    decay_s, rec_s, stale_s = [], [], []
+    decay_s, rec_s, stale_s, den_s, ratio_s = [], [], [], [], []
     for s in range(n_seeds):
         out = _per_seed(X, y, t, task, K, by_value, max_train, s)
         if out is None:
             continue
-        d, r, st, Keff = out
-        decay_s.append(d); rec_s.append(r); stale_s.append(st)
+        Keff = out["Keff"]
+        decay_s.append(out["decay"]); rec_s.append(out["rec"]); stale_s.append(out["stale"])
+        den_s.append(out["den"])
+        if out["noise_old"] is not None and out["noise_rec"] not in (None, 0):
+            ratio_s.append(out["noise_old"] / out["noise_rec"])
     decay, decay_ci = _ci95(decay_s)
     rec, rec_ci = _ci95(rec_s)
     stale, stale_ci = _ci95(stale_s)
+    den, den_ci = _ci95(den_s)
+    noise_ratio, noise_ratio_ci = _ci95(ratio_s)
 
     # ---- trust flags (informational; never override the verdict) ----
     flags = []
@@ -475,60 +653,101 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     if n_proxy:
         flags.append(f"proxy-stripped:{n_proxy}")
 
-    rec_present = (rec is not None and rec_ci[0] is not None
-                   and rec_ci[0] > 0 and rec > FLOOR_GAIN)
-    # v2 decision logic (3 converging reviewers): condition on staleness-CI-vs-floor AND the
-    # identifiability gate D_strip vs D*. POSITIVE staleness ALWAYS overrides the gate (never file
-    # a firing concept signal as unidentifiable). D is on the proxy-stripped space.
-    stale_pos = (stale is not None and stale_ci[0] is not None
-                 and stale_ci[0] > 0 and stale > FLOOR_GAIN)          # lower_CI > floor
-    stale_sub = (stale is not None and stale_ci[0] is not None
-                 and stale_ci[0] > 0 and not stale_pos)               # 0 < lower_CI <= floor
+    # v3 fire rules. Rule A (pre-committed since e680960, applied to every arm uniformly):
+    # CI-lower > 0 AND mean > floor. Rule B (strict sensitivity reading): CI-lower > floor.
+    # Both are always reported (verdict / verdict_strict) — audit L1.
+    fire_a = lambda m, ci: (m is not None and ci[0] is not None
+                            and ci[0] > 0 and m > FLOOR_GAIN)
+    fire_b = lambda m, ci: (m is not None and ci[0] is not None and ci[0] > FLOOR_GAIN)
+
+    rec_present = fire_a(rec, rec_ci)
+    raw_fire, den_fire = fire_a(stale, stale_ci), fire_a(den, den_ci)
+    gate_fired = noise_ratio is not None and noise_ratio > GATE_THRESH
+    env_exceeded = noise_ratio is not None and noise_ratio > GATE_ENVELOPE
+    den_sub = (den is not None and den_ci[0] is not None and den_ci[0] > 0
+               and not fire_a(den, den_ci))                           # 0 < denoised lower_CI <= floor
     stale_null = (stale is not None and stale_ci[1] is not None
-                  and stale_ci[1] <= FLOOR_GAIN)                      # upper_CI <= floor
+                  and stale_ci[1] <= FLOOR_GAIN)                      # raw upper_CI <= floor
+    den_null = den is None or (den_ci[1] is not None and den_ci[1] <= FLOOR_GAIN)
     disjoint = D_strip is not None and D_strip >= DSTAR
     if D_full is not None and D_strip is not None and D_full >= DSTAR and D_strip < DSTAR:
-        flags.append("proxy-sensitive")                    # high disjointness was a clock, not covariate
-    measured = decay is not None and rec is not None and stale is not None and len(decay_s) >= 2
-    if not measured:
-        verdict = "NO-DATA"
-    elif stale_pos:                                         # concept fired — overrides D
-        verdict = "DEPLOYMENT-CONCEPT"
-        if disjoint:
-            flags.append("d-gate-invalid")                 # fired where D declared it blind
-    elif disjoint:                                          # staleness not positive AND support disjoint
-        verdict = "UNIDENTIFIABLE-EXPLOITABLE" if rec_present else "UNIDENTIFIABLE-INERT"
-    elif stale_sub:
-        verdict = "SUBFLOOR-CONCEPT-SIGNAL"
-    elif stale_null:                                        # identifiable region, no strong concept
-        verdict = "DEPLOYMENT-DECAY-COVARIATE" if rec_present else "NO-STRONG-CONCEPT"
-    else:
-        verdict = "INCONCLUSIVE"
+        flags.append("proxy-sensitive")                    # high separability was a clock, not covariate
+    if den is None and stale is not None:
+        flags.append("denoiser-failed")                    # cross-fit failed -> CONCEPT unreachable
+    n_stale_ok = len([v for v in stale_s if v is not None])
+    measured = (decay is not None and rec is not None and stale is not None
+                and n_stale_ok >= 2)                       # count non-None seeds (audit landmine fix)
 
-    # ---- injection control (breaks the circularity: is UNIDENTIFIABLE 'by assumption' or DEMONSTRATED?)
-    inj_stale = None
-    if verdict.startswith("UNIDENTIFIABLE"):
-        recovered, inj_stale = _injection_recovers(X, t, task, K, by_value, max_train)
-        if recovered:                                      # geometry HAD power -> the real null was informative
-            verdict = "INJECTION-RECOVERED"; flags.append("injection-recovered")
-        else:                                              # blindness demonstrated on real geometry
-            flags.append("unident-earned")
-        if D_shuffle is not None and D_shuffle > 0.6:
-            flags.append("d-gate-suspect")                 # windows separated by a STATIC feature, not drift
+    def _cascade(rf, df):
+        """v3 decision cascade (frozen in PREREG_DEPLOYMENT_V2.md). CONCEPT requires the DENOISED
+        arm — the raw arm alone is not sound under label-noise drift (audit F1, executed)."""
+        if not measured:
+            return "NO-DATA"
+        if df and not env_exceeded:
+            return "DEPLOYMENT-CONCEPT"
+        if df:
+            return "NOISE-AMBIGUOUS"                       # denoiser bias zone -> abstain
+        if rf and gate_fired:
+            return "NOISE-DRIFT-CONFOUNDED"                # label-noise drift, not a rule change
+        if rf:
+            return "RAW-ONLY-POSITIVE"                     # unresolved; NOT concept under repair
+        if disjoint:
+            return "UNIDENTIFIABLE-EXPLOITABLE" if rec_present else "UNIDENTIFIABLE-INERT"
+        if den_sub:
+            return "SUBFLOOR-CONCEPT-SIGNAL"
+        if stale_null and den_null:
+            return "DEPLOYMENT-DECAY-COVARIATE" if rec_present else "NO-STRONG-CONCEPT"
+        return "INCONCLUSIVE"
+
+    verdict = _cascade(raw_fire, den_fire)
+    verdict_strict = _cascade(fire_b(stale, stale_ci), fire_b(den, den_ci))   # rule-B sensitivity
+    if verdict == "DEPLOYMENT-CONCEPT":
+        if gate_fired:
+            flags.append("noise-drift-present")            # concept + noise drift coexist (B4a)
+        if disjoint:
+            flags.append("d-gate-invalid")                 # fired where the gate declared blindness
+
+    # ---- injection control. v3: learnability-gated, n_seeds=INJ_SEEDS, runs on the CONCEPT
+    #      branch too as a positive control (v2 left the only positive cell uncontrolled).
+    inj_stale = inj_learnable = inj_lscore = None; inj_feats = None
+    if measured and (verdict.startswith("UNIDENTIFIABLE") or verdict == "DEPLOYMENT-CONCEPT"):
+        recovered, inj_stale, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
+            X, t, task, K, by_value, max_train)
+        if verdict.startswith("UNIDENTIFIABLE"):
+            if not inj_learnable:
+                flags.append("injection-vacuous")          # unlearnable probe: the null proves nothing
+            elif recovered:                                # geometry HAD power -> real null informative
+                verdict = "INJECTION-RECOVERED"; flags.append("injection-recovered")
+            else:                                          # blindness demonstrated on real geometry
+                flags.append("unident-earned")
+        else:                                              # CONCEPT positive control
+            if not inj_learnable:
+                flags.append("injection-vacuous")
+            elif not recovered:
+                flags.append("injection-no-recover-on-concept")
+    if D_shuffle is not None and D_shuffle > 0.6:          # unconditional (audit L3: was branch-scoped)
+        flags.append("d-gate-suspect")
     if min_window_n and min_window_n < ROW_FLOOR:
         flags.append(f"sparse-window:{min_window_n}")      # NEW-4
     trust = "ok" if not flags else ";".join(flags)
     return {"dataset": name, "task": task, "n": int(len(y)), "n_windows": int(Keff),
-            "n_seeds_ok": len([v for v in decay_s if v is not None]),
+            "n_seeds_ok": n_stale_ok,
             "decay": decay, "decay_ci": decay_ci,
             "recency_gain": rec, "recency_gain_ci": rec_ci,
             "staleness_harm": stale, "staleness_harm_ci": stale_ci,
-            "D_strip": D_strip, "D_full": D_full, "D_shuffle": D_shuffle, "injected_staleness": inj_stale,
+            "denoised_staleness": den, "denoised_staleness_ci": den_ci,
+            "noise_ratio": noise_ratio, "noise_ratio_ci": noise_ratio_ci,
+            "noise_gate_fired": bool(gate_fired), "noise_envelope_exceeded": bool(env_exceeded),
+            "gate_thresh": GATE_THRESH, "gate_envelope": GATE_ENVELOPE,
+            "D_strip": D_strip, "D_spread": D_spread, "D_full": D_full, "D_shuffle": D_shuffle,
+            "dup_group_frac": dup_frac,
+            "injected_staleness": inj_stale, "injection_learnable": inj_learnable,
+            "injection_learn_score": inj_lscore, "injection_features": inj_feats,
             "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
             "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
             "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
-            "verdict": verdict}
+            "verdict": verdict, "verdict_strict": verdict_strict}
 
 
 # ----------------------------------------------------------------------------- loaders
@@ -612,6 +831,49 @@ def _synth(kind, seed=0, n=12000, d=10):
         X[:, 2] = X[:, 2] + 8.0 * t
         ang = 2.5 * t
         y = (np.cos(ang) * X[:, 0] + np.sin(ang) * X[:, 1] + rng.normal(0, .3, n) > 0).astype(int)
+    elif kind == "covariate_mild":
+        # IDENTIFIABLE covariate drift (ramp small enough that D < D*): the staleness null must be
+        # load-bearing here, not gated away — validates the regime that matters for any real
+        # borderline positive (audit exp-synth-repro probe: NO-STRONG-CONCEPT at 2 generator seeds).
+        X[:, 0] = X[:, 0] + 1.5 * t
+        y = (np.sin(1.5 * X[:, 0]) + 0.8 * X[:, 1] + rng.normal(0, .3, n) > 0).astype(int)
+    elif kind == "reg_stable":
+        y = 3 * X[:, 0] + rng.normal(0, 0.3, n)
+        return X, y, t, "regression"
+    elif kind == "reg_concept":
+        ang = 3.0 * t
+        y = np.cos(ang) * X[:, 0] + np.sin(ang) * X[:, 1] + rng.normal(0, 0.3, n)
+        return X, y, t, "regression"
+    elif kind == "reg_cov_linear":                      # fixed LINEAR rule, drifting X
+        X[:, 0] = X[:, 0] + 6.0 * t
+        y = 3 * X[:, 0] + 0.8 * X[:, 1] + rng.normal(0, 0.3, n)
+        return X, y, t, "regression"
+    elif kind == "reg_cov_nonlinear":                   # fixed NONLINEAR rule, drifting X (sberbank twin)
+        X[:, 0] = X[:, 0] + 6.0 * t
+        y = np.sin(1.5 * X[:, 0]) + 0.8 * X[:, 1] + rng.normal(0, 0.3, n)
+        return X, y, t, "regression"
+    elif kind == "reg_early_noisy":
+        # THE F1 KILLER (audit, executed): fixed conditional mean, label-noise std 1.5 -> 0.3.
+        # v2 minted DEPLOYMENT-CONCEPT at +0.0214 here — matching sberbank's +0.0239. v3 must file
+        # NOISE-DRIFT-CONFOUNDED (raw fires, denoised null +0.0037, gate ~3.5 fires).
+        sd = 1.5 - 1.2 * t
+        y = 3 * X[:, 0] + rng.normal(0, 1, n) * sd
+        return X, y, t, "regression"
+    elif kind == "reg_late_noisy":                      # noise GROWS 0.3 -> 1.5 (direction v2 passed)
+        sd = 0.3 + 1.2 * t
+        y = 3 * X[:, 0] + rng.normal(0, 1, n) * sd
+        return X, y, t, "regression"
+    elif kind == "reg_xdep_noise":
+        # x-DEPENDENT noise whose scale decays — second raw false-positive channel found by the
+        # audit (+0.0254 raw under a fixed mean); denoised must stay null.
+        sd = (1.5 - 1.2 * t) * (0.5 + 1.0 / (1.0 + np.exp(-2.0 * X[:, 1])))
+        y = 3 * X[:, 0] + rng.normal(0, 1, n) * sd
+        return X, y, t, "regression"
+    elif kind == "reg_concept_earlynoisy":              # concept + noise decay simultaneously:
+        ang = 3.0 * t                                   # must STILL read CONCEPT (gate must not veto)
+        sd = 1.5 - 1.2 * t
+        y = np.cos(ang) * X[:, 0] + np.sin(ang) * X[:, 1] + rng.normal(0, 1, n) * sd
+        return X, y, t, "regression"
     elif kind == "covariate_mc":
         # ADVERSARIAL control for the insects (multiclass / accuracy) read: P(x) drifts AND the
         # class PRIOR drifts with it, but P(y|x) is FIXED in observed-feature space. A true concept
@@ -627,15 +889,37 @@ def _synth(kind, seed=0, n=12000, d=10):
 
 
 # ----------------------------------------------------------------------------- main
+def _run_meta(args):
+    """Provenance stamp written into every output blob (audit 10H: the v2 headline artifact had
+    no run metadata — rows from different instrument versions were indistinguishable)."""
+    import datetime
+    import platform
+    import subprocess
+    try:
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                             capture_output=True, text=True,
+                             cwd=Path(__file__).resolve().parents[1]).stdout.strip() or None
+    except Exception:
+        sha = None
+    import sklearn
+    return {"git": sha, "argv": sys.argv[1:], "utc": datetime.datetime.utcnow().isoformat(),
+            "python": platform.python_version(), "numpy": np.__version__,
+            "sklearn": sklearn.__version__, "instrument": "v3"}
+
+
 def _show(r):
     f = lambda x: f"{x:+.3f}" if isinstance(x, (int, float)) else "   -"
     ci = lambda c: f"[{f(c[0])},{f(c[1])}]" if c and c[0] is not None else "   -"
     trust = r.get("trust", "ok")
     tnote = "" if trust == "ok" else f"  [TRUST: {trust}]"
     dstr = r.get("D_strip"); df = f"{dstr:.3f}" if isinstance(dstr, (int, float)) else "  -"
-    print(f"  {r['dataset'][:20]:20s} W={r['n_windows']:>2d} D={df} "
-          f"rec={f(r['recency_gain'])}{ci(r['recency_gain_ci'])} "
-          f"stale={f(r['staleness_harm'])}{ci(r['staleness_harm_ci'])} => {r['verdict']}{tnote}")
+    nr = r.get("noise_ratio")
+    gstr = (f"{nr:.2f}{'!' if r.get('noise_gate_fired') else ''}"
+            if isinstance(nr, (int, float)) else "  -")
+    print(f"  {r['dataset'][:20]:20s} W={r['n_windows']:>2d} D={df} gate={gstr} "
+          f"stale={f(r['staleness_harm'])}{ci(r['staleness_harm_ci'])} "
+          f"den={f(r.get('denoised_staleness'))}{ci(r.get('denoised_staleness_ci'))} "
+          f"=> {r['verdict']}{tnote}")
 
 
 def main():
@@ -665,27 +949,34 @@ def main():
     rows = []
 
     if args.synth:
-        print("\n==== SYNTH ground-truth controls (instrument MUST land in the 3 regimes) ====")
-        print("  EXPECT  concept=>DEPLOYMENT-CONCEPT  covariate=>DEPLOYMENT-DECAY-COVARIATE  stable=>DEPLOYMENT-STABLE")
-        print("  ADVERSARIAL  covariate_mc (multiclass prior-shift, FIXED rule) MUST NOT be CONCEPT")
-        print("  ADVERSARIAL  nuisance_proxy (concept + drifting nuisance) MUST read CONCEPT (proxy-stripped)")
-        for kind in ("concept", "covariate", "stable", "covariate_mc", "nuisance_proxy"):
+        MUST_CONCEPT = ("concept", "nuisance_proxy", "reg_concept", "reg_concept_earlynoisy")
+        NEVER_CONCEPT = ("covariate", "stable", "covariate_mc", "covariate_mild", "reg_stable",
+                         "reg_cov_linear", "reg_cov_nonlinear", "reg_early_noisy",
+                         "reg_late_noisy", "reg_xdep_noise")
+        MUST_NOISE_CONF = ("reg_early_noisy", "reg_xdep_noise")        # the gate must catch these
+        print("\n==== SYNTH ground-truth battery (v3: binclass + regression + noise-drift adversarials) ====")
+        print(f"  EXPECT CONCEPT:      {', '.join(MUST_CONCEPT)}")
+        print(f"  EXPECT not-CONCEPT:  {', '.join(NEVER_CONCEPT)}")
+        print(f"  EXPECT NOISE-DRIFT-CONFOUNDED: {', '.join(MUST_NOISE_CONF)}")
+        print("  EXPECT covariate_mild != UNIDENTIFIABLE-* (identifiable-regime coverage)")
+        for kind in MUST_CONCEPT + NEVER_CONCEPT:
             X, y, t, task = _synth(kind)
             r = assess(f"synth_{kind}", X, y, t, task, K=args.windows, n_seeds=args.n_seeds,
                        max_train=args.max_train)
             rows.append(r); _show(r)
-        (out_dir / "synth_summary.json").write_text(json.dumps({"rows": rows}, indent=2, default=float))
+        blob = {"meta": _run_meta(args), "rows": rows}
+        (out_dir / "synth_summary.json").write_text(json.dumps(blob, indent=2, default=float))
         verdicts = {r["dataset"]: r["verdict"] for r in rows}
         C = lambda k: verdicts.get(f"synth_{k}", "")
-        # v2 invariants: CONCEPT fires ONLY for true concept + recovered-nuisance; NEVER for
-        # covariate/stable/prior-shift. And strong PREDICTIVE covariate drift must land UNIDENTIFIABLE
-        # (the gate correctly abstains — it can't be told from concept-in-the-new-region).
-        ok = (C("concept") == "DEPLOYMENT-CONCEPT"
-              and C("nuisance_proxy") == "DEPLOYMENT-CONCEPT"           # proxy-strip recovers concept
-              and C("covariate") != "DEPLOYMENT-CONCEPT"                # never FALSELY concept
-              and C("stable") != "DEPLOYMENT-CONCEPT"
-              and C("covariate_mc") != "DEPLOYMENT-CONCEPT")            # prior-shift adversarial
-        print(f"\n  GROUND-TRUTH {'PASS' if ok else 'CHECK (verdicts above must match EXPECT)'}")
+        # v3 invariants (frozen in PREREG_DEPLOYMENT_V2.md): CONCEPT fires for every true-concept
+        # kind incl. concept+noise-decay (gate must not veto); NEVER for any fixed-rule kind incl.
+        # both noise-drift adversarials (which must be specifically NOISE-DRIFT-CONFOUNDED); the
+        # identifiable mild-covariate cell must be decided by the staleness null, not gated away.
+        ok = (all(C(k) == "DEPLOYMENT-CONCEPT" for k in MUST_CONCEPT)
+              and all(C(k) != "DEPLOYMENT-CONCEPT" for k in NEVER_CONCEPT)
+              and all(C(k) == "NOISE-DRIFT-CONFOUNDED" for k in MUST_NOISE_CONF)
+              and not C("covariate_mild").startswith("UNIDENTIFIABLE"))
+        print(f"\n  GROUND-TRUTH {'PASS' if ok else 'FAIL (verdicts above must match EXPECT)'}")
         print(f"  wrote {out_dir}/synth_summary.json")
         return
 
@@ -723,13 +1014,16 @@ def main():
                  "recency_gain_ci": [None, None], "staleness_harm": None,
                  "staleness_harm_ci": [None, None], "n_windows": 0}
         rows.append(r); _show(r)
-    print("\n  PRE-REG: DEPLOYMENT-CONCEPT => within-overlap negative is an INSTRUMENT ARTIFACT (real")
-    print("  positive, overlap lens was blind here). DEPLOYMENT-DECAY-COVARIATE => exploitable but")
-    print("  covariate-mechanism. DEPLOYMENT-STABLE on all => negative hardened on both lenses => write it.")
-    blob = json.loads((out_dir / "summary.json").read_text()) if (out_dir / "summary.json").exists() else {"rows": []}
-    blob.setdefault("rows", []).extend(rows)
-    (out_dir / "summary.json").write_text(json.dumps(blob, indent=2, default=float))
-    print(f"\n  appended to {out_dir}/summary.json  <-- send me this")
+    print("\n  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the")
+    print("  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never")
+    print("  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.")
+    meta = _run_meta(args)
+    stamp = meta["utc"].replace(":", "").replace("-", "")[:15]
+    out_file = out_dir / f"summary_{stamp}_{meta['git'] or 'nogit'}.json"
+    out_file.write_text(json.dumps({"meta": meta, "rows": rows}, indent=2, default=float))
+    (out_dir / "summary_latest.json").write_text(
+        json.dumps({"meta": meta, "rows": rows}, indent=2, default=float))
+    print(f"\n  wrote {out_file}  (+ summary_latest.json)  <-- send me this")
 
 
 if __name__ == "__main__":
