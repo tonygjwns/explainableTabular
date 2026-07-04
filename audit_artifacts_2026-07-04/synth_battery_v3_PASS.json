@@ -1,0 +1,865 @@
+{
+  "meta": {
+    "git": "01ae6ae",
+    "argv": [
+      "--synth"
+    ],
+    "utc": "2026-07-04T04:23:52.405819",
+    "python": "3.14.3",
+    "numpy": "2.4.4",
+    "sklearn": "1.8.0",
+    "instrument": "v3"
+  },
+  "rows": [
+    {
+      "dataset": "synth_concept",
+      "task": "binclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.6958091965176019,
+      "decay_ci": [
+        0.687389762299065,
+        0.7042286307361387
+      ],
+      "recency_gain": 0.67387855054997,
+      "recency_gain_ci": [
+        0.6701232553658089,
+        0.6776338457341312
+      ],
+      "staleness_harm": 0.28012253959501365,
+      "staleness_harm_ci": [
+        0.21328600233713269,
+        0.3469590768528946
+      ],
+      "denoised_staleness": 0.2893445128157818,
+      "denoised_staleness_ci": [
+        0.21888481196812137,
+        0.3598042136634422
+      ],
+      "noise_ratio": 0.8967516732113443,
+      "noise_ratio_ci": [
+        0.697987765375248,
+        1.0955155810474406
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.1915889412658428,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9461555230294915,
+      "injection_features": [
+        6,
+        3
+      ],
+      "delta_staleness": 0.05985616979968468,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": -0.0015671074488647855,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "synth_nuisance_proxy",
+      "task": "binclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.5537468832418264,
+      "decay_ci": [
+        0.5444206509218564,
+        0.5630731155617964
+      ],
+      "recency_gain": 0.5400356756816519,
+      "recency_gain_ci": [
+        0.5314754361608863,
+        0.5485959152024175
+      ],
+      "staleness_harm": 0.20332784033086077,
+      "staleness_harm_ci": [
+        0.15563878587183402,
+        0.25101689478988753
+      ],
+      "denoised_staleness": 0.20589403128312683,
+      "denoised_staleness_ci": [
+        0.15813382883574226,
+        0.2536542337305114
+      ],
+      "noise_ratio": 1.17634822138614,
+      "noise_ratio_ci": [
+        0.8455996270928187,
+        1.5070968156794615
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.5083223371993426,
+      "D_spread": [
+        0.5051601299874181,
+        0.5368503315562639
+      ],
+      "D_full": 0.99999228013834,
+      "D_shuffle": 0.48721747652228936,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.19125948986504265,
+      "injection_learnable": true,
+      "injection_learn_score": 0.947245492198935,
+      "injection_features": [
+        5,
+        2
+      ],
+      "delta_staleness": 0.042708438503811494,
+      "n_proxy_stripped": 1,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.49729938271604945,
+      "y_lag1_autocorr": -0.011173936411763796,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement;proxy-stripped:1;proxy-sensitive",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "synth_reg_concept",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 1.3520539091242416,
+      "decay_ci": [
+        1.331684917914859,
+        1.3724229003336241
+      ],
+      "recency_gain": 1.2324103522038392,
+      "recency_gain_ci": [
+        1.22342004393155,
+        1.2414006604761285
+      ],
+      "staleness_harm": 0.5456411353118015,
+      "staleness_harm_ci": [
+        0.45275136252785453,
+        0.6385309080957484
+      ],
+      "denoised_staleness": 0.541030150953837,
+      "denoised_staleness_ci": [
+        0.4410937855372276,
+        0.6409665163704463
+      ],
+      "noise_ratio": 0.9117659285396602,
+      "noise_ratio_ci": [
+        0.8735045440759095,
+        0.9500273130034109
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.5143001106784941,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8929903851425158,
+      "injection_features": [
+        6,
+        3
+      ],
+      "delta_staleness": 0.08318842119180031,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": -0.002748935855055641,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "synth_reg_concept_earlynoisy",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.296232181413249,
+      "decay_ci": [
+        0.2379599458837656,
+        0.3545044169427323
+      ],
+      "recency_gain": 0.8539041926767045,
+      "recency_gain_ci": [
+        0.836300710622677,
+        0.871507674730732
+      ],
+      "staleness_harm": 0.35740687560128676,
+      "staleness_harm_ci": [
+        0.29042532424001183,
+        0.4243884269625617
+      ],
+      "denoised_staleness": 0.31629692279999155,
+      "denoised_staleness_ci": [
+        0.24454141020801745,
+        0.38805243539196566
+      ],
+      "noise_ratio": 3.6699053661519065,
+      "noise_ratio_ci": [
+        3.2344995436357706,
+        4.1053111886680425
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.5143001106784941,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8929903851425158,
+      "injection_features": [
+        6,
+        3
+      ],
+      "delta_staleness": 0.05998603871797717,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": -0.007915879481644877,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement;noise-drift-present",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    },
+    {
+      "dataset": "synth_covariate",
+      "task": "binclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.1836522665818569,
+      "decay_ci": [
+        0.1686314881654407,
+        0.1986730449982731
+      ],
+      "recency_gain": 0.15942758605602855,
+      "recency_gain_ci": [
+        0.1532357026165651,
+        0.165619469495492
+      ],
+      "staleness_harm": -0.0006429641741261483,
+      "staleness_harm_ci": [
+        -0.0017691261474499348,
+        0.0004831977991976384
+      ],
+      "denoised_staleness": -0.0003324127457895098,
+      "denoised_staleness_ci": [
+        -0.0014692652232579874,
+        0.0008044397316789677
+      ],
+      "noise_ratio": 0.7439292243778252,
+      "noise_ratio_ci": [
+        0.5682365669783664,
+        0.9196218817772839
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9950385802469136,
+      "D_spread": [
+        0.9933855083202123,
+        0.998286984166178
+      ],
+      "D_full": 0.9937855113636364,
+      "D_shuffle": 0.4879667281383344,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.005069905239104373,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9625588361146769,
+      "injection_features": [
+        0,
+        6
+      ],
+      "delta_staleness": 0.0010085462991167788,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.015387036559163979,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "synth_stable",
+      "task": "binclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.004031603960062843,
+      "decay_ci": [
+        0.0023724926372027987,
+        0.005690715282922888
+      ],
+      "recency_gain": 0.0007908708948604381,
+      "recency_gain_ci": [
+        -0.0005652793399595838,
+        0.0021470211296804598
+      ],
+      "staleness_harm": -0.0007401844703338733,
+      "staleness_harm_ci": [
+        -0.0015595235374232675,
+        7.915459675552087e-05
+      ],
+      "denoised_staleness": -0.00022387006827926382,
+      "denoised_staleness_ci": [
+        -0.0009194333007355241,
+        0.00047169316417699657
+      ],
+      "noise_ratio": 0.7464254109794773,
+      "noise_ratio_ci": [
+        0.40306977369459046,
+        1.0897810482643642
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0007337677913203861,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.006353604453655167,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "NO-STRONG-CONCEPT",
+      "verdict_strict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "synth_covariate_mc",
+      "task": "multiclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.2231382083110726,
+      "decay_ci": [
+        0.17444819531640768,
+        0.2718282213057375
+      ],
+      "recency_gain": 0.1758802372880924,
+      "recency_gain_ci": [
+        0.15850208679624478,
+        0.19325838777994003
+      ],
+      "staleness_harm": -0.0028125614992352468,
+      "staleness_harm_ci": [
+        -0.0055471492361095585,
+        -7.797376236093464e-05
+      ],
+      "denoised_staleness": -0.004224399096536268,
+      "denoised_staleness_ci": [
+        -0.008141883068093091,
+        -0.0003069151249794448
+      ],
+      "noise_ratio": 0.843220463927917,
+      "noise_ratio_ci": [
+        0.7628580918765208,
+        0.9235828359793133
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9950385802469136,
+      "D_spread": [
+        0.9933855083202123,
+        0.998286984166178
+      ],
+      "D_full": 0.9937855113636364,
+      "D_shuffle": 0.4879667281383344,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.02686310975574674,
+      "injection_learnable": false,
+      "injection_learn_score": 0.9333333333333333,
+      "injection_features": [
+        0,
+        6
+      ],
+      "delta_staleness": 0.00244898905038926,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.024809053426233803,
+      "tie_overlap": 0.0,
+      "trust": "injection-vacuous",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "synth_covariate_mild",
+      "task": "binclass",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.010148757851398535,
+      "decay_ci": [
+        -0.0010799828948322588,
+        0.02137749859762933
+      ],
+      "recency_gain": 0.014507592814574019,
+      "recency_gain_ci": [
+        0.008982898311448021,
+        0.020032287317700015
+      ],
+      "staleness_harm": -0.0033958153282757355,
+      "staleness_harm_ci": [
+        -0.004813712891293792,
+        -0.0019779177652576793
+      ],
+      "denoised_staleness": 0.0009484990198329955,
+      "denoised_staleness_ci": [
+        -0.0018970480163589224,
+        0.0037940460560249136
+      ],
+      "noise_ratio": 0.9928469779492779,
+      "noise_ratio_ci": [
+        0.778952334876519,
+        1.2067416210220367
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.730002548675847,
+      "D_spread": [
+        0.7127038143080924,
+        0.7410881801125704
+      ],
+      "D_full": 0.730002548675847,
+      "D_shuffle": 0.4793204633204633,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0012698132005718253,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.7876697530864196,
+      "y_lag1_autocorr": 0.005796075080711067,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "NO-STRONG-CONCEPT",
+      "verdict_strict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "synth_reg_stable",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.004744738377103708,
+      "decay_ci": [
+        -0.004598009313580908,
+        0.014087486067788323
+      ],
+      "recency_gain": 0.003838638660996596,
+      "recency_gain_ci": [
+        0.0005273091809792937,
+        0.007149968141013898
+      ],
+      "staleness_harm": -0.01212078155656995,
+      "staleness_harm_ci": [
+        -0.013808560998674188,
+        -0.010433002114465713
+      ],
+      "denoised_staleness": -0.001904672651345693,
+      "denoised_staleness_ci": [
+        -0.005331495473108241,
+        0.0015221501704168552
+      ],
+      "noise_ratio": 0.9878208729761958,
+      "noise_ratio_ci": [
+        0.8147455742562242,
+        1.1608961716961674
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0015115087797145895,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.01588238682782964,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "NO-STRONG-CONCEPT",
+      "verdict_strict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "synth_reg_cov_linear",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.7220915662742111,
+      "decay_ci": [
+        0.6277476010918709,
+        0.8164355314565513
+      ],
+      "recency_gain": 0.906276301718739,
+      "recency_gain_ci": [
+        0.8865737701940491,
+        0.9259788332434288
+      ],
+      "staleness_harm": 0.0018038982154308658,
+      "staleness_harm_ci": [
+        0.0006608835041646466,
+        0.002946912926697085
+      ],
+      "denoised_staleness": 0.0041089238102915955,
+      "denoised_staleness_ci": [
+        0.0032732316619633398,
+        0.004944615958619851
+      ],
+      "noise_ratio": 0.9090699625791423,
+      "noise_ratio_ci": [
+        0.604669886235103,
+        1.2134700389231816
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9950385802469136,
+      "D_spread": [
+        0.9933855083202123,
+        0.998286984166178
+      ],
+      "D_full": 0.9937855113636364,
+      "D_shuffle": 0.4879667281383344,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.014436984805132705,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8391222754684349,
+      "injection_features": [
+        0,
+        6
+      ],
+      "delta_staleness": 0.0010236389473187604,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.7420536931418427,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "synth_reg_cov_nonlinear",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.5469678600160479,
+      "decay_ci": [
+        0.49093614361119015,
+        0.6029995764209057
+      ],
+      "recency_gain": 0.5287162778723703,
+      "recency_gain_ci": [
+        0.5018712805896665,
+        0.5555612751550741
+      ],
+      "staleness_harm": -0.005324503614830651,
+      "staleness_harm_ci": [
+        -0.009017644818586686,
+        -0.0016313624110746165
+      ],
+      "denoised_staleness": -0.0031546636851380308,
+      "denoised_staleness_ci": [
+        -0.006305112380003886,
+        -4.214990272175673e-06
+      ],
+      "noise_ratio": 0.9232028589556289,
+      "noise_ratio_ci": [
+        0.8685522028433779,
+        0.97785351506788
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9950385802469136,
+      "D_spread": [
+        0.9933855083202123,
+        0.998286984166178
+      ],
+      "D_full": 0.9937855113636364,
+      "D_shuffle": 0.4879667281383344,
+      "dup_group_frac": 0.0,
+      "injected_staleness": 0.014436984805132705,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8391222754684349,
+      "injection_features": [
+        0,
+        6
+      ],
+      "delta_staleness": 0.0033074317739309176,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.9966512345679013,
+      "y_lag1_autocorr": 0.029379201416254126,
+      "tie_overlap": 0.0,
+      "trust": "unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    },
+    {
+      "dataset": "synth_reg_early_noisy",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": -0.18802299478911438,
+      "decay_ci": [
+        -0.20563718350364277,
+        -0.170408806074586
+      ],
+      "recency_gain": 0.07466120562252776,
+      "recency_gain_ci": [
+        0.06979663253235098,
+        0.07952577871270454
+      ],
+      "staleness_harm": 0.021372781606285838,
+      "staleness_harm_ci": [
+        0.019610305546444787,
+        0.02313525766612689
+      ],
+      "denoised_staleness": 0.0037205406253266807,
+      "denoised_staleness_ci": [
+        0.00015142184225459517,
+        0.007289659408398767
+      ],
+      "noise_ratio": 3.5371107944725373,
+      "noise_ratio_ci": [
+        3.283564251866387,
+        3.7906573370786876
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0015784041279500267,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.01523820374453813,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement;future-easier",
+      "verdict": "NOISE-DRIFT-CONFOUNDED",
+      "verdict_strict": "SUBFLOOR-CONCEPT-SIGNAL"
+    },
+    {
+      "dataset": "synth_reg_late_noisy",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": 0.2506517652116186,
+      "decay_ci": [
+        0.238548288180049,
+        0.26275524224318814
+      ],
+      "recency_gain": -0.030413048561900347,
+      "recency_gain_ci": [
+        -0.031196626448648998,
+        -0.029629470675151696
+      ],
+      "staleness_harm": -0.02257039158462192,
+      "staleness_harm_ci": [
+        -0.02387876424045664,
+        -0.021262018928787197
+      ],
+      "denoised_staleness": -0.019316892184548,
+      "denoised_staleness_ci": [
+        -0.02229651408388399,
+        -0.01633727028521201
+      ],
+      "noise_ratio": 0.13948369831067936,
+      "noise_ratio_ci": [
+        0.13162687542811485,
+        0.14734052119324387
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0011717270083388893,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.01567651154299277,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement",
+      "verdict": "NO-STRONG-CONCEPT",
+      "verdict_strict": "NO-STRONG-CONCEPT"
+    },
+    {
+      "dataset": "synth_reg_xdep_noise",
+      "task": "regression",
+      "n": 12000,
+      "n_windows": 10,
+      "n_seeds_ok": 5,
+      "decay": -0.21106128653398412,
+      "decay_ci": [
+        -0.24037249246064363,
+        -0.18175008060732462
+      ],
+      "recency_gain": 0.08093854032580028,
+      "recency_gain_ci": [
+        0.07545679472229956,
+        0.086420285929301
+      ],
+      "staleness_harm": 0.025367385572567302,
+      "staleness_harm_ci": [
+        0.02306310901775183,
+        0.027671662127382774
+      ],
+      "denoised_staleness": 0.004763292236131663,
+      "denoised_staleness_ci": [
+        0.0029231235042608255,
+        0.006603460968002501
+      ],
+      "noise_ratio": 3.7607907628474493,
+      "noise_ratio_ci": [
+        3.2630359919262846,
+        4.258545533768614
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.515139318885449,
+      "D_spread": [
+        0.5042735042735043,
+        0.5163625698496496
+      ],
+      "D_full": 0.5042735042735043,
+      "D_shuffle": 0.4830431292643018,
+      "dup_group_frac": 0.0,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0020636193074799673,
+      "n_proxy_stripped": 0,
+      "min_window_n": 1200,
+      "Dstar": 0.96,
+      "n_unique_t": 12000,
+      "cov_auc_early_late": 0.51125,
+      "y_lag1_autocorr": 0.014211358613425078,
+      "tie_overlap": 0.0,
+      "trust": "no-covariate-movement;future-easier",
+      "verdict": "NOISE-DRIFT-CONFOUNDED",
+      "verdict_strict": "NOISE-DRIFT-CONFOUNDED"
+    }
+  ]
+}

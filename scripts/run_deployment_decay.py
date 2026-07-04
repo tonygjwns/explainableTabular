@@ -902,7 +902,8 @@ def _run_meta(args):
     except Exception:
         sha = None
     import sklearn
-    return {"git": sha, "argv": sys.argv[1:], "utc": datetime.datetime.utcnow().isoformat(),
+    return {"git": sha, "argv": sys.argv[1:],
+            "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "python": platform.python_version(), "numpy": np.__version__,
             "sklearn": sklearn.__version__, "instrument": "v3"}
 
