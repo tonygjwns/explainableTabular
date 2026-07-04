@@ -9,8 +9,10 @@ set -u
 cd "$(dirname "$0")/.."
 PY=${PY:-python}
 CFG=configs/phase1.yaml
-OUT=results/phase1/deployment_decay
+OUT=${OUT_DIR:-results/phase1/deployment_decay}
 MARK=$OUT/markers
+PHASES=${PHASES:-1234}    # e.g. PHASES=2 to run only Phase 2 (enables parallel shells per phase)
+want () { case "$PHASES" in *"$1"*) return 0;; *) return 1;; esac; }
 mkdir -p "$MARK"
 TABRED="sberbank_housing homesite_insurance ecom_offers homecredit_default cooking_time delivery_eta maps_routing weather"
 EMBER_PARQUET=${EMBER_PARQUET:-data/ember/ember.parquet}
@@ -22,12 +24,15 @@ step () {  # step <marker> <cmd...>
   if "$@"; then touch "$m"; else echo "[FAIL] $* — continuing" >&2; fi
 }
 
+want 1 && {
 echo "==== PREREG Phase 1: sberbank K-sweep (decisive read) ===="
 for K in 5 8 10 12 20; do
   step "p1_K$K" $PY scripts/run_deployment_decay.py --tabred sberbank_housing --config $CFG \
     --n-seeds 10 --windows $K
 done
 
+}
+want 2 && {
 echo "==== PREREG Phase 2a: full map, exploratory seeds 0-9 ===="
 step "p2a_tabred"  $PY scripts/run_deployment_decay.py --tabred $TABRED --config $CFG --n-seeds 10
 step "p2a_elec2"   $PY scripts/run_deployment_decay.py --elec2 --n-seeds 10
@@ -38,6 +43,8 @@ step "p2b_tabred"  $PY scripts/run_deployment_decay.py --tabred $TABRED --config
 step "p2b_elec2"   $PY scripts/run_deployment_decay.py --elec2 --n-seeds 10 --seed-base 100
 step "p2b_insects" $PY scripts/run_deployment_decay.py --insects --n-seeds 10 --seed-base 100
 
+}
+want 3 && {
 echo "==== PREREG Phase 3: model-class panel (rf decision-grade; linear/knn canaries) ===="
 for M in rf linear knn; do
   step "p3_${M}_tabred"  $PY scripts/run_deployment_decay.py --tabred $TABRED --config $CFG --n-seeds 10 --model $M
@@ -45,6 +52,8 @@ for M in rf linear knn; do
   step "p3_${M}_insects" $PY scripts/run_deployment_decay.py --insects --n-seeds 10 --model $M
 done
 
+}
+want 4 && {
 echo "==== PREREG Phase 4: anchors (designed drift MUST fire; else instrument defect, hold the map) ===="
 step "p4_river"   $PY scripts/run_deployment_decay.py --river all --n-seeds 10
 step "p4_insects" $PY scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10
@@ -55,5 +64,6 @@ else
   echo "[note] EMBER parquet not found at $EMBER_PARQUET (set EMBER_PARQUET=...); skipping p4_ember"
 fi
 
+}
 pip freeze > env_explaintab311_freeze.txt || true
 echo "==== DONE ($(date -u +%FT%TZ)) — send results/phase1/deployment_decay/summary_*.json + env freeze ===="

@@ -119,3 +119,15 @@
 - 지도 갱신: 산업(TabReD) concept 양성 = 0. 논문 서술은 "철회(withdrawn)"가 아니라
   "**계기에 의한 진단(diagnosed as label-noise decay)**"로 기록한다 (9번째 dissolution이자
   최초의 계기-내 진단 사례). Phase 2~4 진행.
+
+## 8. Phase 4 실행 전 명확화 (2026-07-04, 서버 Phase 2~4 실행 전 커밋)
+
+출처 공개: 로컬 3-시드 스모크(river sea_abrupt, n=8000)에서 SUBFLOOR-CONCEPT-SIGNAL
+(stale +0.004, den +0.006 CI>0)이 관측됨. 이에 §5 Phase 4의 앵커 기대를 실행 전에 명확화한다
+(기준 완화가 아니라 적용 범위의 정밀화; 소급 변경 아님):
+- "CONCEPT 발화해야 한다"는 **강한 규칙 전환 앵커**에 적용: insects 변종들, river의
+  agrawal/stagger/sine 계열 abrupt·reoccurring 셀.
+- **약한 전환 셀**(예: sea variant 0→3 threshold 이동)은 방향-일치 양성(SUBFLOOR 포함,
+  denoised CI하한>0)이면 앵커 통과로 간주하고, delta(검출한계)와 함께 보고한다.
+- nodrift 셀은 CONCEPT/SUBFLOOR 금지 (오탐 체크).
+- 판정 불가 사유로 지도를 보류하는 조건은 "강한 앵커의 CONCEPT 실패"로 유지.
