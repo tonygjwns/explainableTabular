@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "git": "b3ae243",
+    "argv": [
+      "--tabred",
+      "sberbank_housing",
+      "--config",
+      "configs/phase1.yaml",
+      "--n-seeds",
+      "10",
+      "--windows",
+      "10"
+    ],
+    "utc": "2026-07-04T05:02:08.237461+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3"
+  },
+  "rows": [
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "n": 18847,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.053680418601472414,
+      "decay_ci": [
+        -0.11510411025896333,
+        0.22246494746190815
+      ],
+      "recency_gain": 0.32854217723508106,
+      "recency_gain_ci": [
+        0.2610608238219194,
+        0.3960235306482427
+      ],
+      "staleness_harm": 0.023900573591226625,
+      "staleness_harm_ci": [
+        0.01775786068965817,
+        0.030043286492795078
+      ],
+      "denoised_staleness": -0.014473746627782258,
+      "denoised_staleness_ci": [
+        -0.018491084466194622,
+        -0.010456408789369893
+      ],
+      "noise_ratio": 2.113322633661146,
+      "noise_ratio_ci": [
+        1.7960335674476668,
+        2.430611699874625
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 1.0,
+      "D_spread": [
+        1.0,
+        1.0
+      ],
+      "D_full": 1.0,
+      "D_shuffle": 0.4993140243902439,
+      "dup_group_frac": 0.0031304716931076565,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.006751830269067497,
+      "n_proxy_stripped": 1,
+      "min_window_n": 540,
+      "Dstar": 0.96,
+      "n_unique_t": 853,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.048973539655326616,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:1",
+      "verdict": "NOISE-DRIFT-CONFOUNDED",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    }
+  ]
+}

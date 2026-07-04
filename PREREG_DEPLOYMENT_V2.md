@@ -87,8 +87,35 @@
   mean-rule drift가 확인된 산업 데이터셋 수 = N; 나머지는 {noise-confounded / covariate /
   blind-earned / vacuous}"이며, N=0이어도 그대로 보고한다.
 
-## 6. 이 문서 이후 금지사항
+## 6. 이 문서 이후 금지사항 (§7은 결과 기록이며 규칙 변경 아님)
 
 - 결과를 본 뒤 임계값·캐스케이드 순서·배터리 불변식 변경 (새 섹션 추가로만 가능, 소급 적용 금지)
 - rule-sensitive 셀이나 unstable 셀을 헤드라인에 사용
 - 탐색 실행과 확증 실행의 혼합 보고
+
+## 7. Phase 1 결과 판독 (2026-07-04 실행, 커밋 b3ae243, 서버 sklearn 1.9.0) — 예측 적중
+
+사전 예측(§5: "NOISE-DRIFT-CONFOUNDED 또는 den-null")이 K∈{5,8,10,12,20} 전부에서 확인됨.
+아티팩트: prereg_results/phase1/summary_20260704T*.json (5개, run meta 포함).
+
+| K | raw stale | denoised | noise ratio | 판정 (rule A / strict B) |
+|---|---|---|---|---|
+| 5 | +0.005 null | −0.014 [−.020,−.008] | 2.57 발화 | UNIDENT-EXPL(earned; 주입 학습가능 .92, 미회복 +.008) / 동일 |
+| 8 | +0.021 발화 | −0.016 [−.022,−.010] | 2.92 발화 | NOISE-DRIFT-CONFOUNDED / UNIDENT-EXPL |
+| 10 | +0.0239 발화 | −0.014 [−.018,−.010] | 2.11 발화 | NOISE-DRIFT-CONFOUNDED / UNIDENT-EXPL |
+| 12 | +0.021 발화 | −0.018 [−.021,−.014] | 2.15 발화 | NOISE-DRIFT-CONFOUNDED / UNIDENT-EXPL |
+| 20 | +0.017 floor미달 | −0.017 [−.025,−.009] | 2.45 발화 | INJECTION-RECOVERED(주입 +.101 회복) / UNIDENT-EXPL |
+
+판정(§5 규칙 적용):
+- **sberbank DEPLOYMENT-CONCEPT 공식 철회 — 기제 확정: 라벨 노이즈 감쇠.** 어떤 K에서도
+  CONCEPT 아님(rule A·B 일치); 생존 배터리 트리거 조건 미발생.
+- 증거: (i) K=10 raw = +0.023900573591226625 — v2 헤드라인(0703 row 10)과 **비트 동일**
+  (RNG 패리티가 실데이터·서버에서 성립; 같은 신호의 재해석임을 증명); (ii) old 윈도우 노이즈
+  프록시가 recent 대비 2.1–2.9× (전 K, envelope 이내); (iii) **denoised staleness 전 K에서
+  유의 음수** — pseudo-label로 노이즈를 제거하면 old 데이터가 미래 예측을 도움 = 규칙 불변.
+- 부수 확인: v2의 D_shuffle 0.887 → 수정 후 0.50–0.53 (head-truncation 아티팩트 기제 실증);
+  K=20 주입 회복 +0.101(해상도별 검출력 존재), K=5 주입 +0.008(넓은 윈도우의 회전 평균화 —
+  timescale 효과와 일치); dup_group_frac 0.3%.
+- 지도 갱신: 산업(TabReD) concept 양성 = 0. 논문 서술은 "철회(withdrawn)"가 아니라
+  "**계기에 의한 진단(diagnosed as label-noise decay)**"로 기록한다 (9번째 dissolution이자
+  최초의 계기-내 진단 사례). Phase 2~4 진행.

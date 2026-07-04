@@ -371,15 +371,15 @@ def _injection_learnable(X, y_inj, t, task, K, by_value, seed=0):
     return (s - maj) >= LEARN_ACC, float(s), "acc-over-majority"
 
 
-def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS):
+def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, seed_base=0):
     """Inject a reference-strength concept into (X, t) and test whether staleness fires.
     v3: learnability-gated (an unlearnable injection cannot 'earn' blindness), n_seeds matches the
     real read (audit L4: was 4), injected features logged. Returns
     (recovered, injected_staleness_mean, learnable, learn_score, feats)."""
     y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH)
-    learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value)
+    learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value, seed=seed_base)
     st = []
-    for s in range(n_seeds):
+    for s in range(seed_base, seed_base + n_seeds):
         out = _per_seed(X, y_inj, t, task, K, by_value, max_train, s)
         if out is not None and out["stale"] is not None:
             st.append(out["stale"])
@@ -554,7 +554,10 @@ def _delta(vals, alpha=0.05, power=0.8):
     return float((norm.ppf(1 - alpha) + norm.ppf(power)) * se)   # ~2.49 * SE
 
 
-def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000):
+def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000, seed_base=0):
+    """seed_base: exploratory runs use 0 (seeds 0..n-1); the pre-registered CONFIRMATORY rerun
+    uses 100 (seeds 100..). D/shuffle diagnostics stay at their fixed seeds (deterministic
+    geometry reads, identical across runs by design)."""
     X = _sanitize(X)
     y = np.asarray(y)
     t = np.asarray(t, float)
@@ -623,7 +626,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
               if len(rngs) > 1 else 0.0)
 
     decay_s, rec_s, stale_s, den_s, ratio_s = [], [], [], [], []
-    for s in range(n_seeds):
+    for s in range(seed_base, seed_base + n_seeds):
         out = _per_seed(X, y, t, task, K, by_value, max_train, s)
         if out is None:
             continue
@@ -712,7 +715,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000)
     inj_stale = inj_learnable = inj_lscore = None; inj_feats = None
     if measured and (verdict.startswith("UNIDENTIFIABLE") or verdict == "DEPLOYMENT-CONCEPT"):
         recovered, inj_stale, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
-            X, t, task, K, by_value, max_train)
+            X, t, task, K, by_value, max_train, seed_base=seed_base)
         if verdict.startswith("UNIDENTIFIABLE"):
             if not inj_learnable:
                 flags.append("injection-vacuous")          # unlearnable probe: the null proves nothing
@@ -888,6 +891,68 @@ def _synth(kind, seed=0, n=12000, d=10):
     return X, y, t, "binclass"
 
 
+# ----------------------------------------------------------------------------- model-class shims
+def _apply_model_class(kind):
+    """PREREG Phase 3: swap the probe model class module-wide (staleness, denoiser, D, injection
+    all follow). Ported verbatim from the audited model-class matrix (audit F3; shims validated
+    there: Pipeline delegates classes_; HGB-style kwargs absorbed). 'linear'/'knn' are CANARIES —
+    they false-fire CONCEPT under fixed rules by design (misspecification channel); only
+    tree-ensemble verdicts (hgb, rf) are decision-grade."""
+    if kind == "hgb":
+        return
+    from sklearn.pipeline import Pipeline
+    from sklearn.impute import SimpleImputer
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.linear_model import LogisticRegression, Ridge
+    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+    from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
+
+    def build(is_clf, seed):
+        if kind == "linear":
+            base = (LogisticRegression(max_iter=2000, random_state=seed) if is_clf
+                    else Ridge(random_state=seed))
+            steps = [("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler()), ("m", base)]
+        elif kind == "rf":
+            base = (RandomForestClassifier(n_estimators=100, random_state=seed, n_jobs=-1) if is_clf
+                    else RandomForestRegressor(n_estimators=100, random_state=seed, n_jobs=-1))
+            steps = [("imp", SimpleImputer(strategy="median")), ("m", base)]
+        elif kind == "knn":
+            base = KNeighborsClassifier(n_neighbors=25) if is_clf else KNeighborsRegressor(n_neighbors=25)
+            steps = [("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler()), ("m", base)]
+        else:
+            raise ValueError(kind)
+        return Pipeline(steps)
+
+    class _Base:
+        _is_clf = True
+
+        def __init__(self, **kw):
+            seed = kw.get("random_state", 0) or 0
+            self._pipe = build(self._is_clf, int(seed))
+
+        def fit(self, X, y):
+            self._pipe.fit(np.asarray(X, float), y); return self
+
+        def predict(self, X):
+            return self._pipe.predict(np.asarray(X, float))
+
+        def predict_proba(self, X):
+            return self._pipe.predict_proba(np.asarray(X, float))
+
+        @property
+        def classes_(self):
+            return self._pipe.classes_
+
+    globals()["HistGradientBoostingClassifier"] = type(f"Shim_{kind}_clf", (_Base,), {"_is_clf": True})
+    globals()["HistGradientBoostingRegressor"] = type(f"Shim_{kind}_reg", (_Base,), {"_is_clf": False})
+
+
+INSECTS_VARIANTS = ("abrupt_balanced", "abrupt_imbalanced", "incremental_balanced",
+                    "incremental_imbalanced", "incremental_abrupt_balanced",
+                    "incremental_abrupt_imbalanced", "incremental_reoccurring_balanced",
+                    "incremental_reoccurring_imbalanced")
+
+
 # ----------------------------------------------------------------------------- main
 def _run_meta(args):
     """Provenance stamp written into every output blob (audit 10H: the v2 headline artifact had
@@ -905,7 +970,8 @@ def _run_meta(args):
     return {"git": sha, "argv": sys.argv[1:],
             "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "python": platform.python_version(), "numpy": np.__version__,
-            "sklearn": sklearn.__version__, "instrument": "v3"}
+            "sklearn": sklearn.__version__, "instrument": "v3",
+            "model": getattr(args, "model", "hgb"), "seed_base": getattr(args, "seed_base", 0)}
 
 
 def _show(r):
@@ -932,7 +998,14 @@ def main():
     ap.add_argument("--tabred", nargs="*", default=[])
     ap.add_argument("--elec2", action="store_true")
     ap.add_argument("--insects", action="store_true")
-    ap.add_argument("--insects-variant", default="incremental_balanced")
+    ap.add_argument("--insects-variant", default="incremental_balanced",
+                    help="one of the 8 designed variants, or 'all'")
+    ap.add_argument("--river", nargs="*", default=None,
+                    help="river synth panel stream names, or 'all' (PREREG Phase 4 anchors)")
+    ap.add_argument("--model", default="hgb", choices=["hgb", "rf", "linear", "knn"],
+                    help="probe model class (PREREG Phase 3; linear/knn are canaries)")
+    ap.add_argument("--seed-base", type=int, default=0,
+                    help="0 = exploratory (seeds 0..n-1); 100 = confirmatory rerun (PREREG §5)")
     ap.add_argument("--config", default="configs/phase1.yaml")
     ap.add_argument("--by-value", action="store_true",
                     help="one window per unique time value (e.g. EMBER YYYYMM months)")
@@ -946,6 +1019,7 @@ def main():
     args = ap.parse_args()
     if args.debug_raise:
         globals()["_DEBUG_RAISE"] = True
+    _apply_model_class(args.model)                      # no-op for hgb (default compute unchanged)
     out_dir = Path("results/phase1/deployment_decay"); out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
 
@@ -996,18 +1070,27 @@ def main():
         jobs.append(("elec2", *_load_stream(load_elec2(split="temporal", seed=0))))
     if args.insects:
         from src.data.insects_loader import load_insects
-        jobs.append((f"insects_{args.insects_variant}",
-                     *_load_stream(load_insects(variant=args.insects_variant,
-                                                split="temporal", seed=0))))
+        variants = INSECTS_VARIANTS if args.insects_variant == "all" else (args.insects_variant,)
+        for v in variants:
+            jobs.append((f"insects_{v}",
+                         *_load_stream(load_insects(variant=v, split="temporal", seed=0))))
+    if args.river is not None:
+        from src.data.river_streams import list_streams, load_river_stream
+        names = list_streams() if (not args.river or args.river == ["all"]) else args.river
+        for nm in names:
+            jobs.append((f"river_{nm}", *_load_stream(load_river_stream(nm, split="temporal",
+                                                                        seed=0))))
     if not jobs:
-        print("provide --csv --target --time, --tabred ..., --elec2/--insects, or --synth"); return
+        print("provide --csv --target --time, --tabred ..., --elec2/--insects/--river, or --synth")
+        return
 
     print("\n==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====")
     for name, X, y, t, task, nf in jobs:
         print(f"  [{name}] task={task} feats={nf} n={len(y)}")
         try:
             r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
-                       n_seeds=args.n_seeds, max_train=args.max_train)
+                       n_seeds=args.n_seeds, max_train=args.max_train,
+                       seed_base=args.seed_base)
         except Exception as e:                              # never let one dataset kill the batch
             import traceback; traceback.print_exc()
             r = {"dataset": name, "task": task, "verdict": "ERROR", "error": f"{type(e).__name__}: {e}",
