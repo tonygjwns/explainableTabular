@@ -210,10 +210,38 @@ which is exactly the distinction a deployment lens should draw.
 
 ## 3. The Instrument
 
-**Figure 1 [PENDING — load-bearing for readability].** One-page schematic of the decision
-cascade: two staleness arms (raw / denoised) → noise gate & envelope → separability router →
-learnability-gated injection certificates → verdict set; the cascade is specified verbatim in
-§3.3 and PREREG §3.
+**Figure 1.** The decision cascade (mermaid draft; final version as a vector figure). The
+cascade is specified verbatim in §3.3 and PREREG §3.
+
+```mermaid
+flowchart TD
+    A["(x, y, t) rows<br/>K timestamp-value windows, 10 seeds"] --> B["three arms per future window W_j<br/>raw staleness | denoised staleness | recency gain"]
+    A --> C["per-window noise proxy<br/>gate = old / median(recent)"]
+    B --> D{"denoised fires?<br/>(CI &gt; 0 ∧ mean &gt; floor)"}
+    C -.-> D
+    D -- "yes, ratio ≤ 4.7" --> E["**DEPLOYMENT-CONCEPT**<br/>+ injection positive control"]
+    D -- "yes, ratio &gt; 4.7" --> F["**NOISE-AMBIGUOUS**<br/>(abstain: denoiser bias zone)"]
+    D -- no --> G{"raw fires?"}
+    G -- "yes, gate fired" --> H["**NOISE-DRIFT-CONFOUNDED**<br/>(label-noise drift, not rule change)"]
+    G -- "yes, gate quiet" --> I["**RAW-ONLY-POSITIVE**<br/>(unresolved; never concept)"]
+    G -- no --> J{"separability D ≥ 0.96?<br/>(group-aware, size-matched)"}
+    J -- yes --> K{"injection learnable<br/>in-window?"}
+    K -- no --> L["**UNIDENTIFIABLE**<br/>flag: injection-vacuous<br/>(certificate refused)"]
+    K -- "yes, recovers" --> M["**INJECTION-RECOVERED**<br/>(verified no-concept)"]
+    K -- "yes, no recovery" --> N["**UNIDENTIFIABLE**<br/>flag: blindness earned"]
+    J -- no --> O{"denoised sub-floor CI &gt; 0?"}
+    O -- yes --> P["**SUBFLOOR** = no-evidence band<br/>(calibrated on no-drift anchors)"]
+    O -- no --> Q["**DECAY-COVARIATE** / **NO-STRONG-CONCEPT**<br/>(by recency gain) or **INCONCLUSIVE**"]
+    style E fill:#c8e6c9
+    style H fill:#ffe0b2
+    style M fill:#c8e6c9
+    style F fill:#eeeeee
+    style L fill:#ffcdd2
+```
+
+Side channels drawn as annotations in the final figure: the strict-rule shadow verdict
+(rule-sensitive flag), the negative-recency fingerprint for recurring regimes (§6), the
+canary-probe panel (§4.3), and provenance stamping on every run.
 
 **Terminology (one line each).**
 
