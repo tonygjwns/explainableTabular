@@ -947,10 +947,11 @@ def _apply_model_class(kind):
     globals()["HistGradientBoostingRegressor"] = type(f"Shim_{kind}_reg", (_Base,), {"_is_clf": False})
 
 
-INSECTS_VARIANTS = ("abrupt_balanced", "abrupt_imbalanced", "incremental_balanced",
-                    "incremental_imbalanced", "incremental_abrupt_balanced",
-                    "incremental_abrupt_imbalanced", "incremental_reoccurring_balanced",
-                    "incremental_reoccurring_imbalanced")
+# river 0.25.0's actual accepted list (server ValueError 2026-07-04 printed exactly these 7;
+# the loader's historical 9-name tuple included names this river version rejects).
+INSECTS_VARIANTS = ("abrupt_balanced", "abrupt_imbalanced", "gradual_balanced",
+                    "gradual_imbalanced", "incremental_balanced",
+                    "incremental_abrupt_balanced", "incremental_reoccurring_balanced")
 
 
 # ----------------------------------------------------------------------------- main
@@ -1071,15 +1072,23 @@ def main():
     if args.insects:
         from src.data.insects_loader import load_insects
         variants = INSECTS_VARIANTS if args.insects_variant == "all" else (args.insects_variant,)
-        for v in variants:
-            jobs.append((f"insects_{v}",
-                         *_load_stream(load_insects(variant=v, split="temporal", seed=0))))
+        for v in variants:                     # one bad variant must not kill the batch
+            try:
+                jobs.append((f"insects_{v}",
+                             *_load_stream(load_insects(variant=v, split="temporal", seed=0))))
+            except Exception as e:
+                print(f"  [warn] insects variant {v!r} skipped: {type(e).__name__}: {e}",
+                      file=sys.stderr)
     if args.river is not None:
         from src.data.river_streams import list_streams, load_river_stream
         names = list_streams() if (not args.river or args.river == ["all"]) else args.river
         for nm in names:
-            jobs.append((f"river_{nm}", *_load_stream(load_river_stream(nm, split="temporal",
-                                                                        seed=0))))
+            try:
+                jobs.append((f"river_{nm}", *_load_stream(load_river_stream(nm, split="temporal",
+                                                                            seed=0))))
+            except Exception as e:
+                print(f"  [warn] river stream {nm!r} skipped: {type(e).__name__}: {e}",
+                      file=sys.stderr)
     if not jobs:
         print("provide --csv --target --time, --tabred ..., --elec2/--insects/--river, or --synth")
         return

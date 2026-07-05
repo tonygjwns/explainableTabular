@@ -1,0 +1,98 @@
+nohup: ignoring input
+==== PREREG Phase 2a: full map, exploratory seeds 0-9 ====
+[run ] python scripts/run_deployment_decay.py --tabred sberbank_housing homesite_insurance ecom_offers homecredit_default cooking_time delivery_eta maps_routing weather --config configs/phase1.yaml --n-seeds 10 (2026-07-04T06:06:57Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [sberbank_housing] task=regression feats=392 n=18847
+  sberbank_housing     W=10 D=1.000 gate=2.11! stale=+0.024[+0.018,+0.030] den=-0.014[-0.018,-0.010] => NOISE-DRIFT-CONFOUNDED  [TRUST: proxy-stripped:1]
+  [homesite_insurance] task=binclass feats=299 n=224320
+  homesite_insurance   W=10 D=1.000 gate=1.14 stale=-0.004[-0.004,-0.003] den=-0.002[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;injection-vacuous]
+  [ecom_offers] task=binclass feats=119 n=109341
+  ecom_offers          W=10 D=1.000 gate=1.25 stale=-0.001[-0.010,+0.008] den=-0.007[-0.015,+0.001] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+  [homecredit_default] task=binclass feats=696 n=267645
+  homecredit_default   W=10 D=1.000 gate=1.29 stale=-0.007[-0.010,-0.003] den=+0.004[+0.002,+0.006] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:80;injection-vacuous]
+  [cooking_time] task=regression feats=192 n=227087
+  cooking_time         W=10 D=0.966 gate=0.92 stale=-0.011[-0.012,-0.010] den=-0.018[-0.020,-0.016] => INJECTION-RECOVERED  [TRUST: injection-recovered]
+  [delivery_eta] task=regression feats=223 n=279415
+  delivery_eta         W=10 D=0.999 gate=0.89 stale=-0.012[-0.013,-0.011] den=-0.014[-0.015,-0.014] => INJECTION-RECOVERED  [TRUST: proxy-stripped:5;injection-recovered]
+  [maps_routing] task=regression feats=986 n=160019
+  maps_routing         W=10 D=0.578 gate=1.01 stale=-0.008[-0.008,-0.007] den=-0.010[-0.011,-0.009] => NO-STRONG-CONCEPT
+  [weather] task=regression feats=103 n=340596
+  weather              W=10 D=0.994 gate=0.93 stale=-0.011[-0.012,-0.011] den=-0.011[-0.012,-0.010] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:3;injection-vacuous]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T172920_5f3217d.json  (+ summary_latest.json)  <-- send me this
+[run ] python scripts/run_deployment_decay.py --elec2 --n-seeds 10 (2026-07-04T17:29:20Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [elec2] task=binclass feats=7 n=45312
+  elec2                W=10 D=1.000 gate=0.66 stale=+0.001[-0.001,+0.003] den=+0.001[-0.001,+0.003] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: autocorr-risk;unident-earned]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T174306_5f3217d.json  (+ summary_latest.json)  <-- send me this
+[run ] python scripts/run_deployment_decay.py --insects --n-seeds 10 (2026-07-04T17:43:06Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [insects_incremental_balanced] task=multiclass feats=33 n=57018
+  insects_incremental_ W=10 D=0.844 gate=1.24 stale=+0.135[+0.123,+0.146] den=+0.152[+0.139,+0.165] => DEPLOYMENT-CONCEPT
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T185051_5f3217d.json  (+ summary_latest.json)  <-- send me this
+==== PREREG Phase 2b: confirmatory rerun, seeds 100-109 (report verdict moves as unstable) ====
+[run ] python scripts/run_deployment_decay.py --tabred sberbank_housing homesite_insurance ecom_offers homecredit_default cooking_time delivery_eta maps_routing weather --config configs/phase1.yaml --n-seeds 10 --seed-base 100 (2026-07-04T18:50:51Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [sberbank_housing] task=regression feats=392 n=18847
+  sberbank_housing     W=10 D=1.000 gate=2.21! stale=+0.033[+0.019,+0.047] den=-0.011[-0.016,-0.007] => NOISE-DRIFT-CONFOUNDED  [TRUST: proxy-stripped:1]
+  [homesite_insurance] task=binclass feats=299 n=224320
+  homesite_insurance   W=10 D=1.000 gate=1.08 stale=-0.004[-0.005,-0.004] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;unident-earned]
+  [ecom_offers] task=binclass feats=119 n=109341
+  ecom_offers          W=10 D=1.000 gate=1.25 stale=-0.008[-0.012,-0.005] den=-0.013[-0.019,-0.007] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+  [homecredit_default] task=binclass feats=696 n=267645
+  homecredit_default   W=10 D=1.000 gate=1.29 stale=-0.005[-0.007,-0.003] den=+0.005[+0.003,+0.007] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:80;injection-vacuous]
+  [cooking_time] task=regression feats=192 n=227087
+  cooking_time         W=10 D=0.966 gate=0.92 stale=-0.012[-0.013,-0.010] den=-0.019[-0.021,-0.018] => INJECTION-RECOVERED  [TRUST: injection-recovered]
+  [delivery_eta] task=regression feats=223 n=279415
+  delivery_eta         W=10 D=0.999 gate=0.89 stale=-0.011[-0.012,-0.010] den=-0.014[-0.015,-0.013] => INJECTION-RECOVERED  [TRUST: proxy-stripped:5;injection-recovered]
+  [maps_routing] task=regression feats=986 n=160019
+  maps_routing         W=10 D=0.578 gate=1.02 stale=-0.008[-0.008,-0.007] den=-0.010[-0.010,-0.010] => NO-STRONG-CONCEPT
+  [weather] task=regression feats=103 n=340596
+  weather              W=10 D=0.994 gate=0.94 stale=-0.012[-0.013,-0.012] den=-0.012[-0.013,-0.011] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:3;injection-vacuous]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T212616_5f3217d.json  (+ summary_latest.json)  <-- send me this
+[run ] python scripts/run_deployment_decay.py --elec2 --n-seeds 10 --seed-base 100 (2026-07-04T21:26:16Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [elec2] task=binclass feats=7 n=45312
+  elec2                W=10 D=1.000 gate=0.63 stale=+0.000[-0.002,+0.002] den=-0.001[-0.004,+0.002] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: autocorr-risk;unident-earned]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T214010_5f3217d.json  (+ summary_latest.json)  <-- send me this
+[run ] python scripts/run_deployment_decay.py --insects --n-seeds 10 --seed-base 100 (2026-07-04T21:40:10Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [insects_incremental_balanced] task=multiclass feats=33 n=57018
+  insects_incremental_ W=10 D=0.844 gate=1.27 stale=+0.129[+0.114,+0.143] den=+0.144[+0.128,+0.161] => DEPLOYMENT-CONCEPT
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T225010_5f3217d.json  (+ summary_latest.json)  <-- send me this
+==== DONE (2026-07-04T22:50:10Z) — send results/phase1/deployment_decay/summary_*.json + env freeze ====

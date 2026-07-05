@@ -131,3 +131,50 @@
   denoised CI하한>0)이면 앵커 통과로 간주하고, delta(검출한계)와 함께 보고한다.
 - nodrift 셀은 CONCEPT/SUBFLOOR 금지 (오탐 체크).
 - 판정 불가 사유로 지도를 보류하는 조건은 "강한 앵커의 CONCEPT 실패"로 유지.
+
+## 9. Phase 2~4 결과 판독 (2026-07-04~05 실행, 커밋 5f3217d, 서버 sklearn 1.9.0)
+
+아티팩트: prereg_results/phase234/ (16개 run JSON + 로그 3개), env_explaintab311_freeze.txt.
+
+### Phase 2 — 탐색(시드 0–9) vs 확증(시드 100–109): **10/10 판정 일치, unstable 셀 0**
+유일한 경계 사례: homesite의 플래그가 injection-vacuous↔unident-earned로 흔들림(학습가능성
+점수가 컷 0.65 근방) → homesite의 실명 인증서는 **불안정**으로 기록, 어느 라벨도 채택 금지.
+
+### 최종 지도 (HGB, 확증 시드로 재현됨)
+| 셀 | 판정 | 핵심 수치 |
+|---|---|---|
+| insects | **DEPLOYMENT-CONCEPT** | raw +0.129~+0.135, **den +0.145~+0.152**(denoised가 더 강함 = 진짜 규칙 변화), 주입 회복 |
+| sberbank | **NOISE-DRIFT-CONFOUNDED** | raw +0.024/+0.033 발화, den −0.015/−0.011, gate 2.1~2.2; rule-B에서는 UNIDENT(rule-sensitive, 어느 쪽도 concept 아님) |
+| cooking / delivery | INJECTION-RECOVERED | 주입 +0.55/+0.33 회복 + 실 staleness null = **검증된 무-concept** |
+| maps | NO-STRONG-CONCEPT | group-aware D 0.578(v2의 0.735에서 하락 — 분리도 일부가 메모리제이션이었음) |
+| elec2 | UNIDENT-EXPLOITABLE (**earned**) | 주입 학습가능+미회복(+0.017~0.018) |
+| ecom / homecredit / weather | UNIDENT-EXPLOITABLE (**vacuous**) | 주입 학습불능 → v2의 'earned' 라벨은 과대주장이었음(감사 L4 실증) |
+| homesite | UNIDENT-INERT (vacuous/earned 불안정) | inj −0.052~−0.055 |
+
+**§5 고정 집계문**: tree-ensemble 클래스 기준, δ 이상 mean-rule drift가 확인된 산업 데이터셋 = **0/8**.
+insects(designed)만 CONCEPT. 실명 인증(earned)은 elec2 1건뿐; ecom/homecredit/weather는 인증 실패(vacuous).
+
+### Phase 3 — model-class 패널
+- **결정등급(HGB↔RF): 10/10 작동적 일치** (homesite EXPL/INERT 서브라벨 차이만). 지도는
+  tree-ensemble 내에서 견고.
+- 카나리아 flip (예상대로 + 실데이터 class-relativity 실증): **linear/elec2 = DEPLOYMENT-CONCEPT**
+  (raw +0.023, den +0.033, 주입 회복 +0.19 — 정전 concept-drift 데이터셋이 선형 프로브에는
+  검출되고 트리 프로브에는 unidentifiable) / linear/ecom = CONCEPT(raw null인데 den만 발화 —
+  선형 denoiser 아티팩트 채널, 카나리아 거동) / kNN 서브라벨 flip 다수. §5의 "flip ≥2" 조건
+  충족하되 **카나리아 클래스에서만** — 헤드라인 승격은 "프로브 의존성의 실데이터 실증"으로
+  범위 한정 (결정등급 클래스는 일치했으므로 지도 자체는 무손상).
+
+### Phase 4 — 앵커 (§8 기준)
+- **강한 전환 앵커 7/7 CONCEPT**: agrawal_abrupt(+0.045)/agrawal_gradual(+0.047)/stagger_abrupt/
+  sine_abrupt(+0.031)/hyperplane_incr(+0.113)/sine_reoccur2(+0.047)/insects. **계기는 설계된
+  규칙 변화를 검출한다** — 지도 출판 보류 조건 미발생.
+- SEA 약전환: SUBFLOOR 방향-일치 (§8 허용).
+- **nodrift 오탐 체크: 5셀 중 2셀(sea, sine)이 SUBFLOOR** — §8의 금지 조항 위반. 크기는
+  den +0.001~+0.002(floor의 1/10~1/20)로, 중첩-시드 CI의 반보수성(감사 C7)이 미세 양수를
+  '유의'로 만든 것. **캘리브레이션 판정: SUBFLOOR 대역은 '약한 증거'가 아니라 '무증거'로
+  읽는다** (maps/kNN·SEA 셀 포함 전체 SUBFLOOR에 소급 적용; 이 해석 규칙을 §9에서 고정).
+- reoccurring 셀 대부분 DECAY-COVARIATE: A→B→A 구조에서 old(A) 데이터는 A-구간 미래에
+  무해하므로 staleness가 안 뜨는 게 **의미상 옳음** — 롤링 렌즈는 재발 drift의 '해악'이 아니라
+  '재사용 가치'를 본다는 범위 명시.
+- p4_insects FAIL: river 0.25.0 variant 명칭 불일치(레포 목록이 구버전) → 7종으로 수정(커밋),
+  재실행 대기. EMBER: parquet 부재로 스킵(정상).

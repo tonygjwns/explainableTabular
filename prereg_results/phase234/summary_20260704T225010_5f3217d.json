@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "git": "5f3217d",
+    "argv": [
+      "--insects",
+      "--n-seeds",
+      "10",
+      "--seed-base",
+      "100"
+    ],
+    "utc": "2026-07-04T22:50:10.309285+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "hgb",
+    "seed_base": 100
+  },
+  "rows": [
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "n": 57018,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.42130949317537914,
+      "decay_ci": [
+        0.40681580714251714,
+        0.43580317920824113
+      ],
+      "recency_gain": 0.5053716582712695,
+      "recency_gain_ci": [
+        0.4986634422543944,
+        0.5120798742881446
+      ],
+      "staleness_harm": 0.1289603325511604,
+      "staleness_harm_ci": [
+        0.11449391397860062,
+        0.1434267511237202
+      ],
+      "denoised_staleness": 0.14446807410812684,
+      "denoised_staleness_ci": [
+        0.12814872899043794,
+        0.16078741922581574
+      ],
+      "noise_ratio": 1.2657917185617222,
+      "noise_ratio_ci": [
+        1.2476084967608452,
+        1.2839749403625993
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.8435607278367174,
+      "D_spread": [
+        0.8383149371661842,
+        0.8499219995161658
+      ],
+      "D_full": 0.8383433634741586,
+      "D_shuffle": 0.49598187219864487,
+      "dup_group_frac": 0.00045599635202918376,
+      "injected_staleness": 0.15490565118027227,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8398597311513735,
+      "injection_features": [
+        5,
+        4
+      ],
+      "delta_staleness": 0.01590092266533725,
+      "n_proxy_stripped": 0,
+      "min_window_n": 5701,
+      "Dstar": 0.96,
+      "n_unique_t": 57018,
+      "cov_auc_early_late": 0.8135671831048497,
+      "y_lag1_autocorr": -0.0013244280434971457,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    }
+  ]
+}

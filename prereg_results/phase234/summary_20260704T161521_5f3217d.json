@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "git": "5f3217d",
+    "argv": [
+      "--elec2",
+      "--n-seeds",
+      "10",
+      "--model",
+      "knn"
+    ],
+    "utc": "2026-07-04T16:15:21.478373+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "knn",
+    "seed_base": 0
+  },
+  "rows": [
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "n": 45312,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.19244548728160776,
+      "decay_ci": [
+        0.18462295601897422,
+        0.2002680185442413
+      ],
+      "recency_gain": 0.026810996427565383,
+      "recency_gain_ci": [
+        0.022082271322821725,
+        0.031539721532309044
+      ],
+      "staleness_harm": 0.0038181475668907505,
+      "staleness_harm_ci": [
+        0.0034042915348177043,
+        0.004232003598963797
+      ],
+      "denoised_staleness": 0.009299938606190555,
+      "denoised_staleness_ci": [
+        0.008440749293550478,
+        0.010159127918830632
+      ],
+      "noise_ratio": 0.7409255540130957,
+      "noise_ratio_ci": [
+        0.675693395721364,
+        0.8061577123048274
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9993086114477676,
+      "D_spread": [
+        0.9990831044476333,
+        0.9996031702740443
+      ],
+      "D_full": 0.9996031702740443,
+      "D_shuffle": 0.4979804733661397,
+      "dup_group_frac": 0.1514609816384181,
+      "injected_staleness": 0.04178392044192299,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9750060050507345,
+      "injection_features": [
+        6,
+        5
+      ],
+      "delta_staleness": 0.00045489439750203575,
+      "n_proxy_stripped": 0,
+      "min_window_n": 4531,
+      "Dstar": 0.96,
+      "n_unique_t": 45312,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.6997677901834326,
+      "tie_overlap": 0.0,
+      "trust": "autocorr-risk;injection-recovered",
+      "verdict": "INJECTION-RECOVERED",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    }
+  ]
+}

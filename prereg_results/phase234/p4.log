@@ -1,0 +1,81 @@
+nohup: ignoring input
+==== PREREG Phase 4: anchors (designed drift MUST fire; else instrument defect, hold the map) ====
+[run ] python scripts/run_deployment_decay.py --river all --n-seeds 10 (2026-07-04T06:07:01Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [river_sea_nodrift] task=binclass feats=3 n=8000
+  river_sea_nodrift    W=10 D=0.499 gate=0.95 stale=-0.001[-0.001,-0.000] den=+0.001[+0.000,+0.002] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_sea_abrupt] task=binclass feats=3 n=8000
+  river_sea_abrupt     W=10 D=0.499 gate=1.03 stale=+0.003[+0.002,+0.004] den=+0.005[+0.004,+0.006] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_sea_gradual] task=binclass feats=3 n=8000
+  river_sea_gradual    W=10 D=0.486 gate=0.46 stale=+0.003[+0.002,+0.004] den=+0.003[+0.002,+0.004] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_agrawal_nodrift] task=binclass feats=9 n=8000
+  river_agrawal_nodrif W=10 D=0.488 gate=  - stale=+0.000[-0.000,+0.000] den=+0.000[-0.000,+0.000] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+  [river_agrawal_abrupt] task=binclass feats=9 n=8000
+  river_agrawal_abrupt W=10 D=0.498 gate=0.00 stale=+0.045[+0.039,+0.051] den=+0.047[+0.038,+0.055] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+  [river_agrawal_gradual] task=binclass feats=9 n=8000
+  river_agrawal_gradua W=10 D=0.490 gate=0.00 stale=+0.047[+0.039,+0.055] den=+0.048[+0.039,+0.057] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+  [river_stagger_nodrift] task=binclass feats=3 n=8000
+  river_stagger_nodrif W=10 D=0.503 gate=  - stale=+0.000[-0.000,+0.000] den=+0.000[-0.000,+0.000] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+  [river_stagger_abrupt] task=binclass feats=3 n=8000
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+  [river_sine_nodrift] task=binclass feats=2 n=8000
+  river_sine_nodrift   W=10 D=0.494 gate=1.25 stale=-0.001[-0.002,-0.001] den=+0.001[+0.000,+0.002] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_sine_abrupt] task=binclass feats=2 n=8000
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+  [river_hyperplane_static] task=binclass feats=10 n=8000
+  river_hyperplane_sta W=10 D=0.513 gate=0.92 stale=-0.013[-0.016,-0.010] den=-0.006[-0.009,-0.003] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+  [river_hyperplane_incr] task=binclass feats=10 n=8000
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+  [river_sea_reoccur] task=binclass feats=3 n=8000
+  river_sea_reoccur    W=10 D=0.492 gate=0.91 stale=-0.000[-0.001,+0.001] den=+0.002[+0.001,+0.003] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_sea_reoccur2] task=binclass feats=3 n=8000
+  river_sea_reoccur2   W=10 D=0.492 gate=0.81 stale=-0.001[-0.001,-0.000] den=+0.001[+0.001,+0.002] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_agrawal_reoccur] task=binclass feats=9 n=8000
+  river_agrawal_reoccu W=10 D=0.487 gate=0.00 stale=+0.007[+0.004,+0.010] den=+0.007[+0.004,+0.011] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+  [river_agrawal_reoccur2] task=binclass feats=9 n=8000
+  river_agrawal_reoccu W=10 D=0.487 gate=0.01 stale=-0.025[-0.032,-0.018] den=-0.025[-0.032,-0.018] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_stagger_reoccur] task=binclass feats=3 n=8000
+  river_stagger_reoccu W=10 D=0.495 gate=  - stale=-0.064[-0.077,-0.051] den=-0.064[-0.077,-0.051] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_stagger_reoccur2] task=binclass feats=3 n=8000
+  river_stagger_reoccu W=10 D=0.495 gate=  - stale=-0.042[-0.052,-0.032] den=-0.042[-0.052,-0.032] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_stagger_reoccur_early] task=binclass feats=3 n=8000
+  river_stagger_reoccu W=10 D=0.500 gate=  - stale=-0.101[-0.110,-0.092] den=-0.101[-0.110,-0.092] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_sine_reoccur] task=binclass feats=2 n=8000
+  river_sine_reoccur   W=10 D=0.491 gate=0.64 stale=-0.003[-0.005,-0.001] den=+0.000[-0.003,+0.003] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_sine_reoccur2] task=binclass feats=2 n=8000
+  river_sine_reoccur2  W=10 D=0.491 gate=0.64 stale=+0.047[+0.034,+0.059] den=+0.050[+0.038,+0.061] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+  [river_sine_reoccur3] task=binclass feats=2 n=8000
+  river_sine_reoccur3  W=10 D=0.491 gate=0.64 stale=-0.003[-0.005,-0.001] den=+0.000[-0.003,+0.003] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+  [river_sine_reoccur_late] task=binclass feats=2 n=8000
+  river_sine_reoccur_l W=10 D=0.482 gate=0.52 stale=-0.006[-0.008,-0.004] den=-0.003[-0.005,-0.001] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: no-covariate-movement]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260704T172128_5f3217d.json  (+ summary_latest.json)  <-- send me this
+[run ] python scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10 (2026-07-04T17:21:28Z)
+Downloading https://drive.google.com/uc?export=download&id=1Z9W2_mwawobXeTihZDTDnFOCtfdgmgDa&confirm=t (90.5 MiB)
+Traceback (most recent call last):
+  File "/home/tonyhuh/explainableTabular/scripts/run_deployment_decay.py", line 1114, in <module>
+    main()
+  File "/home/tonyhuh/explainableTabular/scripts/run_deployment_decay.py", line 1076, in main
+    *_load_stream(load_insects(variant=v, split="temporal", seed=0))))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tonyhuh/explainableTabular/src/data/insects_loader.py", line 52, in load_insects
+    stream = datasets.Insects(variant=variant)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tonyhuh/miniconda3/envs/explaintab311/lib/python3.11/site-packages/river/datasets/insects.py", line 104, in __init__
+    raise ValueError(f"Unknown variant, possible choices are:\n{variants}")
+ValueError: Unknown variant, possible choices are:
+- abrupt_balanced
+- abrupt_imbalanced
+- gradual_balanced
+- gradual_imbalanced
+- incremental_abrupt_balanced
+- incremental_reoccurring_balanced
+- incremental_balanced
+[FAIL] python scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10 — continuing
+[note] EMBER parquet not found at data/ember/ember.parquet (set EMBER_PARQUET=...); skipping p4_ember
+==== DONE (2026-07-04T17:21:43Z) — send results/phase1/deployment_decay/summary_*.json + env freeze ====

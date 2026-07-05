@@ -26,12 +26,13 @@ from .tabred_loader import TabularSplit, TabReDDataset
 
 # river variant names (see river.datasets.Insects). 'incremental_balanced' is the
 # canonical gradual-drift, class-balanced stream — a clean default for Q2b.
+# NOTE: river 0.25.0 accepts exactly these seven (server ValueError 2026-07-04 listed them);
+# older river versions exposed more *_imbalanced combos and out_of_control.
 VARIANTS = (
     "abrupt_balanced", "abrupt_imbalanced",
-    "incremental_balanced", "incremental_imbalanced",
-    "incremental_abrupt_balanced", "incremental_abrupt_imbalanced",
-    "incremental_reoccurring_balanced", "incremental_reoccurring_imbalanced",
-    "out_of_control",
+    "gradual_balanced", "gradual_imbalanced",
+    "incremental_balanced",
+    "incremental_abrupt_balanced", "incremental_reoccurring_balanced",
 )
 
 
