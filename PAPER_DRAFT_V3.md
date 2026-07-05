@@ -1,5 +1,17 @@
 # Concept Drift Is Unmeasurable in the Representation You Deploy: A Positivity-Bounded Diagnostic for Tabular Temporal Shift
 
+> **⚠ SUPERSEDED (2026-07-05) — do not cite this draft as-is; v4 rewrite pending.**
+> (a) The reoccurring-retrieval niche claims (abstract point 4, contribution 5, §8 second half:
+> struct−recency +0.26 / real INSECTS-reoccurring +0.21) were **RETIRED by RESULTS §26**
+> (identity decomposition ≈80% recency-tautological; deployed full method −0.006 on the real
+> stream; STAGGER-dependent; HARKing) — marked inline below.
+> (b) The within-overlap map and verdicts are superseded by the **deployment-decay v3
+> pre-registered map** (PREREG_DEPLOYMENT_V2.md §7–10, RESULTS §29): industrial mean-rule
+> drift 0/8; insects sole CONCEPT; the v2 sberbank positive *diagnosed* as label-noise decay
+> by the denoised-staleness arm; sensitivity profile (monotone fires / recurrent silent with
+> the negative-recency fingerprint); EMBER null. v4 skeleton: NEXT_TAB.md. Background:
+> AUDIT_FINAL_2026-07-04.md, ELEVATION_VERDICT_2026-07-04.md.
+
 > DRAFT v3.0 (2026-06-17). Reformalized after a 7-agent adversarial review (RED_TEAM.md)
 > and the V3.0 decisive-gate experiments (PLAN_V3.md G1–G4, all passed/re-scoped). Replaces
 > PAPER_DRAFT.md (v0.1, which the red-team demolished). Numbers: RESULTS §1–16 + gap_controls
@@ -31,13 +43,14 @@ characterize its real failure modes; the ESS-floor abstention is *enforced* in t
 (the same rule the ground-truth test passes). The flagship within-overlap gaps survive a permutation
 placebo, but a deeper decomposition shows **Elec2's gap is largely serial autocorrelation plus a
 noise-difficulty drift** (it drops as a clean concept anchor); INSECTS' concept survives thinning,
-and a synthetic river panel supplies ground-truth concept of dial-able size. (4) **The retrieval
-structure has an identified niche.** Under *monotonic* drift a time-indexed retrieval structure does
+and a synthetic river panel supplies ground-truth concept of dial-able size. (4) **[RETIRED —
+RESULTS §26; only the monotonic negative stands]** ~~The retrieval
+structure has an identified niche. Under *monotonic* drift a time-indexed retrieval structure does
 not beat a time feature (the original negative, paired, 25 seeds); but under *reoccurring* drift —
-where an old concept returns and recency fails — the **learned retrieval beats recency and a
-fixed-metric k-NN** (struct−recency **+0.26**, CI excludes 0; real INSECTS-reoccurring **+0.21**),
+where an old concept returns and recency fails — the learned retrieval beats recency and a
+fixed-metric k-NN (struct−recency +0.26, CI excludes 0; real INSECTS-reoccurring +0.21),
 recalling the returned concept. The within-overlap measure plus a reoccurrence signal thus predict
-*which* adaptation pays. We release the diagnostic and state its identification boundary.
+*which* adaptation pays.~~ We release the diagnostic and state its identification boundary.
 
 ---
 
@@ -65,11 +78,12 @@ we make the *measurability* the object of study.
    home-field confound, and a decomposition (thinning, lagged-label, noise proxy) shows **Elec2's
    apparent concept is mostly serial autocorrelation + noise drift** (we retire it as a clean anchor),
    while INSECTS' concept survives — so the positive concept evidence is reported narrowly and honestly.
-5. **A conditional method positive: the reoccurring-drift niche** (§8): the time-indexed retrieval
-   structure is redundant under *monotonic* drift (the original negative, now scoped) but **beats
-   recency and a fixed-metric k-NN under *reoccurring* drift** (learned struct−recency +0.26, CI>0;
+5. **[RETIRED — RESULTS §26; do not resurrect in v4]** ~~A conditional method positive: the
+   reoccurring-drift niche (§8): the time-indexed retrieval
+   structure is redundant under *monotonic* drift (the original negative, now scoped) but beats
+   recency and a fixed-metric k-NN under *reoccurring* drift (learned struct−recency +0.26, CI>0;
    real INSECTS-reoccurring +0.21), recalling the returned concept — and the measure plus a
-   reoccurrence signal predict *when* it is the right tool (the diagnostic is **generative**).
+   reoccurrence signal predict *when* it is the right tool (the diagnostic is generative).~~
 6. **Released toolkit** with its identification boundary stated.
 
 ## 2. Related Work
@@ -292,7 +306,10 @@ right inductive bias and retrieval is redundant; that is the honest negative, no
 (reoccurring drift), recency fails (it discards the matching old data) and retrieval-by-similarity should
 win (it recalls the reoccurred examples). We test this on a panel of synthetic streams with dial-able
 drift structure (river: SEA/Agrawal/STAGGER/Sine, A→B→A reoccurring vs A→B monotonic vs no-drift) plus the
-real INSECTS-reoccurring stream, comparing static / recency (HGB on the recent window) / retrieval. Two
+real INSECTS-reoccurring stream, comparing static / recency (HGB on the recent window) / retrieval.
+**[RETIRED — RESULTS §26: the +0.26 decomposes to ≈80% recency identity; the deployed full method
+(time_tabr_t−mlp_t) is −0.006 on the real stream; struct_gain is STAGGER-dependent; HARKing
+conceded. The two results below are kept for the record only.]** Two
 pre-registered results, both holding with the CI excluding 0:
 - *(1) Plain k-NN retrieval beats recency on reoccurring* (mean retrieval−recency **+0.19** [+0.03, +0.36],
   n=12) and **loses on monotonic** (−0.10 [−0.19, −0.00]); no-drift ≈ 0. (`retrieval_vs_recency`)

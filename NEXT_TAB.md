@@ -3,7 +3,25 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
-## ☆☆☆ 현행 = V4 종료 + **도구 자기검증 필요** (2026-06-28, 새 탭 여기부터)
+## ★★★ 현행 = deployment-decay v3 실행 완결 → **집필 단계** (2026-07-05, 새 탭 여기부터)
+
+**한 줄**: 사전등록(PREREG_DEPLOYMENT_V2.md §0~10) 하에 v3 계기(denoised staleness+noise gate+
+group-aware D+학습가능성 주입; 합성 배터리 14/14)로 Phase 1~4 전부 실행·판독·커밋 완료.
+**최종 지도 = 산업 mean-rule drift 0/8, insects 단독 CONCEPT, sberbank는 라벨노이즈-감쇠로 진단**
+(9번째 dissolution, 최초의 계기-내 진단). 확증시드 10/10 재현·HGB↔RF 일치·앵커 단조 9/9 발화·
+EMBER null. 정본: **RESULTS §29** + PREREG §7~10 + prereg_results/. 배경: AUDIT_FINAL_2026-07-04.md
+(v2 3중 기각) + ELEVATION_VERDICT_2026-07-04.md (천장 = TMLR/D&B; main-track 이론 라인은 기각 —
+Hinder 2023/Shimodaira/Loog 2019 선점).
+
+**다음 작업 = 논문 (TMLR 즉시 / D&B 차기)**:
+1. PAPER_DRAFT_V3 → **v4 재작성**: 골격 = identifiability map + 수리된 계기(유효 envelope 포함) +
+   구조별 감도 프로파일(단조 발화/재발 침묵+음의 recency 지문) + 진단된 sberbank + EMBER null.
+   Retired 주장(재발 niche +0.26/+0.21, RESULTS §26)은 v3 draft에 정정 배너로 표기됨 — v4에서 제외.
+   Related work는 WhyShift 선두 + Hinder 2023/D'Amour/Johansson/Shimodaira/Window-Dilemma 인용.
+2. 선택 실험: ember2018(2018-only by-value) 셀 업그레이드 / folktables 브리지(신규 로더 필요).
+3. 워크플로우 변경 없음: 로컬 작성→push, 서버 pull→실행.
+
+### (이력) 이전 현행 = V4 종료 + 도구 자기검증 필요 (2026-06-28)
 **상황**: 1년/8도메인(TabReD8·ACS·elec2·insects·BAF·IEEE-CIS·EMBER) 전부 음성. 6번 dissolution(시간검색/concept/C1퍼즐/
 공간시간/생성법칙/재발niche) + V4 positivity 척추 기각(benign 전처리 artifact) + V4-B 적대도메인 0/8. RESULTS §17~28, PLAN_V4.
 **완성·검증된 자산**: 측정 도구킷(`drift_measure.py`: covariate_shift_auc·concept_within_overlap[ess-gated·placebo]·

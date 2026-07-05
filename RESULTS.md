@@ -382,3 +382,42 @@ paired −0.011, 95%CI[−.023,+.001], borderline**이 나르고, **elec2는 con
   run_f3_feasibility · run_concept_overlap(#9).
 - 결과 JSON: `results/phase1/{sanity,q1,f3,concept_overlap,elec2,drift,conceptdrift}/`.
 - 문서: FINDINGS.md(증거·계획) · PLAN_RESCUE.md(사전등록 프로토콜·결정규칙) · REVIEW.md(전체 비판).
+
+## 29. deployment-decay v3 — 사전등록 실행 완결, 최종 identifiability map (2026-07-04~05) ★현행 헤드라인
+
+> §28("사냥 종료, 광역 negative")과 §3b의 "TabReD 8/8 stale≤0"을 **대체**한다. 전 과정 사전등록
+> (`PREREG_DEPLOYMENT_V2.md` §0~10, 규칙→예측→실행→판독이 커밋 타임라인으로 증빙), 결과 아티팩트
+> `prereg_results/`, 계기 = `run_deployment_decay.py` v3 (denoised staleness + noise gate +
+> group-aware D + 학습가능성-게이트 주입; 합성 배터리 14/14 PASS 후 실행).
+
+**경위**: 외부 종합 감사(AUDIT_FINAL_2026-07-04.md)가 v2를 3중 기각 — F1(라벨노이즈 감쇠가 고정
+규칙에서 +0.021 CONCEPT 오발 = sberbank +0.024와 동크기), F2(D 게이트가 중복/코호트 메모리제이션으로
+1.000 포화), F3(concept/covariate 분리가 가설클래스 상대적: kNN +0.098, linear +0.026 오발; HGB/RF는
+정상). v3 = 각 킬의 실행-검증된 수리. 원리 교훈: **raw staleness 단독으로는 CONCEPT를 발급할 수 없다**
+(denoised arm + noise gate 필수).
+
+**최종 지도 (HGB, 탐색 시드 0–9 ↔ 확증 시드 100–109 **10/10 판정 일치**, unstable 0)**:
+- **insects = DEPLOYMENT-CONCEPT** (raw +0.129~+0.135, den +0.145~+0.152 — denoised가 더 강함 = 규칙
+  변화의 서명; 주입 회복). 유일 양성.
+- **sberbank = NOISE-DRIFT-CONFOUNDED** — v2의 유일 산업 양성(+0.024)이 **계기에 의해 진단됨**: raw는
+  비트-동일 재현(+0.023900573591226625), old 윈도우 노이즈 프록시 2.1~2.9×, **denoised 전 K에서 유의
+  음수**(옛 라벨의 노이즈를 제거하면 old 데이터가 도움 = 규칙 불변). 9번째 dissolution이자 최초의
+  계기-내 진단. K∈{5,8,10,12,20} 전부 비-CONCEPT.
+- cooking/delivery = INJECTION-RECOVERED(검증된 무-concept), maps = NO-STRONG-CONCEPT,
+  elec2 = UNIDENT(**earned**), ecom/homecredit/weather = UNIDENT(**vacuous** — 주입 학습불능; v2의
+  'earned'는 과대주장이었음), homesite = INERT(인증 불안정).
+- **집계(§5 고정문): tree-ensemble 기준 산업 mean-rule drift = 0/8.**
+
+**model-class 패널**: HGB↔RF 10/10 작동적 일치(지도는 클래스 내 견고). 카나리아 flip 실증 —
+**linear 프로브는 elec2를 CONCEPT로 읽음**(den +0.033, 주입회복 +0.19): "모니터의 판정은 프로브
+모델의 성질" 실데이터 예시.
+
+**앵커(계기 타당성)**: river 단조·단발전환 6/6 + insects 단조 3/3 = **CONCEPT 발화**(denoised≥raw
++ 주입회복). 왕복/재발 구조(insects abrupt·reoccurring, river reoccur)는 침묵 — **음의 recency_gain
+(−0.058)이 재발 지문**(직전 윈도우가 window0보다 못함 = 옛 레짐 회귀). 프로파일: "old 라벨이 *현재*
+레짐과 모순일 때만 발화" = 배포-해악 렌즈의 옳은 의미론, 3중 독립 확인. **EMBER = NO-STRONG-CONCEPT**
+(stale −0.012 = old가 도움, delta 0.0014): 말웨어 열화는 라벨 부패가 아니라 커버리지(새 패밀리) —
+TESSERACT drift와 모순 아님. nodrift 오탐 체크에서 SUBFLOOR 2/5 → **SUBFLOOR 대역 = 무증거로 재캘리브레이션**(§9).
+
+**논문 골격(집필 개시)**: identifiability map + 수리된 계기(denoised staleness의 유효 envelope 포함)
++ 구조별 감도 프로파일 + 진단된 sberbank + EMBER null. 타깃 TMLR(즉시)/D&B(차기). 상세 = PREREG §7~10.

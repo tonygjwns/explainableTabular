@@ -23,7 +23,9 @@
 ## 1. 헤드라인 — CLEAN (Fourier 임베딩 미사용; HGB/sklearn 또는 trend 기저)
 | artifact | 스크립트 | 기저/엔진 | 상태 |
 |---|---|---|---|
-| deployment_decay_summary.json | run_deployment_decay.py | HGB rolling-origin | CLEAN (현행) |
+| **prereg_results/** (phase1·phase234·phase4_final, run meta 포함) | run_deployment_decay.py **v3** | HGB(+RF패널) denoised+gate | **CLEAN (현행 헤드라인** — PREREG_DEPLOYMENT_V2 §7~10, RESULTS §29) |
+| deployment_decay_summary.json | run_deployment_decay.py v1 | HGB rolling-origin | SUPERSEDED (ember 단일 stale=None 행; v3로 대체) |
+| 0703summary.json rows 10-19 | run_deployment_decay.py v2 | HGB | SUPERSEDED-탐색적 (sberbank CONCEPT는 v3에서 NOISE-DRIFT-CONFOUNDED로 진단; AUDIT_FINAL_2026-07-04) |
 | gap_hygiene_summary.json / _summary2 / p0_ / 0626_ | run_gap_hygiene.py | HGB | CLEAN |
 | representation_summary.json / _synth / p0_ | run_representation.py | HGB | CLEAN |
 | gap_controls_summary.json / _synth | run_gap_controls.py | HGB (placebo) | CLEAN |
@@ -63,6 +65,12 @@ synth ground-truth + **적대 대조**로 staleness_harm의 교란 면역을 검
   artifact가 아님을 입증. binclass(AUC)는 prior 불변이라 애초 면역.
 - 결과(2026-06-29 sweep): TabReD 8/8 stale≤0(concept 없음) / elec2 autocorr-risk 플래그 / insects=CONCEPT.
   두 렌즈(within-overlap+deployment) 데이터셋별 일치.
+- **→ SUPERSEDED (2026-07-03~05)**: tie-split 수정 후 v2에서 sberbank raw +0.024 양성 → 외부 감사
+  (AUDIT_FINAL_2026-07-04)가 라벨노이즈-감쇠 오발 채널 실증(+0.021 고정규칙 null) → **v3**(denoised
+  staleness + noise gate + group-aware D + 학습가능성 주입; 배터리 14/14)로 재실행: sberbank =
+  **NOISE-DRIFT-CONFOUNDED**(진단), 최종 지도 = insects 단독 CONCEPT, 산업 0/8. 확증시드 10/10 재현,
+  HGB↔RF 일치, 앵커 검증(단조 9/9 발화, 재발형은 음의 recency 지문과 함께 침묵), EMBER null.
+  **현행 정본 = PREREG_DEPLOYMENT_V2.md §7~10 + RESULTS §29 + prereg_results/.**
 
 ## 3c. 외부 red-team 대응 (2026-06-30) — deployment 도구 경화
 독립 LLM 적대검토가 7개 결함 제기. 코드/실험으로 대응:
