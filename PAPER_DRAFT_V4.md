@@ -1,6 +1,9 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.0 (2026-07-05). Target: TMLR (immediate) / NeurIPS D&B (next cycle). Supersedes
+> DRAFT v4.1 (2026-07-05, first external review incorporated). Target: TMLR (immediate) /
+> NeurIPS D&B (next cycle); reviewer-suggested alternates: ECML-PKDD, KDD research track,
+> Machine Learning (Springer), DMKD — venues whose reviewer pools know the Gama/Webb definition
+> debate this paper's estimand-narrowing speaks to. Supersedes
 > PAPER_DRAFT_V3 (within-overlap lens era). Every number in this draft is traceable to a
 > committed artifact: `prereg_results/` (run-meta-stamped JSONs), `audit_artifacts_2026-07-04/`
 > (executed kill-tests), `PREREG_DEPLOYMENT_V2.md` §0–10 (rule→prediction→execution→read,
@@ -10,36 +13,28 @@
 
 ## Abstract
 
-Temporal shift is routinely invoked to motivate time-aware tabular models, yet which *kind* of
-shift — a changing rule P(y|x) versus moving covariates P(x) — is rarely measured, and we show
-the verdict depends on the measuring instrument itself. We study a deployment-native probe,
-*staleness harm*: the change in future-window performance when old examples are added to an
-identical recent training set, which isolates rule change from covariate coverage *by
-construction*. With executed adversarial controls we expose three silent failure modes of that
-construction: (i) label-noise decay under a provably fixed rule mints a "concept drift" verdict
-at industrial magnitude (+0.021, matching a real borderline positive at +0.024); (ii) the overlap
-gate that should certify when a null is uninformative saturates to 1.000 under duplicate rows and
-entity cohorts with zero covariate shift; (iii) the concept/covariate separation is
-hypothesis-class-relative — a kNN probe reads pure covariate shift as concept drift (+0.098)
-while tree ensembles read it correctly. We repair the instrument — a cross-fitted *denoised
-staleness* arm with a per-window noise gate (validity envelope mapped and enforced by
-abstention), a group-aware separability estimate, and learnability-gated injection controls that
-make claimed blindness *earned* rather than assumed — and validate it on a 14-cell pre-registered
-synthetic battery, including rule change and noise drift co-occurring. Auditing eight industrial
-datasets (TabReD) and designed-drift streams under a pre-registered protocol with a confirmatory
-fresh-seed replication (10/10 verdicts stable) yields an identifiability *map*, not a detection
-table: **no industrial dataset shows exploitable mean-rule drift above its per-dataset detectable
-floor (0/8)**; the sole robust concept positive is designed drift (+0.135, denoised +0.152); the
-one prior industrial positive is *diagnosed* by the instrument itself as label-noise decay (its
-old-window noise proxy is 2.1–2.9× the recent level, and denoising the old labels makes the harm
-vanish — indeed reverse sign); the remainder are covariate-dominated, noise-confounded, or
-certifiably instrument-blind, each with a detectable-effect bound. Anchor streams give the
-instrument a coherent sensitivity profile: it fires on monotone and single-switch rule changes
-(9/9), and is correctly silent when old regimes recur — flagged by a negative recency gain, the
-fingerprint of returning regimes — including on malware (EMBER), where decay is coverage-driven,
-not label rot. We release the instrument, battery, and audit trail, and argue that drift-type
-attribution without identifiability certificates — the current default in drift monitoring — is
-unsound.
+Which kind of temporal shift a tabular dataset exhibits — a changing rule P(y|x) or moving
+covariates P(x) — is rarely measured, and we show the verdict depends on the measuring
+instrument. We study *staleness harm*, a deployment-native probe (does adding old examples to a
+fixed recent training set hurt future performance?), and expose three executed failure modes:
+label-noise decay under a provably fixed rule mints a "concept drift" verdict matching a real
+industrial positive (+0.021 vs +0.024); the overlap gate meant to certify uninformative nulls
+saturates under duplicate rows and entity cohorts with zero covariate shift; and the
+concept/covariate separation is hypothesis-class-relative — a kNN probe reads pure covariate
+shift as concept drift (+0.098) while tree ensembles read it correctly. We repair the
+instrument — a cross-fitted *denoised staleness* arm with a noise gate and a mapped abstention
+envelope, group-aware separability, and learnability-gated injection certificates — and validate
+it on a 14-cell pre-registered battery, including rule change and noise drift co-occurring. A
+pre-registered audit of eight industrial datasets (TabReD) with confirmatory fresh-seed
+replication (10/10 verdicts stable) then yields an identifiability *map*, not a detection table:
+**no industrial dataset shows exploitable mean-rule drift above its detectable floor (0/8)**;
+the sole robust positive is designed drift; the one prior industrial positive is *diagnosed* by
+the instrument itself as label-noise decay; the remainder carry certificates — verified-null,
+earned blindness, or refused. Anchor streams establish the sensitivity profile: monotone and
+single-switch rule changes fire (9/9); recurring regimes are correctly silent, fingerprinted by
+a negative recency gain. We release the instrument, battery, and audit trail, and argue that
+drift-type attribution without identifiability certificates — the current default in drift
+monitoring — is unreliable.
 
 ---
 
@@ -182,12 +177,22 @@ contributions.
 **Old data harming.** Shimodaira (2000) is the mechanism for the misspecified case; the Data
 Addition Dilemma (Shen et al., 2024) documents mixture harm empirically in clinical ML;
 Klinkenberg & Joachims (2000) use held-out error over candidate training windows to *adapt*
-window size. To our knowledge, no prior work uses the add-old-data contrast as a drift-*type*
-identifier with verdict semantics, nor reports the label-noise-decay false-positive channel —
-under the field-standard definition of real drift as any change in P(y|x) (Gama et al., 2014;
-Webb et al., 2016), noise drift *is* drift, which is precisely why an instrument that claims to
-detect *exploitable rule change* must separate the two; ours is, to our knowledge, the first
-that does so by construction and validates the separation adversarially.
+window size. We are not aware of prior work that uses the add-old-data contrast as a
+drift-*type* identifier with verdict semantics, or that reports the label-noise-decay
+false-positive channel — under the field-standard definition of real drift as any change in
+P(y|x) (Gama et al., 2014; Webb et al., 2016), noise drift *is* drift, which is precisely why an
+instrument that claims to detect *exploitable rule change* must separate the two; we separate
+them by construction and validate the separation adversarially.
+
+**Pseudo-labels, denoising, cross-fitting.** The denoised arm's mechanics are deliberately
+borrowed: replacing labels with model predictions is self-training (Scudder, 1965; Lee, 2013)
+and distillation (Hinton et al., 2015); the view of noisy labels as recoverable by a fitted
+model underlies noisy-label learning (Natarajan et al., 2013; Han et al., 2018); strictly
+out-of-fold prediction to avoid own-fit contamination is cross-fitting (Chernozhukov et al.,
+2018). What we take from these literatures is the estimator; the *use* — as the discriminating
+arm of a drift-type verdict, with an adversarially mapped validity envelope and an abstention
+rule — is the contribution we claim, and we scope it to its evidence: none of these adjacent
+literatures, to our reading, reports the failure channel this arm exists to defuse.
 
 **Drift detectors and their evaluation.** Classical detectors (surveys: Gama et al., 2014; Lu et
 al., 2019) monitor loss or distribution statistics and are evaluated by injecting known drifts
@@ -204,6 +209,27 @@ families appear — covariate expansion), not label rot (a 2017 malware sample i
 which is exactly the distinction a deployment lens should draw.
 
 ## 3. The Instrument
+
+**Figure 1 [PENDING — load-bearing for readability].** One-page schematic of the decision
+cascade: two staleness arms (raw / denoised) → noise gate & envelope → separability router →
+learnability-gated injection certificates → verdict set; the cascade is specified verbatim in
+§3.3 and PREREG §3.
+
+**Terminology (one line each).**
+
+| term | meaning |
+|---|---|
+| raw staleness | future-window score(recent) − score(recent ∪ old); >0 = old data hurts |
+| denoised staleness | same, with old labels replaced by cross-fitted within-old-window predictions; >0 = the *rule* changed |
+| noise gate | old-window noise proxy / recent median; >1.5 = label-noise drift present |
+| envelope | noise-ratio 4.7, the measured boundary of denoiser validity; above it the instrument abstains |
+| D | window-separability AUC (group-aware, size-matched); a routing statistic, *not* support overlap |
+| injection | a known rule rotation planted in the dataset's own geometry; the per-dataset power certificate |
+| earned blindness | injection learnable in-window yet unrecoverable → the geometry genuinely hides this signal class |
+| injection-vacuous | injection unlearnable → the null certifies nothing |
+| no-evidence band | sub-floor CI-positive readings; calibrated on no-drift anchors as noise |
+| canary probe | a deliberately misspecified probe class (linear/kNN) whose false fires are reported |
+| rule-sensitive | verdict differs between the primary and strict decision rules; barred from headlines |
 
 ### 3.1 Setting and estimand
 
@@ -225,7 +251,12 @@ class: recent-only, old-only, recent∪old. Report per-seed means over future wi
 
 Scores: AUC (binary), accuracy (multiclass), −RMSE on z-scored targets (regression). CIs are
 Student-t over 10 seeds; each seed re-draws a 90% row subsample, re-jitters window boundaries,
-and re-samples all training sets. The pre-registered estimand is *exploitable mean-rule drift*:
+and re-samples all training sets. These are seed-level intervals over heavily overlapping
+subsamples and are anti-conservative for tiny effects (§6 calibrates the resulting no-evidence
+band on no-drift anchors); verdict-level inference does not rest on them alone — the
+confirmatory fresh-seed replication (§5.1) is the operative stability check, and per-seed values
+are emitted with every run so that alternative constructions (window-block bootstrap, split-half)
+can be applied without re-execution. The pre-registered estimand is *exploitable mean-rule drift*:
 a change in the decision-relevant functional of P(y|x) that makes old labels contradict the
 current rule for the deployed hypothesis class. This is deliberately narrower than the
 field-standard "any change in P(y|x)" (Webb et al., 2016) — the narrowing is the point, because
@@ -337,6 +368,16 @@ rotating-rule signal (+0.316 vs +0.541), and the same holds at small rule-change
 Robustness of the denoiser to a small old window was checked directly (old window capped at 600
 rows, cross-fit folds of 300): no false positive (+0.004) and no false negative (+0.430).
 
+**Floor comparability across metrics.** The 0.02 decision floor is shared across AUC, accuracy,
+and z-scored −RMSE, which are not decision-equivalent units. Two mitigations are structural:
+every null carries its own detectable-effect bound δ (the per-dataset, per-metric power
+statement that does the aggregate's real work), and CONCEPT never rests on the floor alone (the
+denoised CI, gate, and envelope must all align). As a sensitivity check, re-thresholding all
+committed runs under per-metric floors rescaled by the battery's matched-strength concept
+magnitudes (binary +0.28 vs regression +0.55 ⇒ regression floor 0.04) moves no cell across the
+concept/no-concept boundary; the only affected cell is the mechanism label of the diagnosed
+regression positive (§5.3), which is already flagged rule-sensitive and barred from headlines.
+
 ### 4.2 The envelope: where the repair itself breaks
 
 The denoiser is biased — pseudo-label error grows with old-window noise — and rather than
@@ -355,25 +396,32 @@ envelope edge.
 Re-running the five core controls with the probe's model class swapped (the instrument's every
 component — staleness arms, gate, separability, injection — follows the swap):
 
-| control (truth) | HGB | RandomForest | linear | kNN |
-|---|---|---|---|---|
-| rotating rule | ✓ (+0.280) | ✓ (+0.287) | ✓ (+0.310) | ✓ (+0.295) |
-| covariate shift, fixed rule | ✓ (−0.001) | ✓ (+0.004) | ✓ (−0.002) | **✗ CONCEPT (+0.098)** |
-| prior shift, fixed rule | ✓ (−0.003) | ✓ (+0.003) | **✗ CONCEPT (+0.026)** | **✗ CONCEPT (+0.048)** |
-| stationary | ✓ | ✓ | ✓ | ✓ |
-| rotating rule + nuisance | ✓ (+0.203) | ✓ (+0.200) | ✓ (+0.229) | ✓ (+0.219) |
+| control (truth) | HGB | RandomForest | MLP (64,32) | linear | kNN |
+|---|---|---|---|---|---|
+| rotating rule | ✓ (+0.280) | ✓ (+0.287) | ✓ (+0.305) | ✓ (+0.310) | ✓ (+0.295) |
+| covariate shift, fixed rule | ✓ (−0.001) | ✓ (+0.004) | △ (den +0.045, CI-saved) | ✓ (−0.002) | **✗ CONCEPT (+0.098)** |
+| prior shift, fixed rule | ✓ (−0.003) | ✓ (+0.003) | **✗ CONCEPT (den +0.042)** | **✗ CONCEPT (+0.026)** | **✗ CONCEPT (+0.048)** |
+| stationary | ✓ | ✓ | ✓ | ✓ | ✓ |
+| rotating rule + nuisance | ✓ (+0.203) | ✓ (+0.200) | ✓ (+0.228) | ✓ (+0.229) | ✓ (+0.219) |
 
-Concept *detection* is class-robust (all four classes fire on true rotations); the
+Concept *detection* is class-robust (all five classes fire on true rotations); the
 concept/covariate *separation* — the property the verdict rests on — holds only for classes
 flexible enough to represent the fixed rule. This is Shimodaira (2000) made empirical: under
 misspecification the mixture-ERM optimum moves with P(x), so covariate shift alone manufactures
 "old data hurts." Denoising does not repair this channel (kNN still false-fires at +0.111 with
 pseudo-labels — the misspecification is in the *probe*, not the labels), which is why the
 instrument's verdicts are stated as tree-ensemble-scoped, with linear/kNN carried as canaries.
-The practical reading for the field is uncomfortable: **a drift monitor built on a linear or
-local probe can report concept drift on data where a tree-ensemble monitor reports none, on the
-same bytes** — and §5.3 shows this happens on the canonical real drift dataset, not just in
-synthetics.
+The neural probe deserves emphasis, because the paper's motivating question is whether deep
+tabular architectures have a rule change to exploit: **a two-layer MLP probe fails the
+separation battery** — it reads fixed-rule prior shift as concept drift (denoised +0.042, a
+fire) and leans positive on pure covariate shift (denoised +0.045, saved only by CI width) — so
+it joins the canaries rather than the decision-grade classes. We do not claim this extrapolates
+to modern deep tabular architectures at scale; we claim the direction of the burden: a probe
+class earns drift-verdict authority by passing this battery, and the first neural probe we
+tested does not. The practical reading for the field is uncomfortable: **a drift monitor built
+on a linear, local, or small-neural probe can report concept drift on data where a
+tree-ensemble monitor reports none, on the same bytes** — and §5.4 shows this happens on the
+canonical real drift dataset, not just in synthetics.
 
 ## 5. The Map
 
@@ -428,9 +476,9 @@ recent median at every K; and the **denoised arm is significantly negative at ev
 to −0.018, all CIs below zero): replace the old labels with cross-fitted pseudo-labels and the
 old rows *help*. The rule did not change; the early labels are noisier — consistent with
 2011–2012 crisis-era Russian housing prices. At K = 20 the injection control recovers a planted
-rule (+0.101) through the same geometry, and at no K does any rule reading yield CONCEPT. To our
-knowledge this is the first case of a drift-attribution instrument diagnosing the mechanism of
-its own prior false positive on real data, rather than merely failing to replicate it.
+rule (+0.101) through the same geometry, and at no K does any rule reading yield CONCEPT. We are
+not aware of a prior case of a drift-attribution instrument diagnosing the *mechanism* of its
+own earlier false positive on real data, as opposed to merely failing to replicate it.
 
 ### 5.4 The class panel on real data
 
@@ -506,7 +554,15 @@ diagnosed rather than asserted. The burden of proof for "temporal architecture X
 concept drift on TabReD-like data" should now include an identifiability certificate.
 
 **Limitations.** (1) Verdicts are tree-ensemble-scoped; we show this scoping is necessary, not
-that it is sufficient for every deployed system. (2) K = 10 rolling windows with a fixed early
+that it is sufficient for every deployed system. The panel's neural probe (a two-layer MLP)
+fails the separation battery and is classified a canary (§4.3); modern deep tabular
+architectures (FT-Transformer-class, at production scale) remain untested — extending the panel
+is the clearest next step, with the battery as the pre-registered entry bar any such probe must
+pass before its drift verdicts are trusted. (1b) **Scale.** The probe trains on N ≤ 6,000 rows
+per arm; industrial models train on orders of magnitude more. A rule change exploitable only at
+much larger N is invisible here, so every δ bound and the 0/8 aggregate are statements *at probe
+scale*; a δ(N) scaling study is future work, and we flag rather than dismiss the possibility
+that the map changes at production N. (2) K = 10 rolling windows with a fixed early
 anchor: drift at time scales far below the window width is averaged away (the injection control
 partially measures this — its recovery varies with K), and the TabReD map covers the train
 segments of the official splits, not the held-out deployment gap. (3) The single robust positive
@@ -552,6 +608,8 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
 ## References (partial, verified during the audit)
 
 - Ben-David, Lu, Luu, Pál (2010). Impossibility theorems for domain adaptation. AISTATS.
+- Chernozhukov, Chetverikov, Demirer, Duflo, Hansen, Newey, Robins (2018). Double/debiased
+  machine learning. Econometrics Journal.
 - Cai, Namkoong, Yadlowsky (2023). Diagnosing model performance under distribution shift
   (DISDE). Operations Research / arXiv:2303.02011.
 - D'Amour, Ding, Feller, Lei, Sekhon (2021). Overlap in observational studies with
@@ -563,7 +621,10 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
 - Ginsberg, Liang, Krishnan (2023). A learning-based hypothesis test for harmful covariate
   shift (Detectron). ICLR.
 - Gower-Winter, Groen, Krempl (2026). The window dilemma: why concept drift detection is
-  ill-posed. arXiv:2602.06456.
+  ill-posed. arXiv:2602.06456. [fetched and verified during the audit; re-verify at submission]
+- Han, Yao, Yu, Niu, Xu, Hu, Tsang, Sugiyama (2018). Co-teaching: robust training of deep
+  neural networks with extremely noisy labels. NeurIPS.
+- Hinton, Vinyals, Dean (2015). Distilling the knowledge in a neural network. arXiv:1503.02531.
 - Hinder, Vaquet, Brinkrolf, Hammer (2023). On the hardness and necessity of supervised concept
   drift detection. ICPRAM. (+ 2024 survey, Frontiers in AI.)
 - Johansson, Sontag, Ranganath (2019). Support and invertibility in domain-invariant
@@ -571,7 +632,10 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
 - Klinkenberg, Joachims (2000). Detecting concept drift with support vector machines. ICML.
 - Liu, Wang, Cui, Namkoong (2023). On the need for a language describing distribution shifts
   (WhyShift). NeurIPS D&B.
+- Lee (2013). Pseudo-label: the simple and efficient semi-supervised learning method for deep
+  neural networks. ICML Workshop.
 - Loog, Viering, Mey (2019). Minimizers of the empirical risk and risk monotonicity. NeurIPS.
+- Natarajan, Dhillon, Ravikumar, Tewari (2013). Learning with noisy labels. NeurIPS.
 - Lu, Liu, Dong, Gu, Gama, Zhang (2019). Learning under concept drift: a review. TKDE.
 - Moreno-Torres, Raeder, Alaiz-Rodríguez, Chawla, Herrera (2012). A unifying view on dataset
   shift. Pattern Recognition.
@@ -581,6 +645,8 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
   alarming systems? IEEE Big Data.
 - Rubachev, Kartashev, Gorishniy, Babenko (2025). TabReD: analyzing pitfalls and filling the
   gaps in tabular deep learning benchmarks. ICLR.
+- Scudder (1965). Probability of error of some adaptive pattern-recognition machines. IEEE
+  Transactions on Information Theory.
 - Shen, Raji, Chen (2024). The data addition dilemma. MLHC.
 - Shimodaira (2000). Improving predictive inference under covariate shift by weighting the
   log-likelihood function. J. Statistical Planning and Inference.

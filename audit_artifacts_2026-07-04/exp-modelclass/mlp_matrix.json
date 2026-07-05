@@ -1,0 +1,87 @@
+{
+ "concept": {
+  "verdict": "DEPLOYMENT-CONCEPT",
+  "staleness_harm": 0.3047786574372983,
+  "staleness_harm_ci": [
+   0.28983884985677694,
+   0.3197184650178197
+  ],
+  "denoised_staleness": 0.2844645286827212,
+  "denoised_staleness_ci": [
+   0.25810034830150963,
+   0.3108287090639328
+  ],
+  "noise_ratio": 1.3809158496821208,
+  "D_strip": 0.5105867465045217,
+  "injected_staleness": 0.22287715202878675,
+  "trust": "no-covariate-movement"
+ },
+ "covariate": {
+  "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+  "staleness_harm": 0.03292598899244228,
+  "staleness_harm_ci": [
+   -0.02437202112882169,
+   0.09022399911370624
+  ],
+  "denoised_staleness": 0.04464530084265981,
+  "denoised_staleness_ci": [
+   -0.0001594466052314003,
+   0.08945004829055102
+  ],
+  "noise_ratio": 1.0771788172436652,
+  "D_strip": 0.9965019305019305,
+  "injected_staleness": 0.01864714173050945,
+  "trust": "unident-earned"
+ },
+ "stable": {
+  "verdict": "NO-STRONG-CONCEPT",
+  "staleness_harm": -0.006736691188731036,
+  "staleness_harm_ci": [
+   -0.012205789965207253,
+   -0.001267592412254821
+  ],
+  "denoised_staleness": -0.002846132133890662,
+  "denoised_staleness_ci": [
+   -0.008092765246935248,
+   0.0024005009791539253
+  ],
+  "noise_ratio": 1.2777210746541852,
+  "D_strip": 0.5105867465045217,
+  "injected_staleness": null,
+  "trust": "no-covariate-movement"
+ },
+ "covariate_mc": {
+  "verdict": "DEPLOYMENT-CONCEPT",
+  "staleness_harm": 0.021973899549674013,
+  "staleness_harm_ci": [
+   -0.00602602647067144,
+   0.04997382557001946
+  ],
+  "denoised_staleness": 0.04207826911984516,
+  "denoised_staleness_ci": [
+   0.019786743393814466,
+   0.06436979484587586
+  ],
+  "noise_ratio": 0.8427067438206011,
+  "D_strip": 0.9965019305019305,
+  "injected_staleness": 0.04413372656159224,
+  "trust": "d-gate-invalid;injection-vacuous"
+ },
+ "nuisance_proxy": {
+  "verdict": "DEPLOYMENT-CONCEPT",
+  "staleness_harm": 0.22796862495431566,
+  "staleness_harm_ci": [
+   0.21251665268287084,
+   0.24342059722576048
+  ],
+  "denoised_staleness": 0.23034043582693792,
+  "denoised_staleness_ci": [
+   0.18645692608526393,
+   0.2742239455686119
+  ],
+  "noise_ratio": 1.1513379082398587,
+  "D_strip": 0.4959831912000989,
+  "injected_staleness": 0.21861413146462833,
+  "trust": "no-covariate-movement;proxy-stripped:1;proxy-sensitive"
+ }
+}

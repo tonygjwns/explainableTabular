@@ -750,7 +750,11 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
             "y_lag1_autocorr": ylag, "tie_overlap": float(tie_ov), "trust": trust,
-            "verdict": verdict, "verdict_strict": verdict_strict}
+            "verdict": verdict, "verdict_strict": verdict_strict,
+            # per-seed raw values (reviewer request): enables alternative CI constructions
+            # (block bootstrap, jackknife, split-half) downstream without a rerun.
+            "per_seed": {"stale": stale_s, "den": den_s, "decay": decay_s, "rec": rec_s,
+                         "noise_ratio": ratio_s}}
 
 
 # ----------------------------------------------------------------------------- loaders
@@ -919,6 +923,16 @@ def _apply_model_class(kind):
         elif kind == "knn":
             base = KNeighborsClassifier(n_neighbors=25) if is_clf else KNeighborsRegressor(n_neighbors=25)
             steps = [("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler()), ("m", base)]
+        elif kind == "mlp":
+            # neural probe (reviewer request: the paper's motivation is deep tabular architecture,
+            # so the class panel needs at least one NN class). sklearn MLP keeps the panel
+            # dependency-free; 2-layer, early-stopping on for stability at 12k rows.
+            from sklearn.neural_network import MLPClassifier, MLPRegressor
+            base = (MLPClassifier(hidden_layer_sizes=(64, 32), max_iter=300, early_stopping=True,
+                                  random_state=seed) if is_clf
+                    else MLPRegressor(hidden_layer_sizes=(64, 32), max_iter=300, early_stopping=True,
+                                      random_state=seed))
+            steps = [("imp", SimpleImputer(strategy="median")), ("sc", StandardScaler()), ("m", base)]
         else:
             raise ValueError(kind)
         return Pipeline(steps)
@@ -1003,8 +1017,8 @@ def main():
                     help="one of the 8 designed variants, or 'all'")
     ap.add_argument("--river", nargs="*", default=None,
                     help="river synth panel stream names, or 'all' (PREREG Phase 4 anchors)")
-    ap.add_argument("--model", default="hgb", choices=["hgb", "rf", "linear", "knn"],
-                    help="probe model class (PREREG Phase 3; linear/knn are canaries)")
+    ap.add_argument("--model", default="hgb", choices=["hgb", "rf", "linear", "knn", "mlp"],
+                    help="probe model class (PREREG Phase 3; linear/knn canaries, mlp = NN probe)")
     ap.add_argument("--seed-base", type=int, default=0,
                     help="0 = exploratory (seeds 0..n-1); 100 = confirmatory rerun (PREREG §5)")
     ap.add_argument("--config", default="configs/phase1.yaml")

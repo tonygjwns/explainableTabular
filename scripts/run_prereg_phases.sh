@@ -48,7 +48,7 @@ step "p2b_insects" $PY scripts/run_deployment_decay.py --insects --n-seeds 10 --
 }
 want 3 && {
 echo "==== PREREG Phase 3: model-class panel (rf decision-grade; linear/knn canaries) ===="
-for M in rf linear knn; do
+for M in rf linear knn mlp; do
   step "p3_${M}_tabred"  $PY scripts/run_deployment_decay.py --tabred $TABRED --config $CFG --n-seeds 10 --model $M
   step "p3_${M}_elec2"   $PY scripts/run_deployment_decay.py --elec2 --n-seeds 10 --model $M
   step "p3_${M}_insects" $PY scripts/run_deployment_decay.py --insects --n-seeds 10 --model $M
