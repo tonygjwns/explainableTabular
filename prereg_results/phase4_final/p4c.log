@@ -1,0 +1,36 @@
+nohup: ignoring input
+==== PREREG Phase 4: anchors (designed drift MUST fire; else instrument defect, hold the map) ====
+[skip] results/phase1/deployment_decay/markers/p4_river.done
+[run ] python scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10 (2026-07-05T07:26:38Z)
+Traceback (most recent call last):
+  File "/home/tonyhuh/explainableTabular/scripts/run_deployment_decay.py", line 1114, in <module>
+    main()
+  File "/home/tonyhuh/explainableTabular/scripts/run_deployment_decay.py", line 1076, in main
+    *_load_stream(load_insects(variant=v, split="temporal", seed=0))))
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tonyhuh/explainableTabular/src/data/insects_loader.py", line 52, in load_insects
+    stream = datasets.Insects(variant=variant)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/tonyhuh/miniconda3/envs/explaintab311/lib/python3.11/site-packages/river/datasets/insects.py", line 104, in __init__
+    raise ValueError(f"Unknown variant, possible choices are:\n{variants}")
+ValueError: Unknown variant, possible choices are:
+- abrupt_balanced
+- abrupt_imbalanced
+- gradual_balanced
+- gradual_imbalanced
+- incremental_abrupt_balanced
+- incremental_reoccurring_balanced
+- incremental_balanced
+[FAIL] python scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10 — continuing
+[run ] python scripts/run_deployment_decay.py --csv /home/tonyhuh/explainableTabular/ember.parquet --target label --time appeared --by-value --n-seeds 10 --name ember (2026-07-05T07:26:44Z)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [ember] task=binclass feats=626 n=60000
+  ember                W=126 D=  - gate=1.01 stale=-0.012[-0.013,-0.011] den=-0.003[-0.004,-0.002] => NO-STRONG-CONCEPT  [TRUST: sparse-window:1]
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260705T074921_fe13544.json  (+ summary_latest.json)  <-- send me this
+==== DONE (2026-07-05T07:49:22Z) — send results/phase1/deployment_decay/summary_*.json + env freeze ====

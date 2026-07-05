@@ -1,0 +1,30 @@
+nohup: ignoring input
+==== PREREG Phase 4: anchors (designed drift MUST fire; else instrument defect, hold the map) ====
+[skip] results/phase1/deployment_decay/markers/p4_river.done
+[run ] python scripts/run_deployment_decay.py --insects --insects-variant all --n-seeds 10 (2026-07-05T07:30:04Z)
+Downloading https://drive.google.com/uc?export=download&id=1fepYkDxwMbuoRUaG_fsymSzkuapS4vJp&confirm=t (6.17 MiB)
+Downloading https://drive.google.com/uc?export=download&id=1_WJ7lxK2sx1i6kq9Nqv4KrjT0ZXB0QbC&confirm=t (36.56 MiB)
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [insects_abrupt_balanced] task=multiclass feats=33 n=52848
+  insects_abrupt_balan W=10 D=0.712 gate=0.79 stale=-0.070[-0.073,-0.067] den=-0.070[-0.073,-0.066] => NO-STRONG-CONCEPT
+  [insects_abrupt_imbalanced] task=multiclass feats=33 n=355275
+  insects_abrupt_imbal W=10 D=0.699 gate=0.90 stale=-0.027[-0.029,-0.025] den=-0.032[-0.035,-0.030] => NO-STRONG-CONCEPT
+  [insects_gradual_balanced] task=multiclass feats=33 n=24150
+  insects_gradual_bala W=10 D=0.928 gate=0.16 stale=+0.092[+0.085,+0.099] den=+0.093[+0.087,+0.099] => DEPLOYMENT-CONCEPT
+  [insects_gradual_imbalanced] task=multiclass feats=33 n=143323
+  insects_gradual_imba W=10 D=0.897 gate=1.17 stale=+0.069[+0.049,+0.089] den=+0.076[+0.058,+0.095] => DEPLOYMENT-CONCEPT
+  [insects_incremental_balanced] task=multiclass feats=33 n=57018
+  insects_incremental_ W=10 D=0.844 gate=1.24 stale=+0.135[+0.123,+0.146] den=+0.152[+0.139,+0.165] => DEPLOYMENT-CONCEPT
+  [insects_incremental_abrupt_balanced] task=multiclass feats=33 n=79986
+  insects_incremental_ W=10 D=0.799 gate=1.07 stale=-0.011[-0.014,-0.008] den=-0.002[-0.005,+0.001] => DEPLOYMENT-DECAY-COVARIATE
+  [insects_incremental_reoccurring_balanced] task=multiclass feats=33 n=79986
+  insects_incremental_ W=10 D=0.759 gate=1.21 stale=-0.005[-0.007,-0.003] den=+0.003[+0.001,+0.005] => SUBFLOOR-CONCEPT-SIGNAL
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260705T130442_fe13544.json  (+ summary_latest.json)  <-- send me this
+[note] EMBER parquet not found at data/ember/ember.parquet (set EMBER_PARQUET=...); skipping p4_ember
+==== DONE (2026-07-05T13:04:42Z) — send results/phase1/deployment_decay/summary_*.json + env freeze ====

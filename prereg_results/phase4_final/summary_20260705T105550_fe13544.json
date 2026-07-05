@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "git": "fe13544",
+    "argv": [
+      "--csv",
+      "/home/tonyhuh/explainableTabular/ember.parquet",
+      "--target",
+      "label",
+      "--time",
+      "appeared",
+      "--n-seeds",
+      "10",
+      "--max-n",
+      "200000",
+      "--name",
+      "ember_k10"
+    ],
+    "utc": "2026-07-05T10:55:50.471833+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "hgb",
+    "seed_base": 0
+  },
+  "rows": [
+    {
+      "dataset": "ember_k10",
+      "task": "binclass",
+      "n": 200000,
+      "n_windows": 10,
+      "n_seeds_ok": 0,
+      "decay": null,
+      "decay_ci": [
+        null,
+        null
+      ],
+      "recency_gain": null,
+      "recency_gain_ci": [
+        null,
+        null
+      ],
+      "staleness_harm": null,
+      "staleness_harm_ci": [
+        null,
+        null
+      ],
+      "denoised_staleness": null,
+      "denoised_staleness_ci": [
+        null,
+        null
+      ],
+      "noise_ratio": null,
+      "noise_ratio_ci": [
+        null,
+        null
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": null,
+      "D_spread": [
+        null,
+        null
+      ],
+      "D_full": null,
+      "D_shuffle": null,
+      "dup_group_frac": 0.308945,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": null,
+      "n_proxy_stripped": 0,
+      "min_window_n": 19,
+      "Dstar": 0.96,
+      "n_unique_t": 136,
+      "cov_auc_early_late": null,
+      "y_lag1_autocorr": 0.10435375373184688,
+      "tie_overlap": 0.0,
+      "trust": "sparse-window:19",
+      "verdict": "NO-DATA",
+      "verdict_strict": "NO-DATA"
+    }
+  ]
+}

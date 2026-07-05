@@ -178,3 +178,43 @@ insects(designed)만 CONCEPT. 실명 인증(earned)은 elec2 1건뿐; ecom/homec
   '재사용 가치'를 본다는 범위 명시.
 - p4_insects FAIL: river 0.25.0 variant 명칭 불일치(레포 목록이 구버전) → 7종으로 수정(커밋),
   재실행 대기. EMBER: parquet 부재로 스킵(정상).
+
+## 10. Phase 4 최종 앵커 판독 — insects 7변종 + EMBER (2026-07-05, 커밋 fe13544)
+
+아티팩트: prereg_results/phase4_final/ (JSON 3 + 로그 2).
+
+### insects 변종 매트릭스 — 계기의 drift-구조별 감도 프로파일
+| 변종 (구조) | 판정 | raw / den | 비고 |
+|---|---|---|---|
+| gradual_balanced (단조) | **CONCEPT** | +0.092 / +0.093 | 주입 학습가능·회복 +0.114 |
+| gradual_imbalanced (단조) | **CONCEPT** | +0.069 / +0.076 | 주입 +0.130 |
+| incremental_balanced (단조) | **CONCEPT** | +0.135 / **+0.152** | 주입 +0.162 |
+| abrupt_balanced (온도 왕복 전환) | NO-STRONG | −0.070 / −0.070 | **recency −0.058 (음수!)** |
+| abrupt_imbalanced (〃) | NO-STRONG | −0.027 / −0.032 | recency −0.023 (음수) |
+| incremental_abrupt_balanced | DECAY-COVARIATE | −0.011 / −0.002 | rec +0.057 |
+| incremental_reoccurring_balanced | SUBFLOOR (§9 규칙: 무증거) | −0.005 / +0.003 | rec +0.150 |
+
+**구조적 판독**: 단조(gradual/incremental) 앵커 3/3 발화 — 전부 denoised ≥ raw(진짜 규칙 변화의
+서명) + 주입 회복. 미발화 변종들은 전부 **레짐 재발/왕복** 구조이고, 그 내부 증거가
+abrupt 변종의 **음의 recency_gain**(직전 윈도우가 window 0보다 미래 예측에 더 나쁨 —
+단방향 drift에서는 불가능; 시험 구간 레짐이 옛 레짐과 재일치할 때의 서명)이다. river에서
+**단발 전환** abrupt는 4/4 발화했으므로(§9), 프로파일은 일관된다:
+**"계기는 old 라벨이 '현재' 레짐과 모순일 때 발화하고, 옛 레짐이 되돌아와 old 데이터가
+재사용 가능해지면 침묵한다"** — 배포-해악 렌즈의 의미론상 옳은 거동이며, river reoccur
+셀들(§9)·insects reoccurring·insects abrupt까지 **3중 독립 확인**. §8의 지도 보류 조건
+(강한 앵커의 CONCEPT 실패)은 단조-앵커 기준으로 미발생. 논문 기술 시 Souza et al. 2020의
+변종별 온도 프로토콜 인용으로 왕복 구조를 문헌 확정할 것.
+
+### EMBER (자연 발생 drift 후보) — NO-STRONG-CONCEPT, 의미 있는 null
+by-value W=126: stale **−0.012**[−.013,−.011](old 데이터가 도움), den −0.003, gate 1.01 조용,
+recency +0.012(미미), delta 0.0014(타이트한 null). 판독: 말웨어의 문헌적 drift(TESSERACT)는
+**새 패밀리 등장 = 커버리지 확장**이지 라벨 부패가 아니다 — 2017년 말웨어는 2018년에도
+말웨어. "정전 drift 도메인에서조차 old 데이터의 배포 해악 ≈ 0, 열화는 rule-rot이 아니라
+coverage-driven" — 지도 전체 메시지와 정합. 캐비앗: sparse-window:1, D 계산불능(식별가능성
+인증서 없음), ember_k10(K=10 분위)은 NO-DATA로 정직 거부(질량이 2018에 집중, 값-랭크 윈도우
+희소화). 선택: 2018-only 필터 재실행(ember2018)으로 셀 업그레이드 가능.
+
+### 실행 계획 종결 선언
+§5의 Phase 1~4 전부 실행·판독 완료 (EMBER 2018-only 재실행과 folktables만 선택 항목으로
+잔존). 다음 단계 = 집필: RESULTS_LEDGER 모순 정리, 초안 §재작성 (identifiability map + 계기
++ 구조별 감도 프로파일 + 진단된 sberbank + EMBER null).
