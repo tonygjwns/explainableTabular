@@ -234,3 +234,18 @@ coverage-driven" — 지도 전체 메시지와 정합. 캐비앗: sparse-window
   이제 2중 실증. TabReD 8셋은 신규 양성 없음. 회귀 셋에서 MLP 수치 폭주(sberbank stale +3.2
   CI [−11.8,+18.3]; weather CI 폭 0.5) — 카나리아 분류와 정합, 판정 채택 금지.
 - 집계 불변: 의사결정-등급(HGB·RF) 지도 무변경. 논문 §4.3/§5.4에 반영.
+
+## 12. 선택 실험 판독 — ember2018 + MLP 아티팩트 완결 (2026-07-06)
+
+아티팩트: prereg_results/optional/ (JSON 5 + ember2018.log).
+- **ember2018 (2018-only, 월별 by-value, HGB, 10시드): DEPLOYMENT-DECAY-COVARIATE.**
+  D 0.834(식별가능 — 게이트 미작동, null이 직접 하중), raw −0.008[−.009,−.007], den −0.004,
+  gate 1.01 조용, recency **+0.031**(floor 초과), delta 0.0013. §10의 저전력 W=126 판독
+  (NO-STRONG-CONCEPT, D 불능)을 **대체·격상**: 말웨어의 시간 열화는 실재하고 recency로 회복
+  되지만(커버리지), old 라벨은 무해(규칙 부패 없음). TESSERACT와 정합. 7/5·7/6 두 실행이
+  바이트 동일(실데이터 결정성 재확인).
+- **MLP 패널 JSON 3개 입수** — §11의 로그 판독과 수치 일치, 체인 완결. 추가 확인: elec2
+  MLP-CONCEPT 셀의 주입이 학습가능+회복(+0.052) — flip이 프로브-상대적 신호로서 유효함 보강;
+  weather/ecom/homecredit는 MLP에서도 injection-vacuous.
+- **folktables CA: 실패(prep 미실행 — parquet 부재 FileNotFoundError). 재시도 대기.** RI
+  로컬 스모크는 통과(§ prep_folktables 커밋 메시지); CA 재실행 후 §13으로 기록 예정.
