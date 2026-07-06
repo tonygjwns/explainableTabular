@@ -511,12 +511,16 @@ own earlier false positive on real data, as opposed to merely failing to replica
 ### 5.4 The class panel on real data
 
 The decision-grade classes agree: **HGB and random-forest verdicts match operatively on 10/10
-datasets** (one sub-label difference). The canaries do not — and one canary flip is the
-class-relativity demonstration in the wild: **a linear probe reads Electricity as
-DEPLOYMENT-CONCEPT** (raw +0.023, denoised +0.033, injection recovers +0.190) where the
-tree-ensemble probe reads it unidentifiable-with-earned-blindness. Electricity is the
-literature's canonical concept-drift dataset; whether a monitor confirms that reputation
-depends on the probe class, on identical data. A second canary behavior is worth reporting as a
+datasets** (one sub-label difference). The canaries do not — and the flip that matters is
+replicated across two independent canary classes: **both the linear probe (raw +0.023, denoised
++0.033, injection recovers +0.190) and the MLP probe (raw +0.007, denoised +0.025) read
+Electricity as DEPLOYMENT-CONCEPT** where the tree-ensemble probe reads it
+unidentifiable-with-earned-blindness. Electricity is the literature's canonical concept-drift
+dataset; whether a monitor confirms that reputation depends on the probe class, on identical
+data. The MLP panel also illustrates why canary verdicts must not be consumed directly: on the
+regression datasets its staleness estimates are numerically unstable (sberbank CI spanning ±15
+z-units; weather CI width 0.5), and no TabReD cell produces a new positive under it — the
+decision-grade map is unchanged. A second canary behavior is worth reporting as a
 warning: on ecom_offers the linear probe fires the *denoised* arm only (+0.028) with the raw arm
 null (−0.002) — a denoiser-artifact channel specific to misspecified probes (the linear ĝ_old's
 systematic error is itself informative to the linear downstream model), reinforcing that the

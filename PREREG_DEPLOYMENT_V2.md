@@ -218,3 +218,19 @@ coverage-driven" — 지도 전체 메시지와 정합. 캐비앗: sparse-window
 §5의 Phase 1~4 전부 실행·판독 완료 (EMBER 2018-only 재실행과 folktables만 선택 항목으로
 잔존). 다음 단계 = 집필: RESULTS_LEDGER 모순 정리, 초안 §재작성 (identifiability map + 계기
 + 구조별 감도 프로파일 + 진단된 sberbank + EMBER null).
+
+## 11. Phase 3 확장 — MLP(신경망) 프로브 패널 (2026-07-05 실행; 리뷰 라운드 1 대응)
+
+외부 리뷰 지적(딥 프로브 부재)에 따라 `--model mlp`(sklearn 2층 64-32) 추가. 판정 순서:
+합성 배터리 먼저(관문), 실데이터 패널 다음.
+- **합성 매트릭스 (로컬)**: concept ✓(+0.305) / stable ✓ / nuisance ✓(+0.228) —
+  그러나 **prior shift에서 거짓 CONCEPT**(den +0.042 발화), covariate에서 den +0.045(CI로
+  겨우 미발화) → **MLP = 카나리아 등급** (linear/kNN과 동류; 의사결정 등급 아님).
+  아티팩트: audit_artifacts_2026-07-04/exp-modelclass/mlp_matrix.json.
+- **실데이터 패널 (서버, p3mlp.log → prereg_results/phase3_mlp/)**:
+  insects CONCEPT(+0.120, den +0.165 — 5/5 클래스 검출 견고);
+  **elec2 = DEPLOYMENT-CONCEPT (raw +0.007, den +0.025 발화, d-gate-invalid)** — linear에 이은
+  두 번째 독립 비-트리 프로브의 flip; 정전 drift 데이터셋의 판정이 프로브 클래스에 의존함이
+  이제 2중 실증. TabReD 8셋은 신규 양성 없음. 회귀 셋에서 MLP 수치 폭주(sberbank stale +3.2
+  CI [−11.8,+18.3]; weather CI 폭 0.5) — 카나리아 분류와 정합, 판정 채택 금지.
+- 집계 불변: 의사결정-등급(HGB·RF) 지도 무변경. 논문 §4.3/§5.4에 반영.
