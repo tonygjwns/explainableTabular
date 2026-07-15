@@ -3,7 +3,27 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
-## ★★★ 현행 = deployment-decay v3 실행 완결 → **집필 단계** (2026-07-05, 새 탭 여기부터)
+## ★★★ 현행 = 실험 큐 완전 종결 → **남은 것 = ② LaTeX 전환 + ④ 국문 전파** (2026-07-15, 새 탭 여기부터)
+
+**한 줄**: 사전등록 §0~§13 전부 실행·판독·커밋 (선택 실험 포함: ember2018=인증서급
+DECAY-COVARIATE, folktables CA=최고검정력 null·WhyShift 브리지, MLP 프로브=카나리아 판정).
+**논문 PAPER_DRAFT_V4.md = v4.1 전문 완성** (외부 리뷰 라운드 1 반영: MLP 실험·floor 민감도·
+CI 방어·스케일 한계·denoised 문헌연결·초록 축약·용어표·Figure 1 mermaid). 서지 검증 완료
+(Souza·Gower-Winter[IDA 2026 정식출판 격상]·TableShift·Lu). figures/fig1_cascade.tex =
+스탠드얼론 TikZ (**컴파일 미검증** — Overleaf/서버에서 확인 필요).
+
+**다음 작업 (이 순서로)**:
+1. **② TMLR LaTeX 전환**: PAPER_DRAFT_V4.md → tmlr 템플릿 .tex. 표 3개(§4.1 배터리 14행,
+   §4.3 클래스 매트릭스 5×5, §5.2 지도 10행)와 fig1 include. 수치는 md가 정본.
+2. fig1_cascade.tex 컴파일 확인·미세조정 (LaTeX 없는 로컬 — Overleaf 권장).
+3. **④ 국문 전파**: PAPER_DRAFT_V4_KO.md를 영문 v4.1 확정판 기준으로 전체 갱신 (현재 KO는
+   초록+변경노트만 동기화됨; 헤더에 "영문=정본" 명시돼 있음).
+4. (선택) 리뷰 라운드 2: 완성된 LaTeX를 외부 검토자에게.
+**읽는 순서**: 이 블록 → PAPER_DRAFT_V4.md (정본) → PREREG_DEPLOYMENT_V2.md §0~13 (전 결과
+장부) → RESULTS.md §29. 감사 배경 = AUDIT_FINAL / ELEVATION_VERDICT (2026-07-04). 서버 규칙:
+tmux에서 실행, nohup 금지 (메모리에 있음). 실험 재개 필요 시 드라이버 = run_prereg_phases.sh.
+
+### (이력) 이전 현행 = v3 실행 완결 → 집필 단계 (2026-07-05)
 
 **한 줄**: 사전등록(PREREG_DEPLOYMENT_V2.md §0~10) 하에 v3 계기(denoised staleness+noise gate+
 group-aware D+학습가능성 주입; 합성 배터리 14/14)로 Phase 1~4 전부 실행·판독·커밋 완료.
