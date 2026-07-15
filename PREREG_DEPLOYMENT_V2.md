@@ -249,3 +249,20 @@ coverage-driven" — 지도 전체 메시지와 정합. 캐비앗: sparse-window
   weather/ecom/homecredit는 MLP에서도 injection-vacuous.
 - **folktables CA: 실패(prep 미실행 — parquet 부재 FileNotFoundError). 재시도 대기.** RI
   로컬 스모크는 통과(§ prep_folktables 커밋 메시지); CA 재실행 후 §13으로 기록 예정.
+
+## 13. folktables CA 브리지 판독 (2026-07-15 실행, 커밋 5b85cb0) — 실험 큐 종결
+
+아티팩트: prereg_results/optional/summary_20260715T135651_5b85cb0.json (HGB, 10시드, YEAR
+by-value 5윈도우, min_window 12k행).
+- **acs_income_CA = NO-STRONG-CONCEPT, trust ok.** raw −0.0076[−.0083,−.0069], den
+  −0.0074[−.0080,−.0068] (old 데이터가 도움), gate 0.99 조용, **D 0.515/shuffle 0.484**
+  (연도 간 공변량 이동조차 미미 — 완전 식별가능), recency +0.0009≈0, decay +0.003≈0,
+  **delta 0.00078 (지도 최소 검출 하한)**.
+- **WhyShift 브리지**: 공간 축에서 Y|X-shift 만연이 보고된 ACSIncome이 시간 축(CA
+  2014–2018)에서는 트리-앙상블 기준 정지 상태 — 같은 과제에서 축에 따라 shift 성격이
+  갈림을 실증. **semi-known 앵커 통과**: 고정 $50k 임계값의 인플레이션 pos_rate 램프
+  (prior-shift)를 CONCEPT로 오독하지 않음 (covariate_mc 컨트롤의 실데이터 대응).
+- 범위: 1개 주, 5개 연간 윈도우, 2014–2018(RELP 개명·COVID 갭 회피). 다주(multi-state)
+  확장은 논문 future work.
+- **선택 실험 포함 실행 큐 전체 종결. 이후 작업 = 집필만** (벡터 Figure 1, LaTeX, 서지
+  검증, 국문 전파).

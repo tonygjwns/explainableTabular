@@ -557,13 +557,27 @@ CIs on overlapping subsamples are anti-conservative at tiny magnitudes. Accordin
 sub-floor band is read as *no evidence* everywhere in this paper, a calibration the anchor suite
 forced and the pre-registration records.
 
-**Malware (EMBER, monthly windows).** Staleness −0.012 (old data helps), denoised −0.003, gate
-quiet, detectable floor 0.0014. Malware's temporal degradation (Pendlebury et al., 2019) is
-real but coverage-driven — new families appear; old labels do not rot — and the deployment lens
-draws exactly that distinction: keep the old data, expect decay anyway, retrain for coverage.
-(Caveats recorded: the timestamp's mass concentrates in 2018, leaving thin early windows and no
-computable separability certificate; a K = 10 re-windowing attempt correctly refused to emit a
-verdict rather than measure on 19-row windows.)
+**Malware (EMBER).** On 2018-dense monthly windows the cell is certificate-grade:
+DEPLOYMENT-DECAY-COVARIATE with D = 0.834 (identifiable — the null carries full weight), raw
+staleness −0.008 [−.009, −.007] (old data helps), denoised −0.004, gate quiet, recency gain
++0.031 above the floor, detectable floor 0.0013. Malware's temporal degradation (Pendlebury et
+al., 2019) is real and recency-recoverable, but it is coverage-driven — new families appear;
+old labels do not rot — and the deployment lens draws exactly that distinction: keep the old
+data, expect decay anyway, retrain for coverage. (A full-history windowing over 126 sparse
+months gives the same null at lower power, and a mis-windowed attempt on 19-row windows
+correctly refused to emit a verdict.)
+
+**The WhyShift bridge (ACS across years).** WhyShift reported Y|X-shifts as prevalent on
+ACSIncome across *states*; running the instrument on the same task across *years* (California,
+2014–2018, yearly windows, 10 seeds) yields the map's best-powered null: NO-STRONG-CONCEPT with
+raw −0.008 and denoised −0.007 (both CIs negative — old years help), gate quiet, D = 0.515
+(the years are barely separable in feature space — negligible covariate movement, fully
+identifiable), recency ≈ 0, and a detectable floor of 0.0008. The same task whose spatial axis
+exhibits prevalent Y|X-shift is temporally quiet over five years — the axis, not just the
+dataset, determines the shift type. The cell also passes a real-data analogue of the
+prior-shift control: the fixed $50k income threshold under inflation produces a monotone
+positive-rate ramp (0.36→0.42), and the instrument does not misread that prior drift as
+concept. (Scope: one state, five pre-COVID years; a multi-state extension is future work.)
 
 ## 7. Discussion
 
@@ -613,10 +627,10 @@ claims, pre-registered cascades with commit-timestamped predictions, confirmator
 replication, certificates instead of assumptions, and canary probes — is cheap relative to the
 cost of the dissolutions it prevents, and we release the audit trail as part of the artifact.
 
-**Future work.** A folktables year-over-year bridge to WhyShift's map; an EMBER cell on
-2018-dense windows; class-invariance conditions for the denoised arm (when does a probe family
-admit *any* sound staleness reading?); and porting the certificate protocol to streaming
-monitors, where the recurring-regime fingerprint (negative recency) is directly actionable.
+**Future work.** Multi-state and post-2019 extensions of the ACS bridge (§6); class-invariance
+conditions for the denoised arm (when does a probe family admit *any* sound staleness
+reading?); a δ(N) scaling study; and porting the certificate protocol to streaming monitors,
+where the recurring-regime fingerprint (negative recency) is directly actionable.
 
 ## 8. Reproducibility
 
