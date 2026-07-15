@@ -667,7 +667,8 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
 - Ginsberg, Liang, Krishnan (2023). A learning-based hypothesis test for harmful covariate
   shift (Detectron). ICLR.
 - Gower-Winter, Groen, Krempl (2026). The window dilemma: why concept drift detection is
-  ill-posed. arXiv:2602.06456. [fetched and verified during the audit; re-verify at submission]
+  ill-posed. Advances in Intelligent Data Analysis XXIV (IDA 2026); arXiv:2602.06456. [verified
+  2026-07-15: published Springer chapter, doi 10.1007/978-3-032-23833-7_27]
 - Han, Yao, Yu, Niu, Xu, Hu, Tsang, Sugiyama (2018). Co-teaching: robust training of deep
   neural networks with extremely noisy labels. NeurIPS.
 - Hinton, Vinyals, Dean (2015). Distilling the knowledge in a neural network. arXiv:1503.02531.
@@ -696,8 +697,9 @@ seed sets and across HGB/RF is (10/10 and 10/10, §5).
 - Shen, Raji, Chen (2024). The data addition dilemma. MLHC.
 - Shimodaira (2000). Improving predictive inference under covariate shift by weighting the
   log-likelihood function. J. Statistical Planning and Inference.
-- Souza, Reis, Maletzke, Batista (2020). Challenges in benchmarking stream learning algorithms
-  with real-world data (INSECTS). Data Mining and Knowledge Discovery. [verify exact citation]
+- Souza, dos Reis, Maletzke, Batista (2020). Challenges in benchmarking stream learning
+  algorithms with real-world data (INSECTS). Data Mining and Knowledge Discovery 34; arXiv:
+  2005.00113. [verified 2026-07-15: doi 10.1007/s10618-020-00698-5]
 - Vela et al. (2022). Temporal quality degradation in AI models. Scientific Reports.
 - Webb, Hyde, Cao, Nguyen, Petitjean (2016). Characterizing concept drift. DMKD.
 - Yao, Choi, Cao, Lee, Koh, Finn (2022). Wild-Time: a benchmark of in-the-wild distribution
