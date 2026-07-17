@@ -1,11 +1,8 @@
-% Figure 1 — the decision cascade of the deployment-decay instrument (PAPER_DRAFT_V4 §3).
-% Standalone: compile with `pdflatex fig1_cascade.tex` (TikZ only, no extra packages).
-% NOTE: written on a machine without LaTeX — compile-test before submission.
-% Layout mirrors the mermaid draft in PAPER_DRAFT_V4.md §3; colors: concept/verified-null
-% green, noise-confounded amber, vacuous red, abstain grey.
-\documentclass[tikz,border=6pt]{standalone}
-\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit}
-\begin{document}
+% Figure 1 body — the decision cascade of the deployment-decay instrument (PAPER_DRAFT_V4 §3).
+% Single source of the tikzpicture. Consumers:
+%   - paper/main.tex          (\input inside a figure environment; loads tikz libs in preamble)
+%   - fig1_cascade.tex        (standalone wrapper for a stand-alone vector PDF)
+% Requires \usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit} in the host preamble.
 \begin{tikzpicture}[
   font=\small\sffamily,
   node distance=5mm and 7mm,
@@ -73,4 +70,3 @@
    provenance stamp (commit / argv / versions / seeds) on every run};
 
 \end{tikzpicture}
-\end{document}

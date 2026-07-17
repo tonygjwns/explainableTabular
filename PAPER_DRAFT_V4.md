@@ -7,7 +7,10 @@
 > PAPER_DRAFT_V3 (within-overlap lens era). Every number in this draft is traceable to a
 > committed artifact: `prereg_results/` (run-meta-stamped JSONs), `audit_artifacts_2026-07-04/`
 > (executed kill-tests), `PREREG_DEPLOYMENT_V2.md` §0–10 (rule→prediction→execution→read,
-> evidenced by commit timeline). STATUS: full draft (Abstract + §1–8); figures/formatting and citation verification [PENDING].
+> evidenced by commit timeline). STATUS: full draft (Abstract + §1–8); citations verified
+> 2026-07-15; **LaTeX = `paper/main.tex` (TMLR template, 4 tables + Figure 1, compiled &
+> visually verified via tectonic 2026-07-16)**; KO fully synced. This md remains the prose/number
+> source of truth — edit here first, then propagate to the .tex.
 
 ---
 
@@ -210,7 +213,8 @@ which is exactly the distinction a deployment lens should draw.
 
 ## 3. The Instrument
 
-**Figure 1.** The decision cascade (mermaid draft; final version as a vector figure). The
+**Figure 1.** The decision cascade (mermaid draft below; vector figure =
+`paper/figures/fig1_cascade.tex`, compiled & verified). The
 cascade is specified verbatim in §3.3 and PREREG §3.
 
 ```mermaid

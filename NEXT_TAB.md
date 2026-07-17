@@ -3,25 +3,42 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
-## ★★★ 현행 = 실험 큐 완전 종결 → **남은 것 = ② LaTeX 전환 + ④ 국문 전파** (2026-07-15, 새 탭 여기부터)
+## ★★★ 현행 = 집필 파이프라인 종결 (LaTeX ✅ + KO ✅) → **남은 것 = 제출 역학** (2026-07-16, 새 탭 여기부터)
+
+**한 줄**: 사전등록 §0~§13 전부 실행·판독·커밋 (실험 큐 종결, 2026-07-15와 동일). **② TMLR
+LaTeX 전환 완료**: `paper/main.tex` + `paper/main.bib`(30항목, DOI 2건 doi.org 대조) +
+공식 `tmlr.sty/tmlr.bst/fancyhdr.sty`(JmlrOrg 원본) + 표 4개(§3 용어 11행 / §4.1 배터리
+14행 / §4.3 클래스 매트릭스 5클래스 / §5.2 지도 10행) + Figure 1 TikZ include. **로컬
+tectonic(XeTeX)으로 컴파일·육안검증 완료**(14쪽 PDF, 인용 전부 해석, 표·그림 렌더 정상;
+잔여 경고 = 긴 `\texttt` 경로 토큰의 underfull 2건, 무해). fig1은
+`paper/figures/fig1_cascade_body.tex`(단일 소스) + `fig1_cascade.tex`(standalone 래퍼)로
+분리, `fig1_cascade.pdf` 생성·확인 — **이전 탭의 "컴파일 미검증" 해소**. **④ 국문 전파
+완료**: PAPER_DRAFT_V4_KO.md = v4.1 전문 동기화(누락이던 §2 pseudo-label 문단, §3 용어표,
+§3.1 CI 방어, §4.1 표+floor 민감도, §4.3 MLP 행·문단, §5.4 MLP 패널, §6 EMBER 인증서급
+격상+ACS 브리지, §7 (1b)스케일·향후과제, 표 4개 국문화 반영).
+
+**다음 작업 (이 순서로)**:
+1. (권장) Overleaf에 `paper/` 업로드 → **pdfLaTeX**로 최종 컴파일 확인 (로컬 검증은
+   XeTeX(tectonic); 엔진 차이로 인한 문제는 예상 없음이나 제출 전 1회 확인 가치).
+   main.bib의 DISDE(cai2023disde) 항목 = arXiv로 인용 중 — 카메라레디 전 OR 게재 여부 확인.
+2. (선택) 리뷰 라운드 2: 완성된 LaTeX(`paper/main.pdf` 커밋됨)를 외부 검토자에게.
+3. 제출 역학: TMLR OpenReview 계정/포털 확인, 익명 모드 확인(현재 `\usepackage{tmlr}` =
+   submission = 자동 익명). preprint 전환 시 main.tex의 author 블록 TODO 채울 것.
+4. 수치·문구 수정 시 **md(정본) 먼저 고치고 .tex에 전파** (헤더에 명시됨).
+**읽는 순서**: 이 블록 → PAPER_DRAFT_V4.md (정본) → paper/main.tex (제출본) →
+PREREG_DEPLOYMENT_V2.md §0~13 (전 결과 장부) → RESULTS.md §29. 감사 배경 = AUDIT_FINAL /
+ELEVATION_VERDICT (2026-07-04). 서버 규칙: tmux에서 실행, nohup 금지 (메모리에 있음). 실험
+재개 필요 시 드라이버 = run_prereg_phases.sh. 로컬 LaTeX 필요 시: tectonic 포터블
+(github.com/tectonic-typesetting 릴리스 zip, 스크래치패드에 풀어 `tectonic main.tex`).
+
+### (이력) 이전 현행 = 실험 큐 완전 종결 → LaTeX 전환 + 국문 전파 (2026-07-15)
 
 **한 줄**: 사전등록 §0~§13 전부 실행·판독·커밋 (선택 실험 포함: ember2018=인증서급
 DECAY-COVARIATE, folktables CA=최고검정력 null·WhyShift 브리지, MLP 프로브=카나리아 판정).
 **논문 PAPER_DRAFT_V4.md = v4.1 전문 완성** (외부 리뷰 라운드 1 반영: MLP 실험·floor 민감도·
 CI 방어·스케일 한계·denoised 문헌연결·초록 축약·용어표·Figure 1 mermaid). 서지 검증 완료
 (Souza·Gower-Winter[IDA 2026 정식출판 격상]·TableShift·Lu). figures/fig1_cascade.tex =
-스탠드얼론 TikZ (**컴파일 미검증** — Overleaf/서버에서 확인 필요).
-
-**다음 작업 (이 순서로)**:
-1. **② TMLR LaTeX 전환**: PAPER_DRAFT_V4.md → tmlr 템플릿 .tex. 표 3개(§4.1 배터리 14행,
-   §4.3 클래스 매트릭스 5×5, §5.2 지도 10행)와 fig1 include. 수치는 md가 정본.
-2. fig1_cascade.tex 컴파일 확인·미세조정 (LaTeX 없는 로컬 — Overleaf 권장).
-3. **④ 국문 전파**: PAPER_DRAFT_V4_KO.md를 영문 v4.1 확정판 기준으로 전체 갱신 (현재 KO는
-   초록+변경노트만 동기화됨; 헤더에 "영문=정본" 명시돼 있음).
-4. (선택) 리뷰 라운드 2: 완성된 LaTeX를 외부 검토자에게.
-**읽는 순서**: 이 블록 → PAPER_DRAFT_V4.md (정본) → PREREG_DEPLOYMENT_V2.md §0~13 (전 결과
-장부) → RESULTS.md §29. 감사 배경 = AUDIT_FINAL / ELEVATION_VERDICT (2026-07-04). 서버 규칙:
-tmux에서 실행, nohup 금지 (메모리에 있음). 실험 재개 필요 시 드라이버 = run_prereg_phases.sh.
+스탠드얼론 TikZ (컴파일 미검증 → **2026-07-16 tectonic으로 검증 완료, paper/figures/로 이동**).
 
 ### (이력) 이전 현행 = v3 실행 완결 → 집필 단계 (2026-07-05)
 

@@ -1,0 +1,9 @@
+% Figure 1 — standalone wrapper (compile from this directory: `pdflatex fig1_cascade.tex`
+% or `tectonic fig1_cascade.tex`) producing a stand-alone vector PDF of the decision cascade.
+% The tikzpicture itself lives in fig1_cascade_body.tex (single source, shared with ../main.tex).
+% Colors: concept/verified-null green, noise-confounded amber, vacuous red, abstain grey.
+\documentclass[tikz,border=6pt]{standalone}
+\usetikzlibrary{shapes.geometric,arrows.meta,positioning,fit}
+\begin{document}
+\input{fig1_cascade_body}
+\end{document}
