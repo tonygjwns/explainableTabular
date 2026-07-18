@@ -3,7 +3,23 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
-## ★★★ 현행 = 리뷰 라운드 2 반영 완료 (**v4.2**) → 남은 것 = 제출 역학 + 리버탈 큐 (2026-07-18, 새 탭 여기부터)
+## ★★★ 현행 = 리버탈 런 환류·판독·**부록 B** 반영 완료 → 남은 것 = 제출 역학 (+선택 FT 프로브) (2026-07-18 저녁, 새 탭 여기부터)
+
+**한 줄**: 서버 리버탈 런 2건([A] δ(N) 스윕, [B] 두-렌즈 head-to-head)이 수동 환류(서버 push
+인증 불가 → 루트에 raw 5개 커밋: summary_20260718T{040332,052219,055856}_f6e65b6.json,
+representation_summary2.json, whyshift_summary2.json)되어 판독·반영 완료. **δ(N): 판정 전 셀·
+전 N(실현 1.5k~24k, 윈도우 기하가 상한) 불변, floor로의 dose-response 없음** (homecredit
+denoised ≈+0.005 = floor의 ¼서 평탄·상단 축소; weather −0.022→−0.002 수렴; raw는 전부 유의
+음수). **head-to-head: overlap 성립 셀 2개(maps D 0.58 / ACS D 0.515)에서 두 렌즈 일치**
+(maps gap −0.003 [−.004,−.002] 전 표현 ~0 / ACS gap −0.009 ≈ placebo −0.008). → 논문 **부록
+B**(B.1 δ(N) 표 + B.2 렌즈 일치 표) 신설 + §6 ACS 포인터 + §7 한계(1b) 갱신, EN md→KO→tex
+전파, 재컴파일 검증(16쪽, 오버풀 0). 장부 = RESULTS §30, 큐 상태 = REVIEW_ROUND2 (1·2 ✅,
+3=FT 프로브만 잔여·선택). 예상 리뷰 공격 ①(스케일)·②(기존 렌즈 비교) 방어재 확보.
+
+**다음**: 제출 역학만 남음 — 익명 미러(anonymous.4open.science; tex §8 TODO) + Overleaf
+pdfLaTeX 1회 확인 + OpenReview 제출. (선택) FT-Transformer급 프로브는 리뷰 기간 백그라운드.
+
+### (이력) 리뷰 라운드 2 반영 완료 (**v4.2**) (2026-07-18 낮)
 
 **한 줄**: 외부 점검 보고서(11-섹션 체크리스트, KO본 대상) 접수 → 12개 지적 전부 판정·처리
 (**기록 = REVIEW_ROUND2_2026-07-18.md**). 수용 9건 반영 = v4.2 (EN md 정본 → KO → tex 전파,

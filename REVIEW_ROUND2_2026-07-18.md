@@ -34,11 +34,15 @@
 기타 ⚠: 기여 4개 압축 — 각 항목 첫 문장이 이미 자립적이라 보류(과도한 재작성 리스크).
 §5.3 "최초 사례" 헤지 — v4.1에서 이미 "We are not aware of a prior case"로 완화되어 있음(KO도 동기화).
 
-## 리버탈 대비 실험 큐 (서버; 우선순위순)
+## 리버탈 대비 실험 큐 (서버; 우선순위순) — 1·2 실행·반영 완료 (2026-07-18, git f6e65b6 런)
 
-1. **WhyShift/DISDE 병행** (½일): maps_routing + ACS-CA에 within-overlap concept 분해 병행 실행
-   → "overlap 성립 셀에선 두 렌즈가 일치" 부록 표. 기존 코드 재사용, GPU 불요.
-2. **δ(N) 부분 스케일링** (1일): `run_deployment_decay.py`에 N-cap 스윕(2k/6k/20k/60k) 추가 →
-   행수 큰 셀(homecredit·weather·maps)에서 δ(N) 곡선. 예상 공격 ①("프로브 스케일 결론")의 방어재.
-3. **FT-Transformer급 프로브 배터리 1차** (2~3일, GPU): 5-컨트롤 분리 배터리 통과 여부만.
-   통과→패널 승격 / 탈락→"두 번째 신경 카나리아"로 §4.3 강화. 어느 쪽이든 논문이 이김.
+1. ✅ **WhyShift/DISDE 병행** — 실행 완료, **일치**: maps_routing gap −0.003 [−.004,−.002]
+   (5/5 시드 measurable, ESS 93%, sparse MI@{5,10,20,50}도 전부 ~0) / ACS CA gap −0.009 ≈
+   placebo −0.008 (cov-AUC 0.68). → **부록 B.2** + §6 포인터. raw = representation_summary2.json
+   / whyshift_summary2.json. RESULTS §30.
+2. ✅ **δ(N) 스윕** — 실행 완료(캡 1500/24000/96000, 실현 N ≈1.5k~24k — 윈도우 기하가 상한):
+   판정 전 셀·전 N 불변, floor로의 dose-response 없음 (homecredit denoised ≈+0.005 평탄·축소,
+   weather −0.022→−0.002 수렴, maps 안정 음수; raw는 전부 유의 음수 = old가 도움). → **부록
+   B.1** + §7 한계(1b) 갱신. raw = summary_20260718T*.json ×3. RESULTS §30.
+3. ⬜ **FT-Transformer급 프로브 배터리 1차** (2~3일, GPU): 5-컨트롤 분리 배터리 통과 여부만.
+   통과→패널 승격 / 탈락→"두 번째 신경 카나리아"로 §4.3 강화. 어느 쪽이든 논문이 이김. (선택)

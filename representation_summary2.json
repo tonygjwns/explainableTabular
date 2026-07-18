@@ -1,0 +1,118 @@
+{
+  "results": [
+    {
+      "dataset": "E4_demo",
+      "reps": [
+        {
+          "rep": "measurable_base",
+          "n_feat": 6,
+          "cov_auc": 0.5120319444444444,
+          "overlap_mass": 0.995625,
+          "ess_pct": 56.52482044628495,
+          "measurable": true,
+          "n_meas_seeds": 1,
+          "concept_gap": 0.9831536129164062,
+          "concept_gap_ci": [
+            0.9831536129164062,
+            0.9831536129164062
+          ],
+          "verdict": "concept"
+        },
+        {
+          "rep": "+timeproxy",
+          "n_feat": 7,
+          "cov_auc": 0.9949833333333334,
+          "overlap_mass": 0.027,
+          "ess_pct": 7.167473861774186,
+          "measurable": false,
+          "n_meas_seeds": 0,
+          "concept_gap": null,
+          "concept_gap_ci": null,
+          "verdict": "abstain"
+        }
+      ]
+    },
+    {
+      "dataset": "maps_routing",
+      "task": "regression",
+      "reps": [
+        {
+          "rep": "full",
+          "n_feat": 986,
+          "cov_auc": 0.5661225138888889,
+          "overlap_mass": 1.0,
+          "ess_pct": 93.01139989565306,
+          "measurable": true,
+          "n_meas_seeds": 5,
+          "concept_gap": -0.0031421472001324667,
+          "concept_gap_ci": [
+            -0.004113438242093115,
+            -0.002170856158171818
+          ],
+          "verdict": "~0"
+        },
+        {
+          "rep": "sparse_MI@5",
+          "n_feat": 5,
+          "cov_auc": 0.5019659166666667,
+          "overlap_mass": 1.0,
+          "ess_pct": 99.29826225023233,
+          "measurable": true,
+          "n_meas_seeds": 5,
+          "concept_gap": -0.004998865813797032,
+          "concept_gap_ci": [
+            -0.005645896883963941,
+            -0.004351834743630123
+          ],
+          "verdict": "~0"
+        },
+        {
+          "rep": "sparse_MI@10",
+          "n_feat": 10,
+          "cov_auc": 0.5121257361111111,
+          "overlap_mass": 1.0,
+          "ess_pct": 98.95639514062671,
+          "measurable": true,
+          "n_meas_seeds": 5,
+          "concept_gap": -0.005538700589923784,
+          "concept_gap_ci": [
+            -0.00627231476214482,
+            -0.004805086417702748
+          ],
+          "verdict": "~0"
+        },
+        {
+          "rep": "sparse_MI@20",
+          "n_feat": 20,
+          "cov_auc": 0.5120620694444444,
+          "overlap_mass": 1.0,
+          "ess_pct": 98.86898053238637,
+          "measurable": true,
+          "n_meas_seeds": 5,
+          "concept_gap": -0.005278162310842815,
+          "concept_gap_ci": [
+            -0.00612645669285797,
+            -0.00442986792882766
+          ],
+          "verdict": "~0"
+        },
+        {
+          "rep": "sparse_MI@50",
+          "n_feat": 50,
+          "cov_auc": 0.524798875,
+          "overlap_mass": 1.0,
+          "ess_pct": 98.22261958414056,
+          "measurable": true,
+          "n_meas_seeds": 5,
+          "concept_gap": -0.004812939759983048,
+          "concept_gap_ci": [
+            -0.005478429605020407,
+            -0.00414744991494569
+          ],
+          "verdict": "~0"
+        }
+      ],
+      "verdict": "all-~0"
+    }
+  ]
+}

@@ -421,3 +421,27 @@ TESSERACT drift와 모순 아님. nodrift 오탐 체크에서 SUBFLOOR 2/5 → *
 
 **논문 골격(집필 개시)**: identifiability map + 수리된 계기(denoised staleness의 유효 envelope 포함)
 + 구조별 감도 프로파일 + 진단된 sberbank + EMBER null. 타깃 TMLR(즉시)/D&B(차기). 상세 = PREREG §7~10.
+
+## 30. 리버탈 런: δ(N) 스윕 + 두-렌즈 head-to-head (2026-07-18, git f6e65b6) — 부록 B로 논문 반영
+
+**성격**: 사전등록 배터리 *이후*의 post-hoc 강건성 점검 (계기·캐스케이드·임계값 불변, 리뷰 라운드
+2 P2 큐). raw = `summary_20260718T{040332,052219,055856}_f6e65b6.json` + `representation_summary2.json`
++ `whyshift_summary2.json` (루트, 서버 push 인증 불가로 수동 환류).
+
+**δ(N) (null 셀 3개, cap ∈ {1500, 24000, 96000}, 10시드)**: 판정 전 셀·전 N 불변, floor(0.02)로
+접근하는 dose-response 없음. 실현 N은 윈도우 기하가 캡: homecredit ≈17.2k(96k cap도 동일),
+weather 24k(cap-bound), maps ≈14.3k.
+- homecredit: raw 전 N에서 유의 음수(−0.015→−0.010, old가 도움); denoised는 floor의 ¼(≈+0.005)에서
+  평탄, 상단서 축소(+0.0065→+0.0057→+0.0048). 판정 UNIDENT(vacuous, inj 학습불능 재확인) 불변.
+- weather: denoised −0.022(1.5k)→−0.011(6k)→−0.002(24k) — 아래에서 0으로 수렴. 불변.
+- maps: denoised −0.017→−0.010→−0.008 안정 음수. NO-STRONG-CONCEPT 불변.
+
+**두-렌즈 head-to-head (overlap 성립 셀 2개)**: 일치.
+- maps_routing: within-overlap(P0 ess-게이트) 5/5 시드 measurable, gap −0.003 [−.004,−.002] (full
+  986피처, ESS 93%) — sparse MI@{5,10,20,50}에서도 −0.005 내외 전부 ~0. 배포 렌즈 NO-STRONG-CONCEPT와 일치.
+- ACS CA 2014→2018: cov_AUC 0.680, measurable, gap −0.0093 ≈ placebo −0.0083 → placebo 위 Y|X 이동
+  없음. 배포 렌즈(§6 브리지 null)와 일치. **"overlap이 성립하는 곳에선 두 계기가 일치; 본문이 기록한
+  불일치는 정확히 overlap이 무너지는 곳에서 발생"** = WhyShift 델타의 실증 보강.
+
+**반영**: PAPER_DRAFT_V4(.md/_KO/§tex) 부록 B 신설 + §6 ACS 문단 포인터 + §7 한계(1b) δ(N) 1차
+실행 반영. 잔여 리버탈 카드 = FT-Transformer급 프로브(선택, GPU).
