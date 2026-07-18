@@ -1,7 +1,14 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.4 (2026-07-18, review round 4 on the typeset PDF — verdict "effectively
-> submittable": orphan references restored as inline citations (Johansson→§2 positivity,
+> DRAFT v4.5 (2026-07-18, reviewer-2 adversarial review answered — the framing-level pass:
+> abstract 0/8 bold now carries the tree-ensemble scope; "What we do not claim" adds the
+> deep-architecture non-adjudication sentence; §6 adds the recurring-fingerprint-silent-on-
+> every-industrial-cell sentence (artifact: all 8 cells recency ≥ 0, +0.000…+0.325, vs −0.023…
+> −0.058 on oscillating streams); §3.2+§7(6) make injection certificates explicitly
+> reference-family-relative; §5.3 sub-floor hedge; §6 EMBER "certificate-grade = identifiability,
+> not magnitude" clarification. Server experiments queued: --tabred-span full (deployment-gap
+> audit) + --inj-family sweep (both implemented & smoke-tested this round).
+> Round 4 (typeset PDF — "effectively submittable"): orphan references restored as inline citations (Johansson→§2 positivity,
 > Moreno-Torres→§3.1 estimand, Vela→§3.1 decay; \nocite removed), Fig. 2 aggregate band split
 > to two lines so tiles render at natural size. Round 3: §2 EMBER numbers unified to the certificate-grade
 > cell (−0.008/0.0013; the −0.012/0.0014 pair was the superseded full-history read); abstract
@@ -40,7 +47,8 @@ learnability-gated injection certificates — and validate it on a 14-cell pre-r
 that includes rule change and noise drift co-occurring. A pre-registered audit of eight
 industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable) then yields
 an identifiability *map*, not a detection table: **no industrial dataset shows exploitable
-mean-rule drift above its detectable floor (0/8)**; the sole robust positive is designed drift;
+mean-rule drift above its detectable floor for the deployed tree-ensemble class (0/8)**; the
+sole robust positive is designed drift;
 the one prior industrial positive is *diagnosed* by the instrument itself as label-noise decay;
 every remaining cell is either an identifiable null or carries a certificate verdict — verified,
 blind, refused, or (one cell) unstable. Anchor streams fix the
@@ -159,7 +167,9 @@ classical (D'Amour et al., 2021; Ben-David et al., 2010), and the class-relativi
 established (Hinder et al., 2023); our contribution is the executed instrument, its failure
 anatomy, and the certified map. And we do not claim model-agnosticism: every verdict is relative
 to the deployed hypothesis class, which we argue is the only honest way to state drift-type
-attribution at all.
+attribution at all. Finally, the map does not adjudicate what a *deep* time-aware architecture
+could exploit: it fixes what the dominant deployed class has to exploit, and the battery (§4.3)
+is the entry bar any richer probe must pass before its verdicts join the map.
 
 ## 2. Related Work
 
@@ -370,7 +380,10 @@ protocol grants "earned blindness" vacuously; the gate converts that to *injecti
 certificate refused. Outcomes: recovery (⇒ the real null was informative: verified no-concept),
 earned blindness (learnable but unrecoverable ⇒ the geometry genuinely hides this signal
 class), or vacuity (no certificate). On the real audit, this distinction is load-bearing: 3 of 4
-"unidentifiable" industrial cells fail the learnability gate.
+"unidentifiable" industrial cells fail the learnability gate. The certificate is explicitly
+relative to this reference family: recovery certifies power against rotations carried by the
+dataset's high-variance directions, not against rule changes living in low-variance features,
+interactions, or subpopulations (§7, Limitation 6).
 
 ### 3.3 Decision cascade and scope
 
@@ -544,7 +557,9 @@ recent median at every K; and the **denoised arm is significantly negative at ev
 to −0.018, all CIs below zero): replace the old labels with cross-fitted pseudo-labels and the
 old rows *help*. The rule did not change; the early labels are noisier — consistent with
 2011–2012 crisis-era Russian housing prices. At K = 20 the injection control recovers a planted
-rule (+0.101) through the same geometry, and at no K does any rule reading yield CONCEPT. We are
+rule (+0.101) through the same geometry, and at no K does any rule reading yield CONCEPT. (The
+diagnosis is of the minted positive; it does not exclude a residual rule change below the floor
+co-occurring with the noise decay — no sub-floor claim is made in either direction.) We are
 not aware of a prior case of a drift-attribution instrument diagnosing the *mechanism* of its
 own earlier false positive on real data, as opposed to merely failing to replicate it.
 
@@ -597,7 +612,11 @@ cells and INSECTS incremental-reoccurring — three independent confirmations. T
 statement, not a defect: the lens answers the deployment question ("does old data harm a model
 trained today?"), and when old regimes recur, old data genuinely does not harm — recency does.
 A monitor built on this lens will not *detect* recurring concept drift; it will correctly tell
-you old data is safe to keep, and its negative-recency flag tells you why.
+you old data is safe to keep, and its negative-recency flag tells you why. On the audited panel
+that flag is silent: every industrial cell reads recency gain ≥ 0 (from +0.000 on maps_routing
+to +0.325 on sberbank-housing), nowhere near the recurring signature (−0.023 to −0.058 on the
+oscillating streams) — the lens cannot detect recurring rule change, but the fingerprint gives
+no evidence that the audited industrial data lives in that blind spot.
 
 **Calibration of the no-evidence band.** Two of five no-drift anchor streams produce
 "CI-significant" sub-floor denoised positives at 1/10–1/20 of the decision floor — seed-level
@@ -608,7 +627,10 @@ forced and the pre-registration records.
 **Malware (EMBER).** On 2018-dense monthly windows the cell is certificate-grade:
 DEPLOYMENT-DECAY-COVARIATE with D = 0.834 (identifiable — the null carries full weight), raw
 staleness −0.008 [−.009, −.007] (old data helps), denoised −0.004, gate quiet, recency gain
-+0.031 above the floor, detectable floor 0.0013. Malware's temporal degradation (Pendlebury et
++0.031 above the floor, detectable floor 0.0013. ("Certificate-grade" refers to
+identifiability, not magnitude: the mechanism label rests on the above-floor recency gain and
+the significantly negative staleness; the no-evidence-band discipline governs sub-floor
+*positives* and is not invoked here.) Malware's temporal degradation (Pendlebury et
 al., 2019) is real and recency-recoverable, but it is coverage-driven — new families appear;
 old labels do not rot — and the deployment lens draws exactly that distinction: keep the old
 data, expect decay anyway, retrain for coverage. (A full-history windowing over 126 sparse
@@ -668,7 +690,11 @@ magnitude against — that is the map's finding and its weakness simultaneously.
 constant (4.7) is calibrated on Gaussian noise families; heavy-tailed label noise inherits only
 the abstention discipline, not the exact boundary. (5) TabReD is curated to be temporally
 splittable; external validity to industrial data at large is an inductive step we flag rather
-than take.
+than take. (6) The injection certificates are calibrated on a single reference family —
+fixed-strength rotations on the two highest-variance features; power against low-variance,
+interaction-borne, or subpopulation-local rule change is not certified, so "verified no-concept"
+should be read as verified against that family. An injection-family sweep is the corresponding
+hardening step.
 
 **On process.** This project's ledger records nine positive findings that dissolved under
 scrutiny before the present result; the ninth dissolution is §5.3, and it is the only one the

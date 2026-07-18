@@ -28,6 +28,32 @@ Fig.2 색각 중복-인코딩 문구. EN→KO→tex 전파, 재컴파일 클린.
 고아 참고문헌 3건 인용 복원(Johansson→§2 positivity / Moreno-Torres→§3.1 estimand /
 Vela→§3.1 decay; `\nocite` 제거) + Fig.2 집계 밴드 2행화(타일 원척 렌더). 재컴파일 클린.
 
+**라운드 6 ("리뷰어 2" 적대 리뷰, 같은 날 밤 — 기록 = REVIEW_ROUND6_2026-07-18.md, 대응 수위
+= B)**: Reject 권고 6사유 판정 — #1 절반 반박(**신규 실측: 산업 10셀 전부 recency ≥ 0 = 재발
+지문 침묵**, §6에 문장 추가) / #3 수용(전 라운드 최강: 주입 인증서 = 단일 패밀리 →
+family-상대성 명시 + sweep 구현) / #2·세부 문장급 수정 / #4·5·6 반박 논거 기록. → **v4.5**
+(초록 볼드 트리-스코프, 딥-아키텍처 비판정 문장, §7 한계(6), sub-floor 헤지 등 7건, EN·KO·tex
+재컴파일 클린). **실험 2종 구현·스모크 완료**: `--tabred-span full`(배포 갭 감사) +
+`--inj-family lowvar|interaction|subpop`(인증서 패밀리 sweep). **서버 커맨드 (tmux, 순차)**:
+```bash
+conda activate explaintab311 && cd ~/explainableTabular && git pull
+# [C] 배포 held-out 구간 감사 — 8개 TabReD full-span (행 태그 _fullspan)
+python scripts/run_deployment_decay.py --tabred sberbank_housing homecredit_default ecom_offers homesite_insurance weather cooking_time delivery_eta maps_routing --tabred-span full --n-seeds 10
+# [D] 주입-패밀리 sweep — 인증서 셀 6개 + insects(양성 대조), 패밀리 3종
+python scripts/run_deployment_decay.py --tabred cooking_time delivery_eta ecom_offers homecredit_default weather --elec2 --insects --n-seeds 10 --inj-family lowvar
+python scripts/run_deployment_decay.py --tabred cooking_time delivery_eta ecom_offers homecredit_default weather --elec2 --insects --n-seeds 10 --inj-family interaction
+python scripts/run_deployment_decay.py --tabred cooking_time delivery_eta ecom_offers homecredit_default weather --elec2 --insects --n-seeds 10 --inj-family subpop
+```
+환류 = `results/phase1/deployment_decay/summary_*.json` 새 파일 4개(각 런 1개) 루트 복사 후
+commit·push (인증 안 되면 로컬 전달). 판독·부록 B.3/B.4 반영은 로컬 탭. 예상: [C] 반나절,
+[D] 하룻밤. 판독 후 제출 진행.
+
+**라운드 5 (최종 독립 검증, 같은 날 — 기록 = REVIEW_ROUND5_2026-07-18.md)**: **본문 수정
+요구 결함 0건** — 검증 사이클 수렴(R3 ❌1 → R4 경미2 → R5 0), 본문 v4.4로 확정. 초록 밀도
+지적은 라운드 2 반영으로 이미 충족 상태라 보류(기록에 사유). 고전 탐지기는 "배터리 통과"
+방식으로 카드 ④ 설계 격상(river ADWIN/DDM/KSWIN/PageHinkley → 14-셀, type-blind 실증 표).
+참조 깨짐·overfull 최종 실측 = 0. 검증자 착오 1건 기록(존재하지 않는 "Crosignani 2025").
+
 **다음 = 제출 역학만 (사용자 행동)**: ① 익명 미러(anonymous.4open.science; 커밋 이력 보존 +
 **서명 태그/OSF 등록으로 사전등록 제3자 증빙 격상** + 커밋 author 메타데이터 점검; tex §8
 TODO) ② Overleaf pdfLaTeX 1회 확인 ③ 투고 직전 concurrent 문헌 재스캔("선행 없음" 주장 3곳

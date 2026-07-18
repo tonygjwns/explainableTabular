@@ -320,23 +320,43 @@ def _z(v):
     return (v - np.mean(v)) / (s + 1e-12)
 
 
-def _inject_concept(X, t, task, strength=2.5, seed=0):
-    """Replace y with a KNOWN time-ROTATING rule of controlled strength on the 2 highest-variance
-    features, keeping this dataset's REAL covariate geometry (X, t). Probe for the injection control:
-    run staleness on (X, y_injected). If it stays null on a candidate-UNIDENTIFIABLE dataset, the
-    blindness is DEMONSTRATED on real geometry (UNIDENTIFIABLE-EARNED); if it recovers, D was
-    misleading and the real null was informative (the dataset was identifiable after all)."""
+def _inject_concept(X, t, task, strength=2.5, seed=0, family="topvar"):
+    """Replace y with a KNOWN time-ROTATING rule of controlled strength, keeping this dataset's
+    REAL covariate geometry (X, t). Probe for the injection control: run staleness on
+    (X, y_injected). If it stays null on a candidate-UNIDENTIFIABLE dataset, the blindness is
+    DEMONSTRATED on real geometry (UNIDENTIFIABLE-EARNED); if it recovers, D was misleading and
+    the real null was informative (the dataset was identifiable after all).
+
+    family (reviewer-2 R3 — the certificate is relative to the planted signal class; sweep it):
+      topvar      : rotation on the 2 highest-variance features (the pre-registered reference)
+      lowvar      : rotation carried by the 2 LOWEST-variance non-degenerate features
+      interaction : rotation between an interaction term z(f0)*z(f1) and a main effect
+      subpop      : the rotation runs only inside the half-population z(f2)>0 (local rule change;
+                    the rule is static outside)
+    The learnability gate applies unchanged, so an unlearnable family yields VACUOUS for that
+    family rather than a fake certificate."""
     rng = np.random.default_rng(seed)
     Xf = np.nan_to_num(np.asarray(X, float))
     tn = (t - np.min(t)) / (np.max(t) - np.min(t) + 1e-12)
     order = np.argsort(-Xf.std(0))
-    f0, f1 = (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0)
+    if family == "lowvar":
+        nz = [int(j) for j in order[::-1] if Xf[:, int(j)].std() > 1e-9]
+        f0, f1 = (nz[0], nz[1]) if len(nz) >= 2 else (
+            (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0))
+    else:
+        f0, f1 = (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0)
+    a, b = _z(Xf[:, f0]), _z(Xf[:, f1])
+    if family == "interaction":
+        a = _z(a * b)                                   # the rule lives on an interaction term
     ang = strength * tn
-    score = np.cos(ang) * _z(Xf[:, f0]) + np.sin(ang) * _z(Xf[:, f1]) + rng.normal(0, .3, len(tn))
+    if family == "subpop":
+        f2 = int(order[2]) if Xf.shape[1] >= 3 else f1
+        ang = ang * (_z(Xf[:, f2]) > 0).astype(float)   # rule change only inside the subpopulation
+    score = np.cos(ang) * a + np.sin(ang) * b + rng.normal(0, .3, len(tn))
     if task == "regression":
         return score.astype(float), (f0, f1)
     if task == "multiclass":
-        s2 = np.cos(ang + 2.0) * _z(Xf[:, f0]) + np.sin(ang + 2.0) * _z(Xf[:, f1])
+        s2 = np.cos(ang + 2.0) * a + np.sin(ang + 2.0) * b
         return np.stack([score, s2, -score - s2], axis=1).argmax(1), (f0, f1)
     return (score > np.median(score)).astype(int), (f0, f1)
 
@@ -371,12 +391,13 @@ def _injection_learnable(X, y_inj, t, task, K, by_value, seed=0):
     return (s - maj) >= LEARN_ACC, float(s), "acc-over-majority"
 
 
-def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, seed_base=0):
+def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, seed_base=0,
+                        family="topvar"):
     """Inject a reference-strength concept into (X, t) and test whether staleness fires.
     v3: learnability-gated (an unlearnable injection cannot 'earn' blindness), n_seeds matches the
     real read (audit L4: was 4), injected features logged. Returns
     (recovered, injected_staleness_mean, learnable, learn_score, feats)."""
-    y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH)
+    y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH, family=family)
     learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value, seed=seed_base)
     st = []
     for s in range(seed_base, seed_base + n_seeds):
@@ -554,7 +575,8 @@ def _delta(vals, alpha=0.05, power=0.8):
     return float((norm.ppf(1 - alpha) + norm.ppf(power)) * se)   # ~2.49 * SE
 
 
-def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000, seed_base=0):
+def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000, seed_base=0,
+           inj_family="topvar"):
     """seed_base: exploratory runs use 0 (seeds 0..n-1); the pre-registered CONFIRMATORY rerun
     uses 100 (seeds 100..). D/shuffle diagnostics stay at their fixed seeds (deterministic
     geometry reads, identical across runs by design)."""
@@ -715,7 +737,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
     inj_stale = inj_learnable = inj_lscore = None; inj_feats = None
     if measured and (verdict.startswith("UNIDENTIFIABLE") or verdict == "DEPLOYMENT-CONCEPT"):
         recovered, inj_stale, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
-            X, t, task, K, by_value, max_train, seed_base=seed_base)
+            X, t, task, K, by_value, max_train, seed_base=seed_base, family=inj_family)
         if verdict.startswith("UNIDENTIFIABLE"):
             if not inj_learnable:
                 flags.append("injection-vacuous")          # unlearnable probe: the null proves nothing
@@ -746,6 +768,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             "dup_group_frac": dup_frac,
             "injected_staleness": inj_stale, "injection_learnable": inj_learnable,
             "injection_learn_score": inj_lscore, "injection_features": inj_feats,
+            "injection_family": inj_family,
             "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
             "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
@@ -789,11 +812,21 @@ def _load_csv(path, target, time, drop, max_n):
     return X, y, tnum, task, len(feats)
 
 
-def _load_tabred(ds, cfg):
+def _load_tabred(ds, cfg, span="train"):
     from src.data.tabred_loader import load_tabred
     from src.analysis.drift_measure import _stack
     data = load_tabred(ds, Path(cfg.data.root), split=cfg.experiment.split)
-    # use the TRAIN portion (carries the within-train temporal axis); t = its timestamp
+    if span == "full":
+        # train+val+test concatenated on the shared normalized timestamp — the windows then span
+        # the held-out deployment gap the official split holds out (reviewer-2 R1). Split labels
+        # are irrelevant to the retrospective audit; time order is re-established by sort.
+        parts = [data.train, data.val, data.test]
+        X = np.concatenate([_stack(p.X_num, p.X_bin, p.X_cat) for p in parts], axis=0)
+        y = np.concatenate([p.y for p in parts])
+        t = np.concatenate([np.asarray(p.t, float) for p in parts])
+        o = np.argsort(t, kind="stable")
+        return X[o], y[o], t[o], data.task, X.shape[1]
+    # default: the TRAIN portion (carries the within-train temporal axis); t = its timestamp
     X = _stack(data.train.X_num, data.train.X_bin, data.train.X_cat)
     return X, data.train.y, data.train.t, data.task, X.shape[1]
 
@@ -1028,6 +1061,15 @@ def main():
     ap.add_argument("--n-seeds", type=int, default=5)
     ap.add_argument("--max-train", type=int, default=6000)
     ap.add_argument("--max-n", type=int, default=60000)
+    ap.add_argument("--tabred-span", default="train", choices=["train", "full"],
+                    help="train = official train segment (the paper's map); full = train+val+test "
+                         "concatenated by timestamp - audits across the held-out deployment gap "
+                         "(reviewer-2 R1). Dataset names get a _fullspan suffix.")
+    ap.add_argument("--inj-family", default="topvar",
+                    choices=["topvar", "lowvar", "interaction", "subpop"],
+                    help="injection reference family (reviewer-2 R3 sweep): topvar = pre-registered "
+                         "default; lowvar / interaction / subpop probe certificate sensitivity to "
+                         "the planted signal class. Recorded per-row as injection_family.")
     ap.add_argument("--synth", action="store_true")
     ap.add_argument("--debug-raise", action="store_true",
                     help="re-raise HGB fit errors with full traceback (diagnose the binning crash)")
@@ -1078,8 +1120,9 @@ def main():
         from omegaconf import OmegaConf
         cfg = OmegaConf.load(args.config)
         for ds in args.tabred:
-            X, y, t, task, nf = _load_tabred(ds, cfg)
-            jobs.append((ds, X, y, t, task, nf))
+            X, y, t, task, nf = _load_tabred(ds, cfg, span=args.tabred_span)
+            tag = ds if args.tabred_span == "train" else f"{ds}_fullspan"
+            jobs.append((tag, X, y, t, task, nf))
     if args.elec2:
         from src.data.elec2_loader import load_elec2
         jobs.append(("elec2", *_load_stream(load_elec2(split="temporal", seed=0))))
@@ -1113,7 +1156,7 @@ def main():
         try:
             r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
                        n_seeds=args.n_seeds, max_train=args.max_train,
-                       seed_base=args.seed_base)
+                       seed_base=args.seed_base, inj_family=args.inj_family)
         except Exception as e:                              # never let one dataset kill the batch
             import traceback; traceback.print_exc()
             r = {"dataset": name, "task": task, "verdict": "ERROR", "error": f"{type(e).__name__}: {e}",
