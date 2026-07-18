@@ -67,8 +67,9 @@ audit of eight industrial datasets (TabReD) with confirmatory fresh-seed replica
 stable) then yields an identifiability \emph{map}, not a detection table:
 \textbf{no industrial dataset shows exploitable mean-rule drift above its detectable floor (0/8)};
 the sole robust positive is designed drift; the one prior industrial positive is \emph{diagnosed} by
-the instrument itself as label-noise decay; every remaining null carries a certificate---%
-verified, blind, or refused. Anchor streams fix the sensitivity profile: monotone and
+the instrument itself as label-noise decay; every remaining cell is either an identifiable null
+or carries a certificate verdict---verified, blind, refused, or (one cell) unstable. Anchor
+streams fix the sensitivity profile: monotone and
 single-switch rule changes fire 9/9, and recurring regimes are correctly silent with a
 negative-recency fingerprint. We release the instrument, battery, and audit trail, and argue that
 drift-type attribution without identifiability certificates---the current default in drift
@@ -152,7 +153,8 @@ raw one---the signature of genuine rule change); the single prior industrial pos
 \emph{diagnosed}---not merely retracted---as label-noise decay, by the same instrument that once
 minted it; two datasets earn a verified no-concept certificate via injection recovery; one earns
 a blindness certificate; three fail to earn one (their injections are unlearnable---a fact the
-naive protocol would have laundered into ``earned blindness''). Anchor streams (\S\ref{sec:anchors}) give the
+naive protocol would have laundered into ``earned blindness''); the panel's two remaining cells
+are an identifiable null and one seed-unstable certificate, barred from claims. Anchor streams (\S\ref{sec:anchors}) give the
 instrument a coherent sensitivity profile---monotone and single-switch rule changes fire 9/9;
 recurring regimes are correctly silent and are flagged by a negative recency gain, which is
 impossible under one-way drift; malware (EMBER) reads as coverage-driven decay, not label rot,
@@ -241,11 +243,16 @@ into streams \citep{poenaruolaru2022reliable}; Detectron \citep{ginsberg2023dete
 shift model-relatively. Our injection control differs in role: it is an \emph{in-situ, per-dataset
 power certificate} (planted in the real covariate geometry, learnability-gated), used to
 distinguish earned blindness from instrument vacuity---a distinction we show matters on real
-data, where three of four ``unidentifiable'' cells fail the learnability gate.
+data, where three of four ``unidentifiable'' cells fail the learnability gate. We do not run
+these detectors head-to-head on the audited cells: a loss-stream detector answers ``did anything
+change?'' and is type-blind by construction, so its fires would not bear on drift-\emph{type}
+attribution; the canary panel (\S\ref{sec:classmatrix}) is the like-for-like comparison---what a
+weaker \emph{attribution} instrument reports on the same bytes---and porting the certificate
+protocol to streaming monitors is future work (\S\ref{sec:discussion}).
 
 \paragraph{Malware.} TESSERACT \citep{pendlebury2019tesseract} established temporally honest evaluation in
-malware and documents performance decay. Our EMBER read (old data \emph{helps}; staleness $-0.012$;
-detectable floor 0.0014) refines rather than contradicts it: the decay is coverage-driven (new
+malware and documents performance decay. Our EMBER read (old data \emph{helps}; staleness $-0.008$;
+detectable floor 0.0013) refines rather than contradicts it: the decay is coverage-driven (new
 families appear---covariate expansion), not label rot (a 2017 malware sample is still malware),
 which is exactly the distinction a deployment lens should draw.
 
@@ -327,7 +334,8 @@ that cannot help.
 \paragraph{Why the denoised arm separates rule change from noise drift.} Under noise-only drift the
 conditional mean/Bayes rule is unchanged, so $\hat{g}_{\text{old}}$ estimates the \emph{same} rule from noisy labels;
 its pseudo-labels are approximately correct denoised labels, and adding $(X_{\text{old}}, \hat{g}_{\text{old}}(X_{\text{old}}))$
-to the recent set cannot systematically hurt---executed: the $+0.021$ noise-decay false positive
+to the recent set has no remaining mechanism to hurt through (an expectation whose boundary
+\S\ref{sec:envelope} measures, not a theorem)---executed: the $+0.021$ noise-decay false positive
 collapses to $+0.004$ while the gate (below) flags the mechanism. Under genuine rule change,
 $\hat{g}_{\text{old}}$ consistently estimates the \emph{old} rule; its pseudo-labels still contradict the current
 rule, and the harm persists---executed: a rotating-rule stream keeps $+0.541$ of its $+0.546$ raw
@@ -397,7 +405,9 @@ the runs they govern.
 
 The instrument must pass a synthetic ground-truth battery before any real-data run (PREREG \S4);
 the battery is itself the executed record of the failure anatomy. All cells: $n = 12{,}000$, $d = 10$,
-$K = 10$, 5 seeds; verdicts under the full cascade (Table~\ref{tab:battery}).
+$K = 10$, 5 seeds (vs ten on real data---the planted effects are 10--27$\times$ the decision
+floor and the battery is a pass/fail gate, not an estimation exercise); verdicts under the full
+cascade (Table~\ref{tab:battery}).
 
 \begin{table}[t]
 \caption{The 14-cell pre-registered battery. Verdicts under the full cascade; all cells
@@ -532,7 +542,7 @@ color encodes the verdict class: green $=$ rule-change verdict or verified no-co
 diagnosed noise mechanism; blue $=$ identifiable null; light blue $=$ earned blindness; red $=$
 certificate refused; grey (dashed) $=$ unstable across seed sets. Each tile carries its
 load-bearing number (denoised staleness, exploratory\,/\,confirmatory where both exist, or
-injection recovery).}
+injection recovery). Color is redundant: every tile also prints its verdict.}
 \label{fig:map}
 \end{figure}
 

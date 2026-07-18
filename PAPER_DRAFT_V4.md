@@ -1,9 +1,13 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.2 (2026-07-18, external review round 2 incorporated: abstract tightened; phantom
-> "propositions" wording removed; compute resources + data-license appendix added; sine_reoccur2
-> footnote; MLP-instability cause; running-example reading aid; Figure 2 map-at-a-glance;
-> anonymized-repo phrasing). Target: TMLR (immediate) /
+> DRAFT v4.3 (2026-07-18, review round 3: §2 EMBER numbers unified to the certificate-grade
+> cell (−0.008/0.0013; the −0.012/0.0014 pair was the superseded full-history read); abstract
+> certificate accounting made exact (identifiable null + unstable cell now covered); §1 panel
+> accounting completed; §2 detector head-to-head scope sentence; §3.1 "cannot hurt" softened to
+> a measured expectation; §4.1 five-seed justification; Fig. 2 color-redundancy note. Round 2
+> (v4.2): abstract tightened; phantom "propositions" removed; compute + license appendix;
+> sine_reoccur2 footnote; MLP-instability cause; reading aid; Figure 2; Appendix B rebuttal
+> runs). Target: TMLR (immediate) /
 > NeurIPS D&B (next cycle); reviewer-suggested alternates: ECML-PKDD, KDD research track,
 > Machine Learning (Springer), DMKD — venues whose reviewer pools know the Gama/Webb definition
 > debate this paper's estimand-narrowing speaks to. Supersedes
@@ -35,7 +39,8 @@ industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 sta
 an identifiability *map*, not a detection table: **no industrial dataset shows exploitable
 mean-rule drift above its detectable floor (0/8)**; the sole robust positive is designed drift;
 the one prior industrial positive is *diagnosed* by the instrument itself as label-noise decay;
-every remaining null carries a certificate — verified, blind, or refused. Anchor streams fix the
+every remaining cell is either an identifiable null or carries a certificate verdict — verified,
+blind, refused, or (one cell) unstable. Anchor streams fix the
 sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
 correctly silent with a negative-recency fingerprint. We release the instrument, battery, and
 audit trail, and argue that drift-type attribution without identifiability certificates — the
@@ -119,7 +124,8 @@ raw one — the signature of genuine rule change); the single prior industrial p
 *diagnosed* — not merely retracted — as label-noise decay, by the same instrument that once
 minted it; two datasets earn a verified no-concept certificate via injection recovery; one earns
 a blindness certificate; three fail to earn one (their injections are unlearnable — a fact the
-naive protocol would have laundered into "earned blindness"). Anchor streams (§6) give the
+naive protocol would have laundered into "earned blindness"); the panel's two remaining cells
+are an identifiable null and one seed-unstable certificate, barred from claims. Anchor streams (§6) give the
 instrument a coherent sensitivity profile — monotone and single-switch rule changes fire 9/9;
 recurring regimes are correctly silent and are flagged by a negative recency gain, which is
 impossible under one-way drift; malware (EMBER) reads as coverage-driven decay, not label rot,
@@ -206,11 +212,16 @@ into streams (Poenaru-Olaru et al., 2022); Detectron (Ginsberg et al., 2023) def
 shift model-relatively. Our injection control differs in role: it is an *in-situ, per-dataset
 power certificate* (planted in the real covariate geometry, learnability-gated), used to
 distinguish earned blindness from instrument vacuity — a distinction we show matters on real
-data, where three of four "unidentifiable" cells fail the learnability gate.
+data, where three of four "unidentifiable" cells fail the learnability gate. We do not run
+these detectors head-to-head on the audited cells: a loss-stream detector answers "did anything
+change?" and is type-blind by construction, so its fires would not bear on drift-*type*
+attribution; the canary panel (§4.3) is the like-for-like comparison — what a weaker
+*attribution* instrument reports on the same bytes — and porting the certificate protocol to
+streaming monitors is future work (§7).
 
 **Malware.** TESSERACT (Pendlebury et al., 2019) established temporally honest evaluation in
-malware and documents performance decay. Our EMBER read (old data *helps*; staleness −0.012;
-detectable floor 0.0014) refines rather than contradicts it: the decay is coverage-driven (new
+malware and documents performance decay. Our EMBER read (old data *helps*; staleness −0.008;
+detectable floor 0.0013) refines rather than contradicts it: the decay is coverage-driven (new
 families appear — covariate expansion), not label rot (a 2017 malware sample is still malware),
 which is exactly the distinction a deployment lens should draw.
 
@@ -307,7 +318,8 @@ that cannot help.
 **Why the denoised arm separates rule change from noise drift.** Under noise-only drift the
 conditional mean/Bayes rule is unchanged, so ĝ_old estimates the *same* rule from noisy labels;
 its pseudo-labels are approximately correct denoised labels, and adding (X_old, ĝ_old(X_old))
-to the recent set cannot systematically hurt — executed: the +0.021 noise-decay false positive
+to the recent set has no remaining mechanism to hurt through (an expectation whose boundary
+§4.2 measures, not a theorem) — executed: the +0.021 noise-decay false positive
 collapses to +0.004 while the gate (below) flags the mechanism. Under genuine rule change,
 ĝ_old consistently estimates the *old* rule; its pseudo-labels still contradict the current
 rule, and the harm persists — executed: a rotating-rule stream keeps +0.541 of its +0.546 raw
@@ -377,7 +389,8 @@ the runs they govern.
 
 The instrument must pass a synthetic ground-truth battery before any real-data run (PREREG §4);
 the battery is itself the executed record of the failure anatomy. All cells: n = 12,000, d = 10,
-K = 10, 5 seeds; verdicts under the full cascade.
+K = 10, 5 seeds (vs ten on real data — the planted effects are 10–27× the decision floor and
+the battery is a pass/fail gate, not an estimation exercise); verdicts under the full cascade.
 
 | cell (truth) | raw | denoised | gate | verdict |
 |---|---|---|---|---|
@@ -484,7 +497,8 @@ prediction failed. Both the primary rule (CI > 0 ∧ mean > floor) and the stric
 dataset, colored by verdict class — green = rule-change verdict or verified no-concept, amber =
 diagnosed noise mechanism, blue = identifiable null, light blue = earned blindness, red =
 certificate refused, grey = unstable — with the load-bearing number (denoised staleness or
-injection recovery) inside each tile. The table below is the precise record.
+injection recovery) inside each tile. Color is redundant: every tile also prints its verdict
+(color-vision-safe). The table below is the precise record.
 
 | dataset | verdict (= confirmatory) | raw | denoised | gate | certificate |
 |---|---|---|---|---|---|
