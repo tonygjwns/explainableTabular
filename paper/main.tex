@@ -206,7 +206,8 @@ decomposition or recency experiments; TableShift \citep{gardner2023tableshift} a
 
 \paragraph{Identifiability and class-relativity.} That $P(y \mid x)$ is not identified off-support without
 assumptions is textbook positivity (\citealp{damour2021overlap}, for high-dimensional overlap
-failure; \citealp{bendavid2010impossibility}, for the learning-theoretic impossibility).
+failure; \citealp{bendavid2010impossibility}, for the learning-theoretic impossibility;
+\citealp{johansson2019support}, for support failure inside learned representations).
 \citet{hinder2023hardness} prove constructively that loss-based drift detection is class-relative
 in both directions---virtual drift that moves the loss, real drift invisible to it---and their
 survey \citep{hinder2024survey} states ``the used model class is crucial.'' \citet{loog2019minimizers}
@@ -308,7 +309,8 @@ $W_0$ (earliest window with $\ge 200$ rows and a trainable label set) and recent
 size-matched samples ($N = \min(|\text{recent}|, |\text{old}|, 6000)$) and train three models of the deployed
 class: recent-only, old-only, recent$\,\cup\,$old. Report per-seed means over future windows of
 \begin{itemize}
-\item \textbf{decay} $=$ score(old model, held-out $W_0$) $-$ score(old model, $W_j$)---aging, mechanism-blind;
+\item \textbf{decay} $=$ score(old model, held-out $W_0$) $-$ score(old model, $W_j$)---aging,
+  mechanism-blind (documented at scale by \citealp{vela2022temporal});
 \item \textbf{recency gain} $=$ score(recent) $-$ score(old) on $W_j$---adaptation value, conflates coverage
   and rule change; \emph{its sign is itself diagnostic (\S\ref{sec:anchors}): negative recency is impossible under
   one-way drift and fingerprints recurring regimes};
@@ -327,7 +329,7 @@ are emitted with every run so that alternative constructions (window-block boots
 can be applied without re-execution. The pre-registered estimand is \emph{exploitable mean-rule drift}:
 a change in the decision-relevant functional of $P(y \mid x)$ that makes old labels contradict the
 current rule for the deployed hypothesis class. This is deliberately narrower than the
-field-standard ``any change in $P(y \mid x)$'' \citep{webb2016characterizing}---the narrowing is the point, because
+field-standard ``any change in $P(y \mid x)$'' \citep{morenotorres2012unifying,webb2016characterizing}---the narrowing is the point, because
 the wider definition classifies label-noise drift as concept and thereby licenses retraining
 that cannot help.
 
@@ -767,9 +769,6 @@ and the river panel install via \texttt{river}; EMBER-2018 downloads from its pu
 parsed by a dependency-free adapter. Exact cross-version bit-reproducibility of
 HistGradientBoosting across sklearn releases is \emph{not} claimed; verdict-level stability across
 seed sets and across HGB/RF is (10/10 and 10/10, \S\ref{sec:map}).
-
-% Reference-list entries verified during the audit but not cited inline:
-\nocite{johansson2019support,morenotorres2012unifying,vela2022temporal}
 
 \bibliography{main}
 \bibliographystyle{tmlr}

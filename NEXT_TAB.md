@@ -23,11 +23,17 @@ B**(B.1 δ(N) 표 + B.2 렌즈 일치 표) 신설 + §6 ACS 포인터 + §7 한�
 §2 검출기 head-to-head 범위 문장 / §3.1 수위 완화("기대이지 정리 아님") / §4.1 5-시드 사유 /
 Fig.2 색각 중복-인코딩 문구. EN→KO→tex 전파, 재컴파일 클린.
 
-**다음**: 제출 역학 — ① 익명 미러(anonymous.4open.science; 커밋 이력 보존 + **서명 태그/OSF
-등록으로 사전등록 제3자 증빙 격상** + 커밋 author 메타데이터 점검; tex §8 TODO) ② Overleaf
-pdfLaTeX 1회 확인 ③ 투고 직전 concurrent 문헌 재스캔("선행 없음" 주장 3곳 방어) ④ Broader
-Impact Statement(선택) 포함 여부 결정 ⑤ OpenReview 제출. (선택 리버탈 카드: FT-Transformer
-프로브 / 고전 검출기 회고 1표 / MLP 튜닝 재실행 — REVIEW_ROUND3 §큐.)
+**라운드 4 (조판본 검증, 같은 날 — 기록 = REVIEW_ROUND4_2026-07-18.md)**: 판정 = **"사실상
+제출 가능"** (수치 전수 대조 불일치 0, 형식·익명성·그림 통과). 신규 2건 반영 → v4.4:
+고아 참고문헌 3건 인용 복원(Johansson→§2 positivity / Moreno-Torres→§3.1 estimand /
+Vela→§3.1 decay; `\nocite` 제거) + Fig.2 집계 밴드 2행화(타일 원척 렌더). 재컴파일 클린.
+
+**다음 = 제출 역학만 (사용자 행동)**: ① 익명 미러(anonymous.4open.science; 커밋 이력 보존 +
+**서명 태그/OSF 등록으로 사전등록 제3자 증빙 격상** + 커밋 author 메타데이터 점검; tex §8
+TODO) ② Overleaf pdfLaTeX 1회 확인 ③ 투고 직전 concurrent 문헌 재스캔("선행 없음" 주장 3곳
+방어) ④ Broader Impact Statement(선택) 포함 여부 결정 ⑤ OpenReview 제출(양식 LLM 공시 확인).
+(선택 리버탈 카드: FT-Transformer 프로브 / 고전 검출기 회고 1표 / MLP 튜닝 재실행 —
+REVIEW_ROUND3 §큐.)
 
 ### (이력) 리뷰 라운드 2 반영 완료 (**v4.2**) (2026-07-18 낮)
 

@@ -175,7 +175,8 @@ shift benchmarks without drift-type attribution.
 
 **Identifiability and class-relativity.** That P(y|x) is not identified off-support without
 assumptions is textbook positivity (D'Amour et al., 2021, for high-dimensional overlap failure;
-Ben-David et al., 2010, for the learning-theoretic impossibility). Hinder et al. (2023) prove
+Ben-David et al., 2010, for the learning-theoretic impossibility; Johansson et al., 2019, for
+support failure inside learned representations). Hinder et al. (2023) prove
 constructively that loss-based drift detection is class-relative in both directions — virtual
 drift that moves the loss, real drift invisible to it — and their survey states "the used model
 class is crucial." Loog et al. (2019) show ERM risk can be non-monotone in sample size even
@@ -292,7 +293,8 @@ W_0 (earliest window with ≥200 rows and a trainable label set) and recent wind
 size-matched samples (N = min(|recent|, |old|, 6000)) and train three models of the deployed
 class: recent-only, old-only, recent∪old. Report per-seed means over future windows of
 
-- **decay** = score(old model, held-out W_0) − score(old model, W_j) — aging, mechanism-blind;
+- **decay** = score(old model, held-out W_0) − score(old model, W_j) — aging, mechanism-blind
+  (documented at scale by Vela et al., 2022);
 - **recency gain** = score(recent) − score(old) on W_j — adaptation value, conflates coverage
   and rule change; *its sign is itself diagnostic (§6): negative recency is impossible under
   one-way drift and fingerprints recurring regimes*;
@@ -311,7 +313,8 @@ are emitted with every run so that alternative constructions (window-block boots
 can be applied without re-execution. The pre-registered estimand is *exploitable mean-rule drift*:
 a change in the decision-relevant functional of P(y|x) that makes old labels contradict the
 current rule for the deployed hypothesis class. This is deliberately narrower than the
-field-standard "any change in P(y|x)" (Webb et al., 2016) — the narrowing is the point, because
+field-standard "any change in P(y|x)" (Moreno-Torres et al., 2012; Webb et al., 2016) — the
+narrowing is the point, because
 the wider definition classifies label-noise drift as concept and thereby licenses retraining
 that cannot help.
 

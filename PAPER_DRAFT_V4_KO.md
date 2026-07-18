@@ -148,7 +148,7 @@ et al., 2010), 클래스-상대성 원리는 확립되어 있다(Hinder et al., 
 
 **식별가능성과 클래스-상대성.** support 밖에서 P(y|x)가 가정 없이 식별되지 않는다는 것은
 교과서적 positivity다(고차원 overlap 실패는 D'Amour et al., 2021; 학습이론적 불가능성은
-Ben-David et al., 2010). Hinder et al.(2023)은 손실 기반 drift 검출이 양방향으로 클래스-
+Ben-David et al., 2010; 학습된 표현 내부의 support 실패는 Johansson et al., 2019). Hinder et al.(2023)은 손실 기반 drift 검출이 양방향으로 클래스-
 상대적임을 구성적으로 증명하고 — 손실을 움직이는 virtual drift, 손실에 보이지 않는 real
 drift — 그들의 서베이(Hinder et al., 2024)는 "사용된 모델 클래스가 결정적"이라고 명시한다.
 Loog et al.(2019)은 i.i.d.에서조차 ERM 위험이 표본 크기에 비단조일 수 있음을 보여, 어떤
@@ -233,7 +233,8 @@ arm은 발화하지만(+0.024) 노이즈 게이트가 켜져 있고(2.1×) denoi
 6000))을 뽑아 배포 클래스의 세 모델(recent-only, old-only, recent∪old)을 학습한다. 미래
 윈도우들에 대한 시드별 평균으로 보고한다:
 
-- **decay** = score(old 모델, W_0 held-out) − score(old 모델, W_j) — 노화, 기제-맹목;
+- **decay** = score(old 모델, W_0 held-out) − score(old 모델, W_j) — 노화, 기제-맹목
+  (Vela et al., 2022가 대규모로 기록한 현상);
 - **recency gain** = W_j에서 score(recent) − score(old) — 적응 가치, 커버리지와 규칙 변화가
   섞임; *그 부호 자체가 진단적이다(§6): 음의 recency는 단방향 drift에서 불가능하며 재발
   레짐을 지문한다*;
@@ -250,8 +251,8 @@ Student-t; 각 시드는 90% 행 부표본을 재추출하고 윈도우 경계�
 fresh-seed 재현(§5.1)이고, 모든 실행은 시드별 원값을 함께 출력하므로 대안적 구성(윈도우-블록
 부트스트랩, split-half)을 재실행 없이 적용할 수 있다. 사전등록된 estimand는 *착취 가능한
 mean-rule drift*: 배포된 가설 클래스에 대해 old 라벨이 현재 규칙과 모순되게 만드는, P(y|x)의
-의사결정-관련 함수의 변화다. 이는 필드 표준 "P(y|x)의 임의 변화"(Webb et al., 2016)보다
-의도적으로 좁다 — 그 좁힘이 요점이다. 넓은 정의는 라벨-노이즈 drift를 concept으로 분류하고,
+의사결정-관련 함수의 변화다. 이는 필드 표준 "P(y|x)의 임의 변화"(Moreno-Torres et al.,
+2012; Webb et al., 2016)보다 의도적으로 좁다 — 그 좁힘이 요점이다. 넓은 정의는 라벨-노이즈 drift를 concept으로 분류하고,
 그로써 도움이 될 수 없는 재학습을 정당화하기 때문이다.
 
 **denoised arm이 규칙 변화와 노이즈 drift를 분리하는 이유.** 노이즈-단독 drift에서 조건부
