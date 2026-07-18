@@ -1,0 +1,32 @@
+% Figure 2 body — the identifiability map at a glance (PAPER_DRAFT_V4 §5.2, Table 4 rendered).
+% Single source of the tikzpicture. Consumers: ../main.tex (\input) and fig2_map.tex (standalone).
+% Numbers mirror Table 4 (tab:map); exploratory/confirmatory pairs shown as a/b.
+% Palette matches Figure 1: green = concept / verified no-concept, amber = noise-confounded,
+% blue = identifiable null, light blue = earned blindness, red = vacuous, grey dashed = unstable.
+\begin{tikzpicture}[
+  font=\scriptsize\sffamily,
+  tile/.style={draw,rounded corners=2pt,minimum width=31mm,minimum height=14mm,align=center,inner sep=2.5pt},
+  good/.style={tile,fill=green!18,thick},
+  vnull/.style={tile,fill=green!10},
+  warn/.style={tile,fill=orange!22,thick},
+  idnull/.style={tile,fill=blue!8},
+  earned/.style={tile,fill=cyan!12},
+  bad/.style={tile,fill=red!18},
+  unst/.style={tile,fill=black!10,dashed}
+]
+\matrix (m) [column sep=2mm, row sep=2mm] {
+  \node[good]  {\textbf{insects}\\[-1pt]\textbf{DEPLOYMENT-CONCEPT}\\[-1pt]den $+0.152$\,/\,$+0.145$ \; inj\,\checkmark\,$+0.16$}; &
+  \node[warn]  {\texttt{sberbank\_housing}\\[-1pt]\textbf{NOISE-DRIFT-CONFOUNDED}\\[-1pt]raw fires \; den $-0.015$ \; gate $2.1\times$}; &
+  \node[vnull] {\texttt{cooking\_time}\\[-1pt]\textbf{verified no-concept}\\[-1pt]inj\,\checkmark\,$+0.55$ \; den $-0.018$}; &
+  \node[vnull] {\texttt{delivery\_eta}\\[-1pt]\textbf{verified no-concept}\\[-1pt]inj\,\checkmark\,$+0.33$ \; den $-0.014$}; &
+  \node[idnull]{\texttt{maps\_routing}\\[-1pt]\textbf{NO-STRONG-CONCEPT}\\[-1pt]$D$ 0.58 \; den $-0.010$}; \\
+  \node[earned]{\textbf{elec2}\\[-1pt]\textbf{UNIDENT: blindness earned}\\[-1pt]inj learnable, no recovery}; &
+  \node[bad]   {\texttt{ecom\_offers}\\[-1pt]\textbf{UNIDENT: vacuous}\\[-1pt]injection unlearnable}; &
+  \node[bad]   {\texttt{homecredit\_default}\\[-1pt]\textbf{UNIDENT: vacuous}\\[-1pt]injection unlearnable}; &
+  \node[bad]   {\textbf{weather}\\[-1pt]\textbf{UNIDENT: vacuous}\\[-1pt]injection unlearnable}; &
+  \node[unst]  {\texttt{homesite\_insurance}\\[-1pt]\textbf{UNIDENT-INERT}\\[-1pt]\emph{unstable}: vacuous$\leftrightarrow$earned}; \\
+};
+\node[below=2.5mm of m,align=center,font=\scriptsize\sffamily]
+  {\textbf{pre-registered aggregate:} industrial datasets with exploitable mean-rule drift above the detectable floor $=$ \textbf{0/8}
+   \; (designed-drift stream = the sole concept positive; the one prior industrial positive = diagnosed, not asserted)};
+\end{tikzpicture}

@@ -1,0 +1,9 @@
+% Figure 2 — standalone wrapper (compile from this directory: `pdflatex fig2_map.tex` or
+% `tectonic fig2_map.tex`) producing a stand-alone vector PDF of the identifiability map.
+% The tikzpicture itself lives in fig2_map_body.tex (single source, shared with ../main.tex).
+\documentclass[tikz,border=6pt]{standalone}
+\usepackage{amssymb}
+\usetikzlibrary{positioning,matrix}
+\begin{document}
+\input{fig2_map_body}
+\end{document}

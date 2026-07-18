@@ -3,7 +3,25 @@
 > 워크플로우: 로컬(이 repo)서 코드 작성→git push, 서버(`explaintab311` env, py3.11)서 pull→실행.
 > 서버엔 Claude 없음 → 로컬서 완성해 push. 최신 커밋 = `git log --oneline -1`.
 
-## ★★★ 현행 = 집필 파이프라인 종결 (LaTeX ✅ + KO ✅) → **남은 것 = 제출 역학** (2026-07-16, 새 탭 여기부터)
+## ★★★ 현행 = 리뷰 라운드 2 반영 완료 (**v4.2**) → 남은 것 = 제출 역학 + 리버탈 큐 (2026-07-18, 새 탭 여기부터)
+
+**한 줄**: 외부 점검 보고서(11-섹션 체크리스트, KO본 대상) 접수 → 12개 지적 전부 판정·처리
+(**기록 = REVIEW_ROUND2_2026-07-18.md**). 수용 9건 반영 = v4.2 (EN md 정본 → KO → tex 전파,
+tectonic 재컴파일·육안 검증): 초록 압축 / §2 유령 "명제" 문구 제거 / §3 Reading aid(sberbank
+접지) / **Figure 2 지도 시각화**(`paper/figures/fig2_map_body.tex`+래퍼, §5.2) / §5.3 17자리→
+각주(anchor는 단어 뒤 — 숫자 뒤면 오독) / §5.4 MLP 발산 원인(per_seed 아티팩트: 3/10 시드
+|stale|>10) / §6 sine_reoccur2 각주(아티팩트 검증: 최종 22%만 재발·recency +0.30 양수·자매쌍
+≈0) / §8 Compute 문단(CPU-only, phase 로그 wall-clock) / 부록 A 라이선스 표(전 항목 배포처
+검증: EMBER 데이터=MIT, elec2=OpenML Public, TabReD 도구=Apache-2.0, folktables=MIT, river=
+BSD-3). "학회 불일치" 지적은 전제 오류로 기각(TMLR 확정은 ELEVATION_VERDICT 2026-07-04).
+
+**다음 작업**: ① 제출 역학 — 익명 미러(anonymous.4open.science, 커밋 이력 보존; tex §8에
+TODO 주석) + PDF 메타데이터 점검 + TMLR LLM-선언 정책 확인 + Overleaf pdfLaTeX 1회 확인.
+② **리버탈 실험 큐**(서버, REVIEW_ROUND2 §하단 상세): WhyShift 병행(maps_routing·ACS,
+기존 도구 재사용) → δ(N) 스윕(N-cap 옵션 코드 필요) → FT-Transformer급 프로브 배터리 1차(GPU).
+③ 수치·문구 수정은 md 정본 먼저 → tex 전파.
+
+### (이력) 이전 현행 = 집필 파이프라인 종결 (LaTeX ✅ + KO ✅) (2026-07-16)
 
 **한 줄**: 사전등록 §0~§13 전부 실행·판독·커밋 (실험 큐 종결, 2026-07-15와 동일). **② TMLR
 LaTeX 전환 완료**: `paper/main.tex` + `paper/main.bib`(30항목, DOI 2건 doi.org 대조) +

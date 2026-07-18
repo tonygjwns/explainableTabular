@@ -1,6 +1,9 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.1 (2026-07-05, first external review incorporated). Target: TMLR (immediate) /
+> DRAFT v4.2 (2026-07-18, external review round 2 incorporated: abstract tightened; phantom
+> "propositions" wording removed; compute resources + data-license appendix added; sine_reoccur2
+> footnote; MLP-instability cause; running-example reading aid; Figure 2 map-at-a-glance;
+> anonymized-repo phrasing). Target: TMLR (immediate) /
 > NeurIPS D&B (next cycle); reviewer-suggested alternates: ECML-PKDD, KDD research track,
 > Machine Learning (Springer), DMKD — venues whose reviewer pools know the Gama/Webb definition
 > debate this paper's estimand-narrowing speaks to. Supersedes
@@ -18,26 +21,25 @@
 
 Which kind of temporal shift a tabular dataset exhibits — a changing rule P(y|x) or moving
 covariates P(x) — is rarely measured, and we show the verdict depends on the measuring
-instrument. We study *staleness harm*, a deployment-native probe (does adding old examples to a
-fixed recent training set hurt future performance?), and expose three executed failure modes:
-label-noise decay under a provably fixed rule mints a "concept drift" verdict matching a real
-industrial positive (+0.021 vs +0.024); the overlap gate meant to certify uninformative nulls
-saturates under duplicate rows and entity cohorts with zero covariate shift; and the
-concept/covariate separation is hypothesis-class-relative — a kNN probe reads pure covariate
-shift as concept drift (+0.098) while tree ensembles read it correctly. We repair the
-instrument — a cross-fitted *denoised staleness* arm with a noise gate and a mapped abstention
-envelope, group-aware separability, and learnability-gated injection certificates — and validate
-it on a 14-cell pre-registered battery, including rule change and noise drift co-occurring. A
-pre-registered audit of eight industrial datasets (TabReD) with confirmatory fresh-seed
-replication (10/10 verdicts stable) then yields an identifiability *map*, not a detection table:
-**no industrial dataset shows exploitable mean-rule drift above its detectable floor (0/8)**;
-the sole robust positive is designed drift; the one prior industrial positive is *diagnosed* by
-the instrument itself as label-noise decay; the remainder carry certificates — verified-null,
-earned blindness, or refused. Anchor streams establish the sensitivity profile: monotone and
-single-switch rule changes fire (9/9); recurring regimes are correctly silent, fingerprinted by
-a negative recency gain. We release the instrument, battery, and audit trail, and argue that
-drift-type attribution without identifiability certificates — the current default in drift
-monitoring — is unreliable.
+instrument. We study *staleness harm*, a deployment-native probe: does adding old examples to a
+fixed recent training set hurt future performance? Three executed failure modes make the naive
+probe untrustworthy. Label-noise decay under a provably fixed rule mints a "concept drift"
+verdict statistically matching a real industrial positive (+0.021 vs +0.024); the separability
+gate that should certify nulls saturates under duplicate rows and entity cohorts; and the
+concept/covariate separation is hypothesis-class-relative — kNN and linear probes false-fire
+where tree ensembles read correctly. We repair the instrument — a cross-fitted *denoised
+staleness* arm with a noise gate and a mapped abstention envelope, group-aware separability, and
+learnability-gated injection certificates — and validate it on a 14-cell pre-registered battery
+that includes rule change and noise drift co-occurring. A pre-registered audit of eight
+industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable) then yields
+an identifiability *map*, not a detection table: **no industrial dataset shows exploitable
+mean-rule drift above its detectable floor (0/8)**; the sole robust positive is designed drift;
+the one prior industrial positive is *diagnosed* by the instrument itself as label-noise decay;
+every remaining null carries a certificate — verified, blind, or refused. Anchor streams fix the
+sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
+correctly silent with a negative-recency fingerprint. We release the instrument, battery, and
+audit trail, and argue that drift-type attribution without identifiability certificates — the
+current default in drift monitoring — is unreliable.
 
 ---
 
@@ -174,8 +176,9 @@ class is crucial." Loog et al. (2019) show ERM risk can be non-monotone in sampl
 i.i.d., closing the door on any unconditional "more correct data cannot hurt" lemma. Gower-Winter
 et al. (2026) argue drift detection is ill-posed through windowing choices. We treat all of this
 as settled theory that the applied drift-monitoring stack has not absorbed, and contribute the
-executed demonstration + the repaired protocol; our propositions are scoping lemmas, not theory
-contributions.
+executed demonstration + the repaired protocol; we state no theorems of our own — where the
+paper sounds formal (the envelope, the certificates), the content is a measured boundary, not a
+proved one.
 
 **Old data harming.** Shimodaira (2000) is the mechanism for the misspecified case; the Data
 Addition Dilemma (Shen et al., 2024) documents mixture harm empirically in clinical ML;
@@ -246,6 +249,12 @@ flowchart TD
 Side channels drawn as annotations in the final figure: the strict-rule shadow verdict
 (rule-sensitive flag), the negative-recency fingerprint for recurring regimes (§6), the
 canary-probe panel (§4.3), and provenance stamping on every run.
+
+*Reading aid.* One real cell exercises most of the vocabulary below. On sberbank-housing
+(§5.3), the raw arm fires (+0.024) but the noise gate is on (2.1×) and the denoised arm is
+negative — so the cascade returns NOISE-DRIFT-CONFOUNDED rather than concept; had all three
+aligned inside the envelope, the verdict would have been DEPLOYMENT-CONCEPT, subject to an
+injection positive control.
 
 **Terminology (one line each).**
 
@@ -471,6 +480,12 @@ prediction failed. Both the primary rule (CI > 0 ∧ mean > floor) and the stric
 
 ### 5.2 Results: 10/10 confirmatory-stable; industrial mean-rule drift 0/8
 
+**Figure 2.** The map at a glance (vector source `paper/figures/fig2_map.tex`): one tile per
+dataset, colored by verdict class — green = rule-change verdict or verified no-concept, amber =
+diagnosed noise mechanism, blue = identifiable null, light blue = earned blindness, red =
+certificate refused, grey = unstable — with the load-bearing number (denoised staleness or
+injection recovery) inside each tile. The table below is the precise record.
+
 | dataset | verdict (= confirmatory) | raw | denoised | gate | certificate |
 |---|---|---|---|---|---|
 | insects | **DEPLOYMENT-CONCEPT** | +0.135 / +0.129 | **+0.152 / +0.145** | 1.24 | injection recovers (+0.162) |
@@ -501,7 +516,8 @@ The v2-era instrument (raw arm only) had reported sberbank-housing — the panel
 dataset — as its sole industrial concept positive (+0.024 [+0.018, +0.030]). The audit
 constructed the noise-decay null of §4.1 at matching magnitude; the v3 rerun then delivered the
 diagnosis. Across window resolutions K ∈ {5, 8, 10, 12, 20}: the raw arm fires at K ∈ {8, 10,
-12} (at K = 10 reproducing the v2 headline **bit-for-bit**, +0.023900573591226625 — the raw
+12} (at K = 10 reproducing the v2 headline **bit-for-bit** at +0.0239 — full precision
++0.023900573591226625, footnoted in the typeset version and recorded in the artifact; the raw
 pipeline's RNG stream is unchanged, so this is the *same* signal reinterpreted, not a
 re-measurement that happened to differ); the old window's measured noise proxy is 2.1–2.9× the
 recent median at every K; and the **denoised arm is significantly negative at every K** (−0.014
@@ -523,7 +539,10 @@ unidentifiable-with-earned-blindness. Electricity is the literature's canonical 
 dataset; whether a monitor confirms that reputation depends on the probe class, on identical
 data. The MLP panel also illustrates why canary verdicts must not be consumed directly: on the
 regression datasets its staleness estimates are numerically unstable (sberbank CI spanning ±15
-z-units; weather CI width 0.5), and no TabReD cell produces a new positive under it — the
+z-units; weather CI width 0.5) — driven by a few divergent fits: on sberbank, three of ten seeds
+land at |staleness| > 10 z-units while the other seven lie within ±2 (per-seed values in the
+committed artifact), i.e., occasional optimization failure of the un-tuned probe rather than
+signal — and no TabReD cell produces a new positive under it — the
 decision-grade map is unchanged. A second canary behavior is worth reporting as a
 warning: on ecom_offers the linear probe fires the *denoised* arm only (+0.028) with the raw arm
 null (−0.002) — a denoiser-artifact channel specific to misspecified probes (the linear ĝ_old's
@@ -539,7 +558,12 @@ temperature drift; Souza et al., 2020).
 
 **Monotone and single-switch rule changes fire: 9/9.** River: agrawal_abrupt +0.045,
 agrawal_gradual +0.047, stagger_abrupt, sine_abrupt +0.031, hyperplane_incremental +0.113 (with
-the gate correctly co-flagging its noise component), sine_reoccur2 +0.047. INSECTS:
+the gate correctly co-flagging its noise component), sine_reoccur2 +0.047 [reoccurring in name
+only for this lens's horizon: the stream returns to its initial regime just in its final ~22%,
+so most evaluated back-half windows sit inside the middle regime, whose rule is a near
+label-inversion of the anchor's — its recency gain is strongly *positive* (+0.30), the opposite
+of the recurring fingerprint, and geometry-matched siblings whose middle regime is not
+label-inverting read ≈0 (sine_reoccur −0.003, sine_reoccur3 −0.003)]. INSECTS:
 gradual-balanced +0.092, gradual-imbalanced +0.069, incremental +0.135 — in every firing cell,
 denoised ≥ raw, and the injection positive-control recovers. Weak switches (SEA's threshold
 nudge) land in the no-evidence band with consistent sign, reported with their detectable floors.
@@ -638,9 +662,17 @@ where the recurring-regime fingerprint (negative recency) is directly actionable
 
 ## 8. Reproducibility
 
-Everything is in one repository. The instrument is a single sklearn-only script
+Everything is in one repository, linked in anonymized form for review. The instrument is a
+single sklearn-only script
 (`scripts/run_deployment_decay.py`); every stochastic step is seeded, and every output artifact
-embeds its commit hash, argv, library versions, and UTC timestamp. The synthetic battery is
+embeds its commit hash, argv, library versions, and UTC timestamp. **Compute.** Every run in
+the paper is CPU-only — the instrument and all probe classes are scikit-learn models; no GPU is
+used anywhere — executed single-node on one shared multicore Linux server (Python 3.11.15,
+scikit-learn 1.9.0, NumPy 2.4.6; the environment freeze is committed). Wall-clock is
+reconstructable from the committed phase logs: the main pre-registered phases ran phase-parallel
+in ≈17 h on one calendar day, the model-class panel adds ≈2 h, and the optional cells (EMBER,
+the ACS bridge, canary reruns) ≈13 h across two further days; no single dataset cell exceeds a
+few CPU-hours. Per-source data access and license terms are tabulated in Appendix A. The synthetic battery is
 byte-reproducible (re-running `--synth` regenerates the committed artifact SHA-identical on the
 same environment), and the raw arm's RNG stream is stable across instrument versions (the v2
 headline number reproduces bit-for-bit under v3, which is what makes §5.3 a reinterpretation
@@ -654,6 +686,19 @@ and the river panel install via `river`; EMBER-2018 downloads from its public ar
 parsed by a dependency-free adapter. Exact cross-version bit-reproducibility of
 HistGradientBoosting across sklearn releases is *not* claimed; verdict-level stability across
 seed sets and across HGB/RF is (10/10 and 10/10, §5).
+
+## Appendix A. Data access and licenses
+
+Verified 2026-07-18 against each distributor:
+
+| source | access path in the pipeline | license / terms |
+|---|---|---|
+| TabReD (8 industrial datasets) | Kaggle, via the TabReD preprocessing tooling | per-competition Kaggle rules (acceptance required); TabReD tooling Apache-2.0 |
+| Electricity (elec2) | OpenML dataset 151 | listed "Public" by OpenML |
+| INSECTS (7 variants) | fetched through the `river` package | `river` BSD-3-Clause; dataset introduced by Souza et al. (2020) |
+| river synthetic streams (SEA/Agrawal/STAGGER/Sine/Hyperplane) | generated by `river` | BSD-3-Clause |
+| EMBER-2018 | public archive download; parsed by our dependency-free adapter | data files MIT (the ember *code* is AGPL-v3 and is not used) |
+| ACS (folktables bridge) | `folktables` | folktables MIT; ACS PUMS is public U.S. Census Bureau data |
 
 ## References (partial, verified during the audit)
 
