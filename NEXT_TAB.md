@@ -16,9 +16,24 @@ tectonic 재컴파일·육안 검증): 초록 압축 / §2 유령 "명제" 문�
 BSD-3). "학회 불일치" 지적은 전제 오류로 기각(TMLR 확정은 ELEVATION_VERDICT 2026-07-04).
 
 **다음 작업**: ① 제출 역학 — 익명 미러(anonymous.4open.science, 커밋 이력 보존; tex §8에
-TODO 주석) + PDF 메타데이터 점검 + TMLR LLM-선언 정책 확인 + Overleaf pdfLaTeX 1회 확인.
-② **리버탈 실험 큐**(서버, REVIEW_ROUND2 §하단 상세): WhyShift 병행(maps_routing·ACS,
-기존 도구 재사용) → δ(N) 스윕(N-cap 옵션 코드 필요) → FT-Transformer급 프로브 배터리 1차(GPU).
+TODO 주석) + Overleaf pdfLaTeX 1회 확인. (PDF 메타데이터 = 이미 깨끗 확인됨(Author/XMP 전무);
+TMLR author guide에 LLM-선언 요건 없음 확인 — 2026-07-18.)
+② **리버탈 실험 = 서버에서 아래 커맨드 실행** (신규 코드 불필요 — δ(N)은 기존 `--max-train`,
+`_load_tabred`는 max-n 미적용이라 캡만 올리면 됨; N=6000 앵커는 본 실행에 이미 커밋됨):
+```bash
+conda activate explaintab311 && cd ~/explainableTabular && git pull   # tmux에서, nohup 금지
+# [A] δ(N) 스윕 — null 셀 3개(리뷰 공격 표적), N ∈ {1500, 24000} + homecredit만 96000
+python scripts/run_deployment_decay.py --tabred homecredit_default weather maps_routing --n-seeds 10 --max-train 1500
+python scripts/run_deployment_decay.py --tabred homecredit_default weather maps_routing --n-seeds 10 --max-train 24000
+python scripts/run_deployment_decay.py --tabred homecredit_default --n-seeds 10 --max-train 96000
+# [B] WhyShift 병행 분해 — overlap 성립 셀 2개 (within-overlap 렌즈, P0 ess-게이트 포함)
+python scripts/run_representation.py --tabred maps_routing --n-seeds 5
+python scripts/run_whyshift.py --states CA --years 2014 2018 --task income
+```
+환류 = 각 스크립트가 마지막에 `wrote ... <-- send me this`로 찍는 summary json들 commit·push
+(δ(N)은 `results/phase1/deployment_decay/summary_*.json` 3개). 예상: [A] 합쳐 하룻밤(96k 셀이
+최장), [B] 1~2h. 판독·부록 B 반영은 로컬 탭이 함. FT-Transformer급 프로브(GPU·신규 코드)는
+[A][B] 환류 후 착수 여부 결정.
 ③ 수치·문구 수정은 md 정본 먼저 → tex 전파.
 
 ### (이력) 이전 현행 = 집필 파이프라인 종결 (LaTeX ✅ + KO ✅) (2026-07-16)
