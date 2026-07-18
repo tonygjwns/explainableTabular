@@ -1,6 +1,9 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.3 (2026-07-18, review round 3: §2 EMBER numbers unified to the certificate-grade
+> DRAFT v4.4 (2026-07-18, review round 4 on the typeset PDF — verdict "effectively
+> submittable": orphan references restored as inline citations (Johansson→§2 positivity,
+> Moreno-Torres→§3.1 estimand, Vela→§3.1 decay; \nocite removed), Fig. 2 aggregate band split
+> to two lines so tiles render at natural size. Round 3: §2 EMBER numbers unified to the certificate-grade
 > cell (−0.008/0.0013; the −0.012/0.0014 pair was the superseded full-history read); abstract
 > certificate accounting made exact (identifiable null + unstable cell now covered); §1 panel
 > accounting completed; §2 detector head-to-head scope sentence; §3.1 "cannot hurt" softened to
