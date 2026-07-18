@@ -1,6 +1,10 @@
 # Is There Exploitable Concept Drift in Industrial Tabular Data? A Pre-Registered Identifiability Audit
 
-> DRAFT v4.5 (2026-07-18, reviewer-2 adversarial review answered — the framing-level pass:
+> DRAFT v4.6 (2026-07-18, reviewer-2's ledger grading answered: §6 fingerprint claim re-scoped
+> to horizon-dominating recurrence (sine_reoccur2 is the in-paper counterexample; sub-window
+> periodicity explicitly uncovered); Appendix C decision-constants table (calibration source +
+> validity per constant); PREREG §14 pre-registers the [C]/[D] reading rules BEFORE the server
+> runs. v4.5 (reviewer-2 adversarial review answered — the framing-level pass:
 > abstract 0/8 bold now carries the tree-ensemble scope; "What we do not claim" adds the
 > deep-architecture non-adjudication sentence; §6 adds the recurring-fingerprint-silent-on-
 > every-industrial-cell sentence (artifact: all 8 cells recency ≥ 0, +0.000…+0.325, vs −0.023…
@@ -400,7 +404,8 @@ random forests and fails under linear/kNN probes (§4), so tree-ensemble verdict
 decision-grade and linear/kNN run as canaries. All runs emit provenance metadata (commit, argv,
 library versions, seeds) into versioned artifacts; the decision rules, thresholds, seed
 protocol (exploratory 0–9, confirmatory 100–109), and aggregate reading were committed before
-the runs they govern.
+the runs they govern. Appendix C tabulates every decision constant with its calibration source
+and validity range.
 
 ## 4. Validation: the battery, the envelope, and the class matrix
 
@@ -615,8 +620,13 @@ A monitor built on this lens will not *detect* recurring concept drift; it will 
 you old data is safe to keep, and its negative-recency flag tells you why. On the audited panel
 that flag is silent: every industrial cell reads recency gain ≥ 0 (from +0.000 on maps_routing
 to +0.325 on sberbank-housing), nowhere near the recurring signature (−0.023 to −0.058 on the
-oscillating streams) — the lens cannot detect recurring rule change, but the fingerprint gives
-no evidence that the audited industrial data lives in that blind spot.
+oscillating streams). This is deliberately a scoped statement: negative recency certifies
+recurrence only at scales that dominate the evaluation horizon — our own sine_reoccur2 anchor
+shows a late-returning regime (final ~22%) reading recency +0.30 — and drift at sub-window
+timescales is averaged away (§7, Limitation 2). The silent flag therefore rules out
+horizon-dominating recurrence on the audited panel; it says nothing about late, brief, or
+sub-window-periodic returns (intraday or day-of-week seasonality included), which remain
+uncovered by this check.
 
 **Calibration of the no-evidence band.** Two of five no-drift anchor streams produce
 "CI-significant" sub-floor denoised positives at 1/10–1/20 of the decision floor — seed-level
@@ -797,6 +807,22 @@ next to the deployment lens. The two instruments agree:
 Where overlap holds, the overlap lens and the deployment lens return the same verdict; the
 instrument disagreements this paper documents (§3–4) arise precisely where overlap fails —
 which is why verdicts must carry certificates.
+
+## Appendix C. Decision constants: calibration sources and validity
+
+Every decision constant in the cascade, with where it was calibrated and where it stops being
+valid. The instrument ports to a new domain by re-running this calibration recipe (the battery
+of §4.1 plus the no-drift anchors of §6), not by reusing the numbers.
+
+| constant | value | role | calibrated on | validity / outside behavior |
+|---|---|---|---|---|
+| decision floor | 0.02 | CONCEPT magnitude bar, shared across AUC / accuracy / z-scored −RMSE | battery concept magnitudes (planted effects 10–27× the floor); per-metric rescaling moves no cell (§4.1) | sub-floor CI-positives = no-evidence band, calibrated on no-drift anchors (2/5 land at 1/10–1/20 of the floor) |
+| noise gate | 1.5 | label-noise-drift flag (old proxy / recent median) | stable synthetic controls read 0.75–0.99; noise-drift cells read 3.5–3.9 | every real-data value falls below 1.5 or in 2.0–2.9 — nowhere near the envelope edge |
+| envelope | 4.7 | denoiser validity boundary; abstain above | measured on fixed-rule nulls: +0.014 at ratio 4.72, +0.026 at 5.71 (crosses the floor) | Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (§7, Limitation 4) |
+| D* | 0.96 | separability routing to the injection control | group-aware, size-matched repairs (duplicates 0.994→≈0.50; shuffle-D 0.94→0.50) | a routing statistic, never support overlap; D ≥ D* concludes nothing by itself |
+| learnability gates | AUC 0.65 / R² 0.20 / acc majority+0.10 | injection-certificate validity | executed junk-geometry control (in-window AUC 0.506 → vacuous) vs learnable control (0.964 → recovery +0.195) | unlearnable ⇒ certificate refused for that family — vacuity, not blindness |
+| injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | single reference family (§7, Limitation 6); the family sweep is the hardening step |
+| seed protocol | 10 (0–9) + confirmatory (100–109); battery 5 | power and stability | battery effects at 10–27× the floor make 5 a sufficient pass/fail gate | verdicts that move between seed sets are barred (unstable) |
 
 ## References (partial, verified during the audit)
 
