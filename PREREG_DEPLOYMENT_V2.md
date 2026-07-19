@@ -308,3 +308,44 @@ by-value 5윈도우, min_window 12k행).
   - **insects가 어떤 학습가능 패밀리에서 미회복** → 그 패밀리에 대한 계기 감도 한계로 §6에
     보고 (은폐 금지).
   - 학습불능 패밀리는 어떤 셀에서도 인증·반증 어느 쪽으로도 쓰지 않는다 (vacuous 규율).
+
+## 15. 감사-발견 결함 2건의 기록과 수리 (2026-07-18~19 로컬 실행; §6 규칙에 따른 신규 섹션)
+
+독립 교차감사(평가 메모 3건 + artifacts/ 전수 대조)가 두 결함을 실증했다. 둘 다 결과의
+오류가 아니라 **규율 집행의 공백**이며, 아래에 수리 기록을 남긴다.
+
+### 15a. 배터리-환경 불일치 (감사 B 논거 1) — 수리 완료
+
+- 결함: 유일한 배터리 PASS(01ae6ae)는 로컬(Python 3.14.3/sklearn 1.8.0), 실데이터 전 실행은
+  서버(3.11.15/1.9.0). §4의 전제("PASS 없이 실데이터 금지")가 환경 경계를 넘어 가정으로만
+  연결되어 있었다.
+- 수리: 서버-버전 일치 venv(Python 3.11.5/sklearn 1.9.0/numpy 2.4.6)에서 **무수정 코드**로
+  `--synth` 재실행 → **PASS, 커밋본과 14/14 판정 일치**. 오탐 채널 잔차: reg_early_noisy
+  den +0.0045@gate 3.53, reg_xdep_noise den +0.0063@3.72, 공존 셀 den +0.319 발화 유지.
+  아티팩트: repair_20260718/synth_battery_v3_PASS_sklearn190_py311_runA_unmodified-code.json
+  (UTC 2026-07-18T15:43).
+- 잔여: 서버 머신 자체에서의 재실행(§14 실행 시 선행)로 패치버전까지 봉인할 것.
+
+### 15b. strict 그림자 캐스케이드의 주입-단계 부재 (감사 B 논거 2) — 코드 수리 완료, 라벨은 잠정
+
+- 결함: 주입 승격이 `verdict`에만 적용되어 `verdict_strict`는 구조적으로 INJECTION-RECOVERED가
+  될 수 없었다 (구 741-745행). 따라서 cooking/delivery(및 kNN/elec2)의 verdict/strict 불일치는
+  **규칙 민감성이 아니라 그림자 캐스케이드의 기계적 공백**이다. §3의 문언("두 판정이 다른 셀은
+  rule-sensitive, 헤드라인 금지")을 문자 그대로 적용하면 두 셀은 헤드라인 부적격이었다 —
+  §9가 이를 기록하지 못했음을 인정한다.
+- 수리(코드): `_injection_recovers`가 CI 반환; 주입 실행 조건을 verdict **또는** verdict_strict가
+  UNIDENTIFIABLE*/CONCEPT인 경우로 확장; strict는 자기 규칙(B: 주입 CI하한>floor)으로 회복을
+  판정해 승격; `injected_staleness_ci`·`injection_recovered_strict` 방출.
+- 검증: 수정 코드로 배터리 재실행 → **PASS, raw 수치가 15a 실행과 비트 동일**(RNG 스트림
+  불변 증명), 전 셀 verdict·verdict_strict 불변, vacuity 규율 보존(covariate_mc: strict 회복
+  기준 충족이나 학습불능이므로 미승격). 아티팩트: repair_20260718/..._runB_strict-shadow-fix.json
+  (UTC 2026-07-18T17:04).
+- 라벨 판정 (사전 커밋): 기존 실데이터 아티팩트에는 주입 per-seed가 없어 rule-B 회복 CI를 사후
+  계산할 수 없다. cooking/delivery의 strict-확정 인증서는 §14 [D] 실행 시 자동 방출되는
+  `injection_recovered_strict`로 판정하며, **그때까지 두 셀의 INJECTION-RECOVERED는
+  primary-rule-only 라벨로 표기하고 §5.2 헤드라인에 caveat을 부착한다** (REVISION_NOTES R4).
+  예측(결과 확인 전): 회복 마진이 floor의 16~27×이므로 strict에서도 회복될 것. 미회복 시
+  §14 [D]의 양방향 규정대로 family-상대적 재표기.
+- 부수 명시: MLP/elec2의 verdict/strict 불일치(CONCEPT vs UNIDENT-INERT)는 이 공백과 무관한
+  **실질적 rule-sensitivity**다 (den +0.025가 rule B 미달). §5.4 서술을 linear(양 규칙 견고)와
+  MLP(rule-sensitive)로 분리 표기할 것.

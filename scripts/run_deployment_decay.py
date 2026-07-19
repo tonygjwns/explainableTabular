@@ -396,7 +396,9 @@ def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, s
     """Inject a reference-strength concept into (X, t) and test whether staleness fires.
     v3: learnability-gated (an unlearnable injection cannot 'earn' blindness), n_seeds matches the
     real read (audit L4: was 4), injected features logged. Returns
-    (recovered, injected_staleness_mean, learnable, learn_score, feats)."""
+    (recovered, injected_staleness_mean, injected_staleness_ci, learnable, learn_score, feats).
+    The CI is returned so the strict-rule shadow cascade can judge recovery under its own rule
+    (PREREG §15: the shadow verdict must traverse the injection stage too, not stop before it)."""
     y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH, family=family)
     learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value, seed=seed_base)
     st = []
@@ -406,7 +408,7 @@ def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, s
             st.append(out["stale"])
     m, ci = _ci95(st)
     recovered = m is not None and ci[0] is not None and ci[0] > 0 and m > FLOOR_GAIN
-    return recovered, m, learnable, lscore, feats
+    return recovered, m, ci, learnable, lscore, feats
 
 
 def _sanitize(X):
@@ -735,8 +737,12 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
     # ---- injection control. v3: learnability-gated, n_seeds=INJ_SEEDS, runs on the CONCEPT
     #      branch too as a positive control (v2 left the only positive cell uncontrolled).
     inj_stale = inj_learnable = inj_lscore = None; inj_feats = None
-    if measured and (verdict.startswith("UNIDENTIFIABLE") or verdict == "DEPLOYMENT-CONCEPT"):
-        recovered, inj_stale, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
+    inj_ci = None; inj_recovered_strict = None
+    _needs_inj = lambda v: v.startswith("UNIDENTIFIABLE") or v == "DEPLOYMENT-CONCEPT"
+    # PREREG §15: injection also runs when only the STRICT verdict routes to it (e.g. rule A reads
+    # NOISE-DRIFT-CONFOUNDED but rule B lands UNIDENTIFIABLE) so the shadow cascade is complete.
+    if measured and (_needs_inj(verdict) or _needs_inj(verdict_strict)):
+        recovered, inj_stale, inj_ci, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
             X, t, task, K, by_value, max_train, seed_base=seed_base, family=inj_family)
         if verdict.startswith("UNIDENTIFIABLE"):
             if not inj_learnable:
@@ -745,11 +751,18 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
                 verdict = "INJECTION-RECOVERED"; flags.append("injection-recovered")
             else:                                          # blindness demonstrated on real geometry
                 flags.append("unident-earned")
-        else:                                              # CONCEPT positive control
+        elif verdict == "DEPLOYMENT-CONCEPT":              # CONCEPT positive control
             if not inj_learnable:
                 flags.append("injection-vacuous")
             elif not recovered:
                 flags.append("injection-no-recover-on-concept")
+        # strict shadow traverses the same stage under its own rule (B: CI lower bound > floor);
+        # before this, any INJECTION-RECOVERED cell trivially diverged from its shadow (the gap
+        # behind the cooking/delivery rule-sensitive mislabels, PREREG §15).
+        inj_recovered_strict = (inj_ci is not None and inj_ci[0] is not None
+                                and inj_ci[0] > FLOOR_GAIN)
+        if verdict_strict.startswith("UNIDENTIFIABLE") and inj_learnable and inj_recovered_strict:
+            verdict_strict = "INJECTION-RECOVERED"
     if D_shuffle is not None and D_shuffle > 0.6:          # unconditional (audit L3: was branch-scoped)
         flags.append("d-gate-suspect")
     if min_window_n and min_window_n < ROW_FLOOR:
@@ -766,7 +779,9 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             "gate_thresh": GATE_THRESH, "gate_envelope": GATE_ENVELOPE,
             "D_strip": D_strip, "D_spread": D_spread, "D_full": D_full, "D_shuffle": D_shuffle,
             "dup_group_frac": dup_frac,
-            "injected_staleness": inj_stale, "injection_learnable": inj_learnable,
+            "injected_staleness": inj_stale, "injected_staleness_ci": inj_ci,
+            "injection_learnable": inj_learnable,
+            "injection_recovered_strict": inj_recovered_strict,
             "injection_learn_score": inj_lscore, "injection_features": inj_feats,
             "injection_family": inj_family,
             "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
