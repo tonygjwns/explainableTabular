@@ -1,0 +1,73 @@
+--- MAP / HGB exploratory seeds 0-9  (n=10)
+    D vs denoised : Pearson r=-0.223 (p=0.536)   Spearman rho=+0.075 (p=0.837)
+    D vs raw      : Pearson r=-0.198 (p=0.583)   Spearman rho=+0.356 (p=0.312)
+    D range [0.578, 1.000]   denoised range [-0.0180, +0.1520]
+      sberbank_housing                   D=1.0000  den=-0.01447  raw=+0.02390  NOISE-DRIFT-CONFOUNDED
+      homesite_insurance                 D=1.0000  den=-0.00169  raw=-0.00394  UNIDENTIFIABLE-INERT
+      ecom_offers                        D=1.0000  den=-0.00739  raw=-0.00080  UNIDENTIFIABLE-EXPLOITABLE
+      elec2                              D=1.0000  den=+0.00078  raw=+0.00108  UNIDENTIFIABLE-EXPLOITABLE
+      homecredit_default                 D=0.9998  den=+0.00399  raw=-0.00682  UNIDENTIFIABLE-EXPLOITABLE
+      delivery_eta                       D=0.9990  den=-0.01413  raw=-0.01193  INJECTION-RECOVERED
+      weather                            D=0.9937  den=-0.01104  raw=-0.01150  UNIDENTIFIABLE-EXPLOITABLE
+      cooking_time                       D=0.9656  den=-0.01800  raw=-0.01097  INJECTION-RECOVERED
+      insects_incremental_balanced       D=0.8436  den=+0.15204  raw=+0.13475  DEPLOYMENT-CONCEPT
+      maps_routing                       D=0.5775  den=-0.00992  raw=-0.00751  NO-STRONG-CONCEPT
+--- MAP / HGB confirmatory seeds 100-109  (n=10)
+    D vs denoised : Pearson r=-0.225 (p=0.531)   Spearman rho=+0.025 (p=0.945)
+    D vs raw      : Pearson r=-0.191 (p=0.597)   Spearman rho=+0.269 (p=0.453)
+    D range [0.578, 1.000]   denoised range [-0.0192, +0.1445]
+      sberbank_housing                   D=1.0000  den=-0.01126  raw=+0.03303  NOISE-DRIFT-CONFOUNDED
+      homesite_insurance                 D=1.0000  den=-0.00149  raw=-0.00413  UNIDENTIFIABLE-INERT
+      ecom_offers                        D=1.0000  den=-0.01320  raw=-0.00848  UNIDENTIFIABLE-EXPLOITABLE
+      elec2                              D=1.0000  den=-0.00107  raw=+0.00001  UNIDENTIFIABLE-EXPLOITABLE
+      homecredit_default                 D=0.9998  den=+0.00516  raw=-0.00531  UNIDENTIFIABLE-EXPLOITABLE
+      delivery_eta                       D=0.9990  den=-0.01402  raw=-0.01108  INJECTION-RECOVERED
+      weather                            D=0.9937  den=-0.01197  raw=-0.01242  UNIDENTIFIABLE-EXPLOITABLE
+      cooking_time                       D=0.9656  den=-0.01917  raw=-0.01161  INJECTION-RECOVERED
+      insects_incremental_balanced       D=0.8436  den=+0.14447  raw=+0.12896  DEPLOYMENT-CONCEPT
+      maps_routing                       D=0.5775  den=-0.00992  raw=-0.00751  NO-STRONG-CONCEPT
+--- SYNTH BATTERY (14 cells, ground truth known)  (n=14)
+    D vs denoised : Pearson r=-0.410 (p=0.145)   Spearman rho=-0.469 (p=0.091)
+    D vs raw      : Pearson r=-0.421 (p=0.134)   Spearman rho=-0.397 (p=0.160)
+    D range [0.508, 0.995]   denoised range [-0.0193, +0.5410]
+      synth_covariate                    D=0.9950  den=-0.00033  raw=-0.00064  UNIDENTIFIABLE-EXPLOITABLE
+      synth_covariate_mc                 D=0.9950  den=-0.00422  raw=-0.00281  UNIDENTIFIABLE-EXPLOITABLE
+      synth_reg_cov_linear               D=0.9950  den=+0.00411  raw=+0.00180  UNIDENTIFIABLE-EXPLOITABLE
+      synth_reg_cov_nonlinear            D=0.9950  den=-0.00315  raw=-0.00532  UNIDENTIFIABLE-EXPLOITABLE
+      synth_covariate_mild               D=0.7300  den=+0.00095  raw=-0.00340  NO-STRONG-CONCEPT
+      synth_concept                      D=0.5151  den=+0.28934  raw=+0.28012  DEPLOYMENT-CONCEPT
+      synth_reg_concept                  D=0.5151  den=+0.54103  raw=+0.54564  DEPLOYMENT-CONCEPT
+      synth_reg_concept_earlynoisy       D=0.5151  den=+0.31630  raw=+0.35741  DEPLOYMENT-CONCEPT
+      synth_stable                       D=0.5151  den=-0.00022  raw=-0.00074  NO-STRONG-CONCEPT
+      synth_reg_stable                   D=0.5151  den=-0.00190  raw=-0.01212  NO-STRONG-CONCEPT
+      synth_reg_early_noisy              D=0.5151  den=+0.00372  raw=+0.02137  NOISE-DRIFT-CONFOUNDED
+      synth_reg_late_noisy               D=0.5151  den=-0.01932  raw=-0.02257  NO-STRONG-CONCEPT
+      synth_reg_xdep_noise               D=0.5151  den=+0.00476  raw=+0.02537  NOISE-DRIFT-CONFOUNDED
+      synth_nuisance_proxy               D=0.5083  den=+0.20589  raw=+0.20333  DEPLOYMENT-CONCEPT
+--- RIVER ANCHORS (23 streams)  (n=23)
+    D vs denoised : Pearson r=-0.057 (p=0.794)   Spearman rho=-0.122 (p=0.578)
+    D vs raw      : Pearson r=-0.072 (p=0.745)   Spearman rho=-0.112 (p=0.611)
+    D range [0.482, 0.513]   denoised range [-0.1010, +0.1222]
+      river_hyperplane_static            D=0.5127  den=-0.00603  raw=-0.01296  NO-STRONG-CONCEPT
+      river_stagger_nodrift              D=0.5028  den=+0.00000  raw=+0.00000  NO-STRONG-CONCEPT
+      river_stagger_reoccur_early        D=0.5000  den=-0.10099  raw=-0.10099  DEPLOYMENT-DECAY-COVARIATE
+      river_stagger_abrupt               D=0.5000  den=+0.11677  raw=+0.11677  DEPLOYMENT-CONCEPT
+      river_sea_abrupt                   D=0.4991  den=+0.00493  raw=+0.00294  SUBFLOOR-CONCEPT-SIGNAL
+      river_sea_nodrift                  D=0.4990  den=+0.00100  raw=-0.00078  SUBFLOOR-CONCEPT-SIGNAL
+      river_agrawal_abrupt               D=0.4982  den=+0.04670  raw=+0.04502  DEPLOYMENT-CONCEPT
+      river_stagger_reoccur              D=0.4952  den=-0.06410  raw=-0.06410  DEPLOYMENT-DECAY-COVARIATE
+      river_stagger_reoccur2             D=0.4952  den=-0.04162  raw=-0.04162  DEPLOYMENT-DECAY-COVARIATE
+      river_sine_nodrift                 D=0.4943  den=+0.00097  raw=-0.00109  SUBFLOOR-CONCEPT-SIGNAL
+      river_hyperplane_incr              D=0.4926  den=+0.12223  raw=+0.11249  DEPLOYMENT-CONCEPT
+      river_sea_reoccur                  D=0.4923  den=+0.00184  raw=-0.00012  SUBFLOOR-CONCEPT-SIGNAL
+      river_sea_reoccur2                 D=0.4923  den=+0.00142  raw=-0.00087  SUBFLOOR-CONCEPT-SIGNAL
+      river_sine_reoccur                 D=0.4907  den=+0.00018  raw=-0.00291  DEPLOYMENT-DECAY-COVARIATE
+      river_sine_reoccur2                D=0.4907  den=+0.04951  raw=+0.04694  DEPLOYMENT-CONCEPT
+      river_sine_reoccur3                D=0.4907  den=+0.00018  raw=-0.00291  DEPLOYMENT-DECAY-COVARIATE
+      river_agrawal_gradual              D=0.4895  den=+0.04799  raw=+0.04704  DEPLOYMENT-CONCEPT
+      river_sine_abrupt                  D=0.4881  den=+0.02742  raw=+0.03103  DEPLOYMENT-CONCEPT
+      river_agrawal_nodrift              D=0.4876  den=+0.00000  raw=+0.00000  NO-STRONG-CONCEPT
+      river_agrawal_reoccur              D=0.4866  den=+0.00723  raw=+0.00678  SUBFLOOR-CONCEPT-SIGNAL
+      river_agrawal_reoccur2             D=0.4866  den=-0.02477  raw=-0.02513  DEPLOYMENT-DECAY-COVARIATE
+      river_sea_gradual                  D=0.4860  den=+0.00323  raw=+0.00295  SUBFLOOR-CONCEPT-SIGNAL
+      river_sine_reoccur_late            D=0.4819  den=-0.00270  raw=-0.00591  DEPLOYMENT-DECAY-COVARIATE
