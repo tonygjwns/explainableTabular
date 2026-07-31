@@ -66,6 +66,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np  # noqa: E402
@@ -315,6 +316,47 @@ def _disjointness(X, win, Keff, seed=0, groups=None):
     return float(np.median(aucs)) if aucs else None
 
 
+def _hms(s):
+    s = int(max(s, 0)); h, m = divmod(s, 3600); m, s = divmod(m, 60)
+    return f"{h:d}h{m:02d}m" if h else (f"{m:d}m{s:02d}s" if m else f"{s:d}s")
+
+
+class _Progress:
+    """Line-based progress + ETA on stderr. Deliberately NOT tqdm and deliberately not \\r:
+    these runs are watched through `tee`d logs and tmux scrollback, where carriage-return
+    progress bars turn the log into an unreadable single line. One line per completed unit is
+    greppable after the fact and survives a disconnected ssh session.
+
+    Motivation: a full-span audit prints one verdict line per dataset, i.e. 8 lines over ~4
+    hours, so 25-40 minutes of silence is indistinguishable from a stall -- and thread
+    oversubscription (which has already cost this project a 4.4x slowdown between p2a and p2b,
+    and an 8-hour local run at 1.09x parallelism) presents exactly as silence.
+
+    Pure I/O: touches no RNG stream, no computation, and nothing that reaches a returned value.
+    Silenced with --no-progress."""
+
+    enabled = True
+
+    def __init__(self, label, total):
+        self.label, self.total, self.k, self.t0 = label, int(total), 0, time.time()
+
+    def tick(self, note=""):
+        self.k += 1
+        if not _Progress.enabled:
+            return
+        el = time.time() - self.t0
+        rate = el / max(self.k, 1)
+        eta = rate * (self.total - self.k)
+        print(f"      [{self.label}] {self.k}/{self.total}  elapsed {_hms(el)}"
+              f"  eta {_hms(eta)}  ({rate:.1f}s/unit){(' ' + note) if note else ''}",
+              file=sys.stderr, flush=True)
+
+    def done(self):
+        if _Progress.enabled:
+            print(f"      [{self.label}] done in {_hms(time.time() - self.t0)}",
+                  file=sys.stderr, flush=True)
+
+
 def _z(v):
     v = np.asarray(v, float); s = np.std(v)
     return (v - np.mean(v)) / (s + 1e-12)
@@ -449,10 +491,12 @@ def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, s
     y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH, family=family, cols=cols)
     learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value, seed=seed_base)
     st = []
+    pg = _Progress(f"injection {family}@{cols}", n_seeds)
     for s in range(seed_base, seed_base + n_seeds):
         out = _per_seed(X, y_inj, t, task, K, by_value, max_train, s)
         if out is not None and out["stale"] is not None:
             st.append(out["stale"])
+        pg.tick()
     m, ci = _ci95(st)
     recovered = m is not None and ci[0] is not None and ci[0] > 0 and m > FLOOR_GAIN
     return recovered, m, ci, learnable, lscore, feats, st
@@ -719,8 +763,10 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
 
     decay_s, rec_s, stale_s, den_s, ratio_s = [], [], [], [], []
     abs_s, win_s = [], []                                  # PART 5.1 observation channel
+    pg = _Progress(f"{name} seeds", n_seeds)
     for s in range(seed_base, seed_base + n_seeds):
         out = _per_seed(X, y, t, task, K, by_value, max_train, s)
+        pg.tick()
         if out is None:
             continue
         Keff = out["Keff"]
@@ -1175,11 +1221,15 @@ def main():
                          "learnability gate, making a non-recovery uninterpretable. Recorded "
                          "per-row as injection_cols.")
     ap.add_argument("--synth", action="store_true")
+    ap.add_argument("--no-progress", action="store_true",
+                    help="silence the per-seed / per-dataset progress+ETA lines on stderr "
+                         "(stdout verdict records are unaffected either way)")
     ap.add_argument("--debug-raise", action="store_true",
                     help="re-raise HGB fit errors with full traceback (diagnose the binning crash)")
     args = ap.parse_args()
     if args.debug_raise:
         globals()["_DEBUG_RAISE"] = True
+    _Progress.enabled = not args.no_progress
     _apply_model_class(args.model)                      # no-op for hgb (default compute unchanged)
     out_dir = Path("results/phase1/deployment_decay"); out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -1195,11 +1245,15 @@ def main():
         print(f"  EXPECT not-CONCEPT:  {', '.join(NEVER_CONCEPT)}")
         print(f"  EXPECT NOISE-DRIFT-CONFOUNDED: {', '.join(MUST_NOISE_CONF)}")
         print("  EXPECT covariate_mild != UNIDENTIFIABLE-* (identifiable-regime coverage)")
-        for kind in MUST_CONCEPT + NEVER_CONCEPT:
+        cells = MUST_CONCEPT + NEVER_CONCEPT
+        cells_pg = _Progress("battery cells", len(cells))
+        for ci, kind in enumerate(cells, 1):
+            print(f"  [{ci}/{len(cells)}] synth_{kind}", flush=True)
             X, y, t, task = _synth(kind)
             r = assess(f"synth_{kind}", X, y, t, task, K=args.windows, n_seeds=args.n_seeds,
                        max_train=args.max_train)
-            rows.append(r); _show(r)
+            rows.append(r); _show(r); cells_pg.tick(f"<- synth_{kind}")
+        cells_pg.done()
         blob = {"meta": _run_meta(args), "rows": rows}
         (out_dir / "synth_summary.json").write_text(json.dumps(blob, indent=2, default=float))
         verdicts = {r["dataset"]: r["verdict"] for r in rows}
@@ -1255,8 +1309,9 @@ def main():
         return
 
     print("\n==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====")
-    for name, X, y, t, task, nf in jobs:
-        print(f"  [{name}] task={task} feats={nf} n={len(y)}")
+    jobs_pg = _Progress("datasets", len(jobs))
+    for ji, (name, X, y, t, task, nf) in enumerate(jobs, 1):
+        print(f"  [{ji}/{len(jobs)}] [{name}] task={task} feats={nf} n={len(y)}", flush=True)
         try:
             r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
                        n_seeds=args.n_seeds, max_train=args.max_train,
@@ -1268,7 +1323,8 @@ def main():
                  "decay": None, "decay_ci": [None, None], "recency_gain": None,
                  "recency_gain_ci": [None, None], "staleness_harm": None,
                  "staleness_harm_ci": [None, None], "n_windows": 0}
-        rows.append(r); _show(r)
+        rows.append(r); _show(r); jobs_pg.tick(f"<- {name}")
+    jobs_pg.done()
     print("\n  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the")
     print("  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never")
     print("  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.")
