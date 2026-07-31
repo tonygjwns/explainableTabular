@@ -51,8 +51,9 @@ learnability-gated injection certificates — and validate it on a 14-cell pre-r
 that includes rule change and noise drift co-occurring. A pre-registered audit of eight
 industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable) then yields
 an identifiability *map*, not a detection table: **no industrial dataset shows exploitable
-mean-rule drift above its detectable floor for the deployed tree-ensemble class (0/8)**; the
-sole robust positive is designed drift;
+mean-rule drift above its detectable floor for the deployed tree-ensemble class (0/8 audited —
+and 0/4 among the cells whose identifiability is certified; the other four are uninformative
+rather than negative)**; the sole robust positive is designed drift;
 the one prior industrial positive is *diagnosed* by the instrument itself as label-noise decay;
 every remaining cell is either an identifiable null or carries a certificate verdict — verified,
 blind, refused, or (one cell) unstable. Anchor streams fix the
@@ -134,7 +135,8 @@ reading before the runs (rule → prediction → execution → read, evidenced b
 then audited eight TabReD datasets, Electricity, and the INSECTS streams, with a confirmatory
 fresh-seed replication and a model-class panel. The result is not a detection table but an
 identifiability map (§5): industrial mean-rule drift above the per-dataset detectable floor is
-**0/8**; the designed-drift stream is the sole positive (and its denoised staleness *exceeds* the
+**0/8 audited — 0/4 among the certified cells**, the remaining four being uninformative rather
+than negative; the designed-drift stream is the sole positive (and its denoised staleness *exceeds* the
 raw one — the signature of genuine rule change); the single prior industrial positive is
 *diagnosed* — not merely retracted — as label-noise decay, by the same instrument that once
 minted it; two datasets earn a verified no-concept certificate via injection recovery; one earns
@@ -156,7 +158,9 @@ consistent with how temporal degradation actually arises there (Pendlebury et al
    the adversarial combinations (rule change *and* noise drift co-occurring must still fire —
    it does, at 58% of clean power).
 3. *A pre-registered identifiability map of industrial tabular ML* (§5): 0/8 exploitable
-   mean-rule drift; one diagnosed false positive with mechanism; per-dataset certificates and
+   mean-rule drift over the audited panel — 0/4 once the four certificate-less cells are
+   separated out, which is the map's point rather than a caveat to it;
+   one diagnosed false positive with mechanism; per-dataset certificates and
    detectable-effect bounds; 10/10 confirmatory stability and 10/10 cross-class (HGB↔RF)
    agreement, with a real-data demonstration that a linear monitor flips the canonical
    Electricity dataset to "concept drift".
@@ -230,7 +234,9 @@ into streams (Poenaru-Olaru et al., 2022); Detectron (Ginsberg et al., 2023) def
 shift model-relatively. Our injection control differs in role: it is an *in-situ, per-dataset
 power certificate* (planted in the real covariate geometry, learnability-gated), used to
 distinguish earned blindness from instrument vacuity — a distinction we show matters on real
-data, where three of four "unidentifiable" cells fail the learnability gate. We do not run
+data, where *all four* of the industrial "unidentifiable" cells fail to earn a certificate
+(three because the planted rule is unlearnable in their geometry, the fourth because its
+learnability score straddles the gate across seed sets). We do not run
 these detectors head-to-head on the audited cells: a loss-stream detector answers "did anything
 change?" and is type-blind by construction, so its fires would not bear on drift-*type*
 attribution; the canary panel (§4.3) is the like-for-like comparison — what a weaker
@@ -383,11 +389,30 @@ are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.506) an
 protocol grants "earned blindness" vacuously; the gate converts that to *injection-vacuous* —
 certificate refused. Outcomes: recovery (⇒ the real null was informative: verified no-concept),
 earned blindness (learnable but unrecoverable ⇒ the geometry genuinely hides this signal
-class), or vacuity (no certificate). On the real audit, this distinction is load-bearing: 3 of 4
-"unidentifiable" industrial cells fail the learnability gate. The certificate is explicitly
+class), or vacuity (no certificate). On the real audit, this distinction is load-bearing: all
+four "unidentifiable" industrial cells end without an earned certificate — three fail the
+learnability gate outright, and the fourth (homesite_insurance) scores within 0.05 of the gate
+and flips across seed sets. The certificate is explicitly
 relative to this reference family: recovery certifies power against rotations carried by the
 dataset's high-variance directions, not against rule changes living in low-variance features,
 interactions, or subpopulations (§7, Limitation 6).
+
+**The identification boundary (restatement of prior work, not a new result).** Let R be the
+region of covariate space the future windows occupy and the old anchor does not. On R, P(y|x) is
+not nonparametrically identified from the observed windows: two conditionals that agree on the
+old window's support and differ on R induce identical observable data, because no old rows fall
+in R. This is the time-axis instance of the shared-support requirement that DISDE makes explicit
+(Cai et al., 2023, Prop. 1), and we claim no theorem of our own. Three properties of the
+instrument follow from it rather than from convenience. Abstention is *correctness*, not
+timidity. D is a routing statistic for how close a panel sits to that boundary, and never a
+measure of support overlap itself — which is why D ≥ D\* concludes nothing on its own and hands
+off to the injection control. And a cell without an identifiability certificate cannot be
+evidence of *no drift*; it is only evidence of *no measurement*, which is why we carry the 0/4
+certified count alongside the pre-registered 0/8 (§5.2). In the opposite direction —
+*soundness*, i.e. staleness > 0 implying rule change — no theorem is available to be had: Loog
+et al. (2019) show ERM risk is non-monotone in added same-distribution data, so E[staleness] > 0
+is possible under zero drift and zero heteroscedasticity. That asymmetry is why §4.2 reports a
+*measured* validity envelope where a soundness lemma would otherwise go.
 
 ### 3.3 Decision cascade and scope
 
@@ -515,7 +540,7 @@ industrial positive was pre-registered as a *retraction candidate with a predict
 prediction failed. Both the primary rule (CI > 0 ∧ mean > floor) and the strict rule
 (CI > floor) are computed; rule-sensitive cells are flagged.
 
-### 5.2 Results: 10/10 confirmatory-stable; industrial mean-rule drift 0/8
+### 5.2 Results: 10/10 confirmatory-stable; industrial mean-rule drift 0/8 audited, 0/4 certified
 
 **Figure 2.** The map at a glance (vector source `paper/figures/fig2_map.tex`): one tile per
 dataset, colored by verdict class — green = rule-change verdict or verified no-concept, amber =
@@ -524,22 +549,34 @@ certificate refused, grey = unstable — with the load-bearing number (denoised 
 injection recovery) inside each tile. Color is redundant: every tile also prints its verdict
 (color-vision-safe). The table below is the precise record.
 
-| dataset | verdict (= confirmatory) | raw | denoised | gate | certificate |
-|---|---|---|---|---|---|
-| insects | **DEPLOYMENT-CONCEPT** | +0.135 / +0.129 | **+0.152 / +0.145** | 1.24 | injection recovers (+0.162) |
-| sberbank_housing | **NOISE-DRIFT-CONFOUNDED** | +0.024 / +0.033 (fires) | **−0.015 / −0.011** | **2.11 / 2.21 (fires)** | — (diagnosed, §5.3) |
-| cooking_time | INJECTION-RECOVERED | −0.011 | −0.018 | 0.92 | **verified no-concept** (inj +0.55) |
-| delivery_eta | INJECTION-RECOVERED | −0.012 | −0.014 | 0.89 | **verified no-concept** (inj +0.33) |
-| maps_routing | NO-STRONG-CONCEPT | −0.008 | −0.010 | 1.01 | identifiable region (D 0.58) |
-| elec2 | UNIDENTIFIABLE | +0.001 | +0.001 | 0.66 | **blindness earned** (inj learnable, +0.018) |
-| ecom_offers | UNIDENTIFIABLE | −0.001 | −0.007 | 1.25 | *vacuous* — injection unlearnable |
-| homecredit_default | UNIDENTIFIABLE | −0.007 | +0.004 | 1.29 | *vacuous* (80 proxy features stripped) |
-| weather | UNIDENTIFIABLE | −0.012 | −0.011 | 0.93 | *vacuous* |
-| homesite_insurance | UNIDENTIFIABLE-INERT | −0.004 | −0.002 | 1.14 | *unstable* (vacuous↔earned across seed sets) |
+| dataset | verdict (= confirmatory) | raw | denoised | gate | D | Rec. | certificate |
+|---|---|---|---|---|---|---|---|
+| insects | **DEPLOYMENT-CONCEPT** | +0.135 / +0.129 | **+0.152 / +0.145** | 1.24 | 0.844 | +0.162 | injection recovers |
+| sberbank_housing | **NOISE-DRIFT-CONFOUNDED** | +0.024 / +0.033 (fires) | **−0.015 / −0.011** | **2.11 / 2.21 (fires)** | 1.000 | — | — (diagnosed, §5.3) |
+| cooking_time | INJECTION-RECOVERED | −0.011 | −0.018 | 0.92 | 0.966 | **+0.546** | **verified no-concept** |
+| delivery_eta | INJECTION-RECOVERED | −0.012 | −0.014 | 0.89 | 0.999 | **+0.332** | **verified no-concept** |
+| maps_routing | NO-STRONG-CONCEPT | −0.008 | −0.010 | 1.01 | 0.578 | n/a | identifiable region |
+| elec2 | UNIDENTIFIABLE | +0.001 | +0.001 | 0.66 | 1.000 | +0.018 | **blindness earned** (inj learnable) |
+| ecom_offers | UNIDENTIFIABLE | −0.001 | −0.007 | 1.25 | 1.000 | — | *vacuous* — injection unlearnable |
+| homecredit_default | UNIDENTIFIABLE | −0.007 | +0.004 | 1.29 | 1.000 | — | *vacuous* (80 proxy features stripped) |
+| weather | UNIDENTIFIABLE | −0.012 | −0.011 | 0.93 | 0.994 | — | *vacuous* |
+| homesite_insurance | UNIDENTIFIABLE-INERT | −0.004 | −0.002 | 1.14 | 1.000 | −0.052 | *unstable* (vacuous↔earned across seed sets) |
+
+*D* = `D_strip`, the group-aware separability median (D\* = 0.96 routes to the injection
+control). *Rec.* = recovered staleness of the planted reference rule (2.5 rad); "—" = the
+injection was unlearnable, so no recovery number is admissible (vacuity discipline), and *n/a* =
+the cell never routes to the injection control. Recovery values move by <0.01 between seed sets
+except on homesite_insurance, whose certificate is unstable for exactly that reason. Reading
+*Rec.* against *D* is the subject of the last paragraph of this section.
 
 (Where two numbers are shown: exploratory / confirmatory.) The pre-registered aggregate reading:
 **relative to the tree-ensemble class, the number of industrial datasets with exploitable
-mean-rule drift above the per-dataset detectable floor is 0/8.** The only concept positive is
+mean-rule drift above the per-dataset detectable floor is 0/8.** That count is over the eight
+datasets *audited*; the count over the eight datasets *whose identifiability is certified* is
+**0/4**, because ecom_offers, homecredit_default, weather (certificate refused — the planted
+probe rule is unlearnable in their geometry) and homesite_insurance (certificate unstable across
+seed sets) contribute no evidence in either direction. We report both numbers wherever the
+aggregate appears: the first is what was pre-registered, the second is what it is worth. The only concept positive is
 the designed-drift stream, where the denoised arm *exceeds* the raw arm — pseudo-labels encode
 the old rule cleanly once label noise is removed, the signature of genuine rule change. Three of
 four blindness claims that a naive protocol would have granted turn out to be *vacuous* (the
@@ -547,6 +584,20 @@ planted probe rule is unlearnable in those geometries — their top-variance fea
 it), a distinction invisible without the learnability gate. The strongest cells in the map are,
 counter-intuitively, the two verified no-concept certificates: geometry demonstrably has power
 (+0.55/+0.33 recovery of a planted rule) and the real staleness is still null.
+
+**Certified is not uniform: power collapses inside the routing region.** D\* = 0.96 is a binary
+gate, but the injection control — a planted rule of *fixed* strength (2.5 rad) — is recovered at
+very different magnitudes just inside it: cooking_time (D = 0.966) recovers +0.546,
+delivery_eta (D = 0.999) +0.332, Electricity (D = 1.000) +0.018, homesite_insurance
+(D = 1.000) −0.052. Learnability does not explain the ordering — Electricity's planted rule is
+the *most* learnable in the panel (in-window AUC 0.976) and still barely recovers; what collapses
+across D is recovery, not learnability. Over every learnable injection run at decision grade the
+rank correlation between D and recovery is ρ = −0.47 (p = 0.037, n = 20); the cleanest
+within-dataset contrast is Electricity itself, whose identical planted rule recovers +0.190 at
+D = 0.905 under the linear probe — ten times its recovery at D = 1.000 under HGB. A certificate
+therefore certifies that the geometry had power *at this separability*, not that power is uniform
+across the certified cells; the "Rec." column makes that spread visible, and §3.2's threshold
+should be read as routing laid over a continuous and steep decay rather than as a cliff.
 
 ### 5.3 The diagnosis: how the instrument caught its own prior positive
 
@@ -672,8 +723,11 @@ change; negative recency ⇒ regimes recur — retention, not recency, is your f
 unstable certificates ⇒ do not let a monitor speak about this dataset's drift type at all.
 
 **What the map means, and does not.** The 0/8 aggregate does *not* say concept drift is absent
-from industrial tabular ML: three cells are certificate-less and one is blind-but-certified;
-blindness is not absence. It says something narrower and, we argue, more useful: on the
+from industrial tabular ML: **four of the eight cells are certificate-less** (three refused for
+unlearnable injections, one unstable across seed sets), and **none of the eight is
+blind-but-certified** — the panel's single earned blindness is Electricity, which is not one of
+the industrial eight. The aggregate is therefore 0/8 audited but 0/4 informative; blindness is
+not absence, and neither is vacuity. It says something narrower and, we argue, more useful: on the
 benchmark the field uses to argue for time-aware tabular architectures, **no measurable
 mean-rule drift exists for the model class that dominates those benchmarks, and every apparent
 counterexample so far has dissolved under controls** — the last one into label-noise decay,
@@ -687,11 +741,16 @@ architectures (FT-Transformer-class, at production scale) remain untested — ex
 is the clearest next step, with the battery as the pre-registered entry bar any such probe must
 pass before its drift verdicts are trusted. (1b) **Scale.** The probe trains on N ≤ 6,000 rows
 per arm; industrial models train on orders of magnitude more. A rule change exploitable only at
-much larger N is invisible here, so every δ bound and the 0/8 aggregate are statements *at probe
+much larger N is invisible here, so every δ bound and the 0/8 (0/4 certified) aggregate are statements *at probe
 scale*. A first δ(N) sweep (Appendix B.1) raises the arm cap to the window-geometry ceiling
 (N ≈ 14k–24k, up to 4× the headline scale) on the three largest null cells: every verdict is
 unchanged and no reading trends toward the floor. Production-scale N beyond that remains future
-work, and we flag rather than dismiss the possibility that the map changes there. (2) K = 10 rolling windows with a fixed early
+work, and we flag rather than dismiss the possibility that the map changes there. Scale enters a
+second way: because the arms differ in size (N vs 2N), a sample-size gain is folded into every
+staleness reading. Measured directly (Appendix B.3) it is negligible on binary cells but reaches
+61% of the decision floor on regression, which effectively raises the detectable floor on the
+map's five regression cells; we report their nulls with that displacement stated rather than
+absorbed. (2) K = 10 rolling windows with a fixed early
 anchor: drift at time scales far below the window width is averaged away (the injection control
 partially measures this — its recovery varies with K), and the TabReD map covers the train
 segments of the official splits, not the held-out deployment gap. (3) The single robust positive
@@ -807,6 +866,37 @@ next to the deployment lens. The two instruments agree:
 Where overlap holds, the overlap lens and the deployment lens return the same verdict; the
 instrument disagreements this paper documents (§3–4) arise precisely where overlap fails —
 which is why verdicts must carry certificates.
+
+**B.3 The sample-size term, measured rather than argued.** Staleness compares a model trained on
+N recent rows against one trained on 2N (recent ∪ old), so the observed difference mixes two
+effects: the *gain* from doubling the training set, which pushes staleness negative regardless of
+drift, and the *harm* from contradicting old labels, which pushes it positive. Only the sum is
+observed. A red-team objection holds that every reported staleness — and therefore every δ — is
+displaced by the first term. Earlier versions of this work answered from a bias sweep recorded in
+prose only; the instrument now emits per-arm *absolute* scores, so the term is directly
+measurable on the battery cells where the rule is fixed **and** the old rows are drawn from the
+same distribution as the recent ones, which makes the observed difference the size term and
+nothing else:
+
+| battery cell | task | recent → recent ∪ old | size term | vs. floor | per-window (n = 25) |
+|---|---|---|---|---|---|
+| synth_stable | binclass (AUC) | 0.9895 → 0.9902 | **+0.00074** | 4% | SD 0.0016, sign mixed |
+| synth_covariate | binclass (AUC) | 0.9577 → 0.9583 | +0.00064 | 3% | SD 0.0019, sign mixed |
+| synth_covariate_mild | binclass (AUC) | 0.9631 → 0.9665 | +0.00340 | 17% | SD 0.0033 |
+| **synth_reg_stable** | **regression (z-RMSE)** | −0.1343 → −0.1222 | **+0.01212** | **61%** | SD 0.0048, **all 25 positive** |
+
+Two readings, and we state the unfavourable one first. **On regression the term is real and
+large**: 61% of the decision floor, positive in every one of 25 windows, so it is not a
+single-window artifact. A regression cell whose true rule-change harm were +0.012 would be
+observed at ≈0 and read as a null. The detectable floor on the regression cells of the map
+(sberbank_housing, cooking_time, delivery_eta, maps_routing, weather) is therefore effectively
+raised by roughly this amount, and their nulls should be read with that displacement in mind
+(§7, Limitation 1b). **On binary classification the term is negligible** — 3–4% of the floor —
+but with an important caveat we do not want to gloss: the battery's binary cells sit at AUC ≈
+0.99, close enough to the ceiling that the size gain is compressed, and the industrial binary
+cells do not sit there. The binary bound therefore does not transfer as measured. Per-arm
+absolutes are now emitted on every run, so the same quantity will be measured directly on the
+industrial panel at its next execution rather than argued from the battery.
 
 ## Appendix C. Decision constants: calibration sources and validity
 
