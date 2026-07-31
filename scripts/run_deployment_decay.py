@@ -320,45 +320,89 @@ def _z(v):
     return (v - np.mean(v)) / (s + 1e-12)
 
 
-def _inject_concept(X, t, task, strength=2.5, seed=0, family="topvar"):
+def _carrier_pool(Xf, cols):
+    """Ordered column pool the injected rule is carried by. This is the CARRIER axis of the
+    sweep, deliberately separated from the rule-geometry axis (`family`).
+
+    Why separate: in the v1 sweep three of four families (topvar / interaction / subpop) read
+    their columns from the SAME variance-descending order, so they all inherited whatever made
+    topvar fail. On ecom/homecredit/weather the diagnosed cause of injection-vacuity is
+    heavy-tailed top-variance columns (audit L4): z-scoring a heavy tail parks ~99% of rows at
+    ~0, the N(0,.3) term dominates the score, and the planted label is a coin flip (in-window
+    AUC 0.51-0.53). Testing 'interaction' on those same columns therefore cannot distinguish
+    "the probe is blind to interaction-borne rules" from "these columns carry nothing" — the
+    hardening step returns a FALSE NEGATIVE. Crossing family x cols is what makes each cell of
+    the sweep ask a different question.
+
+      hi : variance-descending (the pre-registered reference carrier)
+      lo : non-degenerate variance-ASCENDING (typically indicator-like columns, no heavy tail)
+    """
+    order = np.argsort(-Xf.std(0))
+    if cols == "lo":
+        nz = [int(j) for j in order[::-1] if Xf[:, int(j)].std() > 1e-9]
+        if len(nz) >= 2:
+            return nz
+    return [int(j) for j in order]
+
+
+def _inject_concept(X, t, task, strength=2.5, seed=0, family="topvar", cols="auto"):
     """Replace y with a KNOWN time-ROTATING rule of controlled strength, keeping this dataset's
     REAL covariate geometry (X, t). Probe for the injection control: run staleness on
     (X, y_injected). If it stays null on a candidate-UNIDENTIFIABLE dataset, the blindness is
     DEMONSTRATED on real geometry (UNIDENTIFIABLE-EARNED); if it recovers, D was misleading and
     the real null was informative (the dataset was identifiable after all).
 
-    family (reviewer-2 R3 — the certificate is relative to the planted signal class; sweep it):
-      topvar      : rotation on the 2 highest-variance features (the pre-registered reference)
-      lowvar      : rotation carried by the 2 LOWEST-variance non-degenerate features
-      interaction : rotation between an interaction term z(f0)*z(f1) and a main effect
-      subpop      : the rotation runs only inside the half-population z(f2)>0 (local rule change;
-                    the rule is static outside)
-    The learnability gate applies unchanged, so an unlearnable family yields VACUOUS for that
-    family rather than a fake certificate."""
+    family = rule GEOMETRY (reviewer-2 R3 — the certificate is relative to the planted signal
+    class; sweep it):
+      topvar      : plain rotation on the first two pool columns (the pre-registered reference)
+      lowvar      : plain rotation, but the pool defaults to the low-variance carrier
+      interaction : rotation between an interaction term z(f0)*z(f1) and an INDEPENDENT third
+                    column z(f2). (v1 used b = z(f1) as the second axis — a FACTOR of the first
+                    axis, so the two axes were dependent and the "interaction" rotation was
+                    partly a self-rotation. Fixed here; this geometry has never been executed,
+                    so no committed artifact changes.)
+      subpop      : the rotation runs only inside the half-population z(f2)>0 (local rule
+                    change; the rule is static outside)
+
+    cols = CARRIER columns, see _carrier_pool. 'auto' reproduces the v1 coupling exactly
+    (lowvar -> lo, everything else -> hi) so `topvar`/`lowvar` stay BIT-IDENTICAL to the
+    committed battery and map; 'hi'/'lo' force the carrier and open the 2x2.
+
+    The learnability gate applies unchanged, so an unlearnable (family, cols) combination
+    yields VACUOUS for that combination rather than a fake certificate."""
     rng = np.random.default_rng(seed)
     Xf = np.nan_to_num(np.asarray(X, float))
     tn = (t - np.min(t)) / (np.max(t) - np.min(t) + 1e-12)
-    order = np.argsort(-Xf.std(0))
-    if family == "lowvar":
-        nz = [int(j) for j in order[::-1] if Xf[:, int(j)].std() > 1e-9]
-        f0, f1 = (nz[0], nz[1]) if len(nz) >= 2 else (
-            (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0))
-    else:
-        f0, f1 = (int(order[0]), int(order[1])) if Xf.shape[1] >= 2 else (0, 0)
+    if cols == "auto":
+        cols = "lo" if family == "lowvar" else "hi"
+    pool = _carrier_pool(Xf, cols)
+    pick = lambda i: int(pool[i]) if len(pool) > i else int(pool[-1] if len(pool) else 0)
+    f0, f1 = (pick(0), pick(1)) if Xf.shape[1] >= 2 else (0, 0)
     a, b = _z(Xf[:, f0]), _z(Xf[:, f1])
+    used = [f0, f1]
     if family == "interaction":
         a = _z(a * b)                                   # the rule lives on an interaction term
+        if Xf.shape[1] >= 3:
+            f2 = pick(2)
+            b = _z(Xf[:, f2])                           # ...rotated against an INDEPENDENT axis
+            used.append(f2)
+            # NB (smoke-verified): pulling in a third column makes `interaction` a HYBRID
+            # carrier — the second axis can be well-behaved even when f0/f1 are degenerate, so
+            # a recovery here is NOT attributable to the nominal carrier alone. Every executed
+            # combination therefore logs the columns it actually used (injection_features).
     ang = strength * tn
     if family == "subpop":
-        f2 = int(order[2]) if Xf.shape[1] >= 3 else f1
-        ang = ang * (_z(Xf[:, f2]) > 0).astype(float)   # rule change only inside the subpopulation
+        fg = pick(2) if Xf.shape[1] >= 3 else f1
+        ang = ang * (_z(Xf[:, fg]) > 0).astype(float)   # rule change only inside the subpopulation
+        used.append(fg)
     score = np.cos(ang) * a + np.sin(ang) * b + rng.normal(0, .3, len(tn))
+    feats = tuple(used)
     if task == "regression":
-        return score.astype(float), (f0, f1)
+        return score.astype(float), feats
     if task == "multiclass":
         s2 = np.cos(ang + 2.0) * a + np.sin(ang + 2.0) * b
-        return np.stack([score, s2, -score - s2], axis=1).argmax(1), (f0, f1)
-    return (score > np.median(score)).astype(int), (f0, f1)
+        return np.stack([score, s2, -score - s2], axis=1).argmax(1), feats
+    return (score > np.median(score)).astype(int), feats
 
 
 def _injection_learnable(X, y_inj, t, task, K, by_value, seed=0):
@@ -392,14 +436,17 @@ def _injection_learnable(X, y_inj, t, task, K, by_value, seed=0):
 
 
 def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, seed_base=0,
-                        family="topvar"):
+                        family="topvar", cols="auto"):
     """Inject a reference-strength concept into (X, t) and test whether staleness fires.
     v3: learnability-gated (an unlearnable injection cannot 'earn' blindness), n_seeds matches the
     real read (audit L4: was 4), injected features logged. Returns
-    (recovered, injected_staleness_mean, injected_staleness_ci, learnable, learn_score, feats).
+    (recovered, mean, ci, learnable, learn_score, feats, per_seed_list).
     The CI is returned so the strict-rule shadow cascade can judge recovery under its own rule
-    (PREREG §15: the shadow verdict must traverse the injection stage too, not stop before it)."""
-    y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH, family=family)
+    (PREREG §15: the shadow verdict must traverse the injection stage too, not stop before it).
+    The per-seed list is returned so a later rule change never again needs a rerun to recompute
+    a recovery interval (PREREG §15b: the primary-rule-only caveat exists precisely because the
+    committed artifacts carry no injection per-seed values)."""
+    y_inj, feats = _inject_concept(X, t, task, strength=INJ_STRENGTH, family=family, cols=cols)
     learnable, lscore, _ = _injection_learnable(X, y_inj, t, task, K, by_value, seed=seed_base)
     st = []
     for s in range(seed_base, seed_base + n_seeds):
@@ -408,7 +455,7 @@ def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, s
             st.append(out["stale"])
     m, ci = _ci95(st)
     recovered = m is not None and ci[0] is not None and ci[0] > 0 and m > FLOOR_GAIN
-    return recovered, m, ci, learnable, lscore, feats
+    return recovered, m, ci, learnable, lscore, feats, st
 
 
 def _sanitize(X):
@@ -517,6 +564,14 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
     noise_rec_med = float(np.median(noise_rec)) if noise_rec else None
 
     decays, recs, stales, dens = [], [], [], []
+    # PART 5.1 logging (pure observation — nothing below draws from rng/rng2, so every arm's
+    # numeric result and RNG stream is unchanged). `absol` records the arms' ABSOLUTE scores,
+    # not just their differences: without it the N-vs-2N sample-size term cannot be estimated
+    # post hoc, which is exactly why the red-team's size-confound objection had no artifact to
+    # answer it (RESULTS_LEDGER 3c records the bias sweep in prose only). `win_*` keeps the
+    # per-window values that the per-seed mean otherwise destroys.
+    win_rec_abs, win_old_abs, win_recold_abs, win_recoldD_abs = [], [], [], []
+    win_ids = []
     for j in range(max(old_w + 1, Keff // 2), Keff):       # future windows, after the old anchor
         te = by_w[j]
         if len(te) < 20 or (task != "regression" and len(np.unique(ys[te])) < 2):
@@ -541,14 +596,27 @@ def _per_seed(X, y, t, task, K, by_value, max_train, seed):
             recs.append(sRec - sOld)
         if None not in (sRec, sRecOld):
             stales.append(sRec - sRecOld)              # >0 = adding old HURT = concept OR noise drift
+        sRecOldD = None
         if pseudo is not None and sRec is not None:    # v3 denoised arm: same rows, pseudo old-labels
             y_den = np.concatenate([ys[recent], pseudo[[pos_of[int(i)] for i in old]]])
             sRecOldD = _fit_score(Xs[recent_old], y_den, Xs[te], ys[te], task, seed)
             if sRecOldD is not None:
                 dens.append(sRec - sRecOldD)           # >0 here = the RULE changed (noise removed)
+        win_ids.append(int(j))                         # observation only (see note above)
+        win_rec_abs.append(sRec); win_old_abs.append(sOld)
+        win_recold_abs.append(sRecOld); win_recoldD_abs.append(sRecOldD)
     mean = lambda a: float(np.mean(a)) if a else None
+    amean = lambda a: (float(np.mean([v for v in a if v is not None]))
+                       if any(v is not None for v in a) else None)
     return {"decay": mean(decays), "rec": mean(recs), "stale": mean(stales),
-            "den": mean(dens), "noise_old": noise_old, "noise_rec": noise_rec_med, "Keff": Keff}
+            "den": mean(dens), "noise_old": noise_old, "noise_rec": noise_rec_med, "Keff": Keff,
+            # --- PART 5.1 observation channel (never read by the cascade) ---
+            "abs": {"recent": amean(win_rec_abs), "old": amean(win_old_abs),
+                    "recent_old": amean(win_recold_abs),
+                    "recent_old_denoised": amean(win_recoldD_abs)},
+            "windows": {"id": win_ids, "recent": win_rec_abs, "old": win_old_abs,
+                        "recent_old": win_recold_abs, "recent_old_denoised": win_recoldD_abs,
+                        "stale": stales, "den": dens, "rec": recs, "decay": decays}}
 
 
 def _ci95(a):
@@ -578,7 +646,7 @@ def _delta(vals, alpha=0.05, power=0.8):
 
 
 def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000, seed_base=0,
-           inj_family="topvar"):
+           inj_family="topvar", inj_cols="auto"):
     """seed_base: exploratory runs use 0 (seeds 0..n-1); the pre-registered CONFIRMATORY rerun
     uses 100 (seeds 100..). D/shuffle diagnostics stay at their fixed seeds (deterministic
     geometry reads, identical across runs by design)."""
@@ -650,6 +718,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
               if len(rngs) > 1 else 0.0)
 
     decay_s, rec_s, stale_s, den_s, ratio_s = [], [], [], [], []
+    abs_s, win_s = [], []                                  # PART 5.1 observation channel
     for s in range(seed_base, seed_base + n_seeds):
         out = _per_seed(X, y, t, task, K, by_value, max_train, s)
         if out is None:
@@ -657,6 +726,8 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
         Keff = out["Keff"]
         decay_s.append(out["decay"]); rec_s.append(out["rec"]); stale_s.append(out["stale"])
         den_s.append(out["den"])
+        abs_s.append(dict(out["abs"], seed=int(s)))
+        win_s.append(dict(out["windows"], seed=int(s)))
         if out["noise_old"] is not None and out["noise_rec"] not in (None, 0):
             ratio_s.append(out["noise_old"] / out["noise_rec"])
     decay, decay_ci = _ci95(decay_s)
@@ -737,13 +808,15 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
     # ---- injection control. v3: learnability-gated, n_seeds=INJ_SEEDS, runs on the CONCEPT
     #      branch too as a positive control (v2 left the only positive cell uncontrolled).
     inj_stale = inj_learnable = inj_lscore = None; inj_feats = None
-    inj_ci = None; inj_recovered_strict = None
+    inj_ci = None; inj_recovered_strict = None; inj_per_seed = None
     _needs_inj = lambda v: v.startswith("UNIDENTIFIABLE") or v == "DEPLOYMENT-CONCEPT"
     # PREREG §15: injection also runs when only the STRICT verdict routes to it (e.g. rule A reads
     # NOISE-DRIFT-CONFOUNDED but rule B lands UNIDENTIFIABLE) so the shadow cascade is complete.
     if measured and (_needs_inj(verdict) or _needs_inj(verdict_strict)):
-        recovered, inj_stale, inj_ci, inj_learnable, inj_lscore, inj_feats = _injection_recovers(
-            X, t, task, K, by_value, max_train, seed_base=seed_base, family=inj_family)
+        (recovered, inj_stale, inj_ci, inj_learnable, inj_lscore, inj_feats,
+         inj_per_seed) = _injection_recovers(
+            X, t, task, K, by_value, max_train, seed_base=seed_base, family=inj_family,
+            cols=inj_cols)
         if verdict.startswith("UNIDENTIFIABLE"):
             if not inj_learnable:
                 flags.append("injection-vacuous")          # unlearnable probe: the null proves nothing
@@ -783,7 +856,8 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             "injection_learnable": inj_learnable,
             "injection_recovered_strict": inj_recovered_strict,
             "injection_learn_score": inj_lscore, "injection_features": inj_feats,
-            "injection_family": inj_family,
+            "injection_family": inj_family, "injection_cols": inj_cols,
+            "injection_strength": INJ_STRENGTH,
             "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
             "min_window_n": min_window_n, "Dstar": DSTAR,
             "n_unique_t": uniq_t, "cov_auc_early_late": cov_el,
@@ -792,7 +866,14 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             # per-seed raw values (reviewer request): enables alternative CI constructions
             # (block bootstrap, jackknife, split-half) downstream without a rerun.
             "per_seed": {"stale": stale_s, "den": den_s, "decay": decay_s, "rec": rec_s,
-                         "noise_ratio": ratio_s}}
+                         "noise_ratio": ratio_s,
+                         # PREREG §15b: injection per-seed, so a rule-B recovery interval never
+                         # again needs a rerun to be recomputed.
+                         "injected_stale": inj_per_seed},
+            # PART 5.1 observation channel: arm ABSOLUTE scores (the N-vs-2N size term is
+            # score(recent) - score(recent u recent'), estimable from these) and the per-window
+            # values the seed mean destroys. Never read by the cascade.
+            "per_seed_abs": abs_s, "per_seed_windows": win_s}
 
 
 # ----------------------------------------------------------------------------- loaders
@@ -1082,9 +1163,17 @@ def main():
                          "(reviewer-2 R1). Dataset names get a _fullspan suffix.")
     ap.add_argument("--inj-family", default="topvar",
                     choices=["topvar", "lowvar", "interaction", "subpop"],
-                    help="injection reference family (reviewer-2 R3 sweep): topvar = pre-registered "
+                    help="injection RULE GEOMETRY (reviewer-2 R3 sweep): topvar = pre-registered "
                          "default; lowvar / interaction / subpop probe certificate sensitivity to "
                          "the planted signal class. Recorded per-row as injection_family.")
+    ap.add_argument("--inj-cols", default="auto", choices=["auto", "hi", "lo"],
+                    help="injection CARRIER columns, crossed with --inj-family (PREREG §16): "
+                         "auto = the v1 coupling (lowvar->lo, else hi), which keeps topvar/lowvar "
+                         "bit-identical to the committed battery and map; hi = variance-descending; "
+                         "lo = non-degenerate variance-ascending. Needed because interaction/subpop "
+                         "otherwise reuse the very columns whose heavy tails already failed the "
+                         "learnability gate, making a non-recovery uninterpretable. Recorded "
+                         "per-row as injection_cols.")
     ap.add_argument("--synth", action="store_true")
     ap.add_argument("--debug-raise", action="store_true",
                     help="re-raise HGB fit errors with full traceback (diagnose the binning crash)")
@@ -1171,7 +1260,8 @@ def main():
         try:
             r = assess(name, X, y, t, task, K=args.windows, by_value=args.by_value,
                        n_seeds=args.n_seeds, max_train=args.max_train,
-                       seed_base=args.seed_base, inj_family=args.inj_family)
+                       seed_base=args.seed_base, inj_family=args.inj_family,
+                       inj_cols=args.inj_cols)
         except Exception as e:                              # never let one dataset kill the batch
             import traceback; traceback.print_exc()
             r = {"dataset": name, "task": task, "verdict": "ERROR", "error": f"{type(e).__name__}: {e}",
