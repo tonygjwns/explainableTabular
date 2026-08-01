@@ -1,0 +1,88 @@
+{
+  "meta": {
+    "git": "fe13544",
+    "argv": [
+      "--csv",
+      "/home/tonyhuh/explainableTabular/ember2018only.parquet",
+      "--target",
+      "label",
+      "--time",
+      "appeared",
+      "--by-value",
+      "--n-seeds",
+      "10",
+      "--max-n",
+      "200000",
+      "--name",
+      "ember2018"
+    ],
+    "utc": "2026-07-05T13:32:44.983212+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "hgb",
+    "seed_base": 0
+  },
+  "rows": [
+    {
+      "dataset": "ember2018",
+      "task": "binclass",
+      "n": 275000,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.05310287755220883,
+      "decay_ci": [
+        0.049349096725116004,
+        0.05685665837930165
+      ],
+      "recency_gain": 0.030893235768746512,
+      "recency_gain_ci": [
+        0.0286325443183385,
+        0.03315392721915452
+      ],
+      "staleness_harm": -0.008102179959507998,
+      "staleness_harm_ci": [
+        -0.009326535101653632,
+        -0.006877824817362365
+      ],
+      "denoised_staleness": -0.004286629710725775,
+      "denoised_staleness_ci": [
+        -0.005726308886794601,
+        -0.0028469505346569494
+      ],
+      "noise_ratio": 1.0131079664868565,
+      "noise_ratio_ci": [
+        0.9654379552099162,
+        1.060777977763797
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.8337678239589277,
+      "D_spread": [
+        0.8224837844106403,
+        0.8500200142607307
+      ],
+      "D_full": 0.8500200142607307,
+      "D_shuffle": 0.5026371412618309,
+      "dup_group_frac": 0.33582545454545454,
+      "injected_staleness": null,
+      "injection_learnable": null,
+      "injection_learn_score": null,
+      "injection_features": null,
+      "delta_staleness": 0.0013457633852164176,
+      "n_proxy_stripped": 0,
+      "min_window_n": 20762,
+      "Dstar": 0.96,
+      "n_unique_t": 10,
+      "cov_auc_early_late": 0.9314206805555556,
+      "y_lag1_autocorr": 0.014904872831521756,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-DECAY-COVARIATE",
+      "verdict_strict": "DEPLOYMENT-DECAY-COVARIATE"
+    }
+  ]
+}

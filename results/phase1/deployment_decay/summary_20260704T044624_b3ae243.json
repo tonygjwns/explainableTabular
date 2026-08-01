@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "git": "b3ae243",
+    "argv": [
+      "--tabred",
+      "sberbank_housing",
+      "--config",
+      "configs/phase1.yaml",
+      "--n-seeds",
+      "10",
+      "--windows",
+      "5"
+    ],
+    "utc": "2026-07-04T04:46:24.979393+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3"
+  },
+  "rows": [
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "n": 18847,
+      "n_windows": 5,
+      "n_seeds_ok": 10,
+      "decay": -0.028795040152717367,
+      "decay_ci": [
+        -0.17344011125487113,
+        0.11585003094943641
+      ],
+      "recency_gain": 0.2410962488035689,
+      "recency_gain_ci": [
+        0.20299207529713464,
+        0.27920042231000314
+      ],
+      "staleness_harm": 0.004633201902208609,
+      "staleness_harm_ci": [
+        -0.003738075906008405,
+        0.013004479710425624
+      ],
+      "denoised_staleness": -0.014026174688029325,
+      "denoised_staleness_ci": [
+        -0.019929367526627897,
+        -0.008122981849430751
+      ],
+      "noise_ratio": 2.567261213810478,
+      "noise_ratio_ci": [
+        2.3749768487612952,
+        2.759545578859661
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 1.0,
+      "D_spread": [
+        1.0,
+        1.0
+      ],
+      "D_full": 1.0,
+      "D_shuffle": 0.5210404489127893,
+      "dup_group_frac": 0.0031304716931076565,
+      "injected_staleness": 0.00800881270925968,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9247866959318791,
+      "injection_features": [
+        7,
+        242
+      ],
+      "delta_staleness": 0.009201381832750268,
+      "n_proxy_stripped": 1,
+      "min_window_n": 1539,
+      "Dstar": 0.96,
+      "n_unique_t": 853,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.048973539655326616,
+      "tie_overlap": 0.0,
+      "trust": "future-easier;proxy-stripped:1;unident-earned",
+      "verdict": "UNIDENTIFIABLE-EXPLOITABLE",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    }
+  ]
+}

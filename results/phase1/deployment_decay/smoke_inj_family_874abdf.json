@@ -1,0 +1,697 @@
+{
+  "meta": {
+    "utc": "2026-07-31T14:17:52.471747+00:00",
+    "git": "874abdf",
+    "python": "3.12.9",
+    "numpy": "2.4.6",
+    "inj_strength": 2.5,
+    "n": 6000,
+    "K": 10
+  },
+  "parity": [
+    {
+      "geom": "heavytail",
+      "task": "binclass",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "binclass",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        8,
+        7
+      ],
+      "feats_v1": [
+        8,
+        7
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "binclass",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "binclass",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "regression",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "regression",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        8,
+        7
+      ],
+      "feats_v1": [
+        8,
+        7
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "regression",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "regression",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "multiclass",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "multiclass",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        8,
+        7
+      ],
+      "feats_v1": [
+        8,
+        7
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "multiclass",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "heavytail",
+      "task": "multiclass",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        4
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "binclass",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "binclass",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        7,
+        6
+      ],
+      "feats_v1": [
+        7,
+        6
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "binclass",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "binclass",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "regression",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "regression",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        7,
+        6
+      ],
+      "feats_v1": [
+        7,
+        6
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "regression",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "regression",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "multiclass",
+      "family": "topvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "multiclass",
+      "family": "lowvar",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        7,
+        6
+      ],
+      "feats_v1": [
+        7,
+        6
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "multiclass",
+      "family": "interaction",
+      "labels_identical_to_v1": false,
+      "expected": false,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    },
+    {
+      "geom": "clean",
+      "task": "multiclass",
+      "family": "subpop",
+      "labels_identical_to_v1": true,
+      "expected": true,
+      "ok": true,
+      "feats_new": [
+        0,
+        1,
+        2
+      ],
+      "feats_v1": [
+        0,
+        1
+      ]
+    }
+  ],
+  "independence": [
+    {
+      "geom": "heavytail",
+      "cols": "hi",
+      "abs_corr_new": 0.013124327533398846,
+      "abs_corr_v1": 0.7685852452185213,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "cols": "lo",
+      "abs_corr_new": 0.009060787891455042,
+      "abs_corr_v1": 0.7685852452185213,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "cols": "hi",
+      "abs_corr_new": 0.015721994643994847,
+      "abs_corr_v1": 0.018133246773406827,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "cols": "lo",
+      "abs_corr_new": 0.0013179361787549965,
+      "abs_corr_v1": 0.018133246773406827,
+      "ok": true
+    }
+  ],
+  "carrier": [
+    {
+      "geom": "heavytail",
+      "family": "topvar",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1
+      ],
+      "learnable": false,
+      "score": 0.5659584980237153,
+      "kind": "auc",
+      "asserted": true,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "topvar",
+      "cols": "lo",
+      "carrier_cols_used": [
+        8,
+        7
+      ],
+      "learnable": true,
+      "score": 0.9565809005442849,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "lowvar",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1
+      ],
+      "learnable": false,
+      "score": 0.5659584980237153,
+      "kind": "auc",
+      "asserted": true,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "lowvar",
+      "cols": "lo",
+      "carrier_cols_used": [
+        8,
+        7
+      ],
+      "learnable": true,
+      "score": 0.9565809005442849,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "interaction",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1,
+        4
+      ],
+      "learnable": true,
+      "score": 0.9450766947055913,
+      "kind": "auc",
+      "asserted": false,
+      "expected": null,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "interaction",
+      "cols": "lo",
+      "carrier_cols_used": [
+        8,
+        7,
+        6
+      ],
+      "learnable": true,
+      "score": 0.9008519570317323,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "subpop",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1,
+        4
+      ],
+      "learnable": false,
+      "score": 0.527050395256917,
+      "kind": "auc",
+      "asserted": true,
+      "expected": false,
+      "ok": true
+    },
+    {
+      "geom": "heavytail",
+      "family": "subpop",
+      "cols": "lo",
+      "carrier_cols_used": [
+        8,
+        7,
+        6
+      ],
+      "learnable": true,
+      "score": 0.9525925925925925,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "topvar",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1
+      ],
+      "learnable": true,
+      "score": 0.9531867588932806,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "topvar",
+      "cols": "lo",
+      "carrier_cols_used": [
+        7,
+        6
+      ],
+      "learnable": true,
+      "score": 0.9219814241486067,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "lowvar",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1
+      ],
+      "learnable": true,
+      "score": 0.9531867588932806,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "lowvar",
+      "cols": "lo",
+      "carrier_cols_used": [
+        7,
+        6
+      ],
+      "learnable": true,
+      "score": 0.9219814241486067,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "interaction",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1,
+        2
+      ],
+      "learnable": true,
+      "score": 0.9506859473489062,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "interaction",
+      "cols": "lo",
+      "carrier_cols_used": [
+        7,
+        6,
+        5
+      ],
+      "learnable": true,
+      "score": 0.9492284718765555,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "subpop",
+      "cols": "hi",
+      "carrier_cols_used": [
+        0,
+        1,
+        2
+      ],
+      "learnable": true,
+      "score": 0.918266253869969,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    },
+    {
+      "geom": "clean",
+      "family": "subpop",
+      "cols": "lo",
+      "carrier_cols_used": [
+        7,
+        6,
+        5
+      ],
+      "learnable": true,
+      "score": 0.9574021484133843,
+      "kind": "auc",
+      "asserted": true,
+      "expected": true,
+      "ok": true
+    }
+  ],
+  "gate": {
+    "LEARN_AUC": 0.65,
+    "LEARN_R2": 0.2,
+    "LEARN_ACC": 0.1,
+    "ok": true,
+    "note": "global constants, applied identically to every (family, cols) combination"
+  },
+  "verdict": "PASS"
+}

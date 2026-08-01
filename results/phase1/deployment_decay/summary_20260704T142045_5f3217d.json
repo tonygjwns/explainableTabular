@@ -1,0 +1,83 @@
+{
+  "meta": {
+    "git": "5f3217d",
+    "argv": [
+      "--elec2",
+      "--n-seeds",
+      "10",
+      "--model",
+      "linear"
+    ],
+    "utc": "2026-07-04T14:20:45.564383+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "linear",
+    "seed_base": 0
+  },
+  "rows": [
+    {
+      "dataset": "elec2",
+      "task": "binclass",
+      "n": 45312,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.0902407814468998,
+      "decay_ci": [
+        0.0839277943027218,
+        0.0965537685910778
+      ],
+      "recency_gain": 0.012904206440337306,
+      "recency_gain_ci": [
+        0.011009526648042696,
+        0.014798886232631916
+      ],
+      "staleness_harm": 0.023380350082535264,
+      "staleness_harm_ci": [
+        0.022085806580412086,
+        0.024674893584658443
+      ],
+      "denoised_staleness": 0.03320737569200383,
+      "denoised_staleness_ci": [
+        0.0317949303716356,
+        0.03461982101237205
+      ],
+      "noise_ratio": 0.7535614859098139,
+      "noise_ratio_ci": [
+        0.6842407639712541,
+        0.8228822078483736
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.9047740195083971,
+      "D_spread": [
+        0.8980757149942139,
+        0.9105766180525618
+      ],
+      "D_full": 0.9047740195083971,
+      "D_shuffle": 0.492574758829984,
+      "dup_group_frac": 0.1514609816384181,
+      "injected_staleness": 0.19042096114067983,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9809894159628314,
+      "injection_features": [
+        6,
+        5
+      ],
+      "delta_staleness": 0.0014229116910263139,
+      "n_proxy_stripped": 0,
+      "min_window_n": 4531,
+      "Dstar": 0.96,
+      "n_unique_t": 45312,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.6997677901834326,
+      "tie_overlap": 0.0,
+      "trust": "autocorr-risk",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    }
+  ]
+}

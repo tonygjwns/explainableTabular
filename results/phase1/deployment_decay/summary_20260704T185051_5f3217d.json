@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "git": "5f3217d",
+    "argv": [
+      "--insects",
+      "--n-seeds",
+      "10"
+    ],
+    "utc": "2026-07-04T18:50:51.356631+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3",
+    "model": "hgb",
+    "seed_base": 0
+  },
+  "rows": [
+    {
+      "dataset": "insects_incremental_balanced",
+      "task": "multiclass",
+      "n": 57018,
+      "n_windows": 10,
+      "n_seeds_ok": 10,
+      "decay": 0.42467737124970695,
+      "decay_ci": [
+        0.4091661401231694,
+        0.4401886023762445
+      ],
+      "recency_gain": 0.503834644709212,
+      "recency_gain_ci": [
+        0.500419675628003,
+        0.507249613790421
+      ],
+      "staleness_harm": 0.13475388786675166,
+      "staleness_harm_ci": [
+        0.12332197157902285,
+        0.1461858041544805
+      ],
+      "denoised_staleness": 0.15203752114751704,
+      "denoised_staleness_ci": [
+        0.13920986278306224,
+        0.16486517951197183
+      ],
+      "noise_ratio": 1.2396290168417248,
+      "noise_ratio_ci": [
+        1.2197396707878467,
+        1.2595183628956028
+      ],
+      "noise_gate_fired": false,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 0.8435607278367174,
+      "D_spread": [
+        0.8383149371661842,
+        0.8499219995161658
+      ],
+      "D_full": 0.8383433634741586,
+      "D_shuffle": 0.49598187219864487,
+      "dup_group_frac": 0.00045599635202918376,
+      "injected_staleness": 0.1623495480262081,
+      "injection_learnable": true,
+      "injection_learn_score": 0.8439509059029807,
+      "injection_features": [
+        5,
+        4
+      ],
+      "delta_staleness": 0.012565516191587713,
+      "n_proxy_stripped": 0,
+      "min_window_n": 5701,
+      "Dstar": 0.96,
+      "n_unique_t": 57018,
+      "cov_auc_early_late": 0.8135671831048497,
+      "y_lag1_autocorr": -0.0013244280434971457,
+      "tie_overlap": 0.0,
+      "trust": "ok",
+      "verdict": "DEPLOYMENT-CONCEPT",
+      "verdict_strict": "DEPLOYMENT-CONCEPT"
+    }
+  ]
+}

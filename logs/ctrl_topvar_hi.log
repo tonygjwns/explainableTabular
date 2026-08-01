@@ -1,0 +1,32 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [river_agrawal_abrupt] task=binclass feats=9 n=8000
+      [river_agrawal_abrupt seeds] 1/10  elapsed 8s  eta 1m18s  (8.8s/unit)
+      [river_agrawal_abrupt seeds] 2/10  elapsed 18s  eta 1m12s  (9.1s/unit)
+      [river_agrawal_abrupt seeds] 3/10  elapsed 26s  eta 1m02s  (8.9s/unit)
+      [river_agrawal_abrupt seeds] 4/10  elapsed 36s  eta 54s  (9.0s/unit)
+      [river_agrawal_abrupt seeds] 5/10  elapsed 45s  eta 45s  (9.1s/unit)
+      [river_agrawal_abrupt seeds] 6/10  elapsed 53s  eta 35s  (9.0s/unit)
+      [river_agrawal_abrupt seeds] 7/10  elapsed 1m02s  eta 26s  (8.9s/unit)
+      [river_agrawal_abrupt seeds] 8/10  elapsed 1m11s  eta 17s  (9.0s/unit)
+      [river_agrawal_abrupt seeds] 9/10  elapsed 1m20s  eta 8s  (8.9s/unit)
+      [river_agrawal_abrupt seeds] 10/10  elapsed 1m28s  eta 0s  (8.9s/unit)
+      [injection topvar@hi] 1/10  elapsed 14s  eta 2m08s  (14.3s/unit)
+      [injection topvar@hi] 2/10  elapsed 28s  eta 1m54s  (14.4s/unit)
+      [injection topvar@hi] 3/10  elapsed 43s  eta 1m40s  (14.4s/unit)
+      [injection topvar@hi] 4/10  elapsed 57s  eta 1m26s  (14.4s/unit)
+      [injection topvar@hi] 5/10  elapsed 1m11s  eta 1m11s  (14.4s/unit)
+      [injection topvar@hi] 6/10  elapsed 1m26s  eta 57s  (14.3s/unit)
+      [injection topvar@hi] 7/10  elapsed 1m40s  eta 42s  (14.3s/unit)
+      [injection topvar@hi] 8/10  elapsed 1m54s  eta 28s  (14.3s/unit)
+      [injection topvar@hi] 9/10  elapsed 2m08s  eta 14s  (14.3s/unit)
+      [injection topvar@hi] 10/10  elapsed 2m23s  eta 0s  (14.3s/unit)
+  river_agrawal_abrupt W=10 D=0.498 gate=0.00 stale=+0.045[+0.039,+0.051] den=+0.047[+0.038,+0.055] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 4m00s  eta 0s  (240.2s/unit) <- river_agrawal_abrupt
+      [datasets] done in 4m00s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260801T041637_dd82e0a.json  (+ summary_latest.json)  <-- send me this

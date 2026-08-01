@@ -1,0 +1,84 @@
+{
+  "meta": {
+    "git": "b3ae243",
+    "argv": [
+      "--tabred",
+      "sberbank_housing",
+      "--config",
+      "configs/phase1.yaml",
+      "--n-seeds",
+      "10",
+      "--windows",
+      "20"
+    ],
+    "utc": "2026-07-04T05:34:21.166321+00:00",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "sklearn": "1.9.0",
+    "instrument": "v3"
+  },
+  "rows": [
+    {
+      "dataset": "sberbank_housing",
+      "task": "regression",
+      "n": 18847,
+      "n_windows": 20,
+      "n_seeds_ok": 10,
+      "decay": 0.13427792666213312,
+      "decay_ci": [
+        -0.03359906583543365,
+        0.3021549191596999
+      ],
+      "recency_gain": 0.3251263861092148,
+      "recency_gain_ci": [
+        0.2307448243988069,
+        0.4195079478196227
+      ],
+      "staleness_harm": 0.01651878393170717,
+      "staleness_harm_ci": [
+        0.003489931053769277,
+        0.02954763680964506
+      ],
+      "denoised_staleness": -0.017164160111254136,
+      "denoised_staleness_ci": [
+        -0.025009442000674162,
+        -0.009318878221834111
+      ],
+      "noise_ratio": 2.4468655087329774,
+      "noise_ratio_ci": [
+        1.6508670100303298,
+        3.242864007435625
+      ],
+      "noise_gate_fired": true,
+      "noise_envelope_exceeded": false,
+      "gate_thresh": 1.5,
+      "gate_envelope": 4.7,
+      "D_strip": 1.0,
+      "D_spread": [
+        1.0,
+        1.0
+      ],
+      "D_full": 1.0,
+      "D_shuffle": 0.5076555023923446,
+      "dup_group_frac": 0.0031304716931076565,
+      "injected_staleness": 0.10075921796223904,
+      "injection_learnable": true,
+      "injection_learn_score": 0.9382054672673189,
+      "injection_features": [
+        7,
+        242
+      ],
+      "delta_staleness": 0.014320806562524956,
+      "n_proxy_stripped": 1,
+      "min_window_n": 186,
+      "Dstar": 0.96,
+      "n_unique_t": 853,
+      "cov_auc_early_late": 1.0,
+      "y_lag1_autocorr": 0.048973539655326616,
+      "tie_overlap": 0.0,
+      "trust": "proxy-stripped:1;injection-recovered;sparse-window:186",
+      "verdict": "INJECTION-RECOVERED",
+      "verdict_strict": "UNIDENTIFIABLE-EXPLOITABLE"
+    }
+  ]
+}
