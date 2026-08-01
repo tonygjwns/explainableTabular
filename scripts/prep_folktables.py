@@ -23,18 +23,29 @@ import pandas as pd
 YEARS = (2014, 2015, 2016, 2017, 2018)
 
 
+TASKS = {"income": "ACSIncome", "pubcov": "ACSPublicCoverage",
+         "employment": "ACSEmployment", "mobility": "ACSMobility"}
+
+
 def main():
     if len(sys.argv) < 3:
-        print("usage: python scripts/prep_folktables.py <STATE> <out.parquet> [task=income]")
+        print(f"usage: python scripts/prep_folktables.py <STATE> <out.parquet> "
+              f"[task={'|'.join(TASKS)}]  (default income)")
         return
     state, out = sys.argv[1], sys.argv[2]
-    from folktables import ACSDataSource, ACSIncome
+    task = sys.argv[3] if len(sys.argv) > 3 else "income"
+    if task not in TASKS:
+        print(f"unknown task {task!r}; options: {list(TASKS)}"); return
+    import folktables
+    from folktables import ACSDataSource
+    problem = getattr(folktables, TASKS[task])
+    print(f"task={task} -> folktables.{TASKS[task]}  state={state}  years={list(YEARS)}", flush=True)
     frames = []
     for year in YEARS:
         src = ACSDataSource(survey_year=str(year), horizon="1-Year", survey="person",
                             root_dir=str(Path("data") / "folktables"))
         raw = src.get_data(states=[state], download=True)
-        feats, label, _ = ACSIncome.df_to_pandas(raw)
+        feats, label, _ = problem.df_to_pandas(raw)
         df = feats.copy()
         df["label"] = label.astype(int).to_numpy().ravel()
         df["YEAR"] = year
@@ -43,6 +54,11 @@ def main():
     full = pd.concat(frames, ignore_index=True)
     full.to_parquet(out)
     print(f"wrote {out}: n={len(full)}, feats={full.shape[1] - 2}, years={sorted(set(full['YEAR']))}")
+    # per-year positive rate is the first thing to eyeball on the pubcov task: a Medicaid-expansion
+    # state should show a level shift at its implementation year, a non-expansion state should not.
+    # This is descriptive only -- the verdict comes from the instrument, not from this ramp.
+    print("  pos_rate by year: " + "  ".join(
+        f"{y}:{full[full['YEAR'] == y]['label'].mean():.3f}" for y in sorted(set(full["YEAR"]))))
 
 
 if __name__ == "__main__":
