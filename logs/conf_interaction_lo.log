@@ -1,0 +1,55 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [weather] task=regression feats=103 n=340596
+      [weather seeds] 1/10  elapsed 35s  eta 5m15s  (35.0s/unit)
+      [weather seeds] 2/10  elapsed 1m10s  eta 4m40s  (35.1s/unit)
+      [weather seeds] 3/10  elapsed 1m45s  eta 4m07s  (35.3s/unit)
+      [weather seeds] 4/10  elapsed 2m24s  eta 3m36s  (36.0s/unit)
+      [weather seeds] 5/10  elapsed 3m02s  eta 3m02s  (36.4s/unit)
+      [weather seeds] 6/10  elapsed 3m40s  eta 2m27s  (36.8s/unit)
+      [weather seeds] 7/10  elapsed 4m18s  eta 1m50s  (36.9s/unit)
+      [weather seeds] 8/10  elapsed 4m56s  eta 1m14s  (37.0s/unit)
+      [weather seeds] 9/10  elapsed 5m33s  eta 37s  (37.1s/unit)
+      [weather seeds] 10/10  elapsed 6m11s  eta 0s  (37.2s/unit)
+      [injection interaction@lo] 1/10  elapsed 34s  eta 5m13s  (34.9s/unit)
+      [injection interaction@lo] 2/10  elapsed 1m09s  eta 4m39s  (34.9s/unit)
+      [injection interaction@lo] 3/10  elapsed 1m44s  eta 4m04s  (35.0s/unit)
+      [injection interaction@lo] 4/10  elapsed 2m19s  eta 3m29s  (35.0s/unit)
+      [injection interaction@lo] 5/10  elapsed 2m54s  eta 2m54s  (35.0s/unit)
+      [injection interaction@lo] 6/10  elapsed 3m31s  eta 2m20s  (35.2s/unit)
+      [injection interaction@lo] 7/10  elapsed 4m07s  eta 1m45s  (35.3s/unit)
+      [injection interaction@lo] 8/10  elapsed 4m43s  eta 1m10s  (35.5s/unit)
+      [injection interaction@lo] 9/10  elapsed 5m19s  eta 35s  (35.5s/unit)
+      [injection interaction@lo] 10/10  elapsed 5m56s  eta 0s  (35.6s/unit)
+  weather              W=10 D=0.994 gate=0.94 stale=-0.012[-0.013,-0.012] den=-0.012[-0.013,-0.011] => INJECTION-RECOVERED  [TRUST: proxy-stripped:3;injection-recovered]
+      [datasets] 1/2  elapsed 12m38s  eta 12m38s  (758.1s/unit) <- weather
+  [2/2] [homesite_insurance] task=binclass feats=299 n=224320
+      [homesite_insurance seeds] 1/10  elapsed 59s  eta 8m53s  (59.3s/unit)
+      [homesite_insurance seeds] 2/10  elapsed 1m58s  eta 7m54s  (59.4s/unit)
+      [homesite_insurance seeds] 3/10  elapsed 2m58s  eta 6m55s  (59.4s/unit)
+      [homesite_insurance seeds] 4/10  elapsed 3m59s  eta 5m59s  (59.9s/unit)
+      [homesite_insurance seeds] 5/10  elapsed 5m00s  eta 5m00s  (60.1s/unit)
+      [homesite_insurance seeds] 6/10  elapsed 5m59s  eta 3m59s  (60.0s/unit)
+      [homesite_insurance seeds] 7/10  elapsed 7m01s  eta 3m00s  (60.2s/unit)
+      [homesite_insurance seeds] 8/10  elapsed 8m03s  eta 2m00s  (60.4s/unit)
+      [homesite_insurance seeds] 9/10  elapsed 9m04s  eta 1m00s  (60.5s/unit)
+      [homesite_insurance seeds] 10/10  elapsed 10m04s  eta 0s  (60.5s/unit)
+      [injection interaction@lo] 1/10  elapsed 53s  eta 8m02s  (53.6s/unit)
+      [injection interaction@lo] 2/10  elapsed 1m49s  eta 7m16s  (54.5s/unit)
+      [injection interaction@lo] 3/10  elapsed 2m42s  eta 6m19s  (54.2s/unit)
+      [injection interaction@lo] 4/10  elapsed 3m36s  eta 5m24s  (54.0s/unit)
+      [injection interaction@lo] 5/10  elapsed 4m28s  eta 4m28s  (53.8s/unit)
+      [injection interaction@lo] 6/10  elapsed 5m22s  eta 3m35s  (53.8s/unit)
+      [injection interaction@lo] 7/10  elapsed 6m16s  eta 2m41s  (53.7s/unit)
+      [injection interaction@lo] 8/10  elapsed 7m10s  eta 1m47s  (53.8s/unit)
+      [injection interaction@lo] 9/10  elapsed 8m05s  eta 53s  (53.9s/unit)
+      [injection interaction@lo] 10/10  elapsed 9m00s  eta 0s  (54.0s/unit)
+  homesite_insurance   W=10 D=1.000 gate=1.08 stale=-0.004[-0.005,-0.004] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 2/2  elapsed 32m22s  eta 0s  (971.0s/unit) <- homesite_insurance
+      [datasets] done in 32m22s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260801T084623_0577684.json  (+ summary_latest.json)  <-- send me this

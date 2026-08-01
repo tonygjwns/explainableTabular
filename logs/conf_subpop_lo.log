@@ -1,0 +1,55 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [weather] task=regression feats=103 n=340596
+      [weather seeds] 1/10  elapsed 29s  eta 4m29s  (30.0s/unit)
+      [weather seeds] 2/10  elapsed 1m01s  eta 4m05s  (30.7s/unit)
+      [weather seeds] 3/10  elapsed 1m36s  eta 3m45s  (32.2s/unit)
+      [weather seeds] 4/10  elapsed 2m10s  eta 3m16s  (32.7s/unit)
+      [weather seeds] 5/10  elapsed 2m46s  eta 2m46s  (33.3s/unit)
+      [weather seeds] 6/10  elapsed 3m23s  eta 2m15s  (33.9s/unit)
+      [weather seeds] 7/10  elapsed 4m03s  eta 1m44s  (34.8s/unit)
+      [weather seeds] 8/10  elapsed 4m42s  eta 1m10s  (35.3s/unit)
+      [weather seeds] 9/10  elapsed 5m21s  eta 35s  (35.8s/unit)
+      [weather seeds] 10/10  elapsed 6m01s  eta 0s  (36.1s/unit)
+      [injection subpop@lo] 1/10  elapsed 36s  eta 5m30s  (36.7s/unit)
+      [injection subpop@lo] 2/10  elapsed 1m12s  eta 4m51s  (36.5s/unit)
+      [injection subpop@lo] 3/10  elapsed 1m49s  eta 4m14s  (36.4s/unit)
+      [injection subpop@lo] 4/10  elapsed 2m25s  eta 3m38s  (36.4s/unit)
+      [injection subpop@lo] 5/10  elapsed 3m02s  eta 3m02s  (36.4s/unit)
+      [injection subpop@lo] 6/10  elapsed 3m38s  eta 2m25s  (36.5s/unit)
+      [injection subpop@lo] 7/10  elapsed 4m15s  eta 1m49s  (36.4s/unit)
+      [injection subpop@lo] 8/10  elapsed 4m51s  eta 1m12s  (36.4s/unit)
+      [injection subpop@lo] 9/10  elapsed 5m27s  eta 36s  (36.4s/unit)
+      [injection subpop@lo] 10/10  elapsed 6m04s  eta 0s  (36.4s/unit)
+  weather              W=10 D=0.994 gate=0.94 stale=-0.012[-0.013,-0.012] den=-0.012[-0.013,-0.011] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 1/2  elapsed 12m35s  eta 12m35s  (755.8s/unit) <- weather
+  [2/2] [homesite_insurance] task=binclass feats=299 n=224320
+      [homesite_insurance seeds] 1/10  elapsed 1m00s  eta 9m08s  (60.9s/unit)
+      [homesite_insurance seeds] 2/10  elapsed 2m02s  eta 8m09s  (61.2s/unit)
+      [homesite_insurance seeds] 3/10  elapsed 3m04s  eta 7m09s  (61.3s/unit)
+      [homesite_insurance seeds] 4/10  elapsed 4m06s  eta 6m09s  (61.5s/unit)
+      [homesite_insurance seeds] 5/10  elapsed 5m08s  eta 5m08s  (61.6s/unit)
+      [homesite_insurance seeds] 6/10  elapsed 6m09s  eta 4m06s  (61.6s/unit)
+      [homesite_insurance seeds] 7/10  elapsed 7m07s  eta 3m03s  (61.0s/unit)
+      [homesite_insurance seeds] 8/10  elapsed 8m08s  eta 2m02s  (61.0s/unit)
+      [homesite_insurance seeds] 9/10  elapsed 9m10s  eta 1m01s  (61.1s/unit)
+      [homesite_insurance seeds] 10/10  elapsed 10m12s  eta 0s  (61.2s/unit)
+      [injection subpop@lo] 1/10  elapsed 57s  eta 8m33s  (57.1s/unit)
+      [injection subpop@lo] 2/10  elapsed 1m54s  eta 7m36s  (57.1s/unit)
+      [injection subpop@lo] 3/10  elapsed 2m51s  eta 6m40s  (57.1s/unit)
+      [injection subpop@lo] 4/10  elapsed 3m48s  eta 5m43s  (57.2s/unit)
+      [injection subpop@lo] 5/10  elapsed 4m45s  eta 4m45s  (57.1s/unit)
+      [injection subpop@lo] 6/10  elapsed 5m42s  eta 3m48s  (57.1s/unit)
+      [injection subpop@lo] 7/10  elapsed 6m39s  eta 2m51s  (57.1s/unit)
+      [injection subpop@lo] 8/10  elapsed 7m36s  eta 1m54s  (57.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 8m34s  eta 57s  (57.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 9m31s  eta 0s  (57.1s/unit)
+  homesite_insurance   W=10 D=1.000 gate=1.08 stale=-0.004[-0.005,-0.004] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;unident-earned]
+      [datasets] 2/2  elapsed 32m58s  eta 0s  (989.5s/unit) <- homesite_insurance
+      [datasets] done in 32m58s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260801T091923_0577684.json  (+ summary_latest.json)  <-- send me this
