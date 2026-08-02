@@ -771,17 +771,46 @@ map's five regression cells; we report their nulls with that displacement stated
 absorbed. (2) K = 10 rolling windows with a fixed early
 anchor: drift at time scales far below the window width is averaged away (the injection control
 partially measures this — its recovery varies with K), and the TabReD map covers the train
-segments of the official splits, not the held-out deployment gap. (3) The single robust positive
+segments of the official splits — though the full-span audit of Appendix B.4 crosses that gap and
+moves no verdict. (3) The single robust positive
 is lab-designed drift; we found no naturally occurring industrial positive to calibrate
-magnitude against — that is the map's finding and its weakness simultaneously. (4) The envelope
+magnitude against — that is the map's finding and its weakness simultaneously, and the attempt to
+close it is Limitation 7. (4) The envelope
 constant (4.7) is calibrated on Gaussian noise families; heavy-tailed label noise inherits only
 the abstention discipline, not the exact boundary. (5) TabReD is curated to be temporally
 splittable; external validity to industrial data at large is an inductive step we flag rather
-than take. (6) The injection certificates are calibrated on a single reference family —
-fixed-strength rotations on the two highest-variance features; power against low-variance,
-interaction-borne, or subpopulation-local rule change is not certified, so "verified no-concept"
-should be read as verified against that family. An injection-family sweep is the corresponding
-hardening step.
+than take. (6) The injection certificates were calibrated on a single reference family, and the
+sweep that was owed here has now been run (Appendix B.5): power is **certified against
+low-variance rotations and against interaction-borne rules**, and **disconfirmed against
+subpopulation-local rule change** — on weather, a planted subpopulation-local rule is comfortably
+learnable in-window (R² 0.560) and still fails to recover (−0.050), reproducing on confirmatory
+seeds, while the same geometry recovers low-variance (+0.128) and interaction (+0.046) rules.
+"Verified no-concept" therefore carries an explicit family denominator throughout §5.2, and the
+relativity of certificates is a measured property rather than a caveat.
+
+(7) **The probe is blind to rule change that moves a threshold without reordering.** We tested
+the instrument against an externally documented rule change: the ACA Medicaid expansion, which
+Pennsylvania implemented on 2015-01-01 and Texas never adopted, on the ACS public-coverage task
+over 2014–2018 (Appendix B.6). The expansion lifted Pennsylvania's positive rate from 0.234 to
+0.306 with the step at the implementation year, while Texas stayed flat within 0.2 points. The
+probe read **both states null**, in a fully identifiable regime (D = 0.53) and at the tightest
+detectable bound anywhere in this paper (δ = 0.00083) — so this is not an underpowered null but a
+confident zero, which makes the miss sharper rather than softer. The mechanism was registered
+before the run and is confirmed by it: our binary score is AUC, which is rank-based, and an
+eligibility threshold can move a large mass of people across a decision boundary without
+reordering anyone. Measured on the same rows with a proper score, the treatment-versus-control
+separation widens from 3.1× under AUC to 6.3× under Brier, 6.6× under log-loss and 15× under a
+rule-movement divergence. But it does not become large: every reading stays below the decision
+floors of both instruments, and the control state also returns placebo-significant gaps, so only
+the treatment/control *ratio* is interpretable. The honest statement is therefore not "the metric
+explains the miss" but "the metric compresses the signal six- to sevenfold, and even uncompressed
+this policy change sits under our floor." Two consequences follow. Every null in §5 should be read
+as scoped to a rank-based score, which is the right scope for a ranking or triage system and the
+wrong one for the fixed-threshold eligibility systems this very task represents. And the decision
+floor of 0.02, calibrated on planted effects and no-drift anchors, is larger than a real
+population-scale policy rule change — recorded as a measured criticism of that constant in
+Appendix C rather than acted on, since changing a pre-registered threshold after seeing results is
+what this paper argues against.
 
 **On process.** This project's ledger records nine positive findings that dissolved under
 scrutiny before the present result; the ninth dissolution is §5.3, and it is the only one the
@@ -850,11 +879,13 @@ Verified 2026-07-18 against each distributor:
 | EMBER-2018 | public archive download; parsed by our dependency-free adapter | data files MIT (the ember *code* is AGPL-v3 and is not used) |
 | ACS (folktables bridge) | `folktables` | folktables MIT; ACS PUMS is public U.S. Census Bureau data |
 
-## Appendix B. N-scaling and cross-lens agreement (post-hoc robustness checks)
+## Appendix B. Robustness, hardening, and one external test
 
-Both checks were run after the pre-registered audit froze, with the instrument, cascade, and
+B.1–B.3 were run after the pre-registered audit froze, with the instrument, cascade and
 thresholds unchanged (commit-stamped artifacts); they are robustness checks, not pre-registered
-cells.
+cells. B.4–B.6 were pre-registered before execution — reading rules and per-cell predictions
+committed with timestamps ahead of the runs — and are reported here whichever way they came out.
+Nothing in any of them alters a threshold, the cascade or the seed protocol.
 
 **B.1 δ(N): the map does not move toward the floor as N grows.** The probe's headline scale is
 N ≤ 6,000 (§7, Limitation 1b). We re-ran the three largest null cells with the arm cap swept
@@ -930,6 +961,95 @@ cells do not sit there. The binary bound therefore does not transfer as measured
 absolutes are now emitted on every run, so the same quantity will be measured directly on the
 industrial panel at its next execution rather than argued from the battery.
 
+**B.4 The deployment gap: the map does not move across it.** The main map covers the train
+segments of TabReD's official temporal splits (§7, Limitation 2). We re-ran all eight cells with
+train, validation and test concatenated on the shared normalised timestamp, so the windows cross
+the held-out gap the official split withholds, on exploratory and then confirmatory seeds
+(8/8 identical verdicts):
+
+| cell | train-span verdict | full-span verdict | full-span raw / denoised | D |
+|---|---|---|---|---|
+| sberbank_housing | NOISE-DRIFT-CONFOUNDED | UNIDENTIFIABLE (raw no longer fires) | +0.006 / −0.022 | 1.000 |
+| cooking_time | INJECTION-RECOVERED | NO-STRONG-CONCEPT (D falls below the gate) | −0.009 / −0.015 | 0.927 |
+| delivery_eta | INJECTION-RECOVERED | INJECTION-RECOVERED | −0.014 / −0.016 | 0.999 |
+| maps_routing | NO-STRONG-CONCEPT | NO-STRONG-CONCEPT | −0.007 / −0.011 | 0.630 |
+| ecom_offers | UNIDENTIFIABLE *(vacuous)* | UNIDENTIFIABLE *(vacuous)* | −0.009 / −0.009 | 1.000 |
+| homecredit_default | UNIDENTIFIABLE *(vacuous)* | UNIDENTIFIABLE *(**earned**)* | −0.003 / **+0.018** | 1.000 |
+| homesite_insurance | UNIDENTIFIABLE-INERT *(unstable)* | UNIDENTIFIABLE-INERT *(**earned**)* | −0.004 / −0.001 | 1.000 |
+| weather | UNIDENTIFIABLE *(vacuous)* | UNIDENTIFIABLE-INERT | −0.014 / −0.013 | 1.000 |
+
+No industrial cell fires CONCEPT across the deployment gap, so the aggregate is not re-scoped to
+train segments. Three cells move in ways worth recording rather than burying. sberbank's raw arm
+no longer clears the floor over the longer span, so the noise diagnosis of §5.3 is scoped to the
+train segment. cooking_time's separability *falls* below D\*, against our expectation that a
+longer span would raise it, leaving an identifiable null that needs no certificate. And
+homecredit_default's denoised arm reads **+0.018** — 89% of the decision floor and the largest
+positive-direction number anywhere in this paper — with a certificate that is *earned* rather than
+refused here, so it reads as "measured and under the floor" rather than "not measured".
+
+**B.5 Family × carrier: what the certificates are certified against.** The reference injection
+plants a rotation on the two highest-variance features. Because three of the four rule geometries
+we wanted to test would otherwise have inherited that same carrier — and the diagnosed cause of
+injection-vacuity on ecom/homecredit/weather is precisely those columns' heavy tails — the sweep
+crosses rule geometry with carrier: `topvar@hi` (the reference), `lowvar@lo`, `interaction@lo`,
+`subpop@lo`. An implementation control on a designed-drift stream recovers under all four
+(+0.201 / +0.211 / +0.156 / +0.077), so a non-recovery below is a property of the cell, not of the
+code. Recovered staleness, "vac" = injection unlearnable (no admissible number):
+
+| cell | topvar@hi | lowvar@lo | interaction@lo | subpop@lo | reading |
+|---|---|---|---|---|---|
+| cooking_time | +0.546 | +0.467 | +0.357 | +0.131 | verified, 4/4 |
+| delivery_eta | +0.332 | vac | +0.274 | vac | verified, 2/2 learnable |
+| elec2 | +0.018 | −0.003 | −0.001 | −0.002 | blindness earned, 4/4 |
+| homesite_insurance | vac | −0.001 | vac | −0.003 | blindness earned, 2/2 learnable |
+| weather | vac | **+0.183** | **+0.083** | learnable, **−0.009** | verified, 2/3 learnable |
+| ecom_offers | vac | vac | vac | vac | no certificate |
+| homecredit_default | vac | vac | vac | vac | no certificate |
+| insects (positive control) | +0.162 | +0.265 | +0.229 | +0.047 | recovers, 4/4 |
+
+Two results carry beyond bookkeeping. First, weather's reference-family rule is unlearnable in its
+geometry (in-window R² −0.022) while a low-variance rule is learnable at R² 0.674 and recovers — so a
+cell that a single-family protocol would have left uncertified is certified once the carrier is
+widened, which is how the certified count reaches 5 rather than 4. Second, and in the other
+direction: on the full-span variant of the same cell a subpopulation-local rule is comfortably
+learnable (R² 0.560, far from the 0.20 gate) and still fails to recover (−0.050), reproducing on
+confirmatory seeds, while low-variance (+0.128) and interaction (+0.046) rules recover through the
+identical windows. The relativity of certificates is therefore not a caveat we assert but a
+boundary we measured: this instrument has power against rules carried by feature *directions* and
+none against rules carried by *subpopulation membership*.
+
+**B.6 An externally documented rule change the probe does not see.** The ACA Medicaid expansion
+gives a rule change whose date and scope are fixed outside the data and whose adoption differs by
+state, so treatment and control exist in the same task, the same years and the same instrument.
+Pennsylvania implemented on 2015-01-01; Texas had not adopted through 2018. On the ACS
+public-coverage task (folktables, 2014–2018, yearly windows) the design lands in the data —
+Pennsylvania's positive rate moves 0.234 → 0.268 → 0.293 → 0.305 → 0.306 with the step at the
+implementation year, Texas stays within 0.183–0.185 throughout:
+
+| | verdict | raw | denoised | recency | D | δ |
+|---|---|---|---|---|---|---|
+| Pennsylvania (treated) | NO-STRONG-CONCEPT | −0.011 | −0.009 | **+0.009** | 0.534 | **0.00083** |
+| Texas (control) | NO-STRONG-CONCEPT | −0.015 | −0.011 | −0.001 | 0.523 | 0.00200 |
+
+Both null. The one arm that separates them is recency gain, positive and CI-excluding-zero on the
+treated state and indistinguishable from zero on the control — directionally right, and still
+below the floor, so the verdict does not move. The null survives removing the default row
+thinning, and the model-class panel moves three of six labels to the sub-floor band without
+changing any reading (the control's linear-probe sub-floor value is in fact *larger* than the
+treated state's, so nothing can be claimed from that panel).
+
+Re-measuring the same rows with proper scores localises part of the miss. Using the
+within-overlap lens of B.2 on a clean pre/post pair (2014 vs 2018), with a permutation placebo and
+15 seeds, the treatment-versus-control separation of the placebo-corrected gap is 3.1× under AUC,
+6.3× under Brier, 6.6× under log-loss and 15× under a rule-movement divergence; Pennsylvania is
+metric-invariant (all four positive) and Texas is not. An independent run of the same lens family
+reproduces the temporal contrast (+0.021 vs +0.003). But the effect does not become large: every
+value stays below both instruments' decision floors, and the control returns placebo-significant
+gaps of its own, so only the ratio is interpretable. What we can conclude is bounded accordingly —
+the rank-based score compresses this signal six- to sevenfold, and uncompressing it still leaves
+the change under our floor. The corresponding scope statement and the criticism this implies for
+the floor constant are in §7 (Limitation 7) and Appendix C.
+
 ## Appendix C. Decision constants: calibration sources and validity
 
 Every decision constant in the cascade, with where it was calibrated and where it stops being
@@ -938,13 +1058,27 @@ of §4.1 plus the no-drift anchors of §6), not by reusing the numbers.
 
 | constant | value | role | calibrated on | validity / outside behavior |
 |---|---|---|---|---|
-| decision floor | 0.02 | CONCEPT magnitude bar, shared across AUC / accuracy / z-scored −RMSE | battery concept magnitudes (planted effects 10–27× the floor); per-metric rescaling moves no cell (§4.1) | sub-floor CI-positives = no-evidence band, calibrated on no-drift anchors (2/5 land at 1/10–1/20 of the floor) |
+| decision floor | 0.02 | CONCEPT magnitude bar, shared across AUC / accuracy / z-scored −RMSE | battery concept magnitudes (planted effects 10–27× the floor); per-metric rescaling moves no cell (§4.1) | sub-floor CI-positives = no-evidence band, calibrated on no-drift anchors (2/5 land at 1/10–1/20 of the floor). **Measured criticism:** larger than a real population-scale policy rule change (§7, Limitation 7) — see note below |
 | noise gate | 1.5 | label-noise-drift flag (old proxy / recent median) | stable synthetic controls read 0.75–0.99; noise-drift cells read 3.5–3.9 | every real-data value falls below 1.5 or in 2.0–2.9 — nowhere near the envelope edge |
 | envelope | 4.7 | denoiser validity boundary; abstain above | measured on fixed-rule nulls: +0.014 at ratio 4.72, +0.026 at 5.71 (crosses the floor) | Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (§7, Limitation 4) |
 | D* | 0.96 | separability routing to the injection control | group-aware, size-matched repairs (duplicates 0.994→≈0.50; shuffle-D 0.94→0.50) | a routing statistic, never support overlap; D ≥ D* concludes nothing by itself |
 | learnability gates | AUC 0.65 / R² 0.20 / acc majority+0.10 | injection-certificate validity | executed junk-geometry control (in-window AUC 0.506 → vacuous) vs learnable control (0.964 → recovery +0.195) | unlearnable ⇒ certificate refused for that family — vacuity, not blindness |
-| injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | single reference family (§7, Limitation 6); the family sweep is the hardening step |
+| injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | family sweep executed (Appendix B.5): certified vs low-variance and interaction rules, **disconfirmed vs subpopulation-local** (§7, Limitation 6) |
 | seed protocol | 10 (0–9) + confirmatory (100–109); battery 5 | power and stability | battery effects at 10–27× the floor make 5 a sufficient pass/fail gate | verdicts that move between seed sets are barred (unstable) |
+
+**Note on the decision floor (recorded, not acted on).** The pre-registration specified that if
+the floor turned out to exceed a real policy-scale rule change, that fact would be logged here as
+a measured criticism of the constant. It did. The ACA Medicaid expansion moved Pennsylvania's
+public-coverage rate by 7.2 points on the audited population, with the step at the implementation
+year, and produced no reading above 0.02 under any metric or probe class we ran (§7, Limitation 7;
+Appendix B.6). The floor was calibrated on planted effects at 10–27× its value and on no-drift
+anchors at 1/10–1/20 of it, and this event falls in the gap between those two calibration
+regimes — which is precisely where a decision constant is least defensible. We do not change it:
+altering a pre-registered threshold after seeing the result it would have flipped is the practice
+this paper argues against. What follows instead is a scope statement — every CONCEPT verdict in
+this paper means "at or above a magnitude that a large real policy change does not reach" — and a
+concrete recalibration target for anyone porting the instrument: anchor the floor on a documented
+rule change in the target domain, not only on planted rotations and null streams.
 
 ## References (partial, verified during the audit)
 
