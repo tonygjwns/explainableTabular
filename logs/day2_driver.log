@@ -1,0 +1,88 @@
+ENV ('3.11.15', '1.9.0')
+ENV OK
+### A: ACS PREP START 2026-08-01T16:32:58Z
+task=pubcov -> folktables.ACSPublicCoverage  state=PA  years=[2014, 2015, 2016, 2017, 2018]
+Downloading data for 2014 1-Year person survey for PA...
+  PA 2014: n=48341, pos_rate=0.234
+Downloading data for 2015 1-Year person survey for PA...
+  PA 2015: n=47397, pos_rate=0.268
+Downloading data for 2016 1-Year person survey for PA...
+  PA 2016: n=45830, pos_rate=0.293
+Downloading data for 2017 1-Year person survey for PA...
+  PA 2017: n=44502, pos_rate=0.305
+Downloading data for 2018 1-Year person survey for PA...
+  PA 2018: n=44081, pos_rate=0.306
+wrote acs_pubcov_PA.parquet: n=230151, feats=19, years=[2014, 2015, 2016, 2017, 2018]
+  pos_rate by year: 2014:0.234  2015:0.268  2016:0.293  2017:0.305  2018:0.306
+task=pubcov -> folktables.ACSPublicCoverage  state=TX  years=[2014, 2015, 2016, 2017, 2018]
+Downloading data for 2014 1-Year person survey for TX...
+  TX 2014: n=100949, pos_rate=0.184
+Downloading data for 2015 1-Year person survey for TX...
+  TX 2015: n=100944, pos_rate=0.183
+Downloading data for 2016 1-Year person survey for TX...
+  TX 2016: n=100882, pos_rate=0.183
+Downloading data for 2017 1-Year person survey for TX...
+  TX 2017: n=100315, pos_rate=0.185
+Downloading data for 2018 1-Year person survey for TX...
+  TX 2018: n=98928, pos_rate=0.185
+wrote acs_pubcov_TX.parquet: n=502018, feats=19, years=[2014, 2015, 2016, 2017, 2018]
+  pos_rate by year: 2014:0.184  2015:0.183  2016:0.183  2017:0.185  2018:0.185
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA] task=binclass feats=19 n=76717
+      [acs_pubcov_PA seeds] 1/10  elapsed 12s  eta 1m55s  (12.9s/unit)
+      [acs_pubcov_PA seeds] 2/10  elapsed 26s  eta 1m45s  (13.2s/unit)
+      [acs_pubcov_PA seeds] 3/10  elapsed 40s  eta 1m34s  (13.5s/unit)
+      [acs_pubcov_PA seeds] 4/10  elapsed 56s  eta 1m24s  (14.0s/unit)
+      [acs_pubcov_PA seeds] 5/10  elapsed 1m11s  eta 1m11s  (14.3s/unit)
+      [acs_pubcov_PA seeds] 6/10  elapsed 1m26s  eta 57s  (14.4s/unit)
+      [acs_pubcov_PA seeds] 7/10  elapsed 1m41s  eta 43s  (14.5s/unit)
+      [acs_pubcov_PA seeds] 8/10  elapsed 1m56s  eta 29s  (14.5s/unit)
+      [acs_pubcov_PA seeds] 9/10  elapsed 2m11s  eta 14s  (14.6s/unit)
+      [acs_pubcov_PA seeds] 10/10  elapsed 2m26s  eta 0s  (14.6s/unit)
+  acs_pubcov_PA        W= 5 D=0.534 gate=0.91 stale=-0.011[-0.011,-0.010] den=-0.009[-0.010,-0.008] => NO-STRONG-CONCEPT
+      [datasets] 1/1  elapsed 2m33s  eta 0s  (153.5s/unit) <- acs_pubcov_PA
+      [datasets] done in 2m33s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260801T163629_f1d0630.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX] task=binclass feats=19 n=62753
+      [acs_pubcov_TX seeds] 1/10  elapsed 13s  eta 2m01s  (13.5s/unit)
+      [acs_pubcov_TX seeds] 2/10  elapsed 28s  eta 1m53s  (14.2s/unit)
+      [acs_pubcov_TX seeds] 3/10  elapsed 43s  eta 1m40s  (14.4s/unit)
+      [acs_pubcov_TX seeds] 4/10  elapsed 57s  eta 1m26s  (14.4s/unit)
+      [acs_pubcov_TX seeds] 5/10  elapsed 1m12s  eta 1m12s  (14.5s/unit)
+      [acs_pubcov_TX seeds] 6/10  elapsed 1m26s  eta 57s  (14.5s/unit)
+      [acs_pubcov_TX seeds] 7/10  elapsed 1m41s  eta 43s  (14.5s/unit)
+      [acs_pubcov_TX seeds] 8/10  elapsed 1m56s  eta 29s  (14.5s/unit)
+      [acs_pubcov_TX seeds] 9/10  elapsed 2m11s  eta 14s  (14.6s/unit)
+      [acs_pubcov_TX seeds] 10/10  elapsed 2m26s  eta 0s  (14.6s/unit)
+  acs_pubcov_TX        W= 5 D=0.523 gate=0.93 stale=-0.015[-0.017,-0.014] den=-0.011[-0.013,-0.009] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 2m34s  eta 0s  (154.2s/unit) <- acs_pubcov_TX
+      [datasets] done in 2m34s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260801T163904_f1d0630.json  (+ summary_latest.json)  <-- send me this
+### A DONE 2026-08-01T16:39:05Z
+### B+C LAUNCH 2026-08-01T16:39:05Z
+=== 완료 점검 2026-08-01T18:15:54Z ===
+OK   logs/acs_PA.log  판정 1/1
+OK   logs/acs_TX.log  판정 1/1
+OK   logs/fsc_A.log  판정 3/3
+OK   logs/fsc_B.log  판정 2/2
+OK   logs/fsc_C.log  판정 3/3
+OK   logs/fsd1_lowvar_lo.log  판정 3/3
+OK   logs/fsd1_interaction_lo.log  판정 3/3
+OK   logs/fsd1_subpop_lo.log  판정 3/3
+OK   logs/sb_topvar_hi.log  판정 1/1
+OK   logs/sb_lowvar_lo.log  판정 1/1
+OK   logs/sb_interaction_lo.log  판정 1/1
+OK   logs/sb_subpop_lo.log  판정 1/1
