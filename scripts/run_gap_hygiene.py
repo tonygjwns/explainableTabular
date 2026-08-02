@@ -185,6 +185,37 @@ def _synth(seed, flip):
     return Xe, ye, Xl, yl
 
 
+class _CsvSplit:
+    def __init__(self, X, y, t):
+        self.X_num, self.X_bin, self.X_cat, self.y, self.t = X, None, None, y, t
+
+
+class _CsvData:
+    """Minimal stand-in for a TabReDDataset so a plain CSV/parquet can enter the same
+    within-overlap machinery as the loader-backed datasets.
+
+    Why this exists: the deployment probe reads ACS with `--csv`, and the question we need to
+    answer is whether a DIFFERENT lens on the SAME rows sees what the deployment lens missed.
+    That comparison is only worth anything if both lenses ingest the data identically, so the
+    parsing is imported from the probe itself (`_load_csv`) rather than re-implemented here."""
+
+    def __init__(self, X, y, t, task):
+        self.train = _CsvSplit(X, y, t)
+        self.task = task
+
+
+def _load_csv_dataset(path, target, time, drop, max_n):
+    import importlib.util as _u
+    spec = _u.spec_from_file_location("_rdd", str(Path(__file__).resolve().parent
+                                                 / "run_deployment_decay.py"))
+    rdd = _u.module_from_spec(spec); spec.loader.exec_module(rdd)
+    X, y, t, task, _ = rdd._load_csv(path, target, time, drop, max_n)
+    good = np.isfinite(t)
+    if task == "regression":
+        good = good & np.isfinite(np.asarray(y, float))
+    return _CsvData(X[good], np.asarray(y)[good], np.asarray(t, float)[good], task)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/phase1.yaml")
@@ -192,6 +223,14 @@ def main():
     ap.add_argument("--insects", action="store_true")
     ap.add_argument("--insects-variant", default="incremental_balanced")
     ap.add_argument("--tabred", nargs="*", default=[], help="TabReD dataset names (controls)")
+    ap.add_argument("--csv", default=None,
+                    help="CSV/parquet path; parsed by the deployment probe's own _load_csv so "
+                         "both lenses see identical rows (needs --target and --time)")
+    ap.add_argument("--target", default=None)
+    ap.add_argument("--time", default=None)
+    ap.add_argument("--drop", nargs="*", default=[])
+    ap.add_argument("--max-n", type=int, default=60000)
+    ap.add_argument("--name", default=None)
     ap.add_argument("--n-seeds", type=int, default=15)
     ap.add_argument("--grid-seeds", type=int, default=5, help="seeds per sensitivity/cut cell")
     ap.add_argument("--floor", type=float, default=0.041,
@@ -224,8 +263,12 @@ def main():
         print("  (flip must be large+invariant; noflip ~0) -> wiring OK")
         return
 
-    from omegaconf import OmegaConf
-    cfg = OmegaConf.load(args.config); root = Path(cfg.data.root)
+    # Only TabReD needs the config (and therefore omegaconf); a --csv/--elec2/--insects run
+    # should not require the TabReD data machinery to be installed at all.
+    cfg = root = None
+    if args.tabred:
+        from omegaconf import OmegaConf
+        cfg = OmegaConf.load(args.config); root = Path(cfg.data.root)
     jobs = []
     if args.elec2:
         from src.data.elec2_loader import load_elec2
@@ -237,6 +280,12 @@ def main():
     for ds in args.tabred:
         from src.data.tabred_loader import load_tabred
         jobs.append((ds, load_tabred(ds, root, split=cfg.experiment.split)))
+    if args.csv:
+        if not (args.target and args.time):
+            print("--csv needs --target and --time"); return
+        nm = args.name or Path(args.csv).stem
+        jobs.append((nm, _load_csv_dataset(args.csv, args.target, args.time,
+                                           args.drop, args.max_n)))
 
     report = {"floor": args.floor, "alpha": args.alpha, "band": list(band),
               "datasets": [], "rolling": [], "sensitivity": []}
