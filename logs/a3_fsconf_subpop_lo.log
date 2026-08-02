@@ -1,0 +1,78 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [homecredit_default_fullspan] task=binclass feats=696 n=381664
+      [homecredit_default_fullspan seeds] 1/10  elapsed 2m06s  eta 19m01s  (126.9s/unit)
+      [homecredit_default_fullspan seeds] 2/10  elapsed 4m11s  eta 16m47s  (125.9s/unit)
+      [homecredit_default_fullspan seeds] 3/10  elapsed 6m13s  eta 14m32s  (124.6s/unit)
+      [homecredit_default_fullspan seeds] 4/10  elapsed 8m06s  eta 12m09s  (121.6s/unit)
+      [homecredit_default_fullspan seeds] 5/10  elapsed 10m13s  eta 10m13s  (122.7s/unit)
+      [homecredit_default_fullspan seeds] 6/10  elapsed 12m18s  eta 8m12s  (123.0s/unit)
+      [homecredit_default_fullspan seeds] 7/10  elapsed 14m19s  eta 6m08s  (122.8s/unit)
+      [homecredit_default_fullspan seeds] 8/10  elapsed 16m19s  eta 4m04s  (122.5s/unit)
+      [homecredit_default_fullspan seeds] 9/10  elapsed 18m02s  eta 2m00s  (120.3s/unit)
+      [homecredit_default_fullspan seeds] 10/10  elapsed 19m47s  eta 0s  (118.8s/unit)
+      [injection subpop@lo] 1/10  elapsed 1m24s  eta 12m36s  (84.1s/unit)
+      [injection subpop@lo] 2/10  elapsed 2m46s  eta 11m07s  (83.4s/unit)
+      [injection subpop@lo] 3/10  elapsed 4m10s  eta 9m44s  (83.4s/unit)
+      [injection subpop@lo] 4/10  elapsed 5m35s  eta 8m23s  (83.9s/unit)
+      [injection subpop@lo] 5/10  elapsed 7m01s  eta 7m01s  (84.2s/unit)
+      [injection subpop@lo] 6/10  elapsed 8m25s  eta 5m36s  (84.2s/unit)
+      [injection subpop@lo] 7/10  elapsed 9m47s  eta 4m11s  (84.0s/unit)
+      [injection subpop@lo] 8/10  elapsed 11m12s  eta 2m48s  (84.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 12m36s  eta 1m24s  (84.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 14m01s  eta 0s  (84.2s/unit)
+  homecredit_default_f W=10 D=1.000 gate=1.23 stale=-0.003[-0.006,-0.000] den=+0.018[+0.015,+0.021] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:62;injection-vacuous]
+      [datasets] 1/3  elapsed 35m33s  eta 1h11m  (2133.9s/unit) <- homecredit_default_fullspan
+  [2/3] [weather_fullspan] task=regression feats=103 n=423795
+      [weather_fullspan seeds] 1/10  elapsed 31s  eta 4m39s  (31.1s/unit)
+      [weather_fullspan seeds] 2/10  elapsed 1m02s  eta 4m08s  (31.1s/unit)
+      [weather_fullspan seeds] 3/10  elapsed 1m33s  eta 3m37s  (31.1s/unit)
+      [weather_fullspan seeds] 4/10  elapsed 2m04s  eta 3m06s  (31.1s/unit)
+      [weather_fullspan seeds] 5/10  elapsed 2m35s  eta 2m35s  (31.1s/unit)
+      [weather_fullspan seeds] 6/10  elapsed 3m06s  eta 2m04s  (31.1s/unit)
+      [weather_fullspan seeds] 7/10  elapsed 3m37s  eta 1m33s  (31.1s/unit)
+      [weather_fullspan seeds] 8/10  elapsed 4m08s  eta 1m02s  (31.1s/unit)
+      [weather_fullspan seeds] 9/10  elapsed 4m40s  eta 31s  (31.1s/unit)
+      [weather_fullspan seeds] 10/10  elapsed 5m11s  eta 0s  (31.2s/unit)
+      [injection subpop@lo] 1/10  elapsed 28s  eta 4m19s  (28.9s/unit)
+      [injection subpop@lo] 2/10  elapsed 57s  eta 3m50s  (28.9s/unit)
+      [injection subpop@lo] 3/10  elapsed 1m26s  eta 3m22s  (28.9s/unit)
+      [injection subpop@lo] 4/10  elapsed 1m55s  eta 2m53s  (28.9s/unit)
+      [injection subpop@lo] 5/10  elapsed 2m24s  eta 2m24s  (28.9s/unit)
+      [injection subpop@lo] 6/10  elapsed 2m53s  eta 1m55s  (28.9s/unit)
+      [injection subpop@lo] 7/10  elapsed 3m22s  eta 1m26s  (28.9s/unit)
+      [injection subpop@lo] 8/10  elapsed 3m50s  eta 57s  (28.9s/unit)
+      [injection subpop@lo] 9/10  elapsed 4m19s  eta 28s  (28.9s/unit)
+      [injection subpop@lo] 10/10  elapsed 4m48s  eta 0s  (28.9s/unit)
+  weather_fullspan     W=10 D=1.000 gate=0.88 stale=-0.014[-0.015,-0.013] den=-0.013[-0.014,-0.012] => UNIDENTIFIABLE-INERT  [TRUST: unident-earned]
+      [datasets] 2/3  elapsed 45m59s  eta 22m59s  (1379.9s/unit) <- weather_fullspan
+  [3/3] [homesite_insurance_fullspan] task=binclass feats=299 n=260753
+      [homesite_insurance_fullspan seeds] 1/10  elapsed 47s  eta 7m03s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 2/10  elapsed 1m34s  eta 6m16s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 3/10  elapsed 2m21s  eta 5m29s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 4/10  elapsed 3m07s  eta 4m41s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 5/10  elapsed 3m54s  eta 3m54s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 6/10  elapsed 4m41s  eta 3m07s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 7/10  elapsed 5m28s  eta 2m20s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 8/10  elapsed 6m15s  eta 1m33s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 9/10  elapsed 7m02s  eta 46s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 10/10  elapsed 7m48s  eta 0s  (46.9s/unit)
+      [injection subpop@lo] 1/10  elapsed 42s  eta 6m25s  (42.9s/unit)
+      [injection subpop@lo] 2/10  elapsed 1m25s  eta 5m43s  (43.0s/unit)
+      [injection subpop@lo] 3/10  elapsed 2m09s  eta 5m01s  (43.1s/unit)
+      [injection subpop@lo] 4/10  elapsed 2m52s  eta 4m18s  (43.0s/unit)
+      [injection subpop@lo] 5/10  elapsed 3m35s  eta 3m35s  (43.0s/unit)
+      [injection subpop@lo] 6/10  elapsed 4m18s  eta 2m52s  (43.0s/unit)
+      [injection subpop@lo] 7/10  elapsed 5m01s  eta 2m09s  (43.0s/unit)
+      [injection subpop@lo] 8/10  elapsed 5m44s  eta 1m26s  (43.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 6m27s  eta 43s  (43.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 7m10s  eta 0s  (43.1s/unit)
+  homesite_insurance_f W=10 D=1.000 gate=1.02 stale=-0.004[-0.004,-0.003] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;unident-earned]
+      [datasets] 3/3  elapsed 1h01m  eta 0s  (1232.8s/unit) <- homesite_insurance_fullspan
+      [datasets] done in 1h01m
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T091139_1fa4b6f.json  (+ summary_latest.json)  <-- send me this

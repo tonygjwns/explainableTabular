@@ -1,0 +1,375 @@
+{
+  "floor": 0.041,
+  "alpha": 0.05,
+  "band": [
+    0.1,
+    0.9
+  ],
+  "datasets": [
+    {
+      "dataset": "acs_pubcov_TX_1418",
+      "task": "binclass",
+      "measurable": true,
+      "primary_metric": "auc",
+      "n_seeds_used": 15,
+      "per_metric": {
+        "auc": {
+          "true_mean": -0.014451240044344844,
+          "true_ci": [
+            -0.016446514042554268,
+            -0.012455966046135422
+          ],
+          "placebo_mean": -0.020403609696305756,
+          "placebo_ci": [
+            -0.02251658677341191,
+            -0.018290632619199602
+          ],
+          "bias_corrected": 0.005952369651960911,
+          "ci_above_placebo": true,
+          "ci_excludes_0": false
+        },
+        "brier": {
+          "true_mean": -0.008677220958701213,
+          "true_ci": [
+            -0.009716479336106988,
+            -0.007637962581295439
+          ],
+          "placebo_mean": -0.01264534150369717,
+          "placebo_ci": [
+            -0.013841097341105172,
+            -0.011449585666289168
+          ],
+          "bias_corrected": 0.003968120544995957,
+          "ci_above_placebo": true,
+          "ci_excludes_0": false
+        },
+        "logloss": {
+          "true_mean": -0.02410464417693422,
+          "true_ci": [
+            -0.025721299406358828,
+            -0.02248798894750961
+          ],
+          "placebo_mean": -0.030535940839012798,
+          "placebo_ci": [
+            -0.03264685343250224,
+            -0.028425028245523353
+          ],
+          "bias_corrected": 0.006431296662078579,
+          "ci_above_placebo": true,
+          "ci_excludes_0": false
+        },
+        "kl_late_early": {
+          "true_mean": 0.047114521729824214,
+          "true_ci": [
+            0.046200987055344915,
+            0.048028056404303514
+          ],
+          "placebo_mean": 0.04472263067617955,
+          "placebo_ci": [
+            0.04363249676350455,
+            0.04581276458885455
+          ],
+          "bias_corrected": 0.0023918910536446653,
+          "ci_above_placebo": true,
+          "ci_excludes_0": true
+        }
+      },
+      "primary_one_sided_p": 0.001007080078125,
+      "metric_invariant": false,
+      "floor": 0.041
+    }
+  ],
+  "rolling": [
+    {
+      "dataset": "acs_pubcov_TX_1418",
+      "cuts": [
+        0.2,
+        0.35,
+        0.5,
+        0.65,
+        0.8
+      ],
+      "primary_metric": "auc",
+      "trajectory": [
+        -0.014632251540020746,
+        -0.014632251540020746,
+        -0.014632251540020746,
+        null,
+        null
+      ],
+      "shape": {
+        "trend_spearman": NaN,
+        "trend_p": NaN,
+        "max_adjacent_jump": 0.0,
+        "cross_cut_mean": -0.014632251540020744,
+        "cross_cut_ci": [
+          -0.014632251540020746,
+          -0.014632251540020742
+        ],
+        "all_positive": false,
+        "regime": "gradual"
+      }
+    }
+  ],
+  "sensitivity": [
+    {
+      "dataset": "acs_pubcov_TX_1418",
+      "n_cells": 18,
+      "n_verdict_concept": 0,
+      "verdict_invariant": false,
+      "cells": [
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.1,
+            0.9
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.013143416686928,
+          "placebo_mean": -0.019635650673466155,
+          "bias_corrected": 0.006492233986538155,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.013143416686928,
+          "placebo_mean": -0.019635650673466155,
+          "bias_corrected": 0.006492233986538155,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.013143416686928,
+          "placebo_mean": -0.019635650673466155,
+          "bias_corrected": 0.006492233986538155,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.2,
+            0.8
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 200,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 100,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "hgb",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        },
+        {
+          "band": [
+            0.05,
+            0.95
+          ],
+          "min_per_half": 400,
+          "clf": "logreg",
+          "measurable": true,
+          "true_mean": -0.014632251540020746,
+          "placebo_mean": -0.0196748881042361,
+          "bias_corrected": 0.005042636564215355,
+          "verdict_concept": false
+        }
+      ]
+    }
+  ],
+  "bh_fdr": {
+    "acs_pubcov_TX_1418": {
+      "raw_p": 0.001007080078125,
+      "bh_p": 0.001007080078125,
+      "reject": true
+    }
+  },
+  "claim_a_verdict": {
+    "acs_pubcov_TX_1418": {
+      "concept": false,
+      "ci_above_placebo": true,
+      "bias_above_floor": false,
+      "bh_reject": true,
+      "metric_invariant": false,
+      "sensitivity_invariant": false
+    }
+  }
+}

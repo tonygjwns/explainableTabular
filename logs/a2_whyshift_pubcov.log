@@ -1,0 +1,16 @@
+
+==== WhyShift contrast (task=pubcov) ====
+  setting                      cov_AUC  meas      gap  placebo
+  -- spatial (state->state, same year) --
+  PA->TX @2018                   1.000  True   +0.020   -0.027
+  -- temporal (same state, year0->year1) --
+  PA 2014->2018                  0.565  True   +0.001   -0.020
+  TX 2014->2018                  0.552  True   -0.018   -0.021
+
+  ==== aggregate ====
+  SPATIAL : mean cov_AUC=1.000  measurable=100%  mean concept_gap=+0.020
+  TEMPORAL: mean cov_AUC=0.558  measurable=100%  mean concept_gap=-0.009
+  PREDICTION: spatial gap > temporal gap, temporal cov_AUC > spatial (X-dominant).
+  If borne out, the spatial=Y|X / temporal=X contrast is earned with our frame.
+
+  wrote results/phase1/whyshift/summary.json  <-- send me this

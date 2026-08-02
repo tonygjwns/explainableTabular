@@ -1,0 +1,25 @@
+
+==== (3)+(4) seed-CI + loss-robustness (15 seeds, band=(0.1, 0.9)) ====
+  acs_pubcov_TX_1418 [auc]:
+    auc            true=-0.0145[-0.0164,-0.0125]  bias_corr=+0.0060
+    brier          true=-0.0087[-0.0097,-0.0076]  bias_corr=+0.0040
+    logloss        true=-0.0241[-0.0257,-0.0225]  bias_corr=+0.0064
+    kl_late_early  true=+0.0471[+0.0462,+0.0480]  bias_corr=+0.0024
+    one-sided p(true>placebo)=0.001007  metric_invariant=False
+
+==== (1) BH-FDR over contrast family (n=1, alpha=0.05) ====
+  acs_pubcov_TX_1418       raw_p=0.001007  BH_p=0.001007  reject=True
+
+==== (5) rolling-origin g(t) over cuts [0.2, 0.35, 0.5, 0.65, 0.8] (5 seeds/cut) ====
+/home/tonyhuh/explainableTabular/scripts/run_gap_hygiene.py:133: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho, pp = spearmanr(qs, gv)
+  acs_pubcov_TX_1418       0.2:-0.015  0.35:-0.015  0.5:-0.015  0.65:--  0.8:--
+    trend_rho=+nan regime=gradual cross-cut CI=[-0.015,-0.015] all_pos=False
+
+==== (2) sensitivity grid band x min_per_half x clf (5 seeds) ====
+  acs_pubcov_TX_1418       verdict-concept in 0/18 cells -> invariant=False
+
+==== PRE-REGISTERED Claim-A verdict (per dataset) ====
+  acs_pubcov_TX_1418       CI>placebo=True bias>0.041=False BH=True metric_inv=False sens_inv=False  =>  NOT (PLAN_V3 §0.1)
+
+  wrote results/phase1/gap_hygiene/summary.json  <-- send me this

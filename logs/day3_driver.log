@@ -1,0 +1,432 @@
+ENV ('3.11.15', '1.9.0')
+ENV OK
+  PA 2014+2018: n=92422  2014:0.234  2018:0.306
+  TX 2014+2018: n=199877  2014:0.184  2018:0.185
+### PARQUETS READY 2026-08-02T05:21:17Z
+
+==== (3)+(4) seed-CI + loss-robustness (15 seeds, band=(0.1, 0.9)) ====
+  acs_pubcov_PA_1418 [auc]:
+    auc            true=+0.0040[+0.0020,+0.0060]  bias_corr=+0.0183
+    brier          true=+0.0122[+0.0101,+0.0143]  bias_corr=+0.0252
+    logloss        true=+0.0159[+0.0128,+0.0190]  bias_corr=+0.0421
+    kl_late_early  true=+0.0846[+0.0824,+0.0868]  bias_corr=+0.0363
+    one-sided p(true>placebo)=3.052e-05  metric_invariant=True
+
+==== (1) BH-FDR over contrast family (n=1, alpha=0.05) ====
+  acs_pubcov_PA_1418       raw_p=3.052e-05  BH_p=3.052e-05  reject=True
+
+==== (5) rolling-origin g(t) over cuts [0.2, 0.35, 0.5, 0.65, 0.8] (5 seeds/cut) ====
+/home/tonyhuh/explainableTabular/scripts/run_gap_hygiene.py:133: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho, pp = spearmanr(qs, gv)
+  acs_pubcov_PA_1418       0.2:+0.003  0.35:+0.003  0.5:+0.003  0.65:--  0.8:--
+    trend_rho=+nan regime=gradual cross-cut CI=[+0.003,+0.003] all_pos=True
+
+==== (2) sensitivity grid band x min_per_half x clf (5 seeds) ====
+  acs_pubcov_PA_1418       verdict-concept in 0/18 cells -> invariant=False
+
+==== PRE-REGISTERED Claim-A verdict (per dataset) ====
+  acs_pubcov_PA_1418       CI>placebo=True bias>0.041=False BH=True metric_inv=True sens_inv=False  =>  NOT (PLAN_V3 §0.1)
+
+  wrote results/phase1/gap_hygiene/summary.json  <-- send me this
+
+==== (3)+(4) seed-CI + loss-robustness (15 seeds, band=(0.1, 0.9)) ====
+  acs_pubcov_TX_1418 [auc]:
+    auc            true=-0.0145[-0.0164,-0.0125]  bias_corr=+0.0060
+    brier          true=-0.0087[-0.0097,-0.0076]  bias_corr=+0.0040
+    logloss        true=-0.0241[-0.0257,-0.0225]  bias_corr=+0.0064
+    kl_late_early  true=+0.0471[+0.0462,+0.0480]  bias_corr=+0.0024
+    one-sided p(true>placebo)=0.001007  metric_invariant=False
+
+==== (1) BH-FDR over contrast family (n=1, alpha=0.05) ====
+  acs_pubcov_TX_1418       raw_p=0.001007  BH_p=0.001007  reject=True
+
+==== (5) rolling-origin g(t) over cuts [0.2, 0.35, 0.5, 0.65, 0.8] (5 seeds/cut) ====
+/home/tonyhuh/explainableTabular/scripts/run_gap_hygiene.py:133: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho, pp = spearmanr(qs, gv)
+  acs_pubcov_TX_1418       0.2:-0.015  0.35:-0.015  0.5:-0.015  0.65:--  0.8:--
+    trend_rho=+nan regime=gradual cross-cut CI=[-0.015,-0.015] all_pos=False
+
+==== (2) sensitivity grid band x min_per_half x clf (5 seeds) ====
+  acs_pubcov_TX_1418       verdict-concept in 0/18 cells -> invariant=False
+
+==== PRE-REGISTERED Claim-A verdict (per dataset) ====
+  acs_pubcov_TX_1418       CI>placebo=True bias>0.041=False BH=True metric_inv=False sens_inv=False  =>  NOT (PLAN_V3 §0.1)
+
+  wrote results/phase1/gap_hygiene/summary.json  <-- send me this
+### A1 DONE 2026-08-02T05:39:26Z
+
+==== WhyShift contrast (task=pubcov) ====
+  setting                      cov_AUC  meas      gap  placebo
+  -- spatial (state->state, same year) --
+  PA->TX @2018                   1.000  True   +0.020   -0.027
+  -- temporal (same state, year0->year1) --
+  PA 2014->2018                  0.565  True   +0.001   -0.020
+  TX 2014->2018                  0.552  True   -0.018   -0.021
+
+  ==== aggregate ====
+  SPATIAL : mean cov_AUC=1.000  measurable=100%  mean concept_gap=+0.020
+  TEMPORAL: mean cov_AUC=0.558  measurable=100%  mean concept_gap=-0.009
+  PREDICTION: spatial gap > temporal gap, temporal cov_AUC > spatial (X-dominant).
+  If borne out, the spatial=Y|X / temporal=X contrast is earned with our frame.
+
+  wrote results/phase1/whyshift/summary.json  <-- send me this
+### A2 DONE 2026-08-02T05:40:26Z
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_fullN] task=binclass feats=19 n=230151
+      [acs_pubcov_PA_fullN seeds] 1/10  elapsed 11s  eta 1m45s  (11.7s/unit)
+      [acs_pubcov_PA_fullN seeds] 2/10  elapsed 23s  eta 1m32s  (11.6s/unit)
+      [acs_pubcov_PA_fullN seeds] 3/10  elapsed 34s  eta 1m21s  (11.7s/unit)
+      [acs_pubcov_PA_fullN seeds] 4/10  elapsed 46s  eta 1m09s  (11.7s/unit)
+      [acs_pubcov_PA_fullN seeds] 5/10  elapsed 59s  eta 59s  (11.9s/unit)
+      [acs_pubcov_PA_fullN seeds] 6/10  elapsed 1m11s  eta 47s  (12.0s/unit)
+      [acs_pubcov_PA_fullN seeds] 7/10  elapsed 1m23s  eta 35s  (11.9s/unit)
+      [acs_pubcov_PA_fullN seeds] 8/10  elapsed 1m35s  eta 23s  (11.9s/unit)
+      [acs_pubcov_PA_fullN seeds] 9/10  elapsed 1m46s  eta 11s  (11.8s/unit)
+      [acs_pubcov_PA_fullN seeds] 10/10  elapsed 1m57s  eta 0s  (11.8s/unit)
+  acs_pubcov_PA_fullN  W= 5 D=0.528 gate=0.91 stale=-0.009[-0.010,-0.008] den=-0.008[-0.008,-0.007] => NO-STRONG-CONCEPT
+      [datasets] 1/1  elapsed 2m05s  eta 0s  (125.4s/unit) <- acs_pubcov_PA_fullN
+      [datasets] done in 2m05s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054233_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_rf] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_rf seeds] 1/10  elapsed 7s  eta 1m07s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 2/10  elapsed 15s  eta 1m01s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 3/10  elapsed 22s  eta 53s  (7.7s/unit)
+      [acs_pubcov_PA_rf seeds] 4/10  elapsed 30s  eta 45s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 5/10  elapsed 38s  eta 38s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 6/10  elapsed 45s  eta 30s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 7/10  elapsed 53s  eta 22s  (7.6s/unit)
+      [acs_pubcov_PA_rf seeds] 8/10  elapsed 1m01s  eta 15s  (7.7s/unit)
+      [acs_pubcov_PA_rf seeds] 9/10  elapsed 1m09s  eta 7s  (7.7s/unit)
+      [acs_pubcov_PA_rf seeds] 10/10  elapsed 1m16s  eta 0s  (7.7s/unit)
+  acs_pubcov_PA_rf     W= 5 D=0.523 gate=0.91 stale=-0.000[-0.001,+0.001] den=+0.002[+0.001,+0.003] => SUBFLOOR-CONCEPT-SIGNAL
+      [datasets] 1/1  elapsed 1m25s  eta 0s  (85.9s/unit) <- acs_pubcov_PA_rf
+      [datasets] done in 1m25s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054359_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_rf] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_rf seeds] 1/10  elapsed 7s  eta 1m08s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 2/10  elapsed 15s  eta 1m01s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 3/10  elapsed 22s  eta 53s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 4/10  elapsed 30s  eta 45s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 5/10  elapsed 37s  eta 37s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 6/10  elapsed 45s  eta 30s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 7/10  elapsed 53s  eta 22s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 8/10  elapsed 1m00s  eta 15s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 9/10  elapsed 1m08s  eta 7s  (7.6s/unit)
+      [acs_pubcov_TX_rf seeds] 10/10  elapsed 1m15s  eta 0s  (7.6s/unit)
+  acs_pubcov_TX_rf     W= 5 D=0.515 gate=0.95 stale=-0.004[-0.005,-0.003] den=+0.001[-0.000,+0.002] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 1m24s  eta 0s  (84.2s/unit) <- acs_pubcov_TX_rf
+      [datasets] done in 1m24s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054525_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_linear] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_linear seeds] 1/10  elapsed 0s  eta 4s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 2/10  elapsed 1s  eta 4s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 3/10  elapsed 1s  eta 3s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 4/10  elapsed 2s  eta 3s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 5/10  elapsed 2s  eta 2s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 6/10  elapsed 3s  eta 2s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 7/10  elapsed 3s  eta 1s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 8/10  elapsed 4s  eta 1s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 9/10  elapsed 4s  eta 0s  (0.5s/unit)
+      [acs_pubcov_PA_linear seeds] 10/10  elapsed 5s  eta 0s  (0.5s/unit)
+  acs_pubcov_PA_linear W= 5 D=0.532 gate=0.90 stale=+0.001[+0.000,+0.001] den=+0.002[+0.002,+0.003] => SUBFLOOR-CONCEPT-SIGNAL
+      [datasets] 1/1  elapsed 7s  eta 0s  (7.4s/unit) <- acs_pubcov_PA_linear
+      [datasets] done in 7s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054533_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_linear] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_linear seeds] 1/10  elapsed 0s  eta 4s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 2/10  elapsed 1s  eta 4s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 3/10  elapsed 1s  eta 3s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 4/10  elapsed 2s  eta 3s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 5/10  elapsed 2s  eta 2s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 6/10  elapsed 3s  eta 2s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 7/10  elapsed 3s  eta 1s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 8/10  elapsed 4s  eta 1s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 9/10  elapsed 4s  eta 0s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 10/10  elapsed 5s  eta 0s  (0.5s/unit)
+  acs_pubcov_TX_linear W= 5 D=0.528 gate=0.95 stale=-0.000[-0.001,+0.000] den=+0.004[+0.004,+0.005] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 6s  eta 0s  (6.9s/unit) <- acs_pubcov_TX_linear
+      [datasets] done in 6s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054541_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [homecredit_default_fullspan] task=binclass feats=696 n=381664
+      [homecredit_default_fullspan seeds] 1/10  elapsed 1m50s  eta 16m30s  (110.1s/unit)
+      [homecredit_default_fullspan seeds] 2/10  elapsed 3m37s  eta 14m31s  (108.9s/unit)
+      [homecredit_default_fullspan seeds] 3/10  elapsed 5m24s  eta 12m37s  (108.2s/unit)
+      [homecredit_default_fullspan seeds] 4/10  elapsed 7m08s  eta 10m43s  (107.2s/unit)
+      [homecredit_default_fullspan seeds] 5/10  elapsed 8m49s  eta 8m49s  (106.0s/unit)
+      [homecredit_default_fullspan seeds] 6/10  elapsed 10m29s  eta 6m59s  (105.0s/unit)
+      [homecredit_default_fullspan seeds] 7/10  elapsed 12m11s  eta 5m13s  (104.4s/unit)
+      [homecredit_default_fullspan seeds] 8/10  elapsed 13m55s  eta 3m28s  (104.5s/unit)
+      [homecredit_default_fullspan seeds] 9/10  elapsed 15m36s  eta 1m44s  (104.0s/unit)
+      [homecredit_default_fullspan seeds] 10/10  elapsed 17m19s  eta 0s  (103.9s/unit)
+      [injection lowvar@lo] 1/10  elapsed 1m22s  eta 12m23s  (82.7s/unit)
+      [injection lowvar@lo] 2/10  elapsed 2m43s  eta 10m52s  (81.6s/unit)
+      [injection lowvar@lo] 3/10  elapsed 4m06s  eta 9m34s  (82.1s/unit)
+      [injection lowvar@lo] 4/10  elapsed 5m31s  eta 8m16s  (82.8s/unit)
+      [injection lowvar@lo] 5/10  elapsed 7m07s  eta 7m07s  (85.4s/unit)
+      [injection lowvar@lo] 6/10  elapsed 8m51s  eta 5m54s  (88.6s/unit)
+      [injection lowvar@lo] 7/10  elapsed 10m27s  eta 4m28s  (89.6s/unit)
+      [injection lowvar@lo] 8/10  elapsed 12m11s  eta 3m02s  (91.5s/unit)
+      [injection lowvar@lo] 9/10  elapsed 13m58s  eta 1m33s  (93.1s/unit)
+      [injection lowvar@lo] 10/10  elapsed 15m45s  eta 0s  (94.6s/unit)
+  homecredit_default_f W=10 D=1.000 gate=1.23 stale=-0.003[-0.006,-0.000] den=+0.018[+0.015,+0.021] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:62;injection-vacuous]
+      [datasets] 1/3  elapsed 34m48s  eta 1h09m  (2088.0s/unit) <- homecredit_default_fullspan
+  [2/3] [weather_fullspan] task=regression feats=103 n=423795
+      [weather_fullspan seeds] 1/10  elapsed 39s  eta 5m55s  (39.5s/unit)
+      [weather_fullspan seeds] 2/10  elapsed 1m20s  eta 5m22s  (40.3s/unit)
+      [weather_fullspan seeds] 3/10  elapsed 2m01s  eta 4m43s  (40.5s/unit)
+      [weather_fullspan seeds] 4/10  elapsed 2m42s  eta 4m04s  (40.7s/unit)
+      [weather_fullspan seeds] 5/10  elapsed 3m23s  eta 3m23s  (40.7s/unit)
+      [weather_fullspan seeds] 6/10  elapsed 4m04s  eta 2m42s  (40.7s/unit)
+      [weather_fullspan seeds] 7/10  elapsed 4m44s  eta 2m02s  (40.7s/unit)
+      [weather_fullspan seeds] 8/10  elapsed 5m25s  eta 1m21s  (40.7s/unit)
+      [weather_fullspan seeds] 9/10  elapsed 6m05s  eta 40s  (40.6s/unit)
+      [weather_fullspan seeds] 10/10  elapsed 6m46s  eta 0s  (40.6s/unit)
+      [injection lowvar@lo] 1/10  elapsed 38s  eta 5m50s  (39.0s/unit)
+      [injection lowvar@lo] 2/10  elapsed 1m17s  eta 5m11s  (39.0s/unit)
+      [injection lowvar@lo] 3/10  elapsed 1m56s  eta 4m32s  (38.9s/unit)
+      [injection lowvar@lo] 4/10  elapsed 2m35s  eta 3m53s  (38.9s/unit)
+      [injection lowvar@lo] 5/10  elapsed 3m14s  eta 3m14s  (38.8s/unit)
+      [injection lowvar@lo] 6/10  elapsed 3m53s  eta 2m35s  (38.8s/unit)
+      [injection lowvar@lo] 7/10  elapsed 4m32s  eta 1m56s  (38.9s/unit)
+      [injection lowvar@lo] 8/10  elapsed 5m10s  eta 1m17s  (38.8s/unit)
+      [injection lowvar@lo] 9/10  elapsed 5m49s  eta 38s  (38.8s/unit)
+      [injection lowvar@lo] 10/10  elapsed 6m27s  eta 0s  (38.8s/unit)
+  weather_fullspan     W=10 D=1.000 gate=0.88 stale=-0.014[-0.015,-0.013] den=-0.013[-0.014,-0.012] => INJECTION-RECOVERED  [TRUST: injection-recovered]
+      [datasets] 2/3  elapsed 48m29s  eta 24m14s  (1454.6s/unit) <- weather_fullspan
+  [3/3] [homesite_insurance_fullspan] task=binclass feats=299 n=260753
+      [homesite_insurance_fullspan seeds] 1/10  elapsed 1m02s  eta 9m24s  (62.7s/unit)
+      [homesite_insurance_fullspan seeds] 2/10  elapsed 2m05s  eta 8m21s  (62.7s/unit)
+      [homesite_insurance_fullspan seeds] 3/10  elapsed 3m07s  eta 7m16s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 4/10  elapsed 4m09s  eta 6m13s  (62.3s/unit)
+      [homesite_insurance_fullspan seeds] 5/10  elapsed 5m11s  eta 5m11s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 6/10  elapsed 6m14s  eta 4m09s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 7/10  elapsed 7m16s  eta 3m07s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 8/10  elapsed 8m18s  eta 2m04s  (62.3s/unit)
+      [homesite_insurance_fullspan seeds] 9/10  elapsed 9m20s  eta 1m02s  (62.3s/unit)
+      [homesite_insurance_fullspan seeds] 10/10  elapsed 10m22s  eta 0s  (62.3s/unit)
+      [injection lowvar@lo] 1/10  elapsed 59s  eta 8m54s  (59.4s/unit)
+      [injection lowvar@lo] 2/10  elapsed 1m59s  eta 7m56s  (59.6s/unit)
+      [injection lowvar@lo] 3/10  elapsed 2m59s  eta 6m58s  (59.7s/unit)
+      [injection lowvar@lo] 4/10  elapsed 3m58s  eta 5m58s  (59.7s/unit)
+      [injection lowvar@lo] 5/10  elapsed 4m58s  eta 4m58s  (59.8s/unit)
+      [injection lowvar@lo] 6/10  elapsed 5m58s  eta 3m58s  (59.7s/unit)
+      [injection lowvar@lo] 7/10  elapsed 6m58s  eta 2m59s  (59.8s/unit)
+      [injection lowvar@lo] 8/10  elapsed 7m58s  eta 1m59s  (59.9s/unit)
+      [injection lowvar@lo] 9/10  elapsed 8m59s  eta 59s  (59.9s/unit)
+      [injection lowvar@lo] 10/10  elapsed 9m59s  eta 0s  (59.9s/unit)
+  homesite_insurance_f W=10 D=1.000 gate=1.02 stale=-0.004[-0.004,-0.003] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;unident-earned]
+      [datasets] 3/3  elapsed 1h09m  eta 0s  (1390.8s/unit) <- homesite_insurance_fullspan
+      [datasets] done in 1h09m
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T065516_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [homecredit_default_fullspan] task=binclass feats=696 n=381664
+      [homecredit_default_fullspan seeds] 1/10  elapsed 2m06s  eta 18m57s  (126.3s/unit)
+      [homecredit_default_fullspan seeds] 2/10  elapsed 4m10s  eta 16m40s  (125.1s/unit)
+      [homecredit_default_fullspan seeds] 3/10  elapsed 6m18s  eta 14m42s  (126.1s/unit)
+      [homecredit_default_fullspan seeds] 4/10  elapsed 8m28s  eta 12m43s  (127.2s/unit)
+      [homecredit_default_fullspan seeds] 5/10  elapsed 10m39s  eta 10m39s  (127.9s/unit)
+      [homecredit_default_fullspan seeds] 6/10  elapsed 12m46s  eta 8m30s  (127.7s/unit)
+      [homecredit_default_fullspan seeds] 7/10  elapsed 14m52s  eta 6m22s  (127.5s/unit)
+      [homecredit_default_fullspan seeds] 8/10  elapsed 17m01s  eta 4m15s  (127.7s/unit)
+      [homecredit_default_fullspan seeds] 9/10  elapsed 19m07s  eta 2m07s  (127.5s/unit)
+      [homecredit_default_fullspan seeds] 10/10  elapsed 21m16s  eta 0s  (127.6s/unit)
+      [injection interaction@lo] 1/10  elapsed 1m46s  eta 16m00s  (106.7s/unit)
+      [injection interaction@lo] 2/10  elapsed 3m32s  eta 14m08s  (106.0s/unit)
+      [injection interaction@lo] 3/10  elapsed 5m16s  eta 12m18s  (105.5s/unit)
+      [injection interaction@lo] 4/10  elapsed 7m03s  eta 10m35s  (106.0s/unit)
+      [injection interaction@lo] 5/10  elapsed 8m51s  eta 8m51s  (106.4s/unit)
+      [injection interaction@lo] 6/10  elapsed 10m37s  eta 7m05s  (106.3s/unit)
+      [injection interaction@lo] 7/10  elapsed 12m22s  eta 5m18s  (106.0s/unit)
+      [injection interaction@lo] 8/10  elapsed 14m09s  eta 3m32s  (106.2s/unit)
+      [injection interaction@lo] 9/10  elapsed 15m54s  eta 1m46s  (106.0s/unit)
+      [injection interaction@lo] 10/10  elapsed 17m34s  eta 0s  (105.5s/unit)
+  homecredit_default_f W=10 D=1.000 gate=1.23 stale=-0.003[-0.006,-0.000] den=+0.018[+0.015,+0.021] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:62;injection-vacuous]
+      [datasets] 1/3  elapsed 40m37s  eta 1h21m  (2437.6s/unit) <- homecredit_default_fullspan
+  [2/3] [weather_fullspan] task=regression feats=103 n=423795
+      [weather_fullspan seeds] 1/10  elapsed 38s  eta 5m47s  (38.6s/unit)
+      [weather_fullspan seeds] 2/10  elapsed 1m19s  eta 5m18s  (39.9s/unit)
+      [weather_fullspan seeds] 3/10  elapsed 2m00s  eta 4m41s  (40.2s/unit)
+      [weather_fullspan seeds] 4/10  elapsed 2m41s  eta 4m02s  (40.4s/unit)
+      [weather_fullspan seeds] 5/10  elapsed 3m23s  eta 3m23s  (40.6s/unit)
+      [weather_fullspan seeds] 6/10  elapsed 4m04s  eta 2m42s  (40.7s/unit)
+      [weather_fullspan seeds] 7/10  elapsed 4m45s  eta 2m02s  (40.7s/unit)
+      [weather_fullspan seeds] 8/10  elapsed 5m26s  eta 1m21s  (40.8s/unit)
+      [weather_fullspan seeds] 9/10  elapsed 6m06s  eta 40s  (40.8s/unit)
+      [weather_fullspan seeds] 10/10  elapsed 6m47s  eta 0s  (40.8s/unit)
+      [injection interaction@lo] 1/10  elapsed 38s  eta 5m47s  (38.6s/unit)
+      [injection interaction@lo] 2/10  elapsed 1m17s  eta 5m08s  (38.6s/unit)
+      [injection interaction@lo] 3/10  elapsed 1m55s  eta 4m29s  (38.5s/unit)
+      [injection interaction@lo] 4/10  elapsed 2m33s  eta 3m50s  (38.4s/unit)
+      [injection interaction@lo] 5/10  elapsed 3m11s  eta 3m11s  (38.3s/unit)
+      [injection interaction@lo] 6/10  elapsed 3m48s  eta 2m32s  (38.2s/unit)
+      [injection interaction@lo] 7/10  elapsed 4m27s  eta 1m54s  (38.2s/unit)
+      [injection interaction@lo] 8/10  elapsed 5m05s  eta 1m16s  (38.2s/unit)
+      [injection interaction@lo] 9/10  elapsed 5m44s  eta 38s  (38.2s/unit)
+      [injection interaction@lo] 10/10  elapsed 6m22s  eta 0s  (38.2s/unit)
+  weather_fullspan     W=10 D=1.000 gate=0.88 stale=-0.014[-0.015,-0.013] den=-0.013[-0.014,-0.012] => INJECTION-RECOVERED  [TRUST: injection-recovered]
+      [datasets] 2/3  elapsed 54m14s  eta 27m07s  (1627.3s/unit) <- weather_fullspan
+  [3/3] [homesite_insurance_fullspan] task=binclass feats=299 n=260753
+      [homesite_insurance_fullspan seeds] 1/10  elapsed 1m02s  eta 9m23s  (62.6s/unit)
+      [homesite_insurance_fullspan seeds] 2/10  elapsed 2m04s  eta 8m19s  (62.5s/unit)
+      [homesite_insurance_fullspan seeds] 3/10  elapsed 3m07s  eta 7m18s  (62.6s/unit)
+      [homesite_insurance_fullspan seeds] 4/10  elapsed 4m10s  eta 6m15s  (62.5s/unit)
+      [homesite_insurance_fullspan seeds] 5/10  elapsed 5m12s  eta 5m12s  (62.6s/unit)
+      [homesite_insurance_fullspan seeds] 6/10  elapsed 6m15s  eta 4m10s  (62.5s/unit)
+      [homesite_insurance_fullspan seeds] 7/10  elapsed 7m17s  eta 3m07s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 8/10  elapsed 8m19s  eta 2m04s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 9/10  elapsed 9m21s  eta 1m02s  (62.4s/unit)
+      [homesite_insurance_fullspan seeds] 10/10  elapsed 10m23s  eta 0s  (62.4s/unit)
+      [injection interaction@lo] 1/10  elapsed 56s  eta 8m26s  (56.3s/unit)
+      [injection interaction@lo] 2/10  elapsed 1m51s  eta 7m27s  (56.0s/unit)
+      [injection interaction@lo] 3/10  elapsed 2m44s  eta 6m23s  (54.8s/unit)
+      [injection interaction@lo] 4/10  elapsed 3m40s  eta 5m30s  (55.1s/unit)
+      [injection interaction@lo] 5/10  elapsed 4m36s  eta 4m36s  (55.3s/unit)
+      [injection interaction@lo] 6/10  elapsed 5m32s  eta 3m41s  (55.4s/unit)
+      [injection interaction@lo] 7/10  elapsed 6m29s  eta 2m46s  (55.6s/unit)
+      [injection interaction@lo] 8/10  elapsed 7m25s  eta 1m51s  (55.7s/unit)
+      [injection interaction@lo] 9/10  elapsed 8m21s  eta 55s  (55.7s/unit)
+      [injection interaction@lo] 10/10  elapsed 9m18s  eta 0s  (55.8s/unit)
+  homesite_insurance_f W=10 D=1.000 gate=1.02 stale=-0.004[-0.004,-0.003] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 3/3  elapsed 1h14m  eta 0s  (1492.8s/unit) <- homesite_insurance_fullspan
+      [datasets] done in 1h14m
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T080958_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [homecredit_default_fullspan] task=binclass feats=696 n=381664
+      [homecredit_default_fullspan seeds] 1/10  elapsed 2m06s  eta 19m01s  (126.9s/unit)
+      [homecredit_default_fullspan seeds] 2/10  elapsed 4m11s  eta 16m47s  (125.9s/unit)
+      [homecredit_default_fullspan seeds] 3/10  elapsed 6m13s  eta 14m32s  (124.6s/unit)
+      [homecredit_default_fullspan seeds] 4/10  elapsed 8m06s  eta 12m09s  (121.6s/unit)
+      [homecredit_default_fullspan seeds] 5/10  elapsed 10m13s  eta 10m13s  (122.7s/unit)
+      [homecredit_default_fullspan seeds] 6/10  elapsed 12m18s  eta 8m12s  (123.0s/unit)
+      [homecredit_default_fullspan seeds] 7/10  elapsed 14m19s  eta 6m08s  (122.8s/unit)
+      [homecredit_default_fullspan seeds] 8/10  elapsed 16m19s  eta 4m04s  (122.5s/unit)
+      [homecredit_default_fullspan seeds] 9/10  elapsed 18m02s  eta 2m00s  (120.3s/unit)
+      [homecredit_default_fullspan seeds] 10/10  elapsed 19m47s  eta 0s  (118.8s/unit)
+      [injection subpop@lo] 1/10  elapsed 1m24s  eta 12m36s  (84.1s/unit)
+      [injection subpop@lo] 2/10  elapsed 2m46s  eta 11m07s  (83.4s/unit)
+      [injection subpop@lo] 3/10  elapsed 4m10s  eta 9m44s  (83.4s/unit)
+      [injection subpop@lo] 4/10  elapsed 5m35s  eta 8m23s  (83.9s/unit)
+      [injection subpop@lo] 5/10  elapsed 7m01s  eta 7m01s  (84.2s/unit)
+      [injection subpop@lo] 6/10  elapsed 8m25s  eta 5m36s  (84.2s/unit)
+      [injection subpop@lo] 7/10  elapsed 9m47s  eta 4m11s  (84.0s/unit)
+      [injection subpop@lo] 8/10  elapsed 11m12s  eta 2m48s  (84.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 12m36s  eta 1m24s  (84.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 14m01s  eta 0s  (84.2s/unit)
+  homecredit_default_f W=10 D=1.000 gate=1.23 stale=-0.003[-0.006,-0.000] den=+0.018[+0.015,+0.021] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:62;injection-vacuous]
+      [datasets] 1/3  elapsed 35m33s  eta 1h11m  (2133.9s/unit) <- homecredit_default_fullspan
+  [2/3] [weather_fullspan] task=regression feats=103 n=423795
+      [weather_fullspan seeds] 1/10  elapsed 31s  eta 4m39s  (31.1s/unit)
+      [weather_fullspan seeds] 2/10  elapsed 1m02s  eta 4m08s  (31.1s/unit)
+      [weather_fullspan seeds] 3/10  elapsed 1m33s  eta 3m37s  (31.1s/unit)
+      [weather_fullspan seeds] 4/10  elapsed 2m04s  eta 3m06s  (31.1s/unit)
+      [weather_fullspan seeds] 5/10  elapsed 2m35s  eta 2m35s  (31.1s/unit)
+      [weather_fullspan seeds] 6/10  elapsed 3m06s  eta 2m04s  (31.1s/unit)
+      [weather_fullspan seeds] 7/10  elapsed 3m37s  eta 1m33s  (31.1s/unit)
+      [weather_fullspan seeds] 8/10  elapsed 4m08s  eta 1m02s  (31.1s/unit)
+      [weather_fullspan seeds] 9/10  elapsed 4m40s  eta 31s  (31.1s/unit)
+      [weather_fullspan seeds] 10/10  elapsed 5m11s  eta 0s  (31.2s/unit)
+      [injection subpop@lo] 1/10  elapsed 28s  eta 4m19s  (28.9s/unit)
+      [injection subpop@lo] 2/10  elapsed 57s  eta 3m50s  (28.9s/unit)
+      [injection subpop@lo] 3/10  elapsed 1m26s  eta 3m22s  (28.9s/unit)
+      [injection subpop@lo] 4/10  elapsed 1m55s  eta 2m53s  (28.9s/unit)
+      [injection subpop@lo] 5/10  elapsed 2m24s  eta 2m24s  (28.9s/unit)
+      [injection subpop@lo] 6/10  elapsed 2m53s  eta 1m55s  (28.9s/unit)
+      [injection subpop@lo] 7/10  elapsed 3m22s  eta 1m26s  (28.9s/unit)
+      [injection subpop@lo] 8/10  elapsed 3m50s  eta 57s  (28.9s/unit)
+      [injection subpop@lo] 9/10  elapsed 4m19s  eta 28s  (28.9s/unit)
+      [injection subpop@lo] 10/10  elapsed 4m48s  eta 0s  (28.9s/unit)
+  weather_fullspan     W=10 D=1.000 gate=0.88 stale=-0.014[-0.015,-0.013] den=-0.013[-0.014,-0.012] => UNIDENTIFIABLE-INERT  [TRUST: unident-earned]
+      [datasets] 2/3  elapsed 45m59s  eta 22m59s  (1379.9s/unit) <- weather_fullspan
+  [3/3] [homesite_insurance_fullspan] task=binclass feats=299 n=260753
+      [homesite_insurance_fullspan seeds] 1/10  elapsed 47s  eta 7m03s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 2/10  elapsed 1m34s  eta 6m16s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 3/10  elapsed 2m21s  eta 5m29s  (47.0s/unit)
+      [homesite_insurance_fullspan seeds] 4/10  elapsed 3m07s  eta 4m41s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 5/10  elapsed 3m54s  eta 3m54s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 6/10  elapsed 4m41s  eta 3m07s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 7/10  elapsed 5m28s  eta 2m20s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 8/10  elapsed 6m15s  eta 1m33s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 9/10  elapsed 7m02s  eta 46s  (46.9s/unit)
+      [homesite_insurance_fullspan seeds] 10/10  elapsed 7m48s  eta 0s  (46.9s/unit)
+      [injection subpop@lo] 1/10  elapsed 42s  eta 6m25s  (42.9s/unit)
+      [injection subpop@lo] 2/10  elapsed 1m25s  eta 5m43s  (43.0s/unit)
+      [injection subpop@lo] 3/10  elapsed 2m09s  eta 5m01s  (43.1s/unit)
+      [injection subpop@lo] 4/10  elapsed 2m52s  eta 4m18s  (43.0s/unit)
+      [injection subpop@lo] 5/10  elapsed 3m35s  eta 3m35s  (43.0s/unit)
+      [injection subpop@lo] 6/10  elapsed 4m18s  eta 2m52s  (43.0s/unit)
+      [injection subpop@lo] 7/10  elapsed 5m01s  eta 2m09s  (43.0s/unit)
+      [injection subpop@lo] 8/10  elapsed 5m44s  eta 1m26s  (43.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 6m27s  eta 43s  (43.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 7m10s  eta 0s  (43.1s/unit)
+  homesite_insurance_f W=10 D=1.000 gate=1.02 stale=-0.004[-0.004,-0.003] den=-0.001[-0.002,-0.001] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;unident-earned]
+      [datasets] 3/3  elapsed 1h01m  eta 0s  (1232.8s/unit) <- homesite_insurance_fullspan
+      [datasets] done in 1h01m
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T091139_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
+### A3 DONE 2026-08-02T09:11:39Z
+=== 완료 점검 2026-08-02T09:11:39Z ===
+OK   logs/a3_maxn_PA.log  판정 1/1
+OK   logs/a3_rf_PA.log  판정 1/1
+OK   logs/a3_rf_TX.log  판정 1/1
+OK   logs/a3_linear_PA.log  판정 1/1
+OK   logs/a3_linear_TX.log  판정 1/1
+OK   logs/a3_fsconf_lowvar_lo.log  판정 3/3
+OK   logs/a3_fsconf_interaction_lo.log  판정 3/3
+OK   logs/a3_fsconf_subpop_lo.log  판정 3/3
+OK   logs/a1_gaphyg_PA.log  (1 지표 줄)
+OK   logs/a1_gaphyg_TX.log  (1 지표 줄)
+run_day3.sh: line 90: [: 0
+0: integer expression expected
+FAIL logs/a2_whyshift_pubcov.log  비어 있음  <<<

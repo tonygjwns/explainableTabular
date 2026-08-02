@@ -1,0 +1,22 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_linear] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_linear seeds] 1/10  elapsed 0s  eta 4s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 2/10  elapsed 1s  eta 4s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 3/10  elapsed 1s  eta 3s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 4/10  elapsed 2s  eta 3s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 5/10  elapsed 2s  eta 2s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 6/10  elapsed 3s  eta 2s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 7/10  elapsed 3s  eta 1s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 8/10  elapsed 4s  eta 1s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 9/10  elapsed 4s  eta 0s  (0.5s/unit)
+      [acs_pubcov_TX_linear seeds] 10/10  elapsed 5s  eta 0s  (0.5s/unit)
+  acs_pubcov_TX_linear W= 5 D=0.528 gate=0.95 stale=-0.000[-0.001,+0.000] den=+0.004[+0.004,+0.005] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 6s  eta 0s  (6.9s/unit) <- acs_pubcov_TX_linear
+      [datasets] done in 6s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T054541_1fa4b6f.json  (+ summary_latest.json)  <-- send me this
