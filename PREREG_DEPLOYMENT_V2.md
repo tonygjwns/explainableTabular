@@ -681,3 +681,28 @@ meta의 ENV 필드를 확인하지 않았다면 그 PASS로 실데이터를 돌�
 `assert (python, sklearn) == ('3.11.15','1.9.0')` 환경 게이트를 넣었다(`run_night.sh`,
 `run_day2.sh`). 잘못된 환경의 PASS는 폐기하지 않고 **버전 견고성 증거**로 보존한다
 (sklearn 1.6.1에서도 14/14 동일).
+
+## 18. full-span 패밀리 스윕 확증 (2026-08-02 실행, 커밋 1fa4b6f) — §17.5 봉인
+
+§17.5는 탐색 시드(0–9)만으로 읽혔다. §14 규율("판정이 기존 지도와 달라지는 셀은 확증
+100–109를 통과해야 논문에 들어간다")에 따라 세 `lo` 조합을 확증 시드로 재실행했다.
+아티팩트: `logs/a3_fsconf_{lowvar,interaction,subpop}_lo.log`,
+`results/phase1/deployment_decay/summary_20260802T*.json`.
+
+| 조합 | `weather_fullspan` 탐색 | 확증 100–109 | |
+|---|---|---|---|
+| lowvar@lo | INJECTION-RECOVERED (+0.128) | **INJECTION-RECOVERED** | ✅ |
+| interaction@lo | INJECTION-RECOVERED (+0.046) | **INJECTION-RECOVERED** | ✅ |
+| subpop@lo | UNIDENT-INERT (학습가능 0.560 · **−0.050 미회복**) | **UNIDENT-INERT** | ✅ |
+
+**3/3 일치.** 두 가지가 동시에 봉인된다:
+
+1. **`weather_fullspan`의 verified no-concept 승격이 확증 안정**이다.
+2. **`subpop@lo`의 미회복도 확증 안정**이다 — 즉 §17.5가 보고한 **"계기는 저분산 회전과
+   상호작용 규칙에는 검정력이 있고 부분모집단 국소 규칙 변화에는 없다"가 새 시드에서 재현된다.**
+   인증서의 패밀리-상대성은 이제 탐색 1회의 관측이 아니라 **확증된 측정**이다.
+
+부수 확인(전부 탐색과 일치): `homecredit_default_fullspan` den **+0.018**[+0.015,+0.021]로
+안정, 세 `lo` 조합 모두 `injection-vacuous`(그 셀의 earned 인증서는 기준 패밀리에서만 나온다);
+`homesite_insurance_fullspan`은 lowvar·subpop에서 `unident-earned`, interaction에서
+`injection-vacuous` — 탐색과 동일한 패턴.
