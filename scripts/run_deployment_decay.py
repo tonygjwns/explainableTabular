@@ -98,6 +98,16 @@ D_SEEDS = 5           # D is now a multi-seed median (audit L2: was a single see
 
 # ----------------------------------------------------------------------------- scoring
 _FIT_WARNED = set()
+_MI_K = 0                # >0: keep only the top-k features by MI with y before assessing.
+#                          Diagnostic for the D-vs-power question (see _topk_mi). 0 = off = the
+#                          representation every committed number was measured on.
+_METRIC = "auc"          # binclass score: 'auc' (default, rank-based) | 'brier' | 'logloss'.
+#                          DIAGNOSTIC ONLY. Changing the score changes the estimand AND invalidates
+#                          the floor calibration, which was measured in AUC units -- so a run under
+#                          brier/logloss may not be read as a map verdict (PREREG_ACS_EXTENSION
+#                          S10.6). It exists to test one specific claim: that a rule change moving a
+#                          decision THRESHOLD without reordering is invisible to a rank-based score.
+#                          Default 'auc' leaves every committed number bit-identical.
 _DEBUG_RAISE = False     # set by --debug-raise: re-raise HGB errors with full traceback
 
 
@@ -131,7 +141,13 @@ def _fit_score(Xtr, ytr, Xte, yte, task, seed):
         m = HistGradientBoostingClassifier(**HGB).fit(Xtr, ytr)
         if task == "binclass":
             pos = list(m.classes_).index(m.classes_[-1])
-            return float(roc_auc_score(yte, m.predict_proba(Xte)[:, pos]))
+            p1 = m.predict_proba(Xte)[:, pos]
+            if _METRIC == "brier":                      # proper score, NOT rank-invariant
+                return -float(np.mean((p1 - (yte == m.classes_[-1]).astype(float)) ** 2))
+            if _METRIC == "logloss":
+                q = np.clip(p1, 1e-12, 1 - 1e-12); z = (yte == m.classes_[-1]).astype(float)
+                return float(np.mean(z * np.log(q) + (1 - z) * np.log(1 - q)))   # neg log-loss
+            return float(roc_auc_score(yte, p1))
         return float(accuracy_score(yte, m.predict(Xte)))
     except Exception as e:                                  # version-specific binning quirks, etc.
         if _DEBUG_RAISE:
@@ -502,6 +518,25 @@ def _injection_recovers(X, t, task, K, by_value, max_train, n_seeds=INJ_SEEDS, s
     return recovered, m, ci, learnable, lscore, feats, st
 
 
+def _topk_mi(X, y, task, k, seed=0):
+    """Keep the k features with the highest mutual information with y. Selection is y-driven and
+    time-blind, so it cannot manufacture or destroy a temporal signal by construction -- it only
+    narrows the representation.
+
+    Purpose (construct validity, the D-vs-power question): across the panel, recovery of a planted
+    rule of FIXED strength falls as separability D rises, but every comparison there comes from a
+    different dataset, so "D" and "dataset identity" are confounded. Narrowing the representation
+    of ONE cell moves D while holding the cell fixed, which is the only way to see whether D is
+    doing the work. Off by default; the map's numbers never pass through here."""
+    from sklearn.feature_selection import mutual_info_classif, mutual_info_regression
+    X = np.nan_to_num(np.asarray(X, float))
+    if k >= X.shape[1]:
+        return np.arange(X.shape[1])
+    f = mutual_info_regression if task == "regression" else mutual_info_classif
+    mi = f(X, y, random_state=seed)
+    return np.argsort(-mi)[:k]
+
+
 def _sanitize(X):
     """inf -> NaN (HGB tolerates NaN, not always inf across versions) and drop all-NaN / constant
     columns (a zero-variance or all-missing column breaks the parallel bin-mapper on some sklearn
@@ -697,6 +732,9 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
     X = _sanitize(X)
     y = np.asarray(y)
     t = np.asarray(t, float)
+    if _MI_K:                                   # representation ladder (diagnostic; off by default)
+        sel = _topk_mi(X, y, task, _MI_K)
+        X = X[:, sel]
     # drop rows with a non-finite target (regression) or non-finite time
     good = np.isfinite(t)
     if task == "regression":
@@ -903,6 +941,7 @@ def assess(name, X, y, t, task, K=10, by_value=False, n_seeds=5, max_train=6000,
             "injection_recovered_strict": inj_recovered_strict,
             "injection_learn_score": inj_lscore, "injection_features": inj_feats,
             "injection_family": inj_family, "injection_cols": inj_cols,
+            "metric": _METRIC, "mi_k": _MI_K,
             "injection_strength": INJ_STRENGTH,
             "delta_staleness": _delta(stale_s), "n_proxy_stripped": n_proxy,
             "min_window_n": min_window_n, "Dstar": DSTAR,
@@ -1221,6 +1260,15 @@ def main():
                          "learnability gate, making a non-recovery uninterpretable. Recorded "
                          "per-row as injection_cols.")
     ap.add_argument("--synth", action="store_true")
+    ap.add_argument("--metric", default="auc", choices=["auc", "brier", "logloss"],
+                    help="binclass score. DIAGNOSTIC ONLY: brier/logloss change the estimand and "
+                         "invalidate the AUC-calibrated floor, so such runs are not map verdicts "
+                         "(PREREG_ACS_EXTENSION S10.6). Tests whether a threshold-moving rule "
+                         "change is invisible to a rank-based score. Recorded as metric.")
+    ap.add_argument("--mi-k", type=int, default=0,
+                    help="keep only the top-k features by mutual information with y before "
+                         "assessing (0 = off). Moves D WITHIN a cell so the D-vs-power relation "
+                         "can be read without dataset identity confounding it. Recorded as mi_k.")
     ap.add_argument("--no-progress", action="store_true",
                     help="silence the per-seed / per-dataset progress+ETA lines on stderr "
                          "(stdout verdict records are unaffected either way)")
@@ -1230,6 +1278,8 @@ def main():
     if args.debug_raise:
         globals()["_DEBUG_RAISE"] = True
     _Progress.enabled = not args.no_progress
+    globals()["_METRIC"] = args.metric
+    globals()["_MI_K"] = args.mi_k
     _apply_model_class(args.model)                      # no-op for hgb (default compute unchanged)
     out_dir = Path("results/phase1/deployment_decay"); out_dir.mkdir(parents=True, exist_ok=True)
     rows = []
