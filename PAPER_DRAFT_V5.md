@@ -1232,3 +1232,59 @@ this paper argues against. What follows instead is a scope statement — every C
 this paper means "at or above a magnitude that a large real policy change does not reach" — and a
 concrete recalibration target for anyone porting the instrument: anchor the floor on a documented
 rule change in the target domain, not only on planted rotations and null streams.
+
+---
+
+## References (partial, verified during the audit)
+
+- Ben-David, Lu, Luu, Pál (2010). Impossibility theorems for domain adaptation. AISTATS.
+- Chernozhukov, Chetverikov, Demirer, Duflo, Hansen, Newey, Robins (2018). Double/debiased
+  machine learning. Econometrics Journal.
+- Cai, Namkoong, Yadlowsky (2023). Diagnosing model performance under distribution shift
+  (DISDE). Operations Research / arXiv:2303.02011.
+- D'Amour, Ding, Feller, Lei, Sekhon (2021). Overlap in observational studies with
+  high-dimensional covariates. Journal of Econometrics 221(2).
+- Gama, Žliobaitė, Bifet, Pechenizkiy, Bouchachia (2014). A survey on concept drift adaptation.
+  ACM Computing Surveys.
+- Gardner, Popović, Schmidt (2023). Benchmarking distribution shift in tabular data with
+  TableShift. NeurIPS D&B.
+- Ginsberg, Liang, Krishnan (2023). A learning-based hypothesis test for harmful covariate
+  shift (Detectron). ICLR.
+- Gower-Winter, Groen, Krempl (2026). The window dilemma: why concept drift detection is
+  ill-posed. Advances in Intelligent Data Analysis XXIV (IDA 2026); arXiv:2602.06456. [verified
+  2026-07-15: published Springer chapter, doi 10.1007/978-3-032-23833-7_27]
+- Han, Yao, Yu, Niu, Xu, Hu, Tsang, Sugiyama (2018). Co-teaching: robust training of deep
+  neural networks with extremely noisy labels. NeurIPS.
+- Hinton, Vinyals, Dean (2015). Distilling the knowledge in a neural network. arXiv:1503.02531.
+- Hinder, Vaquet, Brinkrolf, Hammer (2023). On the hardness and necessity of supervised concept
+  drift detection. ICPRAM. (+ 2024 survey, Frontiers in AI.)
+- Johansson, Sontag, Ranganath (2019). Support and invertibility in domain-invariant
+  representations. AISTATS.
+- Klinkenberg, Joachims (2000). Detecting concept drift with support vector machines. ICML.
+- Liu, Wang, Cui, Namkoong (2023). On the need for a language describing distribution shifts
+  (WhyShift). NeurIPS D&B.
+- Lee (2013). Pseudo-label: the simple and efficient semi-supervised learning method for deep
+  neural networks. ICML Workshop.
+- Loog, Viering, Mey (2019). Minimizers of the empirical risk and risk monotonicity. NeurIPS.
+- Natarajan, Dhillon, Ravikumar, Tewari (2013). Learning with noisy labels. NeurIPS.
+- Lu, Liu, Dong, Gu, Gama, Zhang (2019). Learning under concept drift: a review. TKDE.
+- Moreno-Torres, Raeder, Alaiz-Rodríguez, Chawla, Herrera (2012). A unifying view on dataset
+  shift. Pattern Recognition.
+- Pendlebury, Pierazzi, Jordaney, Kinder, Cavallaro (2019). TESSERACT: eliminating experimental
+  bias in malware classification. USENIX Security.
+- Poenaru-Olaru, Cruz, van Deursen, Rellermeyer (2022). Are concept drift detectors reliable
+  alarming systems? IEEE Big Data.
+- Rubachev, Kartashev, Gorishniy, Babenko (2025). TabReD: analyzing pitfalls and filling the
+  gaps in tabular deep learning benchmarks. ICLR.
+- Scudder (1965). Probability of error of some adaptive pattern-recognition machines. IEEE
+  Transactions on Information Theory.
+- Shen, Raji, Chen (2024). The data addition dilemma. MLHC.
+- Shimodaira (2000). Improving predictive inference under covariate shift by weighting the
+  log-likelihood function. J. Statistical Planning and Inference.
+- Souza, dos Reis, Maletzke, Batista (2020). Challenges in benchmarking stream learning
+  algorithms with real-world data (INSECTS). Data Mining and Knowledge Discovery 34; arXiv:
+  2005.00113. [verified 2026-07-15: doi 10.1007/s10618-020-00698-5]
+- Vela et al. (2022). Temporal quality degradation in AI models. Scientific Reports.
+- Webb, Hyde, Cao, Nguyen, Petitjean (2016). Characterizing concept drift. DMKD.
+- Yao, Choi, Cao, Lee, Koh, Finn (2022). Wild-Time: a benchmark of in-the-wild distribution
+  shift over time. NeurIPS D&B.
