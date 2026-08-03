@@ -1,4 +1,4 @@
-# PAPER V5 — §1, §3, §6 and §7 drafts
+# PAPER V5 — full section pass (§1–§9)
 
 **Status.** Draft sections for the instrument-first reframe of `PAPER_V5_SKELETON.md`, written
 2026-08-03. `PAPER_DRAFT_V4.md` / `_KO.md` / `paper/main.tex` are untouched and remain the live
@@ -18,9 +18,16 @@ The three day-4 slots are filled (§3.4 from E2, §6.2 from E3, §6.3 from E4, �
 and pre-committed predictions are in `PREREG_DEPLOYMENT_V2.md` §19 and
 `PREREG_ACS_EXTENSION_2026-07-31.md` §12.
 
-**Still to draft**: §2 (related work, near-verbatim from V4), §4–§5 (the instrument and its
-validation, mostly relocated V4 §3–§4), §8–§9, and the KO mirror plus LaTeX, which should wait
-until the English is settled.
+**§2, §4 and §5 are relocation specs, not prose.** Those three are V4 §2, §3 and §4 moving mostly
+unchanged, and copying their text into a second file would create two sources of truth for the same
+numbers — the exact drift a commit was just spent repairing. Each spec says what transfers verbatim,
+what must change, and what must *not* be restated because it has been promoted elsewhere. **§8 and
+§9 are drafted in full**, because the discussion genuinely shrinks once the limitations become §6,
+and reproducibility gains the re-gate discipline and a second disclosure.
+
+**Still to do**: fold these into a single V5 manuscript (mechanical for §2/§4/§5, per the specs),
+then the KO mirror and LaTeX, which should wait until the English is settled. Appendices A–C and
+B.4–B.6 carry over from V4 unchanged.
 
 ---
 
@@ -172,6 +179,22 @@ not, and one entry on that list was written by a state legislature rather than b
 
 ---
 
+## 2. Related work — relocation spec (V4 §2, near-verbatim)
+
+V4 §2 transfers as written, with three edits that the reframe forces. It is not reproduced here:
+duplicating prose into a second file is how the number drift we spent a commit fixing gets in.
+
+| paragraph | action |
+|---|---|
+| Shift-type maps on tabular data | verbatim |
+| Identifiability and class-relativity | verbatim |
+| **Old data harming** | **promote and sharpen.** The sentence "we are not aware of prior work that … reports the label-noise-decay false-positive channel" is a related-work aside in V4 and the paper's headline claim in V5. State it once here, in the form §1 states it, and make the Gama/Webb definitional point explicit: under the field-standard definition noise drift *is* drift, which is exactly why an instrument claiming to detect *exploitable rule change* must separate the two. |
+| Pseudo-labels, denoising, cross-fitting | verbatim |
+| **Drift detectors and their evaluation** | **correct a claim that is no longer true.** V4 says "We do not run these detectors head-to-head on the audited cells." We now do run a type-attributing frame head-to-head, on battery cells whose ground truth is fixed by construction (§3.4). The paragraph must say what remains true — a loss-stream detector answers "did anything change?" and is type-blind by construction, so it does not bear on type attribution — and then point at §3.4 for the frame that *does* attribute types and separates the mechanisms by magnitude but not by sign. Leaving V4's sentence in place would be a false statement about our own evidence. |
+| Malware | verbatim; the EMBER read now lives in §7.3 |
+
+---
+
 ## 3. The failure channel
 
 ### 3.1 Label-noise decay mints concept drift
@@ -277,6 +300,54 @@ Y|X change — a threshold reading files both as the same event. The two events 
 repairs: retrain-on-recent is right for one and discards valid labels in the other. Attribution by
 sign or by threshold is what fails; attribution by calibrated magnitude, against a null of the kind
 built in §3.1, is what a monitor would need.
+
+---
+
+## 4. The repaired instrument — relocation spec (V4 §3)
+
+V4 §3 transfers whole, renumbered, with the cascade figure and the terminology table intact. Two
+things change.
+
+- **The reading aid changes its referent.** V4's walk-through uses sberbank as "one real cell that
+  exercises the vocabulary". That cell is now the subject of §3.2, three sections earlier, so the
+  aid should point back to it rather than introduce it: *the cascade returns NOISE-DRIFT-CONFOUNDED
+  on the cell of §3.2 because the raw arm fires, the gate is on, and the denoised arm is negative;
+  had all three aligned inside the envelope it would have returned DEPLOYMENT-CONCEPT subject to an
+  injection control.*
+- **The envelope is already spent.** V4 §4.2's envelope measurement is used in §3.3 to argue that a
+  noise gate is not the repair. §4.2 here keeps the *definition* (ratio 4.7, abstain above) and the
+  terminology-table row, and points to §3.3 for the measurement rather than repeating the numbers.
+
+Subsections, in order: 4.1 setting and estimand (V4 §3.1, including the DISDE term-ii statement and
+the positivity boundary) · 4.2 the denoised arm and the noise gate (V4 §3.1 second half) · 4.3 the
+three certificates — separability, injection, learnability (V4 §3.2) · 4.4 the decision cascade and
+its scope (V4 §3.3).
+
+---
+
+## 5. Validation: the battery and the gate discipline — relocation spec (V4 §4, reduced)
+
+This section is smaller in V5 than V4 §4 was, and the reduction is the part a merge will get wrong,
+so it is spelled out.
+
+**Comes here.** The 14-cell pre-registered battery table (V4 §4.1) in full, with its protocol line
+(n = 12,000, d = 10, K = 10, 5 seeds, full cascade) and the "three cells carry the argument"
+reading — but the *argument* those three cells carry is now §3's, so the text here states what the
+battery is for: an entry gate the instrument must pass before touching real data. The floor
+comparability paragraph (V4 §4.1, closing) comes here unchanged, including the per-metric
+rescaling sensitivity check that moves no cell.
+
+**Does not come here.** V4 §4.2 (the envelope) is in §3.3. V4 §4.3 (the model-class matrix) is in
+§6.1. Neither should be restated; §5 points to both.
+
+**New here, and it belongs to validation rather than to results.** The battery is not run once. It
+is the re-gate any change to the instrument must pass, and the discipline has now been exercised
+under adversarial conditions: when two opt-in diagnostic flags were added, the battery was re-run
+and required to come back **bit-identical** against the reference environment — all fourteen cells,
+every field, verdicts included — with the pre-committed rule that a mismatch reverts the change
+rather than explaining it. It did (`PREREG_DEPLOYMENT_V2.md` §19.0). That is the operational
+content of "pre-registered instrument": the gate has teeth only if it can fail after the code is
+already written.
 
 ---
 
@@ -576,3 +647,125 @@ control: the fixed $50k threshold under inflation produces a monotone positive-r
 0.42) and the instrument does not misread it as concept. The complementary ACS reading — the one
 where a documented rule change went unseen — is §6.4, and the two should be read together: the
 instrument is well powered on this task and still metric-blind to a particular kind of change on it.
+
+---
+
+## 8. Discussion
+
+**What this paper is.** An instrument, its failure anatomy, a measured map of its blind spots, and
+one application. The claim we defend is narrow and, we think, load-bearing: **drift-type
+attribution without identifiability certificates is unreliable**, not as an argument from
+principle but because we built the uncertified version, believed one of its outputs, and then
+identified the mechanism that produced it.
+
+**Limitations.** The four axes along which the instrument is blind are not listed here — they are
+§6, promoted out of this section because a limitation you can measure is a result. What remains are
+the limits of the *study*.
+
+(1) **Scale.** The probe trains on N ≤ 6,000 rows per arm; industrial models train on orders of
+magnitude more. A rule change exploitable only at much larger N is invisible here, so every δ bound
+and both aggregates are statements *at probe scale*. A first δ(N) sweep raises the arm cap to the
+window-geometry ceiling (N ≈ 14k–24k, up to 4× the headline scale) on the three largest null cells:
+every verdict is unchanged and no reading trends toward the floor. Production-scale N beyond that
+remains future work, and we flag rather than dismiss the possibility that the map changes there.
+Scale enters a second way: because the arms differ in size (N versus 2N), a sample-size gain is
+folded into every staleness reading — negligible on binary cells, but 61% of the decision floor on
+regression, which effectively raises the detectable floor on the map's five regression cells. We
+report those nulls with the displacement stated rather than absorbed.
+
+(2) **Window geometry.** K = 10 rolling windows with a fixed early anchor: drift at time scales far
+below the window width is averaged away, and the recurrence fingerprint of §7.3 certifies only
+horizon-dominating returns. The injection control partially measures this, since its recovery
+varies with K.
+
+(3) **No naturally occurring industrial positive.** The single robust positive on the panel is
+lab-designed drift. We found no industrial cell against which to calibrate magnitude — that is
+simultaneously the map's finding and its weakness, and the attempt to close it from outside
+(§6.4) instead produced a falsification of the instrument. We report that as the outcome it was.
+
+(4) **Benchmark curation.** TabReD is curated to be temporally splittable; external validity to
+industrial data at large is an inductive step we flag rather than take.
+
+(5) **Deep architectures.** The panel's neural probe fails the separation battery and is carried as
+a canary (§6.1). Modern deep tabular architectures at production scale remain untested. We claim
+the direction of the burden rather than the conclusion: a probe class earns drift-verdict authority
+by passing the battery of §5, and the first neural probe we tested does not.
+
+**On process.** This project's ledger records nine positive findings that dissolved under scrutiny
+before the present result. The ninth dissolution is §3.2, and it is the only one the measuring
+instrument itself diagnosed. The methodological claim we stand behind is that the combination that
+finally produced a stable result — executed adversarial nulls before real-data claims,
+pre-registered cascades with commit-timestamped predictions, confirmatory fresh-seed replication,
+certificates instead of assumptions, and canary probes — is cheap relative to the cost of the
+dissolutions it prevents. Two of this paper's own results exist only because that discipline was in
+place: a prediction registered before execution was falsified by the run (§6.4, and the control
+state's behaviour in the proper-score follow-up), and a re-gate caught a battery executed under the
+wrong interpreter (§9). We release the audit trail as part of the artifact, dissolutions included.
+
+**What a practitioner should take.** Three things. A loss-based drift verdict should not be acted
+on without a noise reading on the old window, because the two are confusable at the magnitudes
+people act on. A null should not be reported without a power certificate, because "we saw nothing"
+and "we could not have seen anything" are different sentences and only one of them is evidence.
+And a verdict should carry its probe class, its separability, its rule family and its metric, since
+each of the four can flip it on identical bytes.
+
+**Future work.** Multi-state and post-2019 extensions of the ACS analysis; class-invariance
+conditions for the denoised arm (when does a probe family admit *any* sound staleness reading?); a
+δ(N) scaling study at production scale; a proper-score arm with its own calibrated floor, which
+§6.4 shows is the repair direction for the metric blind spot but which would need its own
+pre-registration; and porting the certificate protocol to streaming monitors, where the
+negative-recency fingerprint is directly actionable.
+
+---
+
+## 9. Reproducibility
+
+Everything is in one repository, linked in anonymized form for review. The instrument is a single
+sklearn-only script; every stochastic step is seeded, and every output artifact embeds its commit
+hash, argv, library versions and UTC timestamp.
+
+That stamping is not ceremony, and we can say so from an incident rather than from principle. One
+battery run executed under the wrong interpreter, because the shell prompt announced the intended
+conda environment while `PATH` still resolved to an unrelated project's virtualenv. The verdicts
+passed, so nothing on screen looked wrong; the artifact's recorded library versions did not match
+the environment the real-data runs use, and that mismatch is the only thing that caught it. Had the
+run been trusted, a gate certified in one environment would have licensed measurements in another.
+Every subsequent run invokes the interpreter by absolute path and asserts its version before doing
+anything else.
+
+**Compute.** Every run in the paper is CPU-only — the instrument and all probe classes are
+scikit-learn models, and no GPU is used anywhere — executed single-node on one shared multicore
+Linux server (Python 3.11.15, scikit-learn 1.9.0, NumPy 2.4.6; the environment freeze is committed).
+Wall-clock is reconstructable from the committed phase logs: the main pre-registered phases ran
+phase-parallel in ≈17 h on one calendar day, the model-class panel adds ≈2 h, and the optional cells
+≈13 h across two further days; no single dataset cell exceeds a few CPU-hours.
+
+**Reproducibility of the gate.** The synthetic battery is byte-reproducible: re-running it
+regenerates the committed artifact SHA-identical on the same environment, and when the instrument
+gained two opt-in diagnostic flags the battery was required to come back bit-identical against the
+reference environment before any new run was read (§5). The raw arm's RNG stream is stable across
+instrument versions — the v2 headline number reproduces bit-for-bit under v3, which is what makes
+§3.2 a reinterpretation rather than a re-roll. Exact cross-version bit-reproducibility of
+HistGradientBoosting across scikit-learn releases is *not* claimed; verdict-level stability across
+seed sets and across HGB/RF is (10/10 and 10/10).
+
+**Pre-registration.** The pre-registration freezes thresholds, cascade, seed protocol and aggregate
+reading, with results appended as read-only sections whose ordering is enforced by the git history;
+existing sections are never edited. Predictions for each queued experiment are committed in the
+driver script's header before execution, and read against the outcome afterwards including where
+they failed. All server runs are reproduced by one resumable driver.
+
+**Two disclosures.** First, one deviation from the registered procedure: the family sweep specified
+a human checkpoint after its implementation control, and the batch that ran it computed all four
+signal families before that checkpoint was read, so the gate became a read-time filter rather than
+an execution-time one. No family was excluded in the event — the control recovered in all four —
+but the order differed from what was committed. Second, one decision constant is known to be wrong
+in a direction we did not act on: §6.4 shows the 0.02 decision floor is larger than a real
+population-scale policy rule change. We record that in the constants appendix and leave the
+threshold alone, because changing a pre-registered threshold after seeing results is what this
+paper argues against.
+
+**Data access.** Per-source access and license terms are tabulated in the data appendix. TabReD
+requires Kaggle authentication and per-competition rule acceptance; Electricity fetches from
+OpenML; INSECTS and the river panel install via `river`; EMBER-2018 downloads from its public
+archive and is parsed by a dependency-free adapter.
