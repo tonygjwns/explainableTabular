@@ -30,7 +30,8 @@ threshold moves mass across a boundary without reordering anyone; under proper s
 windows read +0.021 on the treated state against +0.006 on the control. Applied to eight
 industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable), the
 instrument finds no exploitable mean-rule drift above the per-dataset detectable floor for the
-deployed tree-ensemble class (0/8 audited; 0/5 among cells whose identifiability is certified).
+deployed tree-ensemble class (0/8 audited; 0/5 among the cells that carry an informative
+reading, the other three being uncertified or already diagnosed rather than negative).
 A head-to-head against a type-attributing frame locates how far the channel reaches: the frame does
 separate the two mechanisms by magnitude (7.5–14×), but **not by sign**, so a threshold reading
 files two events with different repairs as the same event. We release the instrument, the battery
@@ -69,8 +70,8 @@ case. Growing noise reads −0.023, so the artifact is directional rather than a
 
 **Two more ways the naive instrument lies**, repaired in §4.3 and mapped in §6.1 respectively. The
 natural certificate for "a null here is uninformative" is a window-separability AUC — can a
-classifier tell old rows from future rows? —
-and computed row-wise it saturates to 0.994–1.000 under exact duplicates, near-duplicates and
+classifier tell old rows from future rows? — and computed row-wise it saturates to 0.994–1.000
+under exact duplicates, near-duplicates and
 entity cohorts with *zero* covariate shift: the classifier memorizes rows, not distributions, and
 eight of ten real datasets read exactly 1.000 under the naive gate. And the concept/covariate
 separation is hypothesis-class-relative: a kNN probe reads pure covariate shift as concept drift
@@ -84,8 +85,8 @@ predictions — under noise-only drift the pseudo-labels are approximately corre
 vanishes; under a changed rule they still encode the old rule and the harm persists — together
 with a per-window noise gate whose validity envelope is *measured* rather than assumed, out to the
 noise ratio at which the denoiser itself crosses the decision floor on a null and beyond which the
-instrument abstains; a group-aware
-separability estimate that deflates memorization while leaving honest drift intact; and
+instrument abstains; a group-aware separability estimate that deflates memorization while leaving
+honest drift intact; and
 learnability-gated injection controls that turn "this dataset is unmeasurable" from an assumption
 into a demonstration. All verdicts are scoped to the tree-ensemble class, with linear and kNN
 probes carried as canaries whose false fires are reported rather than hidden.
@@ -114,8 +115,9 @@ three things that reading does not license stated alongside it.
 question that motivated building it (§7): a pre-registered audit of eight TabReD datasets,
 Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
 result is an identifiability map rather than a detection table — **0/8 audited, 0/5 among the cells
-whose identifiability is certified**, the sole robust positive being designed drift, with two cells
-refusing a certificate outright rather than being counted as evidence. Anchor streams fix the
+that carry an informative reading**, the sole robust positive being designed drift, with two cells
+refusing a certificate outright rather than being counted as evidence and one already diagnosed
+in §3.2. Anchor streams fix the
 sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
 correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
 
@@ -137,7 +139,7 @@ correctly silent with a negative-recency fingerprint that is impossible under on
    (ρ = −0.47), family relativity (a subpopulation-local rule learnable at R² 0.560 and
    unrecovered at −0.050), and metric relativity (the ACS falsification).
 4. *A pre-registered identifiability map of industrial tabular ML* (§7): 0/8 audited and 0/5
-   certified, one diagnosed false positive with mechanism, per-dataset certificates and
+   informative, one diagnosed false positive with mechanism, per-dataset certificates and
    detectable-effect bounds, 10/10 confirmatory stability and 10/10 cross-class agreement.
 
 **What we do not claim.** We do not claim concept drift is absent from industrial tabular data:
@@ -149,7 +151,7 @@ relative to the deployed hypothesis class, which we argue is the only honest way
 drift-type attribution at all. We do not claim the noise channel is the only way this comparison
 fails, only that it is one nobody had reported and that it is large enough to have fooled us. And
 we do not claim our own instrument is trustworthy everywhere — §6 is the list of places where it is
-not, and one entry on that list was written by a state legislature rather than by us.
+not, and one entry on that list was set by a state's policy decision rather than by us.
 
 ---
 
@@ -189,8 +191,9 @@ window size. We are not aware of prior work that uses the add-old-data contrast 
 drift-*type* identifier with verdict semantics, or that reports the label-noise-decay
 false-positive channel — under the field-standard definition of real drift as any change in
 P(y|x) (Gama et al., 2014; Webb et al., 2016), noise drift *is* drift, which is precisely why an
-instrument that claims to detect *exploitable rule change* must separate the two; we separate
-them by construction and validate the separation adversarially.
+instrument that claims to detect *exploitable rule change* must separate the two; we separate them
+by construction (§3.1), validate the separation adversarially, and measure how far the confusion
+reaches into a type-attributing frame that is not ours (§3.4).
 
 **Pseudo-labels, denoising, cross-fitting.** The denoised arm's mechanics are deliberately
 borrowed: replacing labels with model predictions is self-training (Scudder, 1965; Lee, 2013)
@@ -486,7 +489,7 @@ across seed sets, but is comfortably learnable and consistently unrecovered on t
 one, and weather is unlearnable on the reference family yet recovers on two others (§7.2). The certificate is explicitly
 relative to this reference family: recovery certifies power against rotations carried by the
 dataset's high-variance directions, not against rule changes living in low-variance features,
-interactions, or subpopulations (§8, Limitation 6).
+interactions, or subpopulations (§6.3, where the sweep that measured this is reported).
 
 **The identification boundary (restatement of prior work, not a new result).** Let R be the
 region of covariate space the future windows occupy and the old anchor does not. On R, P(y|x) is
@@ -553,18 +556,15 @@ the battery is a pass/fail gate, not an estimation exercise); verdicts under the
 | label noise *growing*, fixed rule | −0.023 | −0.019 | 0.14 | NO-STRONG-CONCEPT ✓ |
 | **x-dependent noise, decaying scale** | **+0.025 fires** | +0.005 | 3.76 | **NOISE-DRIFT-CONFOUNDED** ✓ |
 
-Three cells carry the paper's argument. The noise-decay cell is the executed refutation of
-"correct labels cannot hurt": the raw probe fires at a magnitude (+0.021) that matched a real
-industrial positive to within 0.003. The x-dependent-noise cell is a *second* raw false-positive
-channel, discovered during adversarial review of the repair itself; a third (noise scale
-correlated with the rule feature — the denoiser's worst case, since pseudo-label error then
-concentrates where the signal lives) was constructed by an independent red-team pass and also
-defused (raw +0.026 fires; denoised +0.006, null). The concept-plus-noise cell establishes that
-the repair keeps power where both mechanisms co-occur: denoised retention is 58% of the clean
-rotating-rule signal (+0.316 vs +0.541), and the same holds at small rule-change magnitudes
-(a 0.8-rad rotation: clean denoised +0.108, with noise decay +0.062 — attenuated, still firing).
-Robustness of the denoiser to a small old window was checked directly (old window capped at 600
-rows, cross-fit folds of 300): no false positive (+0.004) and no false negative (+0.429).
+The three cells that carry the paper's argument — noise decay under a fixed rule, its x-dependent
+variant, and rule change co-occurring with noise decay — are read in §3 and not re-argued here.
+What the battery adds is the surrounding discipline: every other row is a control whose truth is
+fixed by construction, and the instrument must return the right verdict on all fourteen before it
+touches real data. Two readings in the table appear nowhere else. The *third* noise channel — noise
+scale correlated with the rule-carrying feature, the denoiser's worst case, constructed by an
+independent red-team pass — fires the raw arm at +0.026 and is defused by the denoised arm at
++0.006. And the denoiser's robustness to a small old window was checked directly (old window capped
+at 600 rows, cross-fit folds of 300): no false positive (+0.004) and no false negative (+0.429).
 
 **Floor comparability across metrics.** The 0.02 decision floor is shared across AUC, accuracy,
 and z-scored −RMSE, which are not decision-equivalent units. Two mitigations are structural:
@@ -801,11 +801,15 @@ read as stronger than the class of rule change it was tested against.
 
 **The aggregate, as pre-registered and as it is worth.** Relative to the tree-ensemble class, the
 number of industrial datasets with exploitable mean-rule drift above the per-dataset detectable
-floor is **0/8** audited. Over the datasets whose identifiability is *certified* it is **0/5**:
-ecom_offers and homecredit_default end with no certificate — their planted probe rule is
-unlearnable under every family tried — and so contribute no evidence in either direction. We report
-both wherever the aggregate appears; the first is what was pre-registered, the second is what it is
-worth.
+floor is **0/8** audited. Over the cells that carry an informative reading it is **0/5**, and the
+denominator is worth spelling out because three cells leave it for two different reasons.
+ecom_offers and homecredit_default end with no certificate — their planted probe rule is unlearnable
+under every family tried — so they contribute no evidence in either direction. sberbank-housing is
+not a null at all: it is the diagnosed noise cell of §3.2, and counting a diagnosed mechanism as a
+null would double-count it. What remains are the three verified no-concept certificates
+(cooking_time, delivery_eta, weather), the earned-blindness certificate (homesite_insurance), and
+the identifiable null that needs no certificate (maps_routing). We report both aggregates wherever
+they appear; the first is what was pre-registered, the second is what it is worth.
 
 Three readings deserve their own sentence. The only concept positive is the designed-drift stream,
 where the denoised arm *exceeds* the raw arm — pseudo-labels encode the old rule cleanly once label
@@ -920,10 +924,16 @@ lab-designed drift. We found no industrial cell against which to calibrate magni
 simultaneously the map's finding and its weakness, and the attempt to close it from outside
 (§6.4) instead produced a falsification of the instrument. We report that as the outcome it was.
 
-(4) **Benchmark curation.** TabReD is curated to be temporally splittable; external validity to
+(4) **The envelope constant is calibrated on one noise family.** The abstention boundary at
+noise-ratio 4.7 is measured on Gaussian label-noise nulls (§3.3). Heavy-tailed label noise inherits
+the *discipline* — abstain where the denoiser's own bias is not bounded — but not the number, which
+would have to be re-measured for that family. We state the constant with its calibration source
+rather than as a property of the estimator (Appendix C).
+
+(5) **Benchmark curation.** TabReD is curated to be temporally splittable; external validity to
 industrial data at large is an inductive step we flag rather than take.
 
-(5) **Deep architectures.** The panel's neural probe fails the separation battery and is carried as
+(6) **Deep architectures.** The panel's neural probe fails the separation battery and is carried as
 a canary (§6.1). Modern deep tabular architectures at production scale remain untested. We claim
 the direction of the burden rather than the conclusion: a probe class earns drift-verdict authority
 by passing the battery of §5, and the first neural probe we tested does not.
@@ -1031,7 +1041,7 @@ committed with timestamps ahead of the runs — and are reported here whichever 
 Nothing in any of them alters a threshold, the cascade or the seed protocol.
 
 **B.1 δ(N): the map does not move toward the floor as N grows.** The probe's headline scale is
-N ≤ 6,000 (§8, Limitation 1b). We re-ran the three largest null cells with the arm cap swept
+N ≤ 6,000 (§8, limitation 1). We re-ran the three largest null cells with the arm cap swept
 over {1,500, 24,000, 96,000} (10 seeds each). Window geometry bounds the realizable arm size
 (N = min(|recent|, |old|, cap), and |window| ≈ n/K), so the realized ceilings are ≈17,200 on
 homecredit_default (the 96,000 cap realizes the same N), 24,000 on weather (cap-bound), and
@@ -1097,7 +1107,7 @@ single-window artifact. A regression cell whose true rule-change harm were +0.01
 observed at ≈0 and read as a null. The detectable floor on the regression cells of the map
 (sberbank_housing, cooking_time, delivery_eta, maps_routing, weather) is therefore effectively
 raised by roughly this amount, and their nulls should be read with that displacement in mind
-(§8, Limitation 1b). **On binary classification the term is negligible** — 3–4% of the floor —
+(§8, limitation 1). **On binary classification the term is negligible** — 3–4% of the floor —
 but with an important caveat we do not want to gloss: the battery's binary cells sit at AUC ≈
 0.99, close enough to the ceiling that the size gain is compressed, and the industrial binary
 cells do not sit there. The binary bound therefore does not transfer as measured. Per-arm
@@ -1105,7 +1115,7 @@ absolutes are now emitted on every run, so the same quantity will be measured di
 industrial panel at its next execution rather than argued from the battery.
 
 **B.4 The deployment gap: the map does not move across it.** The main map covers the train
-segments of TabReD's official temporal splits (§8, Limitation 2). We re-ran all eight cells with
+segments of TabReD's official temporal splits (§8, limitation 2). We re-ran all eight cells with
 train, validation and test concatenated on the shared normalised timestamp, so the windows cross
 the held-out gap the official split withholds, on exploratory and then confirmatory seeds
 (8/8 identical verdicts):
@@ -1191,7 +1201,7 @@ value stays below both instruments' decision floors, and the control returns pla
 gaps of its own, so only the ratio is interpretable. What we can conclude is bounded accordingly —
 the rank-based score compresses this signal six- to sevenfold, and uncompressing it still leaves
 the change under our floor. The corresponding scope statement and the criticism this implies for
-the floor constant are in §8 (Limitation 7) and Appendix C.
+the floor constant are in §6.4 and Appendix C.
 
 ## Appendix C. Decision constants: calibration sources and validity
 
@@ -1201,19 +1211,19 @@ of §5.1 plus the no-drift anchors of §7.3), not by reusing the numbers.
 
 | constant | value | role | calibrated on | validity / outside behavior |
 |---|---|---|---|---|
-| decision floor | 0.02 | CONCEPT magnitude bar, shared across AUC / accuracy / z-scored −RMSE | battery concept magnitudes (planted effects 10–27× the floor); per-metric rescaling moves no cell (§5.1) | sub-floor CI-positives = no-evidence band, calibrated on no-drift anchors (2/5 land at 1/10–1/20 of the floor). **Measured criticism:** larger than a real population-scale policy rule change (§8, Limitation 7) — see note below |
+| decision floor | 0.02 | CONCEPT magnitude bar, shared across AUC / accuracy / z-scored −RMSE | battery concept magnitudes (planted effects 10–27× the floor); per-metric rescaling moves no cell (§5.1) | sub-floor CI-positives = no-evidence band, calibrated on no-drift anchors (2/5 land at 1/10–1/20 of the floor). **Measured criticism:** larger than a real population-scale policy rule change (§6.4) — see note below |
 | noise gate | 1.5 | label-noise-drift flag (old proxy / recent median) | stable synthetic controls read 0.75–0.99; noise-drift cells read 3.5–3.9 | every real-data value falls below 1.5 or in 2.0–2.9 — nowhere near the envelope edge |
-| envelope | 4.7 | denoiser validity boundary; abstain above | measured on fixed-rule nulls: +0.014 at ratio 4.72, +0.026 at 5.71 (crosses the floor) | Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (§8, Limitation 4) |
+| envelope | 4.7 | denoiser validity boundary; abstain above | measured on fixed-rule nulls: +0.014 at ratio 4.72, +0.026 at 5.71 (crosses the floor) | Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (§8, limitation 4) |
 | D* | 0.96 | separability routing to the injection control | group-aware, size-matched repairs (duplicates 0.994→≈0.50; shuffle-D 0.94→0.50) | a routing statistic, never support overlap; D ≥ D* concludes nothing by itself |
 | learnability gates | AUC 0.65 / R² 0.20 / acc majority+0.10 | injection-certificate validity | executed junk-geometry control (in-window AUC 0.506 → vacuous) vs learnable control (0.964 → recovery +0.195) | unlearnable ⇒ certificate refused for that family — vacuity, not blindness |
-| injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | family sweep executed (Appendix B.5): certified vs low-variance and interaction rules, **disconfirmed vs subpopulation-local** (§8, Limitation 6) |
+| injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | family sweep executed (Appendix B.5): certified vs low-variance and interaction rules, **disconfirmed vs subpopulation-local** (§6.3) |
 | seed protocol | 10 (0–9) + confirmatory (100–109); battery 5 | power and stability | battery effects at 10–27× the floor make 5 a sufficient pass/fail gate | verdicts that move between seed sets are barred (unstable) |
 
 **Note on the decision floor (recorded, not acted on).** The pre-registration specified that if
 the floor turned out to exceed a real policy-scale rule change, that fact would be logged here as
 a measured criticism of the constant. It did. The ACA Medicaid expansion moved Pennsylvania's
 public-coverage rate by 7.2 points on the audited population, with the step at the implementation
-year, and produced no reading above 0.02 under any metric or probe class we ran (§8, Limitation 7;
+year, and produced no reading above 0.02 under any metric or probe class we ran (§6.4;
 Appendix B.6). The floor was calibrated on planted effects at 10–27× its value and on no-drift
 anchors at 1/10–1/20 of it, and this event falls in the gap between those two calibration
 regimes — which is precisely where a decision constant is least defensible. We do not change it:
