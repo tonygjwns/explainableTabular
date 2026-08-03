@@ -77,6 +77,10 @@
   `$HOME/miniconda3/envs/explaintab311/bin/python`.
 - **스레드 캡 필수**: `OMP/OPENBLAS/MKL/NUMEXPR_NUM_THREADS=8`. 안 걸면 병렬도가 1로 붕괴한다
   (실측: 8시간 낭비 1회, 서버 로그상 4.4× 손해 1회).
+- **아티팩트 커밋엔 `git add -f`가 필수.** `.gitignore`가 `/results/`·`/logs/`를 무시하므로
+  `git add -A results logs`는 **실패하고**, `&&` 체인이면 commit·pull·push까지 통째로 안 돈다
+  (조용히 아무것도 안 올라간다). 지금까지의 raw 커밋은 전부 `-f`로 들어간 것이다. 경로를 콕
+  집어서: `git add -f results/phase1/<dir>/<file>.json logs/<file>.log`.
 
 ### day-4 결과가 오면 (판독 규칙은 이미 커밋됨)
 
