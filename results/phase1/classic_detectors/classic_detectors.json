@@ -1,0 +1,872 @@
+{
+  "meta": {
+    "argv": [
+      "scripts/run_classic_detectors.py"
+    ],
+    "n_seeds": 3,
+    "protocol": "prequential error stream -> river detectors; instrument untouched",
+    "wall_s": 81.2
+  },
+  "rows": [
+    {
+      "dataset": "synth_concept",
+      "truth": "RULE MOVED",
+      "task": "binclass",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.167,
+          "n_detections": 2.0,
+          "first": 2740
+        },
+        "KSWIN": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        },
+        "PageHinkley": {
+          "per_1k": 0.194,
+          "n_detections": 2.33,
+          "first": 2256
+        },
+        "DDM": {
+          "per_1k": 0.278,
+          "n_detections": 3.33,
+          "first": 2283
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 3,
+            "first": 2463,
+            "per_1k": 0.25
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 3,
+            "first": 2345,
+            "per_1k": 0.25
+          },
+          "DDM": {
+            "n_detections": 4,
+            "first": 1838,
+            "per_1k": 0.333
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 2,
+            "first": 2815,
+            "per_1k": 0.167
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 3,
+            "first": 2848,
+            "per_1k": 0.25
+          },
+          "DDM": {
+            "n_detections": 2,
+            "first": 2722,
+            "per_1k": 0.167
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 2943,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 1576,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 4,
+            "first": 2291,
+            "per_1k": 0.333
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_reg_concept",
+      "truth": "RULE MOVED",
+      "task": "regression",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 180
+        },
+        "KSWIN": {
+          "per_1k": 1.556,
+          "n_detections": 18.67,
+          "first": 522
+        },
+        "PageHinkley": {
+          "per_1k": 0.584,
+          "n_detections": 7.0,
+          "first": 66
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 159,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 23,
+            "first": 108,
+            "per_1k": 1.917
+          },
+          "PageHinkley": {
+            "n_detections": 8,
+            "first": 46,
+            "per_1k": 0.667
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 191,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 1361,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 8,
+            "first": 87,
+            "per_1k": 0.667
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 191,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 15,
+            "first": 99,
+            "per_1k": 1.25
+          },
+          "PageHinkley": {
+            "n_detections": 5,
+            "first": 65,
+            "per_1k": 0.417
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_nuisance_proxy",
+      "truth": "RULE MOVED",
+      "task": "binclass",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.111,
+          "n_detections": 1.33,
+          "first": 4585
+        },
+        "KSWIN": {
+          "per_1k": 0.028,
+          "n_detections": 0.33,
+          "first": 3747
+        },
+        "PageHinkley": {
+          "per_1k": 0.195,
+          "n_detections": 2.33,
+          "first": 2920
+        },
+        "DDM": {
+          "per_1k": 0.139,
+          "n_detections": 1.67,
+          "first": 3162
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 4415,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 2,
+            "first": 1060,
+            "per_1k": 0.167
+          },
+          "DDM": {
+            "n_detections": 1,
+            "first": 3181,
+            "per_1k": 0.083
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 4767,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 3,
+            "first": 3965,
+            "per_1k": 0.25
+          },
+          "DDM": {
+            "n_detections": 1,
+            "first": 3738,
+            "per_1k": 0.083
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 2,
+            "first": 4575,
+            "per_1k": 0.167
+          },
+          "KSWIN": {
+            "n_detections": 1,
+            "first": 3747,
+            "per_1k": 0.083
+          },
+          "PageHinkley": {
+            "n_detections": 2,
+            "first": 3735,
+            "per_1k": 0.167
+          },
+          "DDM": {
+            "n_detections": 3,
+            "first": 2569,
+            "per_1k": 0.25
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_concept_noise",
+      "truth": "RULE MOVED",
+      "task": "binclass",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 2111
+        },
+        "KSWIN": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        },
+        "PageHinkley": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 1414
+        },
+        "DDM": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 895,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 952,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 3167,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 1656,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 2271,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 1635,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_reg_early_noisy",
+      "truth": "rule fixed, noise decays",
+      "task": "regression",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.472,
+          "n_detections": 5.67,
+          "first": 980
+        },
+        "KSWIN": {
+          "per_1k": 1.361,
+          "n_detections": 16.33,
+          "first": 1018
+        },
+        "PageHinkley": {
+          "per_1k": 0.695,
+          "n_detections": 8.33,
+          "first": 149
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 6,
+            "first": 287,
+            "per_1k": 0.5
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 856,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 8,
+            "first": 96,
+            "per_1k": 0.667
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 5,
+            "first": 383,
+            "per_1k": 0.417
+          },
+          "KSWIN": {
+            "n_detections": 13,
+            "first": 1361,
+            "per_1k": 1.083
+          },
+          "PageHinkley": {
+            "n_detections": 8,
+            "first": 165,
+            "per_1k": 0.667
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 6,
+            "first": 2271,
+            "per_1k": 0.5
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 838,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 9,
+            "first": 188,
+            "per_1k": 0.75
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_reg_xdep_noise",
+      "truth": "rule fixed, noise decays",
+      "task": "regression",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.417,
+          "n_detections": 5.0,
+          "first": 916
+        },
+        "KSWIN": {
+          "per_1k": 1.528,
+          "n_detections": 18.33,
+          "first": 596
+        },
+        "PageHinkley": {
+          "per_1k": 0.75,
+          "n_detections": 9.0,
+          "first": 159
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 5,
+            "first": 479,
+            "per_1k": 0.417
+          },
+          "KSWIN": {
+            "n_detections": 19,
+            "first": 234,
+            "per_1k": 1.583
+          },
+          "PageHinkley": {
+            "n_detections": 9,
+            "first": 95,
+            "per_1k": 0.75
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 5,
+            "first": 383,
+            "per_1k": 0.417
+          },
+          "KSWIN": {
+            "n_detections": 10,
+            "first": 1367,
+            "per_1k": 0.833
+          },
+          "PageHinkley": {
+            "n_detections": 9,
+            "first": 121,
+            "per_1k": 0.75
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 5,
+            "first": 1887,
+            "per_1k": 0.417
+          },
+          "KSWIN": {
+            "n_detections": 26,
+            "first": 188,
+            "per_1k": 2.167
+          },
+          "PageHinkley": {
+            "n_detections": 9,
+            "first": 263,
+            "per_1k": 0.75
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_stable",
+      "truth": "rule fixed",
+      "task": "binclass",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 2111
+        },
+        "KSWIN": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        },
+        "PageHinkley": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 1414
+        },
+        "DDM": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 895,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 952,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 3167,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 1656,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 2271,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 1,
+            "first": 1635,
+            "per_1k": 0.083
+          },
+          "DDM": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_reg_stable",
+      "truth": "rule fixed",
+      "task": "regression",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.083,
+          "n_detections": 1.0,
+          "first": 116
+        },
+        "KSWIN": {
+          "per_1k": 1.333,
+          "n_detections": 16.0,
+          "first": 103
+        },
+        "PageHinkley": {
+          "per_1k": 0.583,
+          "n_detections": 7.0,
+          "first": 34
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 127,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 102,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 8,
+            "first": 29,
+            "per_1k": 0.667
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 95,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 109,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 7,
+            "first": 43,
+            "per_1k": 0.583
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 127,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 12,
+            "first": 99,
+            "per_1k": 1.0
+          },
+          "PageHinkley": {
+            "n_detections": 6,
+            "first": 32,
+            "per_1k": 0.5
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_covariate",
+      "truth": "rule fixed",
+      "task": "binclass",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.111,
+          "n_detections": 1.33,
+          "first": 8052
+        },
+        "KSWIN": {
+          "per_1k": 0.0,
+          "n_detections": 0.0,
+          "first": null
+        },
+        "PageHinkley": {
+          "per_1k": 0.278,
+          "n_detections": 3.33,
+          "first": 2300
+        },
+        "DDM": {
+          "per_1k": 0.139,
+          "n_detections": 1.67,
+          "first": 8131
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 10463,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 3,
+            "first": 2885,
+            "per_1k": 0.25
+          },
+          "DDM": {
+            "n_detections": 1,
+            "first": 10764,
+            "per_1k": 0.083
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 1,
+            "first": 9055,
+            "per_1k": 0.083
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 4,
+            "first": 1469,
+            "per_1k": 0.333
+          },
+          "DDM": {
+            "n_detections": 2,
+            "first": 8998,
+            "per_1k": 0.167
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 2,
+            "first": 4639,
+            "per_1k": 0.167
+          },
+          "KSWIN": {
+            "n_detections": 0,
+            "first": null,
+            "per_1k": 0.0
+          },
+          "PageHinkley": {
+            "n_detections": 3,
+            "first": 2546,
+            "per_1k": 0.25
+          },
+          "DDM": {
+            "n_detections": 2,
+            "first": 4633,
+            "per_1k": 0.167
+          }
+        }
+      ]
+    },
+    {
+      "dataset": "synth_reg_late_noisy",
+      "truth": "rule fixed",
+      "task": "regression",
+      "n": 12000,
+      "detectors": {
+        "ADWIN": {
+          "per_1k": 0.528,
+          "n_detections": 6.33,
+          "first": 116
+        },
+        "KSWIN": {
+          "per_1k": 1.278,
+          "n_detections": 15.33,
+          "first": 103
+        },
+        "PageHinkley": {
+          "per_1k": 3.444,
+          "n_detections": 41.33,
+          "first": 36
+        }
+      },
+      "per_seed": [
+        {
+          "ADWIN": {
+            "n_detections": 7,
+            "first": 127,
+            "per_1k": 0.583
+          },
+          "KSWIN": {
+            "n_detections": 18,
+            "first": 102,
+            "per_1k": 1.5
+          },
+          "PageHinkley": {
+            "n_detections": 39,
+            "first": 29,
+            "per_1k": 3.25
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 6,
+            "first": 95,
+            "per_1k": 0.5
+          },
+          "KSWIN": {
+            "n_detections": 15,
+            "first": 109,
+            "per_1k": 1.25
+          },
+          "PageHinkley": {
+            "n_detections": 43,
+            "first": 44,
+            "per_1k": 3.583
+          }
+        },
+        {
+          "ADWIN": {
+            "n_detections": 6,
+            "first": 127,
+            "per_1k": 0.5
+          },
+          "KSWIN": {
+            "n_detections": 13,
+            "first": 99,
+            "per_1k": 1.083
+          },
+          "PageHinkley": {
+            "n_detections": 42,
+            "first": 35,
+            "per_1k": 3.5
+          }
+        }
+      ]
+    }
+  ]
+}

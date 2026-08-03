@@ -1,0 +1,15 @@
+  [1/10] concept            [RULE MOVED              ] ADWIN=0.167/1k  DDM=0.278/1k  KSWIN=0.000/1k  PageHinkley=0.194/1k
+  [2/10] reg_concept        [RULE MOVED              ] ADWIN=0.083/1k  KSWIN=1.556/1k  PageHinkley=0.584/1k
+  [3/10] nuisance_proxy     [RULE MOVED              ] ADWIN=0.111/1k  DDM=0.139/1k  KSWIN=0.028/1k  PageHinkley=0.195/1k
+  [4/10] concept_noise      [RULE MOVED              ] ADWIN=0.083/1k  DDM=0.000/1k  KSWIN=0.000/1k  PageHinkley=0.083/1k
+  [5/10] reg_early_noisy    [rule fixed, noise decays] ADWIN=0.472/1k  KSWIN=1.361/1k  PageHinkley=0.695/1k
+  [6/10] reg_xdep_noise     [rule fixed, noise decays] ADWIN=0.417/1k  KSWIN=1.528/1k  PageHinkley=0.750/1k
+  [7/10] stable             [rule fixed              ] ADWIN=0.083/1k  DDM=0.000/1k  KSWIN=0.000/1k  PageHinkley=0.083/1k
+  [8/10] reg_stable         [rule fixed              ] ADWIN=0.083/1k  KSWIN=1.333/1k  PageHinkley=0.583/1k
+  [9/10] covariate          [rule fixed              ] ADWIN=0.111/1k  DDM=0.139/1k  KSWIN=0.000/1k  PageHinkley=0.278/1k
+  [10/10] reg_late_noisy     [rule fixed              ] ADWIN=0.528/1k  KSWIN=1.278/1k  PageHinkley=3.444/1k
+
+  wrote /home/tonyhuh/explainableTabular/results/phase1/classic_detectors/classic_detectors.json
+  READ: contrast the rule rows against the noise rows (section 2 / 3.4). A detector that
+        fires on both carries no type information; one that fires only on rule change is
+        one-sided and will also miss any rule change that makes the task easier.
