@@ -477,7 +477,7 @@ the two highest-variance features — is planted in the dataset's own (X, t) geo
 staleness pipeline re-run (10 seeds, same power as the main read). Before the null is allowed to
 mean anything, the injected rule must be *learnable in-window* (held-out AUC ≥ 0.65 / R² ≥ 0.20
 / accuracy ≥ majority + 0.10): executed on a constructed geometry whose top-variance features
-are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.506) and the naive
+are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.482) and the naive
 protocol grants "earned blindness" vacuously; the gate converts that to *injection-vacuous* —
 certificate refused. Outcomes: recovery (⇒ the real null was informative: verified no-concept),
 earned blindness (learnable but unrecoverable ⇒ the geometry genuinely hides this signal
@@ -910,7 +910,7 @@ window-geometry ceiling (N ≈ 14k–24k, up to 4× the headline scale) on the t
 every verdict is unchanged and no reading trends toward the floor. Production-scale N beyond that
 remains future work, and we flag rather than dismiss the possibility that the map changes there.
 Scale enters a second way: because the arms differ in size (N versus 2N), a sample-size gain is
-folded into every staleness reading — negligible on binary cells, but 61% of the decision floor on
+folded into every staleness reading — negligible on binary cells, but 56% of the decision floor on
 regression, which effectively raises the detectable floor on the map's five regression cells. We
 report those nulls with the displacement stated rather than absorbed.
 
@@ -1099,10 +1099,10 @@ nothing else:
 | synth_stable | binclass (AUC) | 0.9895 → 0.9902 | **+0.00074** | 4% | SD 0.0016, sign mixed |
 | synth_covariate | binclass (AUC) | 0.9577 → 0.9583 | +0.00064 | 3% | SD 0.0019, sign mixed |
 | synth_covariate_mild | binclass (AUC) | 0.9631 → 0.9665 | +0.00340 | 17% | SD 0.0033 |
-| **synth_reg_stable** | **regression (z-RMSE)** | −0.1343 → −0.1222 | **+0.01212** | **61%** | SD 0.0048, **all 25 positive** |
+| **synth_reg_stable** | **regression (z-RMSE)** | −0.1332 → −0.1221 | **+0.01114** | **56%** | SD 0.0040, **all 25 positive** |
 
 Two readings, and we state the unfavourable one first. **On regression the term is real and
-large**: 61% of the decision floor, positive in every one of 25 windows, so it is not a
+large**: 56% of the decision floor, positive in every one of 25 windows, so it is not a
 single-window artifact. A regression cell whose true rule-change harm were +0.012 would be
 observed at ≈0 and read as a null. The detectable floor on the regression cells of the map
 (sberbank_housing, cooking_time, delivery_eta, maps_routing, weather) is therefore effectively
@@ -1215,7 +1215,7 @@ of §5.1 plus the no-drift anchors of §7.3), not by reusing the numbers.
 | noise gate | 1.5 | label-noise-drift flag (old proxy / recent median) | stable synthetic controls read 0.75–0.99; noise-drift cells read 3.5–3.9 | every real-data value falls below 1.5 or in 2.0–2.9 — nowhere near the envelope edge |
 | envelope | 4.7 | denoiser validity boundary; abstain above | measured on fixed-rule nulls: +0.014 at ratio 4.72, +0.026 at 5.71 (crosses the floor) | Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (§8, limitation 4) |
 | D* | 0.96 | separability routing to the injection control | group-aware, size-matched repairs (duplicates 0.994→≈0.50; shuffle-D 0.94→0.50) | a routing statistic, never support overlap; D ≥ D* concludes nothing by itself |
-| learnability gates | AUC 0.65 / R² 0.20 / acc majority+0.10 | injection-certificate validity | executed junk-geometry control (in-window AUC 0.506 → vacuous) vs learnable control (0.964 → recovery +0.195) | unlearnable ⇒ certificate refused for that family — vacuity, not blindness |
+| learnability gates | AUC 0.65 / R² 0.20 / acc majority+0.10 | injection-certificate validity | executed junk-geometry sweep: learnability crosses the gate as the tails thicken (0.944 → 0.839 → **0.482** → 0.477), and the certificate goes vacuous exactly there (recovery +0.186 → +0.150 → **+0.012** → −0.002) vs the learnable control (0.951 → recovery +0.201) | unlearnable ⇒ certificate refused for that family — vacuity, not blindness |
 | injection strength | 2.5 rad | reference rotation magnitude | clears the floor on learnable geometry (recoveries +0.16 to +0.55) | family sweep executed (Appendix B.5): certified vs low-variance and interaction rules, **disconfirmed vs subpopulation-local** (§6.3) |
 | seed protocol | 10 (0–9) + confirmatory (100–109); battery 5 | power and stability | battery effects at 10–27× the floor make 5 a sufficient pass/fail gate | verdicts that move between seed sets are barred (unstable) |
 
