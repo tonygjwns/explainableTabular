@@ -1,25 +1,174 @@
-# PAPER V5 — §3, §6 and §7 drafts
+# PAPER V5 — §1, §3, §6 and §7 drafts
 
 **Status.** Draft sections for the instrument-first reframe of `PAPER_V5_SKELETON.md`, written
 2026-08-03. `PAPER_DRAFT_V4.md` / `_KO.md` / `paper/main.tex` are untouched and remain the live
 manuscript; abandoning V5 means deleting this file. **No new claims**: every reading below is
-committed in an artifact, and all 204 of them pass the artifact cross-check
+committed in an artifact, and all 230 of them pass the artifact cross-check
 (`scripts/audit_paper_numbers.py`). What changes is which of them carry the paper.
 
-Three sections are drafted here. **§3** promotes V4 §5.3 and the battery's noise cells into the
-paper's lead. **§6** collects V4's Limitations 1, 4 and 6 plus the ACS falsification into a
-standalone map of the instrument's blind spots. **§7** demotes V4 §5 and §6 — the industrial map —
-to an application of the certified instrument, with its numbers unchanged and its qualifiers moved
-from footnotes into the sentences that carry them.
+Four sections are drafted here. **§1** rewrites the title, abstract and introduction around the
+noise channel — the subject changes from "industrial data has no drift" to "drift attribution is
+fooled by noise", and the map becomes the fourth contribution rather than the first. **§3** promotes
+V4 §5.3 and the battery's noise cells into the paper's lead. **§6** collects V4's Limitations 1, 4
+and 6 plus the ACS falsification into a standalone map of the instrument's blind spots. **§7**
+demotes V4 §5 and §6 — the industrial map — to an application of the certified instrument, with its
+numbers unchanged and its qualifiers moved from footnotes into the sentences that carry them.
 
 The three day-4 slots are filled (§3.4 from E2, §6.2 from E3, §6.3 from E4, §6.4 from E1); read-out
 and pre-committed predictions are in `PREREG_DEPLOYMENT_V2.md` §19 and
 `PREREG_ACS_EXTENSION_2026-07-31.md` §12.
 
-**Still to draft**: §1 (abstract and introduction, the largest remaining piece — the subject changes
-from "no drift in industrial data" to "drift detection is fooled by noise"), §4–§5 (the instrument
-and its validation, mostly relocated V4 §3–§4), §8–§9, and the KO mirror plus LaTeX, which should
-wait until the English is settled.
+**Still to draft**: §2 (related work, near-verbatim from V4), §4–§5 (the instrument and its
+validation, mostly relocated V4 §3–§4), §8–§9, and the KO mirror plus LaTeX, which should wait
+until the English is settled.
+
+---
+
+# Label-Noise Decay Mints Concept Drift: A False-Positive Channel in Loss-Based Drift Attribution, and What a Certified Instrument Looks Like
+
+## Abstract
+
+A drift monitor's job is not to report that a distribution moved but to say *what* moved, because
+the repairs differ: a changed rule P(y|x) calls for retraining on recent data, while moving
+covariates under a fixed rule do not. We show that the loss-based comparison this attribution
+usually rests on has a false-positive channel that has not, to our knowledge, been reported.
+**Hold the rule provably fixed and let only label noise decay over time, and the comparison
+returns a concept-drift verdict** — at +0.021 on a constructed null, within 0.003 of a real
+industrial positive (+0.024) that our own earlier instrument had reported and we had believed.
+Two further channels, found by adversarial construction against our own repair, fire the same way
+under equally fixed rules. We repair the instrument — a cross-fitted *denoised staleness* arm, a
+per-window noise gate, and an abstention envelope measured to the point where the denoiser itself
+crosses the decision floor on a null — and validate it on a 14-cell pre-registered battery in which
+rule change and noise decay co-occur and must still fire (it does, at 58% of clean power).
+Verdicts are earned rather than assumed, through three certificates: separability, injection, and
+learnability. The repaired instrument then **diagnoses the mechanism of its own prior false
+positive on real data** — not a failure to replicate, but an identified cause, with the power to
+have seen a rule change certified in the same windows. We also measure where the instrument is
+blind, along four axes, the last of which is settled from outside: against the ACA Medicaid
+expansion, a rule change documented in law, **the probe read null in a fully identifiable regime at
+the tightest detectable bound in the paper**, because its score is rank-based and an eligibility
+threshold moves mass across a boundary without reordering anyone; under proper scores the same
+windows read +0.021 on the treated state against +0.006 on the control. Applied to eight
+industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable), the
+instrument finds no exploitable mean-rule drift above the per-dataset detectable floor for the
+deployed tree-ensemble class (0/8 audited; 0/5 among cells whose identifiability is certified).
+A head-to-head against a type-attributing frame shows the channel is not ours alone: the frame
+separates the two mechanisms by magnitude (7.5–14×) but **not by sign**, so a threshold reading
+files two events with different repairs as the same event. We release the instrument, the battery
+and the audit trail, and argue that drift-type attribution without identifiability certificates —
+the current default — is unreliable.
+
+---
+
+## 1. Introduction
+
+A team watching a deployed tabular model sees its recent loss rise and has to choose. Retrain on
+recent data only, discarding older rows as stale — the right move if the labeling rule has changed.
+Or keep everything, because the rule is intact and the older rows still carry correct labels — the
+right move if only the covariates moved. Choosing wrongly is expensive in both directions, and
+choosing is what drift-type attribution is for.
+
+The comparison that attribution usually rests on is simple enough to be trusted without checking:
+fit a model on recent data, fit another on recent plus old data, and read the gap on a future
+window. If old rows now mislead, adding them hurts. We call this quantity *staleness harm*, and it
+is deployment-native in a way importance-weighted decompositions are not — the recent portion is
+identical in both arms, so covariate coverage cancels by construction, and nothing needs density
+ratios or overlapping supports, which is exactly what fails in industrial feature spaces.
+
+**The comparison has a false-positive channel.** Its informal justification — correct labels cannot
+hurt — is false for finite-capacity empirical risk minimization. Hold the rule provably fixed, let
+only the *noise* on the labels decay over time, and the comparison fires: unweighted ERM is not
+efficient under heteroscedasticity, so noisier old rows inflate the loss of any model that fits
+them, and removing them improves recent-window loss for reasons that have nothing to do with the
+rule. On a constructed null this reads **+0.021** — above the 0.02 floor this literature's
+thresholds live near, and within 0.003 of **+0.024**, an industrial positive our own v2 instrument
+had reported and we had believed. A monitor consuming that number would retrain on recent data and
+throw away correct labels, while telling its owners the rule had changed. Two further channels,
+constructed adversarially against our own repair, fire the same way: x-dependent noise whose scale
+decays (+0.025), and noise correlated with the rule-carrying feature (+0.026), the denoiser's worst
+case. Growing noise reads −0.023, so the artifact is directional rather than a constant bias.
+
+**Two more ways the naive instrument lies.** The natural certificate for "a null here is
+uninformative" is a window-separability AUC — can a classifier tell old rows from future rows? —
+and computed row-wise it saturates to 0.994–1.000 under exact duplicates, near-duplicates and
+entity cohorts with *zero* covariate shift: the classifier memorizes rows, not distributions, and
+eight of ten real datasets read exactly 1.000 under the naive gate. And the concept/covariate
+separation is hypothesis-class-relative: a kNN probe reads pure covariate shift as concept drift
+(+0.098), a linear probe reads prior shift as concept drift (+0.026), while tree ensembles pass all
+controls. That is Shimodaira's misspecification result made empirical, and it means "old data
+hurts" can be manufactured by geometry alone.
+
+**The repair, and the discipline it needs.** Each failure gets a repair validated by execution
+(§4–§5): a *denoised staleness* arm that replaces old labels with cross-fitted within-window
+predictions — under noise-only drift the pseudo-labels are approximately correct and the harm
+vanishes; under a changed rule they still encode the old rule and the harm persists — together
+with a per-window noise gate whose validity envelope is *measured* rather than assumed, to the
+point where the denoiser itself reads +0.026 on a null and the instrument abstains; a group-aware
+separability estimate that deflates memorization while leaving honest drift intact; and
+learnability-gated injection controls that turn "this dataset is unmeasurable" from an assumption
+into a demonstration. All verdicts are scoped to the tree-ensemble class, with linear and kNN
+probes carried as canaries whose false fires are reported rather than hidden.
+
+**The instrument turned on itself.** Pointed back at the dataset that produced our prior positive,
+the repaired instrument reproduces the v2 raw reading bit-for-bit, measures old-window label noise
+at 2.1–2.9× the recent median, and returns a *significantly negative* denoised arm at every window
+resolution: with the noise removed the old rows help. The same windows recover a rule planted at
+reference strength (+0.086, learnable at R² 0.93), so the negative is certified rather than
+argued. We are not aware of a prior case of a drift-attribution instrument diagnosing the
+*mechanism* of its own earlier false positive on real data, as opposed to failing to replicate it.
+
+**And its blind spots, measured.** A null is worth its blind spots, so we map ours (§6) along four
+axes: probe class, separability, rule family, and metric. The last is settled from outside. The ACA
+Medicaid expansion — implemented by Pennsylvania on 2015-01-01, never adopted by Texas — is a rule
+change documented in law and visible in the raw positive rates (0.234 → 0.306 against a flat
+0.183–0.185). **The probe read both states null**, in a fully identifiable regime and at the
+tightest detectable bound anywhere in this paper, so a confident zero rather than an underpowered
+one. The mechanism was registered before the run: our binary score is AUC, which is rank-based, and
+an eligibility threshold moves a large mass across a decision boundary without reordering anyone.
+Under proper scores the same windows turn positive on the treated state (+0.021 under log-loss)
+against +0.006 on the control — the blindness localised, with a repair direction, and with the
+three things that reading does not license stated alongside it.
+
+**The application.** With the instrument certified and its blind spots mapped, we spend it on the
+question that motivated building it (§7): a pre-registered audit of eight TabReD datasets,
+Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
+result is an identifiability map rather than a detection table — **0/8 audited, 0/5 among the cells
+whose identifiability is certified**, the sole robust positive being designed drift, with two cells
+refusing a certificate outright rather than being counted as evidence. Anchor streams fix the
+sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
+correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
+
+**Contributions.**
+
+1. *A false-positive channel in loss-based drift attribution* (§3), executed rather than argued:
+   label-noise decay under a provably fixed rule mints concept verdicts at magnitudes matching real
+   borderline positives, with two further channels found by adversarial construction, and a
+   head-to-head showing a type-attributing frame separates the mechanisms by magnitude but not by
+   sign.
+2. *A repaired, abstaining instrument* (§4–§5): denoised staleness with a noise gate and a measured
+   validity envelope, group-aware separability, learnability-gated injection certificates,
+   class-scoped verdicts with canaries — validated on a 14-cell pre-registered battery including
+   the adversarial combination in which rule change and noise decay co-occur (fires at 58% of
+   clean power).
+3. *A measured map of an instrument's blind spots* (§6), including one settled against external
+   ground truth: class relativity (a linear monitor flips the canonical Electricity dataset to
+   concept drift on identical bytes), continuous power collapse inside the separability gate
+   (ρ = −0.47), family relativity (a subpopulation-local rule learnable at R² 0.560 and
+   unrecovered at −0.050), and metric relativity (the ACS falsification).
+4. *A pre-registered identifiability map of industrial tabular ML* (§7): 0/8 audited and 0/5
+   certified, one diagnosed false positive with mechanism, per-dataset certificates and
+   detectable-effect bounds, 10/10 confirmatory stability and 10/10 cross-class agreement.
+
+**What we do not claim.** We do not claim concept drift is absent from industrial tabular data:
+several cells are certified *blind*, and blindness is not absence. We do not claim the
+identifiability theory is new — that overlap failure blocks nonparametric identification is
+classical, and class-relativity is established; our contribution is the executed channel, the
+repaired instrument, and the certified map. We do not claim model-agnosticism: every verdict is
+relative to the deployed hypothesis class, which we argue is the only honest way to state
+drift-type attribution at all. We do not claim the noise channel is the only way this comparison
+fails, only that it is one nobody had reported and that it is large enough to have fooled us. And
+we do not claim our own instrument is trustworthy everywhere — §6 is the list of places where it is
+not, and one entry on that list was written by a state legislature rather than by us.
 
 ---
 
