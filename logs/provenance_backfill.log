@@ -1,0 +1,41 @@
+      [synth_reg_stable seeds] 1/5  elapsed 15s  eta 1m01s  (15.3s/unit)
+      [synth_reg_stable seeds] 2/5  elapsed 31s  eta 46s  (15.6s/unit)
+      [synth_reg_stable seeds] 3/5  elapsed 47s  eta 31s  (15.9s/unit)
+      [synth_reg_stable seeds] 4/5  elapsed 1m01s  eta 15s  (15.5s/unit)
+      [synth_reg_stable seeds] 5/5  elapsed 1m14s  eta 0s  (15.0s/unit)
+  J1 levels: recent -0.13323805123208807 -> recent_old -0.12209379432851301   size term 0.011144256903575053
+     staleness_harm from the same run: -0.011144256903575058
+      [injection topvar@auto] 1/5  elapsed 12s  eta 50s  (12.7s/unit)
+      [injection topvar@auto] 2/5  elapsed 25s  eta 38s  (12.7s/unit)
+      [injection topvar@auto] 3/5  elapsed 38s  eta 25s  (12.7s/unit)
+      [injection topvar@auto] 4/5  elapsed 50s  eta 12s  (12.7s/unit)
+      [injection topvar@auto] 5/5  elapsed 1m03s  eta 0s  (12.7s/unit)
+  J2 learnable (cell geometry) learn=0.951 LEARNABLE inj=+0.2014 recovered=True
+      [injection topvar@auto] 1/5  elapsed 13s  eta 53s  (13.4s/unit)
+      [injection topvar@auto] 2/5  elapsed 27s  eta 41s  (13.8s/unit)
+      [injection topvar@auto] 3/5  elapsed 40s  eta 27s  (13.7s/unit)
+      [injection topvar@auto] 4/5  elapsed 54s  eta 13s  (13.6s/unit)
+      [injection topvar@auto] 5/5  elapsed 1m07s  eta 0s  (13.5s/unit)
+  J2 junk t(df=4.0)           learn=0.944 LEARNABLE inj=+0.1863 recovered=True
+      [injection topvar@auto] 1/5  elapsed 13s  eta 54s  (13.6s/unit)
+      [injection topvar@auto] 2/5  elapsed 27s  eta 40s  (13.5s/unit)
+      [injection topvar@auto] 3/5  elapsed 40s  eta 27s  (13.5s/unit)
+      [injection topvar@auto] 4/5  elapsed 54s  eta 13s  (13.5s/unit)
+      [injection topvar@auto] 5/5  elapsed 1m07s  eta 0s  (13.5s/unit)
+  J2 junk t(df=2.0)           learn=0.839 LEARNABLE inj=+0.1501 recovered=True
+      [injection topvar@auto] 1/5  elapsed 13s  eta 53s  (13.3s/unit)
+      [injection topvar@auto] 2/5  elapsed 26s  eta 40s  (13.3s/unit)
+      [injection topvar@auto] 3/5  elapsed 40s  eta 26s  (13.4s/unit)
+      [injection topvar@auto] 4/5  elapsed 53s  eta 13s  (13.4s/unit)
+      [injection topvar@auto] 5/5  elapsed 1m07s  eta 0s  (13.5s/unit)
+  J2 junk t(df=1.0)           learn=0.482 VACUOUS   inj=+0.0117 recovered=False
+      [injection topvar@auto] 1/5  elapsed 13s  eta 52s  (13.2s/unit)
+      [injection topvar@auto] 2/5  elapsed 26s  eta 39s  (13.2s/unit)
+      [injection topvar@auto] 3/5  elapsed 39s  eta 26s  (13.2s/unit)
+      [injection topvar@auto] 4/5  elapsed 52s  eta 13s  (13.2s/unit)
+      [injection topvar@auto] 5/5  elapsed 1m09s  eta 0s  (13.8s/unit)
+  J2 junk t(df=0.6)           learn=0.477 VACUOUS   inj=-0.0015 recovered=False
+
+  wrote /home/tonyhuh/explainableTabular/results/phase1/provenance_backfill/provenance_backfill.json
+  READ: adopt the re-measured numbers wherever they differ, keeping levels and size term
+        from the same run, and record the substitution in RESULTS.
