@@ -59,8 +59,8 @@ windows read +0.021 on the treated state against +0.006 on the control. Applied 
 industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10 stable), the
 instrument finds no exploitable mean-rule drift above the per-dataset detectable floor for the
 deployed tree-ensemble class (0/8 audited; 0/5 among cells whose identifiability is certified).
-A head-to-head against a type-attributing frame shows the channel is not ours alone: the frame
-separates the two mechanisms by magnitude (7.5–14×) but **not by sign**, so a threshold reading
+A head-to-head against a type-attributing frame locates how far the channel reaches: the frame does
+separate the two mechanisms by magnitude (7.5–14×), but **not by sign**, so a threshold reading
 files two events with different repairs as the same event. We release the instrument, the battery
 and the audit trail, and argue that drift-type attribution without identifiability certificates —
 the current default — is unreliable.
@@ -95,22 +95,24 @@ constructed adversarially against our own repair, fire the same way: x-dependent
 decays (+0.025), and noise correlated with the rule-carrying feature (+0.026), the denoiser's worst
 case. Growing noise reads −0.023, so the artifact is directional rather than a constant bias.
 
-**Two more ways the naive instrument lies.** The natural certificate for "a null here is
-uninformative" is a window-separability AUC — can a classifier tell old rows from future rows? —
+**Two more ways the naive instrument lies**, repaired in §4.3 and mapped in §6.1 respectively. The
+natural certificate for "a null here is uninformative" is a window-separability AUC — can a
+classifier tell old rows from future rows? —
 and computed row-wise it saturates to 0.994–1.000 under exact duplicates, near-duplicates and
 entity cohorts with *zero* covariate shift: the classifier memorizes rows, not distributions, and
 eight of ten real datasets read exactly 1.000 under the naive gate. And the concept/covariate
 separation is hypothesis-class-relative: a kNN probe reads pure covariate shift as concept drift
-(+0.098), a linear probe reads prior shift as concept drift (+0.026), while tree ensembles pass all
-controls. That is Shimodaira's misspecification result made empirical, and it means "old data
-hurts" can be manufactured by geometry alone.
+(+0.098) and a two-layer MLP reads fixed-rule prior shift as concept drift (denoised +0.042), while
+tree ensembles pass all controls. That is Shimodaira's misspecification result made empirical, and
+it means "old data hurts" can be manufactured by geometry alone.
 
 **The repair, and the discipline it needs.** Each failure gets a repair validated by execution
 (§4–§5): a *denoised staleness* arm that replaces old labels with cross-fitted within-window
 predictions — under noise-only drift the pseudo-labels are approximately correct and the harm
 vanishes; under a changed rule they still encode the old rule and the harm persists — together
-with a per-window noise gate whose validity envelope is *measured* rather than assumed, to the
-point where the denoiser itself reads +0.026 on a null and the instrument abstains; a group-aware
+with a per-window noise gate whose validity envelope is *measured* rather than assumed, out to the
+noise ratio at which the denoiser itself crosses the decision floor on a null and beyond which the
+instrument abstains; a group-aware
 separability estimate that deflates memorization while leaving honest drift intact; and
 learnability-gated injection controls that turn "this dataset is unmeasurable" from an assumption
 into a demonstration. All verdicts are scoped to the tree-ensemble class, with linear and kNN
