@@ -216,9 +216,13 @@ data: of the four industrial "unidentifiable" cells, two never earn a certificat
 other two are settled only by widening the family beyond the reference one. We do not run
 these detectors head-to-head on the audited cells: a loss-stream detector answers "did anything
 change?" and is type-blind by construction, so its fires would not bear on drift-*type*
-attribution. Frames that *do* attribute types are a different matter, and we run one
-head-to-head on battery cells whose ground truth is fixed by construction (§3.4): it separates
-rule change from noise decay by magnitude but not by sign. The canary panel (§6.1) is the
+attribution, and we measure that rather than only asserting it: run over the battery's
+prequential error streams, four standard detectors fire at rates that do not track the ground truth
+at all — a true rule change firing at exactly the stationary cell's rate while a fixed-rule
+covariate shift fires, and a pure stationary regression cell firing level with both (Appendix B.7).
+Frames that *do* attribute types are a different matter, and we run one head-to-head on battery
+cells whose ground truth is fixed by construction (§3.4): it separates rule change from noise decay
+by magnitude but not by sign. The canary panel (§6.1) is the
 like-for-like comparison within our own instrument — what a weaker *attribution* probe reports
 on the same bytes — and porting the certificate protocol to streaming monitors is future
 work (§8).
@@ -1180,7 +1184,43 @@ Pennsylvania's positive rate moves 0.234 → 0.268 → 0.293 → 0.305 → 0.306
 implementation year, Texas stays within 0.183–0.185 throughout:
 
 | | verdict | raw | denoised | recency | D | δ |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|**B.7 Classic stream detectors on the battery: the fire rate does not track the truth.** Section 2
+argues that loss-stream detectors are type-blind by construction. This measures it. Four standard
+detectors (ADWIN, KSWIN, DDM, PageHinkley) were run over the prequential error stream of a river
+learner on the battery cells, whose ground truth is fixed by construction; detections per 1,000
+samples, three seeds. DDM requires a 0/1 error stream and therefore applies only to the binary
+cells.
+
+| cell | truth | ADWIN | DDM | KSWIN | PageHinkley |
+|---|---|---|---|---|---|
+| concept | rule moved | 0.167 | 0.278 | 0.000 | 0.194 |
+| nuisance_proxy | rule moved | 0.111 | 0.139 | 0.028 | 0.195 |
+| **concept + noise decay** | **rule moved** | 0.083 | **0.000** | 0.000 | 0.083 |
+| reg_concept | rule moved | 0.083 | — | 1.556 | 0.584 |
+| **reg_early_noisy** | **rule fixed, noise decays** | **0.472** | — | 1.361 | 0.695 |
+| **reg_xdep_noise** | **rule fixed, noise decays** | **0.417** | — | 1.528 | 0.750 |
+| stable | rule fixed | 0.083 | 0.000 | 0.000 | 0.083 |
+| **covariate** | **rule fixed** | 0.111 | **0.139** | 0.000 | **0.278** |
+| **reg_stable** | **rule fixed (pure null)** | 0.083 | — | **1.333** | **0.583** |
+| reg_late_noisy | rule fixed | 0.528 | — | 1.278 | **3.444** |
+
+Read within task, since the learner differs across tasks. On regression the noise-decay cells fire
+ADWIN *more often* than the true rule-change cell does, and KSWIN and PageHinkley put them within
+3× of it — but so does the pure stationary cell (KSWIN 1.333, PageHinkley 0.583), and a fixed-rule
+cell posts the highest PageHinkley rate in the panel. The binary arm shows both failure directions
+with the learner held fixed: a true rule change fires at exactly the stationary cell's rate — a miss
+— while a fixed-rule covariate shift fires DDM and PageHinkley — a false alarm.
+
+Two limits, stated rather than absorbed. The regression error stream carries the incremental
+learner's own learning curve, so that arm supports "the fire does not track the truth" but cannot
+by itself support "these detectors fire on noise decay specifically"; the binary miss/false-alarm
+pair is the clean evidence. And the one-sidedness of DDM — it warns on error *increase*, while noise
+decay drives error *down* — could not be tested here, because the battery's two noise-decay cells
+are both regression and DDM needs a binary error stream. We did not add a binary noise-decay cell
+after seeing this. None of these detectors emits a drift-type verdict, so none of this enters the
+map; the point is only that a fire carries no type information, which is what §2 claims.
+
+---|
 | Pennsylvania (treated) | NO-STRONG-CONCEPT | −0.011 | −0.009 | **+0.009** | 0.534 | **0.00083** |
 | Texas (control) | NO-STRONG-CONCEPT | −0.015 | −0.011 | −0.001 | 0.523 | 0.00200 |
 
