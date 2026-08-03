@@ -1,14 +1,25 @@
-# PAPER V5 — §3 and §6 drafts
+# PAPER V5 — §3, §6 and §7 drafts
 
 **Status.** Draft sections for the instrument-first reframe of `PAPER_V5_SKELETON.md`, written
 2026-08-03. `PAPER_DRAFT_V4.md` / `_KO.md` / `paper/main.tex` are untouched and remain the live
-manuscript; adopting V5 means folding these two sections in and demoting V4 §5 to §7, and
-abandoning V5 means deleting this file. **No new claims and no new numbers**: every reading below
-is already committed in an artifact and appears in V4, mostly in §4.1, §4.3, §5.2, §5.3 and the
-Limitations list. What changes is which of them carry the paper.
+manuscript; abandoning V5 means deleting this file. **No new claims**: every reading below is
+committed in an artifact, and all 204 of them pass the artifact cross-check
+(`scripts/audit_paper_numbers.py`). What changes is which of them carry the paper.
 
-Three slots are marked `[E1]`, `[E2]`, `[E3]` and stay empty until the day-4 queue lands. They are
-additive: each strengthens a subsection that already stands without it.
+Three sections are drafted here. **§3** promotes V4 §5.3 and the battery's noise cells into the
+paper's lead. **§6** collects V4's Limitations 1, 4 and 6 plus the ACS falsification into a
+standalone map of the instrument's blind spots. **§7** demotes V4 §5 and §6 — the industrial map —
+to an application of the certified instrument, with its numbers unchanged and its qualifiers moved
+from footnotes into the sentences that carry them.
+
+The three day-4 slots are filled (§3.4 from E2, §6.2 from E3, §6.3 from E4, §6.4 from E1); read-out
+and pre-committed predictions are in `PREREG_DEPLOYMENT_V2.md` §19 and
+`PREREG_ACS_EXTENSION_2026-07-31.md` §12.
+
+**Still to draft**: §1 (abstract and introduction, the largest remaining piece — the subject changes
+from "no drift in industrial data" to "drift detection is fooled by noise"), §4–§5 (the instrument
+and its validation, mostly relocated V4 §3–§4), §8–§9, and the KO mirror plus LaTeX, which should
+wait until the English is settled.
 
 ---
 
@@ -285,3 +296,134 @@ which is not a verdict; we record it and leave the constant alone.
 The scope sentence therefore gains a clause and loses none of its force: not "there is no drift in
 ACS", but **"this instrument does not see a real rule change of this size through a rank-based
 score; through log-loss it sees something floor-sized, uncertified, and shared with its control."**
+
+---
+
+## 7. Application: auditing an industrial panel
+
+Everything above is about an instrument. This section spends it on the question that motivated
+building one: does industrial tabular data contain rule change a deployed model could exploit?
+The answer is a map, and the map is worth exactly what §6 says it is worth — every number below is
+scoped to a tree-ensemble probe class (§6.1), to the separability at which its certificate was
+earned (§6.2), to the rule families that certificate was tested against (§6.3), and to a
+rank-based score (§6.4). We state the qualifiers with the result rather than after it.
+
+### 7.1 Protocol and result
+
+Eight TabReD datasets (Rubachev et al., 2025; train segments of the official temporal splits),
+Electricity, and INSECTS (incremental-balanced) — HGB probe, K = 10, ten exploratory seeds (0–9),
+then a **confirmatory rerun with fresh seeds (100–109)**; any verdict that moves between the two is
+reported unstable and barred from claims. The decision cascade, thresholds, seed protocol and
+aggregate reading were committed before execution. The prior v2-era industrial positive was
+pre-registered as a *retraction candidate with a prediction* (NOISE-DRIFT-CONFOUNDED or
+denoised-null) and a survival battery was pre-specified in case the prediction failed; §3.2 reports
+what happened. Both the primary rule (CI > 0 and mean > floor) and the strict rule (CI > floor) are
+computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-stable.
+
+| dataset | verdict (= confirmatory) | raw | denoised | gate | D | Rec. | certificate |
+|---|---|---|---|---|---|---|---|
+| insects | **DEPLOYMENT-CONCEPT** | +0.135 / +0.129 | **+0.152 / +0.145** | 1.24 | 0.844 | +0.162 | injection recovers |
+| sberbank_housing | **NOISE-DRIFT-CONFOUNDED** | +0.024 / +0.033 (fires) | **−0.015 / −0.011** | **2.11 / 2.21 (fires)** | 1.000 | — | diagnosed (§3.2) |
+| cooking_time | INJECTION-RECOVERED | −0.011 | −0.018 | 0.92 | 0.966 | **+0.546** | **verified no-concept** |
+| delivery_eta | INJECTION-RECOVERED | −0.012 | −0.014 | 0.89 | 0.999 | **+0.332** | **verified no-concept** |
+| maps_routing | NO-STRONG-CONCEPT | −0.008 | −0.010 | 1.01 | 0.578 | n/a | identifiable region |
+| elec2 | UNIDENTIFIABLE | +0.001 | +0.001 | 0.66 | 1.000 | +0.018 | **blindness earned** |
+| ecom_offers | UNIDENTIFIABLE | −0.001 | −0.007 | 1.25 | 1.000 | — | *vacuous* — injection unlearnable (0/4 families) |
+| homecredit_default | UNIDENTIFIABLE | −0.007 | +0.004 | 1.29 | 1.000 | — | *vacuous* (0/4 families; 80 proxy features stripped) |
+| weather | INJECTION-RECOVERED † | −0.012 | −0.011 | 0.93 | 0.994 | **+0.183** | **verified no-concept** (2/3 learnable families) |
+| homesite_insurance | UNIDENTIFIABLE-INERT | −0.004 | −0.002 | 1.14 | 1.000 | −0.001 | **blindness earned** (2/2 learnable families, stable) |
+
+*D* = the group-aware separability median (D\* = 0.96 routes to the injection control); *Rec.* =
+recovered staleness of a rule planted at reference strength; "—" = the injection was unlearnable in
+every family tried, so no recovery number is admissible, and *n/a* = the cell never routes to the
+control. Recovery moves by less than 0.01 between seed sets everywhere. † weather's reference-family
+rule is unlearnable in its geometry; recovery is measured under the low-variance carrier, where it
+reproduces on fresh seeds (+0.183 / +0.193), and under the interaction family (+0.083 / +0.078).
+The "(m/n families)" counts are the family denominator of §6.3, printed so a certificate is never
+read as stronger than the class of rule change it was tested against.
+
+**The aggregate, as pre-registered and as it is worth.** Relative to the tree-ensemble class, the
+number of industrial datasets with exploitable mean-rule drift above the per-dataset detectable
+floor is **0/8** audited. Over the datasets whose identifiability is *certified* it is **0/5**:
+ecom_offers and homecredit_default end with no certificate — their planted probe rule is
+unlearnable under every family tried — and so contribute no evidence in either direction. We report
+both wherever the aggregate appears; the first is what was pre-registered, the second is what it is
+worth.
+
+Three readings deserve their own sentence. The only concept positive is the designed-drift stream,
+where the denoised arm *exceeds* the raw arm — pseudo-labels encode the old rule cleanly once label
+noise is removed, the signature of genuine rule change and the mirror image of §3.1's channel. Two
+of the four blindness claims a naive protocol would have granted are *vacuous*, a distinction
+invisible without the learnability gate. And the strongest cells in the map are, counter-
+intuitively, the two verified no-concept certificates: geometry demonstrably had power (+0.546 and
++0.332 recovery of a planted rule) and the real staleness is still null. What that power does *not*
+mean uniformly is the subject of §6.2.
+
+### 7.2 Across the deployment gap
+
+The map covers the train segments of TabReD's official temporal splits, which is where a
+practitioner would fit but not where the model is judged. Re-running all eight cells with train,
+validation and test concatenated on the shared normalised timestamp — so the windows cross the
+held-out gap the official split withholds — leaves **8/8 verdicts identical between exploratory and
+confirmatory seeds and no industrial cell firing CONCEPT**. The aggregate is therefore not
+re-scoped to train segments.
+
+Three cells move in ways worth recording rather than burying. sberbank's raw arm no longer clears
+the floor over the longer span, so the noise diagnosis of §3.2 is explicitly scoped to the train
+segment. cooking_time's separability *falls* below D\* (0.927), against our expectation that a
+longer span would raise it, leaving an identifiable null that needs no certificate. And
+homecredit_default's denoised arm reads **+0.018** — 89% of the decision floor, the largest
+positive-direction number anywhere in this paper — with a certificate that is *earned* here rather
+than refused, so it reads as "measured and under the floor" rather than "not measured". That cell
+is the closest thing this panel has to a positive, and we flag it as the place a larger-N or
+finer-window follow-up should look first.
+
+### 7.3 Anchors and the sensitivity profile
+
+A map of nulls is only as informative as the sensitivity of the instrument that drew it, so we ran
+it over 23 synthetic river streams (SEA / Agrawal / STAGGER / Sine / Hyperplane; no-drift, abrupt
+single-switch, gradual and reoccurring variants) and all seven INSECTS variants (real sensor data,
+lab-controlled temperature drift).
+
+**Monotone and single-switch rule changes fire: 9/9.** River: agrawal_abrupt +0.045,
+agrawal_gradual +0.047, stagger_abrupt, sine_abrupt +0.031, hyperplane_incremental +0.112 (with the
+gate correctly co-flagging its noise component), sine_reoccur2 +0.047. INSECTS: gradual-balanced
++0.092, gradual-imbalanced +0.069, incremental +0.135 — in every firing cell denoised is at least
+raw, and the injection positive control recovers. Weak switches (SEA's threshold nudge) land in the
+no-evidence band with consistent sign and are reported with their detectable floors.
+
+**Recurring regimes are correctly silent — and fingerprinted.** INSECTS abrupt variants
+(oscillating temperature) read *negative* staleness (−0.070, −0.027) with **negative recency gain**
+(−0.058, −0.023): the window adjacent to the test predicts it *worse* than the oldest window does.
+Negative recency is impossible under one-way drift; it is the signature of a regime that has
+returned, and it replicates across river's reoccurring cells and INSECTS incremental-reoccurring.
+This is a scope statement, not a defect: the lens answers the deployment question — does old data
+harm a model trained today? — and when old regimes recur, old data genuinely does not harm. A
+monitor built on this lens will not *detect* recurring drift; it will correctly say old data is
+safe to keep, and the negative-recency flag says why. On the audited panel that flag is silent:
+every industrial cell reads recency gain at or above zero (+0.000 on maps_routing to +0.325 on
+sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
+horizon — our own sine_reoccur2 anchor returns to its initial regime in the final ~22% and reads
+recency +0.30 — so it rules out horizon-dominating recurrence and says nothing about late, brief or
+sub-window-periodic returns.
+
+**Calibration of the no-evidence band.** Two of five no-drift anchor streams produce
+"CI-significant" sub-floor denoised positives at 1/10 to 1/20 of the decision floor: seed-level CIs
+on overlapping subsamples are anti-conservative at tiny magnitudes. The sub-floor band is therefore
+read as *no evidence* everywhere in this paper — a calibration the anchor suite forced and the
+pre-registration records.
+
+**Two external cells.** On malware (EMBER, 2018-dense monthly windows) the instrument returns a
+certificate-grade DEPLOYMENT-DECAY-COVARIATE: D = 0.834 (identifiable), raw −0.008 [−0.009,
+−0.007], denoised −0.004, gate quiet, recency gain +0.031 above the floor, detectable floor 0.0013.
+Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven — new
+families appear, old labels do not rot — and the lens draws exactly that distinction: keep the old
+data, expect decay anyway, retrain for coverage. On ACS income across *years* (California,
+2014–2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw −0.008,
+denoised −0.007 (both CIs negative), gate quiet, D = 0.515, recency near zero, detectable floor
+0.0008 — on the same task whose *spatial* axis is reported to exhibit prevalent Y|X-shift. The
+axis, not the dataset, determines the shift type. That cell also passes a real-data prior-shift
+control: the fixed $50k threshold under inflation produces a monotone positive-rate ramp (0.36 to
+0.42) and the instrument does not misread it as concept. The complementary ACS reading — the one
+where a documented rule change went unseen — is §6.4, and the two should be read together: the
+instrument is well powered on this task and still metric-blind to a particular kind of change on it.
