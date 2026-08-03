@@ -1,0 +1,202 @@
+
+==== SYNTH ground-truth battery (v3: binclass + regression + noise-drift adversarials) ====
+  EXPECT CONCEPT:      concept, nuisance_proxy, reg_concept, reg_concept_earlynoisy
+  EXPECT not-CONCEPT:  covariate, stable, covariate_mc, covariate_mild, reg_stable, reg_cov_linear, reg_cov_nonlinear, reg_early_noisy, reg_late_noisy, reg_xdep_noise
+  EXPECT NOISE-DRIFT-CONFOUNDED: reg_early_noisy, reg_xdep_noise
+  EXPECT covariate_mild != UNIDENTIFIABLE-* (identifiable-regime coverage)
+  [1/14] synth_concept
+      [synth_concept seeds] 1/5  elapsed 12s  eta 48s  (12.2s/unit)
+      [synth_concept seeds] 2/5  elapsed 25s  eta 38s  (12.9s/unit)
+      [synth_concept seeds] 3/5  elapsed 39s  eta 26s  (13.3s/unit)
+      [synth_concept seeds] 4/5  elapsed 52s  eta 13s  (13.0s/unit)
+      [synth_concept seeds] 5/5  elapsed 1m04s  eta 0s  (12.9s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m54s  (12.8s/unit)
+      [injection topvar@auto] 2/10  elapsed 25s  eta 1m42s  (12.8s/unit)
+      [injection topvar@auto] 3/10  elapsed 38s  eta 1m29s  (12.8s/unit)
+      [injection topvar@auto] 4/10  elapsed 51s  eta 1m16s  (12.8s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m03s  eta 1m03s  (12.8s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m16s  eta 51s  (12.8s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m29s  eta 38s  (12.8s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m43s  eta 25s  (12.9s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m59s  eta 13s  (13.3s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m13s  eta 0s  (13.3s/unit)
+  synth_concept        W=10 D=0.510 gate=0.90 stale=+0.284[+0.216,+0.351] den=+0.288[+0.216,+0.361] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 1/14  elapsed 3m26s  eta 44m48s  (206.8s/unit) <- synth_concept
+  [2/14] synth_nuisance_proxy
+      [synth_nuisance_proxy seeds] 1/5  elapsed 12s  eta 50s  (12.5s/unit)
+      [synth_nuisance_proxy seeds] 2/5  elapsed 25s  eta 37s  (12.5s/unit)
+      [synth_nuisance_proxy seeds] 3/5  elapsed 37s  eta 25s  (12.6s/unit)
+      [synth_nuisance_proxy seeds] 4/5  elapsed 50s  eta 12s  (12.6s/unit)
+      [synth_nuisance_proxy seeds] 5/5  elapsed 1m03s  eta 0s  (12.6s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m53s  (12.6s/unit)
+      [injection topvar@auto] 2/10  elapsed 25s  eta 1m41s  (12.7s/unit)
+      [injection topvar@auto] 3/10  elapsed 38s  eta 1m28s  (12.7s/unit)
+      [injection topvar@auto] 4/10  elapsed 50s  eta 1m16s  (12.7s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m03s  eta 1m03s  (12.7s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m16s  eta 50s  (12.7s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m29s  eta 38s  (12.7s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m41s  eta 25s  (12.7s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m56s  eta 12s  (13.0s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m10s  eta 0s  (13.0s/unit)
+  synth_nuisance_proxy W=10 D=0.517 gate=1.15 stale=+0.202[+0.153,+0.252] den=+0.204[+0.156,+0.251] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;proxy-stripped:1;proxy-sensitive]
+      [battery cells] 2/14  elapsed 6m48s  eta 40m51s  (204.3s/unit) <- synth_nuisance_proxy
+  [3/14] synth_reg_concept
+      [synth_reg_concept seeds] 1/5  elapsed 15s  eta 1m00s  (15.1s/unit)
+      [synth_reg_concept seeds] 2/5  elapsed 30s  eta 45s  (15.1s/unit)
+      [synth_reg_concept seeds] 3/5  elapsed 45s  eta 30s  (15.1s/unit)
+      [synth_reg_concept seeds] 4/5  elapsed 1m00s  eta 15s  (15.1s/unit)
+      [synth_reg_concept seeds] 5/5  elapsed 1m15s  eta 0s  (15.1s/unit)
+      [injection topvar@auto] 1/10  elapsed 15s  eta 2m16s  (15.1s/unit)
+      [injection topvar@auto] 2/10  elapsed 30s  eta 2m01s  (15.1s/unit)
+      [injection topvar@auto] 3/10  elapsed 43s  eta 1m40s  (14.4s/unit)
+      [injection topvar@auto] 4/10  elapsed 56s  eta 1m24s  (14.0s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m09s  eta 1m09s  (13.9s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m24s  eta 56s  (14.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m38s  eta 42s  (14.1s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m52s  eta 28s  (14.1s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m07s  eta 14s  (14.2s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m23s  eta 0s  (14.3s/unit)
+  synth_reg_concept    W=10 D=0.510 gate=0.94 stale=+0.544[+0.454,+0.634] den=+0.540[+0.439,+0.641] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 3/14  elapsed 10m36s  eta 38m54s  (212.2s/unit) <- synth_reg_concept
+  [4/14] synth_reg_concept_earlynoisy
+      [synth_reg_concept_earlynoisy seeds] 1/5  elapsed 14s  eta 56s  (14.0s/unit)
+      [synth_reg_concept_earlynoisy seeds] 2/5  elapsed 28s  eta 42s  (14.1s/unit)
+      [synth_reg_concept_earlynoisy seeds] 3/5  elapsed 41s  eta 27s  (13.9s/unit)
+      [synth_reg_concept_earlynoisy seeds] 4/5  elapsed 54s  eta 13s  (13.6s/unit)
+      [synth_reg_concept_earlynoisy seeds] 5/5  elapsed 1m09s  eta 0s  (13.8s/unit)
+      [injection topvar@auto] 1/10  elapsed 15s  eta 2m18s  (15.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 30s  eta 2m03s  (15.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 46s  eta 1m47s  (15.4s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m01s  eta 1m32s  (15.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m14s  eta 1m14s  (14.9s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m27s  eta 58s  (14.6s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m40s  eta 43s  (14.3s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m54s  eta 28s  (14.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m10s  eta 14s  (14.5s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m27s  eta 0s  (14.8s/unit)
+  synth_reg_concept_ea W=10 D=0.510 gate=3.70! stale=+0.355[+0.294,+0.417] den=+0.319[+0.248,+0.390] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [battery cells] 4/14  elapsed 14m23s  eta 35m59s  (216.0s/unit) <- synth_reg_concept_earlynoisy
+  [5/14] synth_covariate
+      [synth_covariate seeds] 1/5  elapsed 17s  eta 1m11s  (18.0s/unit)
+      [synth_covariate seeds] 2/5  elapsed 36s  eta 54s  (18.1s/unit)
+      [synth_covariate seeds] 3/5  elapsed 54s  eta 36s  (18.2s/unit)
+      [synth_covariate seeds] 4/5  elapsed 1m12s  eta 18s  (18.2s/unit)
+      [synth_covariate seeds] 5/5  elapsed 1m31s  eta 0s  (18.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 16s  eta 2m30s  (16.7s/unit)
+      [injection topvar@auto] 2/10  elapsed 33s  eta 2m14s  (16.9s/unit)
+      [injection topvar@auto] 3/10  elapsed 50s  eta 1m57s  (16.8s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m07s  eta 1m40s  (16.8s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m23s  eta 1m23s  (16.7s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m40s  eta 1m06s  (16.7s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m56s  eta 50s  (16.7s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m13s  eta 33s  (16.7s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m30s  eta 16s  (16.7s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m47s  eta 0s  (16.7s/unit)
+  synth_covariate      W=10 D=0.995 gate=0.71 stale=-0.001[-0.002,+0.000] den=-0.000[-0.002,+0.002] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 5/14  elapsed 18m52s  eta 33m58s  (226.5s/unit) <- synth_covariate
+  [6/14] synth_stable
+      [synth_stable seeds] 1/5  elapsed 14s  eta 59s  (14.9s/unit)
+      [synth_stable seeds] 2/5  elapsed 29s  eta 44s  (14.9s/unit)
+      [synth_stable seeds] 3/5  elapsed 44s  eta 29s  (15.0s/unit)
+      [synth_stable seeds] 4/5  elapsed 59s  eta 14s  (14.9s/unit)
+      [synth_stable seeds] 5/5  elapsed 1m14s  eta 0s  (15.0s/unit)
+  synth_stable         W=10 D=0.510 gate=0.69 stale=-0.001[-0.001,-0.000] den=-0.000[-0.001,+0.000] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 6/14  elapsed 20m18s  eta 27m04s  (203.1s/unit) <- synth_stable
+  [7/14] synth_covariate_mc
+      [synth_covariate_mc seeds] 1/5  elapsed 45s  eta 3m01s  (45.4s/unit)
+      [synth_covariate_mc seeds] 2/5  elapsed 1m29s  eta 2m14s  (44.8s/unit)
+      [synth_covariate_mc seeds] 3/5  elapsed 2m13s  eta 1m29s  (44.5s/unit)
+      [synth_covariate_mc seeds] 4/5  elapsed 2m55s  eta 43s  (43.8s/unit)
+      [synth_covariate_mc seeds] 5/5  elapsed 3m37s  eta 0s  (43.5s/unit)
+      [injection topvar@auto] 1/10  elapsed 23s  eta 3m35s  (23.9s/unit)
+      [injection topvar@auto] 2/10  elapsed 48s  eta 3m13s  (24.2s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m20s  eta 3m08s  (26.9s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m49s  eta 2m44s  (27.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 2m21s  eta 2m21s  (28.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 2m54s  eta 1m56s  (29.0s/unit)
+      [injection topvar@auto] 7/10  elapsed 3m16s  eta 1m24s  (28.1s/unit)
+      [injection topvar@auto] 8/10  elapsed 3m46s  eta 56s  (28.4s/unit)
+      [injection topvar@auto] 9/10  elapsed 4m19s  eta 28s  (28.8s/unit)
+      [injection topvar@auto] 10/10  elapsed 4m47s  eta 0s  (28.8s/unit)
+  synth_covariate_mc   W=10 D=0.995 gate=0.87 stale=-0.002[-0.005,+0.001] den=-0.002[-0.005,+0.001] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+      [battery cells] 7/14  elapsed 28m54s  eta 28m54s  (247.8s/unit) <- synth_covariate_mc
+  [8/14] synth_covariate_mild
+      [synth_covariate_mild seeds] 1/5  elapsed 18s  eta 1m14s  (18.6s/unit)
+      [synth_covariate_mild seeds] 2/5  elapsed 37s  eta 56s  (18.7s/unit)
+      [synth_covariate_mild seeds] 3/5  elapsed 55s  eta 37s  (18.6s/unit)
+      [synth_covariate_mild seeds] 4/5  elapsed 1m14s  eta 18s  (18.7s/unit)
+      [synth_covariate_mild seeds] 5/5  elapsed 1m33s  eta 0s  (18.7s/unit)
+  synth_covariate_mild W=10 D=0.727 gate=0.99 stale=-0.004[-0.005,-0.002] den=-0.000[-0.002,+0.002] => NO-STRONG-CONCEPT
+      [battery cells] 8/14  elapsed 30m39s  eta 22m59s  (229.9s/unit) <- synth_covariate_mild
+  [9/14] synth_reg_stable
+      [synth_reg_stable seeds] 1/5  elapsed 18s  eta 1m13s  (18.4s/unit)
+      [synth_reg_stable seeds] 2/5  elapsed 36s  eta 55s  (18.4s/unit)
+      [synth_reg_stable seeds] 3/5  elapsed 54s  eta 36s  (18.3s/unit)
+      [synth_reg_stable seeds] 4/5  elapsed 1m13s  eta 18s  (18.3s/unit)
+      [synth_reg_stable seeds] 5/5  elapsed 1m31s  eta 0s  (18.3s/unit)
+  synth_reg_stable     W=10 D=0.510 gate=0.99 stale=-0.011[-0.012,-0.010] den=-0.000[-0.003,+0.003] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 9/14  elapsed 32m22s  eta 17m58s  (215.8s/unit) <- synth_reg_stable
+  [10/14] synth_reg_cov_linear
+      [synth_reg_cov_linear seeds] 1/5  elapsed 18s  eta 1m13s  (18.5s/unit)
+      [synth_reg_cov_linear seeds] 2/5  elapsed 36s  eta 55s  (18.4s/unit)
+      [synth_reg_cov_linear seeds] 3/5  elapsed 54s  eta 36s  (18.3s/unit)
+      [synth_reg_cov_linear seeds] 4/5  elapsed 1m12s  eta 18s  (18.2s/unit)
+      [synth_reg_cov_linear seeds] 5/5  elapsed 1m30s  eta 0s  (18.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 18s  eta 2m43s  (18.1s/unit)
+      [injection topvar@auto] 2/10  elapsed 36s  eta 2m25s  (18.2s/unit)
+      [injection topvar@auto] 3/10  elapsed 54s  eta 2m07s  (18.2s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m12s  eta 1m49s  (18.2s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m31s  eta 1m31s  (18.2s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m46s  eta 1m11s  (17.8s/unit)
+      [injection topvar@auto] 7/10  elapsed 2m00s  eta 51s  (17.2s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m16s  eta 34s  (17.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m31s  eta 16s  (16.8s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m46s  eta 0s  (16.7s/unit)
+  synth_reg_cov_linear W=10 D=0.995 gate=0.93 stale=+0.001[+0.000,+0.002] den=+0.004[+0.003,+0.005] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 10/14  elapsed 36m50s  eta 14m44s  (221.1s/unit) <- synth_reg_cov_linear
+  [11/14] synth_reg_cov_nonlinear
+      [synth_reg_cov_nonlinear seeds] 1/5  elapsed 15s  eta 1m00s  (15.1s/unit)
+      [synth_reg_cov_nonlinear seeds] 2/5  elapsed 28s  eta 42s  (14.3s/unit)
+      [synth_reg_cov_nonlinear seeds] 3/5  elapsed 41s  eta 27s  (14.0s/unit)
+      [synth_reg_cov_nonlinear seeds] 4/5  elapsed 56s  eta 14s  (14.0s/unit)
+      [synth_reg_cov_nonlinear seeds] 5/5  elapsed 1m11s  eta 0s  (14.3s/unit)
+      [injection topvar@auto] 1/10  elapsed 13s  eta 2m00s  (13.3s/unit)
+      [injection topvar@auto] 2/10  elapsed 26s  eta 1m46s  (13.3s/unit)
+      [injection topvar@auto] 3/10  elapsed 39s  eta 1m32s  (13.3s/unit)
+      [injection topvar@auto] 4/10  elapsed 53s  eta 1m19s  (13.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m06s  eta 1m06s  (13.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m19s  eta 53s  (13.3s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m32s  eta 39s  (13.3s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m46s  eta 26s  (13.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m00s  eta 13s  (13.4s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m13s  eta 0s  (13.3s/unit)
+  synth_reg_cov_nonlin W=10 D=0.995 gate=0.90 stale=-0.006[-0.009,-0.003] den=-0.003[-0.005,-0.001] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 11/14  elapsed 40m24s  eta 11m01s  (220.4s/unit) <- synth_reg_cov_nonlinear
+  [12/14] synth_reg_early_noisy
+      [synth_reg_early_noisy seeds] 1/5  elapsed 13s  eta 52s  (13.2s/unit)
+      [synth_reg_early_noisy seeds] 2/5  elapsed 25s  eta 38s  (12.8s/unit)
+      [synth_reg_early_noisy seeds] 3/5  elapsed 38s  eta 25s  (12.9s/unit)
+      [synth_reg_early_noisy seeds] 4/5  elapsed 51s  eta 12s  (12.9s/unit)
+      [synth_reg_early_noisy seeds] 5/5  elapsed 1m04s  eta 0s  (12.9s/unit)
+  synth_reg_early_nois W=10 D=0.510 gate=3.53! stale=+0.022[+0.020,+0.024] den=+0.005[+0.000,+0.009] => NOISE-DRIFT-CONFOUNDED  [TRUST: no-covariate-movement;future-easier]
+      [battery cells] 12/14  elapsed 41m37s  eta 6m56s  (208.1s/unit) <- synth_reg_early_noisy
+  [13/14] synth_reg_late_noisy
+      [synth_reg_late_noisy seeds] 1/5  elapsed 12s  eta 51s  (12.9s/unit)
+      [synth_reg_late_noisy seeds] 2/5  elapsed 26s  eta 40s  (13.4s/unit)
+      [synth_reg_late_noisy seeds] 3/5  elapsed 40s  eta 26s  (13.4s/unit)
+      [synth_reg_late_noisy seeds] 4/5  elapsed 54s  eta 13s  (13.7s/unit)
+      [synth_reg_late_noisy seeds] 5/5  elapsed 1m10s  eta 0s  (14.0s/unit)
+  synth_reg_late_noisy W=10 D=0.510 gate=0.14 stale=-0.022[-0.024,-0.020] den=-0.018[-0.020,-0.016] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 13/14  elapsed 42m56s  eta 3m18s  (198.2s/unit) <- synth_reg_late_noisy
+  [14/14] synth_reg_xdep_noise
+      [synth_reg_xdep_noise seeds] 1/5  elapsed 14s  eta 56s  (14.0s/unit)
+      [synth_reg_xdep_noise seeds] 2/5  elapsed 26s  eta 40s  (13.4s/unit)
+      [synth_reg_xdep_noise seeds] 3/5  elapsed 39s  eta 26s  (13.3s/unit)
+      [synth_reg_xdep_noise seeds] 4/5  elapsed 54s  eta 13s  (13.5s/unit)
+      [synth_reg_xdep_noise seeds] 5/5  elapsed 1m06s  eta 0s  (13.4s/unit)
+  synth_reg_xdep_noise W=10 D=0.510 gate=3.72! stale=+0.025[+0.022,+0.029] den=+0.006[+0.004,+0.009] => NOISE-DRIFT-CONFOUNDED  [TRUST: no-covariate-movement;future-easier]
+      [battery cells] 14/14  elapsed 44m12s  eta 0s  (189.5s/unit) <- synth_reg_xdep_noise
+      [battery cells] done in 44m12s
+
+  GROUND-TRUTH PASS
+  wrote results/phase1/deployment_decay/synth_summary.json

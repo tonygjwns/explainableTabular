@@ -1,0 +1,35 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 17s  eta 2m33s  (17.1s/unit)
+      [delivery_eta seeds] 2/10  elapsed 36s  eta 2m24s  (18.1s/unit)
+      [delivery_eta seeds] 3/10  elapsed 56s  eta 2m11s  (18.7s/unit)
+      [delivery_eta seeds] 4/10  elapsed 1m13s  eta 1m50s  (18.5s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m30s  eta 1m30s  (18.1s/unit)
+      [delivery_eta seeds] 6/10  elapsed 1m47s  eta 1m11s  (17.9s/unit)
+      [delivery_eta seeds] 7/10  elapsed 2m03s  eta 52s  (17.6s/unit)
+      [delivery_eta seeds] 8/10  elapsed 2m19s  eta 34s  (17.4s/unit)
+      [delivery_eta seeds] 9/10  elapsed 2m35s  eta 17s  (17.2s/unit)
+      [delivery_eta seeds] 10/10  elapsed 2m51s  eta 0s  (17.1s/unit)
+  delivery_eta         W=10 D=0.540 gate=0.92 stale=+0.004[+0.003,+0.005] den=-0.004[-0.005,-0.004] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 7m51s  eta 7m51s  (471.6s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 17s  eta 2m35s  (17.3s/unit)
+      [homecredit_default seeds] 2/10  elapsed 35s  eta 2m22s  (17.8s/unit)
+      [homecredit_default seeds] 3/10  elapsed 58s  eta 2m16s  (19.5s/unit)
+      [homecredit_default seeds] 4/10  elapsed 1m19s  eta 1m58s  (19.8s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m36s  eta 1m36s  (19.4s/unit)
+      [homecredit_default seeds] 6/10  elapsed 1m54s  eta 1m16s  (19.1s/unit)
+      [homecredit_default seeds] 7/10  elapsed 2m12s  eta 56s  (18.9s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m30s  eta 37s  (18.8s/unit)
+      [homecredit_default seeds] 9/10  elapsed 2m47s  eta 18s  (18.6s/unit)
+      [homecredit_default seeds] 10/10  elapsed 3m05s  eta 0s  (18.5s/unit)
+  homecredit_default   W=10 D=0.796 gate=1.11 stale=-0.008[-0.012,-0.004] den=+0.006[+0.004,+0.008] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: future-easier;proxy-stripped:1]
+      [datasets] 2/2  elapsed 20m21s  eta 0s  (610.8s/unit) <- homecredit_default
+      [datasets] done in 20m21s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T184036_a8f1549.json  (+ summary_latest.json)  <-- send me this

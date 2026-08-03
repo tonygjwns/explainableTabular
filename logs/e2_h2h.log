@@ -1,0 +1,20 @@
+
+==== type-attributing frames on ground-truth battery cells ====
+  ground truth: concept/reg_concept = rule MOVED; the rest = rule FIXED
+
+cell                 truth      cov_AUC      ESS%     CV(w)   gap_prim  gap_brier     gap_kl
+--------------------------------------------------------------------------------------------
+  (gap_prim = auc for binclass, rmse for regression; brier/logloss/kl are classification-only)
+synth_concept        RULE         0.500      71.3      0.63     0.4345     0.6501     2.6641
+synth_reg_concept    RULE         0.500      71.3      0.63     0.8207          -          -
+synth_reg_early_nois fixed        0.500      71.3      0.63     0.0576          -          -
+synth_reg_xdep_noise fixed        0.500      71.3      0.63     0.0615          -          -
+synth_reg_stable     fixed        0.500      71.3      0.63    -0.0208          -          -
+synth_covariate      fixed        0.941       1.4      8.53          -          -          -
+
+  READ: a frame SEPARATES the two mechanisms only if its Y|X-side number is
+  materially larger on the RULE cells than on the fixed-rule noise-decay cells.
+  If reg_concept and reg_early_noisy look alike, the frame answers 'Y|X shifted'
+  for both and cannot tell a practitioner which action pays off.
+
+  wrote results/phase1/detector_h2h/detector_h2h_a8f1549.json

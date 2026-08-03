@@ -1,0 +1,22 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_brier] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_brier seeds] 1/10  elapsed 10s  eta 1m36s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 2/10  elapsed 21s  eta 1m25s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 3/10  elapsed 32s  eta 1m15s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 4/10  elapsed 42s  eta 1m04s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 5/10  elapsed 53s  eta 53s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 6/10  elapsed 1m04s  eta 42s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 7/10  elapsed 1m14s  eta 31s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 8/10  elapsed 1m25s  eta 21s  (10.6s/unit)
+      [acs_pubcov_PA_brier seeds] 9/10  elapsed 1m35s  eta 10s  (10.6s/unit)
+      [acs_pubcov_PA_brier seeds] 10/10  elapsed 1m46s  eta 0s  (10.6s/unit)
+  acs_pubcov_PA_brier  W= 5 D=0.534 gate=0.98 stale=-0.005[-0.005,-0.004] den=+0.002[+0.002,+0.003] => SUBFLOOR-CONCEPT-SIGNAL
+      [datasets] 1/1  elapsed 1m52s  eta 0s  (112.9s/unit) <- acs_pubcov_PA_brier
+      [datasets] done in 1m52s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T155850_a8f1549.json  (+ summary_latest.json)  <-- send me this

@@ -1,0 +1,35 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 20s  eta 3m04s  (20.5s/unit)
+      [delivery_eta seeds] 2/10  elapsed 40s  eta 2m43s  (20.5s/unit)
+      [delivery_eta seeds] 3/10  elapsed 1m01s  eta 2m23s  (20.5s/unit)
+      [delivery_eta seeds] 4/10  elapsed 1m21s  eta 2m02s  (20.5s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m42s  eta 1m42s  (20.4s/unit)
+      [delivery_eta seeds] 6/10  elapsed 2m02s  eta 1m21s  (20.5s/unit)
+      [delivery_eta seeds] 7/10  elapsed 2m23s  eta 1m01s  (20.5s/unit)
+      [delivery_eta seeds] 8/10  elapsed 2m43s  eta 40s  (20.5s/unit)
+      [delivery_eta seeds] 9/10  elapsed 3m04s  eta 20s  (20.5s/unit)
+      [delivery_eta seeds] 10/10  elapsed 3m24s  eta 0s  (20.5s/unit)
+  delivery_eta         W=10 D=0.801 gate=0.90 stale=-0.006[-0.007,-0.005] den=-0.013[-0.013,-0.012] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 8m28s  eta 8m28s  (508.8s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 20s  eta 3m03s  (20.3s/unit)
+      [homecredit_default seeds] 2/10  elapsed 40s  eta 2m42s  (20.3s/unit)
+      [homecredit_default seeds] 3/10  elapsed 1m00s  eta 2m22s  (20.3s/unit)
+      [homecredit_default seeds] 4/10  elapsed 1m21s  eta 2m01s  (20.3s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m41s  eta 1m41s  (20.3s/unit)
+      [homecredit_default seeds] 6/10  elapsed 2m06s  eta 1m24s  (21.0s/unit)
+      [homecredit_default seeds] 7/10  elapsed 2m29s  eta 1m04s  (21.4s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m53s  eta 43s  (21.7s/unit)
+      [homecredit_default seeds] 9/10  elapsed 3m17s  eta 21s  (22.0s/unit)
+      [homecredit_default seeds] 10/10  elapsed 3m38s  eta 0s  (21.8s/unit)
+  homecredit_default   W=10 D=0.912 gate=1.20 stale=-0.017[-0.021,-0.014] den=-0.010[-0.012,-0.008] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: future-easier;proxy-stripped:3;proxy-sensitive]
+      [datasets] 2/2  elapsed 21m25s  eta 0s  (642.5s/unit) <- homecredit_default
+      [datasets] done in 21m25s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T192153_a8f1549.json  (+ summary_latest.json)  <-- send me this

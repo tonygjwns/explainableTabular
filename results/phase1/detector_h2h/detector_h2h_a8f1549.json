@@ -1,0 +1,92 @@
+{
+  "meta": {
+    "utc": "2026-08-02T19:25:52.927418+00:00",
+    "git": "a8f1549",
+    "python": "3.11.15",
+    "numpy": "2.4.6",
+    "argv": [
+      "--n-seeds",
+      "10"
+    ]
+  },
+  "rows": [
+    {
+      "cell": "synth_concept",
+      "task": "binclass",
+      "ground_truth_rule_change": true,
+      "cov_auc": 0.500408950617284,
+      "ess_pct": 71.31068258489886,
+      "cv_w": 0.6342826193349617,
+      "gap_primary": 0.4345420761147894,
+      "gap_brier": 0.6501009030489925,
+      "gap_logloss": 2.3803343117689635,
+      "gap_kl": 2.664149215205053,
+      "n_measurable_seeds": 10
+    },
+    {
+      "cell": "synth_reg_concept",
+      "task": "regression",
+      "ground_truth_rule_change": true,
+      "cov_auc": 0.500408950617284,
+      "ess_pct": 71.31068258489886,
+      "cv_w": 0.6342826193349617,
+      "gap_primary": 0.8207024290789386,
+      "gap_brier": null,
+      "gap_logloss": null,
+      "gap_kl": null,
+      "n_measurable_seeds": 0
+    },
+    {
+      "cell": "synth_reg_early_noisy",
+      "task": "regression",
+      "ground_truth_rule_change": false,
+      "cov_auc": 0.500408950617284,
+      "ess_pct": 71.31068258489886,
+      "cv_w": 0.6342826193349617,
+      "gap_primary": 0.057607947763452114,
+      "gap_brier": null,
+      "gap_logloss": null,
+      "gap_kl": null,
+      "n_measurable_seeds": 0
+    },
+    {
+      "cell": "synth_reg_xdep_noise",
+      "task": "regression",
+      "ground_truth_rule_change": false,
+      "cov_auc": 0.500408950617284,
+      "ess_pct": 71.31068258489886,
+      "cv_w": 0.6342826193349617,
+      "gap_primary": 0.061490924271968714,
+      "gap_brier": null,
+      "gap_logloss": null,
+      "gap_kl": null,
+      "n_measurable_seeds": 0
+    },
+    {
+      "cell": "synth_reg_stable",
+      "task": "regression",
+      "ground_truth_rule_change": false,
+      "cov_auc": 0.500408950617284,
+      "ess_pct": 71.31068258489886,
+      "cv_w": 0.6342826193349617,
+      "gap_primary": -0.020800167046864427,
+      "gap_brier": null,
+      "gap_logloss": null,
+      "gap_kl": null,
+      "n_measurable_seeds": 0
+    },
+    {
+      "cell": "synth_covariate",
+      "task": "binclass",
+      "ground_truth_rule_change": false,
+      "cov_auc": 0.9408972222222223,
+      "ess_pct": 1.355810219820001,
+      "cv_w": 8.529750017410663,
+      "gap_primary": null,
+      "gap_brier": null,
+      "gap_logloss": null,
+      "gap_kl": null,
+      "n_measurable_seeds": 0
+    }
+  ]
+}

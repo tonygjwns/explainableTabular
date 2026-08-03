@@ -1,0 +1,32 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_logloss] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_logloss seeds] 1/10  elapsed 10s  eta 1m34s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 2/10  elapsed 20s  eta 1m23s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 3/10  elapsed 31s  eta 1m13s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 4/10  elapsed 41s  eta 1m02s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 5/10  elapsed 52s  eta 52s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 6/10  elapsed 1m02s  eta 41s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 7/10  elapsed 1m13s  eta 31s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 8/10  elapsed 1m24s  eta 21s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 9/10  elapsed 1m34s  eta 10s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 10/10  elapsed 1m47s  eta 0s  (10.7s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m52s  (12.5s/unit)
+      [injection topvar@auto] 2/10  elapsed 24s  eta 1m36s  (12.1s/unit)
+      [injection topvar@auto] 3/10  elapsed 34s  eta 1m21s  (11.6s/unit)
+      [injection topvar@auto] 4/10  elapsed 45s  eta 1m07s  (11.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 55s  eta 55s  (11.2s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m06s  eta 44s  (11.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m16s  eta 32s  (11.0s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m28s  eta 22s  (11.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m38s  eta 10s  (10.9s/unit)
+      [injection topvar@auto] 10/10  elapsed 1m49s  eta 0s  (10.9s/unit)
+  acs_pubcov_PA_loglos W= 5 D=0.534 gate=0.96 stale=-0.018[-0.019,-0.016] den=+0.021[+0.019,+0.023] => DEPLOYMENT-CONCEPT  [TRUST: injection-vacuous]
+      [datasets] 1/1  elapsed 3m43s  eta 0s  (223.3s/unit) <- acs_pubcov_PA_logloss
+      [datasets] done in 3m43s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T160427_a8f1549.json  (+ summary_latest.json)  <-- send me this

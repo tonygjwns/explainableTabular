@@ -1,0 +1,78 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [river_stagger_abrupt] task=binclass feats=3 n=8000
+      [river_stagger_abrupt seeds] 1/10  elapsed 4s  eta 39s  (4.3s/unit)
+      [river_stagger_abrupt seeds] 2/10  elapsed 8s  eta 35s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 3/10  elapsed 13s  eta 31s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 4/10  elapsed 17s  eta 26s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 5/10  elapsed 22s  eta 22s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 6/10  elapsed 26s  eta 17s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 7/10  elapsed 30s  eta 13s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 8/10  elapsed 35s  eta 8s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 9/10  elapsed 39s  eta 4s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 10/10  elapsed 43s  eta 0s  (4.4s/unit)
+      [injection lowvar@lo] 1/10  elapsed 6s  eta 58s  (6.5s/unit)
+      [injection lowvar@lo] 2/10  elapsed 13s  eta 52s  (6.5s/unit)
+      [injection lowvar@lo] 3/10  elapsed 19s  eta 45s  (6.5s/unit)
+      [injection lowvar@lo] 4/10  elapsed 26s  eta 39s  (6.5s/unit)
+      [injection lowvar@lo] 5/10  elapsed 32s  eta 32s  (6.5s/unit)
+      [injection lowvar@lo] 6/10  elapsed 39s  eta 26s  (6.5s/unit)
+      [injection lowvar@lo] 7/10  elapsed 45s  eta 19s  (6.5s/unit)
+      [injection lowvar@lo] 8/10  elapsed 52s  eta 13s  (6.5s/unit)
+      [injection lowvar@lo] 9/10  elapsed 58s  eta 6s  (6.5s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m05s  eta 0s  (6.5s/unit)
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/3  elapsed 1m53s  eta 3m47s  (113.8s/unit) <- river_stagger_abrupt
+  [2/3] [river_sine_abrupt] task=binclass feats=2 n=8000
+      [river_sine_abrupt seeds] 1/10  elapsed 8s  eta 1m17s  (8.6s/unit)
+      [river_sine_abrupt seeds] 2/10  elapsed 17s  eta 1m08s  (8.6s/unit)
+      [river_sine_abrupt seeds] 3/10  elapsed 26s  eta 1m01s  (8.8s/unit)
+      [river_sine_abrupt seeds] 4/10  elapsed 35s  eta 53s  (8.9s/unit)
+      [river_sine_abrupt seeds] 5/10  elapsed 45s  eta 45s  (9.2s/unit)
+      [river_sine_abrupt seeds] 6/10  elapsed 55s  eta 37s  (9.3s/unit)
+      [river_sine_abrupt seeds] 7/10  elapsed 1m06s  eta 28s  (9.5s/unit)
+      [river_sine_abrupt seeds] 8/10  elapsed 1m16s  eta 19s  (9.6s/unit)
+      [river_sine_abrupt seeds] 9/10  elapsed 1m27s  eta 9s  (9.7s/unit)
+      [river_sine_abrupt seeds] 10/10  elapsed 1m37s  eta 0s  (9.8s/unit)
+      [injection lowvar@lo] 1/10  elapsed 12s  eta 1m52s  (12.5s/unit)
+      [injection lowvar@lo] 2/10  elapsed 25s  eta 1m40s  (12.5s/unit)
+      [injection lowvar@lo] 3/10  elapsed 37s  eta 1m27s  (12.5s/unit)
+      [injection lowvar@lo] 4/10  elapsed 49s  eta 1m14s  (12.4s/unit)
+      [injection lowvar@lo] 5/10  elapsed 1m01s  eta 1m01s  (12.2s/unit)
+      [injection lowvar@lo] 6/10  elapsed 1m13s  eta 48s  (12.2s/unit)
+      [injection lowvar@lo] 7/10  elapsed 1m24s  eta 36s  (12.1s/unit)
+      [injection lowvar@lo] 8/10  elapsed 1m36s  eta 24s  (12.1s/unit)
+      [injection lowvar@lo] 9/10  elapsed 1m48s  eta 12s  (12.0s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m59s  eta 0s  (11.9s/unit)
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 2/3  elapsed 5m37s  eta 2m48s  (168.5s/unit) <- river_sine_abrupt
+  [3/3] [river_hyperplane_incr] task=binclass feats=10 n=8000
+      [river_hyperplane_incr seeds] 1/10  elapsed 12s  eta 1m56s  (13.0s/unit)
+      [river_hyperplane_incr seeds] 2/10  elapsed 25s  eta 1m43s  (13.0s/unit)
+      [river_hyperplane_incr seeds] 3/10  elapsed 39s  eta 1m33s  (13.3s/unit)
+      [river_hyperplane_incr seeds] 4/10  elapsed 53s  eta 1m20s  (13.5s/unit)
+      [river_hyperplane_incr seeds] 5/10  elapsed 1m08s  eta 1m08s  (13.6s/unit)
+      [river_hyperplane_incr seeds] 6/10  elapsed 1m22s  eta 54s  (13.7s/unit)
+      [river_hyperplane_incr seeds] 7/10  elapsed 1m36s  eta 41s  (13.7s/unit)
+      [river_hyperplane_incr seeds] 8/10  elapsed 1m48s  eta 27s  (13.6s/unit)
+      [river_hyperplane_incr seeds] 9/10  elapsed 2m00s  eta 13s  (13.4s/unit)
+      [river_hyperplane_incr seeds] 10/10  elapsed 2m12s  eta 0s  (13.3s/unit)
+      [injection lowvar@lo] 1/10  elapsed 10s  eta 1m37s  (10.8s/unit)
+      [injection lowvar@lo] 2/10  elapsed 22s  eta 1m29s  (11.2s/unit)
+      [injection lowvar@lo] 3/10  elapsed 32s  eta 1m16s  (11.0s/unit)
+      [injection lowvar@lo] 4/10  elapsed 43s  eta 1m05s  (10.9s/unit)
+      [injection lowvar@lo] 5/10  elapsed 54s  eta 54s  (10.9s/unit)
+      [injection lowvar@lo] 6/10  elapsed 1m05s  eta 43s  (10.9s/unit)
+      [injection lowvar@lo] 7/10  elapsed 1m15s  eta 32s  (10.8s/unit)
+      [injection lowvar@lo] 8/10  elapsed 1m26s  eta 21s  (10.8s/unit)
+      [injection lowvar@lo] 9/10  elapsed 1m37s  eta 10s  (10.8s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m47s  eta 0s  (10.8s/unit)
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [datasets] 3/3  elapsed 9m47s  eta 0s  (195.8s/unit) <- river_hyperplane_incr
+      [datasets] done in 9m47s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T194658_a8f1549.json  (+ summary_latest.json)  <-- send me this

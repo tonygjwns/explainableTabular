@@ -1,0 +1,78 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [ecom_offers] task=binclass feats=119 n=109341
+      [ecom_offers seeds] 1/10  elapsed 22s  eta 3m25s  (22.8s/unit)
+      [ecom_offers seeds] 2/10  elapsed 46s  eta 3m04s  (23.1s/unit)
+      [ecom_offers seeds] 3/10  elapsed 1m09s  eta 2m41s  (23.0s/unit)
+      [ecom_offers seeds] 4/10  elapsed 1m31s  eta 2m17s  (22.9s/unit)
+      [ecom_offers seeds] 5/10  elapsed 1m54s  eta 1m54s  (22.9s/unit)
+      [ecom_offers seeds] 6/10  elapsed 2m17s  eta 1m31s  (22.9s/unit)
+      [ecom_offers seeds] 7/10  elapsed 2m39s  eta 1m08s  (22.8s/unit)
+      [ecom_offers seeds] 8/10  elapsed 3m02s  eta 45s  (22.8s/unit)
+      [ecom_offers seeds] 9/10  elapsed 3m25s  eta 22s  (22.8s/unit)
+      [ecom_offers seeds] 10/10  elapsed 3m47s  eta 0s  (22.8s/unit)
+      [injection topvar@auto] 1/10  elapsed 22s  eta 3m21s  (22.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 44s  eta 2m59s  (22.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m07s  eta 2m37s  (22.5s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m29s  eta 2m14s  (22.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m52s  eta 1m52s  (22.4s/unit)
+      [injection topvar@auto] 6/10  elapsed 2m14s  eta 1m29s  (22.4s/unit)
+      [injection topvar@auto] 7/10  elapsed 2m36s  eta 1m07s  (22.4s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m59s  eta 44s  (22.4s/unit)
+      [injection topvar@auto] 9/10  elapsed 3m21s  eta 22s  (22.4s/unit)
+      [injection topvar@auto] 10/10  elapsed 3m45s  eta 0s  (22.5s/unit)
+  ecom_offers          W=10 D=1.000 gate=1.08 stale=+0.002[+0.000,+0.005] den=+0.009[+0.004,+0.014] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+      [datasets] 1/3  elapsed 7m48s  eta 15m37s  (468.9s/unit) <- ecom_offers
+  [2/3] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 1m39s  eta 14m57s  (99.8s/unit)
+      [homecredit_default seeds] 2/10  elapsed 3m18s  eta 13m13s  (99.2s/unit)
+      [homecredit_default seeds] 3/10  elapsed 4m56s  eta 11m32s  (98.9s/unit)
+      [homecredit_default seeds] 4/10  elapsed 6m35s  eta 9m53s  (98.9s/unit)
+      [homecredit_default seeds] 5/10  elapsed 8m11s  eta 8m11s  (98.4s/unit)
+      [homecredit_default seeds] 6/10  elapsed 9m49s  eta 6m33s  (98.3s/unit)
+      [homecredit_default seeds] 7/10  elapsed 11m26s  eta 4m54s  (98.1s/unit)
+      [homecredit_default seeds] 8/10  elapsed 13m05s  eta 3m16s  (98.2s/unit)
+      [homecredit_default seeds] 9/10  elapsed 14m43s  eta 1m38s  (98.2s/unit)
+      [homecredit_default seeds] 10/10  elapsed 16m22s  eta 0s  (98.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 1m21s  eta 12m13s  (81.5s/unit)
+      [injection topvar@auto] 2/10  elapsed 2m42s  eta 10m51s  (81.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 4m03s  eta 9m29s  (81.3s/unit)
+      [injection topvar@auto] 4/10  elapsed 5m25s  eta 8m08s  (81.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 6m46s  eta 6m46s  (81.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 8m07s  eta 5m24s  (81.2s/unit)
+      [injection topvar@auto] 7/10  elapsed 9m28s  eta 4m03s  (81.2s/unit)
+      [injection topvar@auto] 8/10  elapsed 10m49s  eta 2m42s  (81.2s/unit)
+      [injection topvar@auto] 9/10  elapsed 12m10s  eta 1m21s  (81.2s/unit)
+      [injection topvar@auto] 10/10  elapsed 13m31s  eta 0s  (81.2s/unit)
+  homecredit_default   W=10 D=1.000 gate=1.00 stale=-0.000[-0.000,-0.000] den=+0.000[-0.000,+0.000] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:80;injection-vacuous]
+      [datasets] 2/3  elapsed 39m22s  eta 19m41s  (1181.1s/unit) <- homecredit_default
+  [3/3] [homesite_insurance] task=binclass feats=299 n=224320
+      [homesite_insurance seeds] 1/10  elapsed 46s  eta 6m57s  (46.4s/unit)
+      [homesite_insurance seeds] 2/10  elapsed 1m32s  eta 6m11s  (46.5s/unit)
+      [homesite_insurance seeds] 3/10  elapsed 2m20s  eta 5m27s  (46.8s/unit)
+      [homesite_insurance seeds] 4/10  elapsed 3m20s  eta 5m00s  (50.2s/unit)
+      [homesite_insurance seeds] 5/10  elapsed 4m21s  eta 4m21s  (52.3s/unit)
+      [homesite_insurance seeds] 6/10  elapsed 5m21s  eta 3m34s  (53.6s/unit)
+      [homesite_insurance seeds] 7/10  elapsed 6m08s  eta 2m38s  (52.7s/unit)
+      [homesite_insurance seeds] 8/10  elapsed 6m56s  eta 1m44s  (52.0s/unit)
+      [homesite_insurance seeds] 9/10  elapsed 7m43s  eta 51s  (51.5s/unit)
+      [homesite_insurance seeds] 10/10  elapsed 8m31s  eta 0s  (51.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 43s  eta 6m35s  (43.9s/unit)
+      [injection topvar@auto] 2/10  elapsed 1m34s  eta 6m18s  (47.3s/unit)
+      [injection topvar@auto] 3/10  elapsed 2m20s  eta 5m27s  (46.7s/unit)
+      [injection topvar@auto] 4/10  elapsed 3m08s  eta 4m42s  (47.0s/unit)
+      [injection topvar@auto] 5/10  elapsed 4m02s  eta 4m02s  (48.6s/unit)
+      [injection topvar@auto] 6/10  elapsed 4m48s  eta 3m12s  (48.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 5m28s  eta 2m20s  (46.9s/unit)
+      [injection topvar@auto] 8/10  elapsed 6m08s  eta 1m32s  (46.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 6m47s  eta 45s  (45.3s/unit)
+      [injection topvar@auto] 10/10  elapsed 7m27s  eta 0s  (44.7s/unit)
+  homesite_insurance   W=10 D=1.000 gate=1.01 stale=-0.005[-0.005,-0.004] den=-0.003[-0.003,-0.002] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 3/3  elapsed 55m58s  eta 0s  (1119.4s/unit) <- homesite_insurance
+      [datasets] done in 55m58s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T170217_a8f1549.json  (+ summary_latest.json)  <-- send me this

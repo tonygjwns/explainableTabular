@@ -1,0 +1,60 @@
+
+== 1. PARITY (auto must reproduce v1 bit-for-bit) ==
+   heavytail  binclass    topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  binclass    lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  binclass    interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  binclass    subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   heavytail  regression  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  regression  lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  regression  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  regression  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   heavytail  multiclass  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  multiclass  lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  multiclass  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  multiclass  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   clean      binclass    topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      binclass    lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      binclass    interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      binclass    subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   clean      regression  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      regression  lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      regression  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      regression  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   clean      multiclass  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      multiclass  lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      multiclass  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      multiclass  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   -> PARITY PASS
+
+== 2. INDEPENDENCE of the interaction rotation axes ==
+   heavytail  cols=hi  |corr| new=0.0131 (v1=0.7686)  OK
+   heavytail  cols=lo  |corr| new=0.0091 (v1=0.7686)  OK
+   clean      cols=hi  |corr| new=0.0157 (v1=0.0181)  OK
+   clean      cols=lo  |corr| new=0.0013 (v1=0.0181)  OK
+   -> INDEPENDENCE PASS
+
+== 3. CARRIER SEPARATION (the reason family x cols must be crossed) ==
+   heavy-tail geometry: hi carrier must FAIL the gate, lo carrier must PASS
+   heavytail  topvar       cols=hi  learnable=False auc=0.5478   cols_used=[0, 1]       OK
+   heavytail  topvar       cols=lo  learnable=True  auc=0.9588   cols_used=[8, 7]       OK
+   heavytail  lowvar       cols=hi  learnable=False auc=0.5478   cols_used=[0, 1]       OK
+   heavytail  lowvar       cols=lo  learnable=True  auc=0.9588   cols_used=[8, 7]       OK
+   heavytail  interaction  cols=hi  learnable=True  auc=0.9381   cols_used=[0, 1, 4]    report-only (hybrid carrier)
+   heavytail  interaction  cols=lo  learnable=True  auc=0.8949   cols_used=[8, 7, 6]    OK
+   heavytail  subpop       cols=hi  learnable=False auc=0.5231   cols_used=[0, 1, 4]    OK
+   heavytail  subpop       cols=lo  learnable=True  auc=0.9538   cols_used=[8, 7, 6]    OK
+   clean      topvar       cols=hi  learnable=True  auc=0.9505   cols_used=[0, 1]       OK
+   clean      topvar       cols=lo  learnable=True  auc=0.919    cols_used=[7, 6]       OK
+   clean      lowvar       cols=hi  learnable=True  auc=0.9505   cols_used=[0, 1]       OK
+   clean      lowvar       cols=lo  learnable=True  auc=0.919    cols_used=[7, 6]       OK
+   clean      interaction  cols=hi  learnable=True  auc=0.9525   cols_used=[0, 1, 2]    OK
+   clean      interaction  cols=lo  learnable=True  auc=0.9505   cols_used=[7, 6, 5]    OK
+   clean      subpop       cols=hi  learnable=True  auc=0.9194   cols_used=[0, 1, 2]    OK
+   clean      subpop       cols=lo  learnable=True  auc=0.9591   cols_used=[7, 6, 5]    OK
+   -> CARRIER SEPARATION PASS
+
+== 4. GATE constants (0.65, 0.2, 0.1) PASS
+
+  SMOKE PASS   wrote results/phase1/deployment_decay/smoke_inj_family_a8f1549.json
+  NOTE: this smoke test does NOT substitute for the PREREG §4 battery gate.
+        Run `--synth` on the server and require a 14/14 match before any real data.

@@ -1,0 +1,1011 @@
+ENV ('3.11.15', '1.9.0')
+ENV OK
+
+== 1. PARITY (auto must reproduce v1 bit-for-bit) ==
+   heavytail  binclass    topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  binclass    lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  binclass    interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  binclass    subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   heavytail  regression  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  regression  lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  regression  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  regression  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   heavytail  multiclass  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   heavytail  multiclass  lowvar       labels_identical=True  expect=True  feats [8, 7]->[8, 7] OK
+   heavytail  multiclass  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 4] OK
+   heavytail  multiclass  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 4] OK
+   clean      binclass    topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      binclass    lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      binclass    interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      binclass    subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   clean      regression  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      regression  lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      regression  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      regression  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   clean      multiclass  topvar       labels_identical=True  expect=True  feats [0, 1]->[0, 1] OK
+   clean      multiclass  lowvar       labels_identical=True  expect=True  feats [7, 6]->[7, 6] OK
+   clean      multiclass  interaction  labels_identical=False expect=False feats [0, 1]->[0, 1, 2] OK
+   clean      multiclass  subpop       labels_identical=True  expect=True  feats [0, 1]->[0, 1, 2] OK
+   -> PARITY PASS
+
+== 2. INDEPENDENCE of the interaction rotation axes ==
+   heavytail  cols=hi  |corr| new=0.0131 (v1=0.7686)  OK
+   heavytail  cols=lo  |corr| new=0.0091 (v1=0.7686)  OK
+   clean      cols=hi  |corr| new=0.0157 (v1=0.0181)  OK
+   clean      cols=lo  |corr| new=0.0013 (v1=0.0181)  OK
+   -> INDEPENDENCE PASS
+
+== 3. CARRIER SEPARATION (the reason family x cols must be crossed) ==
+   heavy-tail geometry: hi carrier must FAIL the gate, lo carrier must PASS
+   heavytail  topvar       cols=hi  learnable=False auc=0.5478   cols_used=[0, 1]       OK
+   heavytail  topvar       cols=lo  learnable=True  auc=0.9588   cols_used=[8, 7]       OK
+   heavytail  lowvar       cols=hi  learnable=False auc=0.5478   cols_used=[0, 1]       OK
+   heavytail  lowvar       cols=lo  learnable=True  auc=0.9588   cols_used=[8, 7]       OK
+   heavytail  interaction  cols=hi  learnable=True  auc=0.9381   cols_used=[0, 1, 4]    report-only (hybrid carrier)
+   heavytail  interaction  cols=lo  learnable=True  auc=0.8949   cols_used=[8, 7, 6]    OK
+   heavytail  subpop       cols=hi  learnable=False auc=0.5231   cols_used=[0, 1, 4]    OK
+   heavytail  subpop       cols=lo  learnable=True  auc=0.9538   cols_used=[8, 7, 6]    OK
+   clean      topvar       cols=hi  learnable=True  auc=0.9505   cols_used=[0, 1]       OK
+   clean      topvar       cols=lo  learnable=True  auc=0.919    cols_used=[7, 6]       OK
+   clean      lowvar       cols=hi  learnable=True  auc=0.9505   cols_used=[0, 1]       OK
+   clean      lowvar       cols=lo  learnable=True  auc=0.919    cols_used=[7, 6]       OK
+   clean      interaction  cols=hi  learnable=True  auc=0.9525   cols_used=[0, 1, 2]    OK
+   clean      interaction  cols=lo  learnable=True  auc=0.9505   cols_used=[7, 6, 5]    OK
+   clean      subpop       cols=hi  learnable=True  auc=0.9194   cols_used=[0, 1, 2]    OK
+   clean      subpop       cols=lo  learnable=True  auc=0.9591   cols_used=[7, 6, 5]    OK
+   -> CARRIER SEPARATION PASS
+
+== 4. GATE constants (0.65, 0.2, 0.1) PASS
+
+  SMOKE PASS   wrote results/phase1/deployment_decay/smoke_inj_family_a8f1549.json
+  NOTE: this smoke test does NOT substitute for the PREREG §4 battery gate.
+        Run `--synth` on the server and require a 14/14 match before any real data.
+
+==== SYNTH ground-truth battery (v3: binclass + regression + noise-drift adversarials) ====
+  EXPECT CONCEPT:      concept, nuisance_proxy, reg_concept, reg_concept_earlynoisy
+  EXPECT not-CONCEPT:  covariate, stable, covariate_mc, covariate_mild, reg_stable, reg_cov_linear, reg_cov_nonlinear, reg_early_noisy, reg_late_noisy, reg_xdep_noise
+  EXPECT NOISE-DRIFT-CONFOUNDED: reg_early_noisy, reg_xdep_noise
+  EXPECT covariate_mild != UNIDENTIFIABLE-* (identifiable-regime coverage)
+  [1/14] synth_concept
+      [synth_concept seeds] 1/5  elapsed 12s  eta 48s  (12.2s/unit)
+      [synth_concept seeds] 2/5  elapsed 25s  eta 38s  (12.9s/unit)
+      [synth_concept seeds] 3/5  elapsed 39s  eta 26s  (13.3s/unit)
+      [synth_concept seeds] 4/5  elapsed 52s  eta 13s  (13.0s/unit)
+      [synth_concept seeds] 5/5  elapsed 1m04s  eta 0s  (12.9s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m54s  (12.8s/unit)
+      [injection topvar@auto] 2/10  elapsed 25s  eta 1m42s  (12.8s/unit)
+      [injection topvar@auto] 3/10  elapsed 38s  eta 1m29s  (12.8s/unit)
+      [injection topvar@auto] 4/10  elapsed 51s  eta 1m16s  (12.8s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m03s  eta 1m03s  (12.8s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m16s  eta 51s  (12.8s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m29s  eta 38s  (12.8s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m43s  eta 25s  (12.9s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m59s  eta 13s  (13.3s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m13s  eta 0s  (13.3s/unit)
+  synth_concept        W=10 D=0.510 gate=0.90 stale=+0.284[+0.216,+0.351] den=+0.288[+0.216,+0.361] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 1/14  elapsed 3m26s  eta 44m48s  (206.8s/unit) <- synth_concept
+  [2/14] synth_nuisance_proxy
+      [synth_nuisance_proxy seeds] 1/5  elapsed 12s  eta 50s  (12.5s/unit)
+      [synth_nuisance_proxy seeds] 2/5  elapsed 25s  eta 37s  (12.5s/unit)
+      [synth_nuisance_proxy seeds] 3/5  elapsed 37s  eta 25s  (12.6s/unit)
+      [synth_nuisance_proxy seeds] 4/5  elapsed 50s  eta 12s  (12.6s/unit)
+      [synth_nuisance_proxy seeds] 5/5  elapsed 1m03s  eta 0s  (12.6s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m53s  (12.6s/unit)
+      [injection topvar@auto] 2/10  elapsed 25s  eta 1m41s  (12.7s/unit)
+      [injection topvar@auto] 3/10  elapsed 38s  eta 1m28s  (12.7s/unit)
+      [injection topvar@auto] 4/10  elapsed 50s  eta 1m16s  (12.7s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m03s  eta 1m03s  (12.7s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m16s  eta 50s  (12.7s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m29s  eta 38s  (12.7s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m41s  eta 25s  (12.7s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m56s  eta 12s  (13.0s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m10s  eta 0s  (13.0s/unit)
+  synth_nuisance_proxy W=10 D=0.517 gate=1.15 stale=+0.202[+0.153,+0.252] den=+0.204[+0.156,+0.251] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;proxy-stripped:1;proxy-sensitive]
+      [battery cells] 2/14  elapsed 6m48s  eta 40m51s  (204.3s/unit) <- synth_nuisance_proxy
+  [3/14] synth_reg_concept
+      [synth_reg_concept seeds] 1/5  elapsed 15s  eta 1m00s  (15.1s/unit)
+      [synth_reg_concept seeds] 2/5  elapsed 30s  eta 45s  (15.1s/unit)
+      [synth_reg_concept seeds] 3/5  elapsed 45s  eta 30s  (15.1s/unit)
+      [synth_reg_concept seeds] 4/5  elapsed 1m00s  eta 15s  (15.1s/unit)
+      [synth_reg_concept seeds] 5/5  elapsed 1m15s  eta 0s  (15.1s/unit)
+      [injection topvar@auto] 1/10  elapsed 15s  eta 2m16s  (15.1s/unit)
+      [injection topvar@auto] 2/10  elapsed 30s  eta 2m01s  (15.1s/unit)
+      [injection topvar@auto] 3/10  elapsed 43s  eta 1m40s  (14.4s/unit)
+      [injection topvar@auto] 4/10  elapsed 56s  eta 1m24s  (14.0s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m09s  eta 1m09s  (13.9s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m24s  eta 56s  (14.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m38s  eta 42s  (14.1s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m52s  eta 28s  (14.1s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m07s  eta 14s  (14.2s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m23s  eta 0s  (14.3s/unit)
+  synth_reg_concept    W=10 D=0.510 gate=0.94 stale=+0.544[+0.454,+0.634] den=+0.540[+0.439,+0.641] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 3/14  elapsed 10m36s  eta 38m54s  (212.2s/unit) <- synth_reg_concept
+  [4/14] synth_reg_concept_earlynoisy
+      [synth_reg_concept_earlynoisy seeds] 1/5  elapsed 14s  eta 56s  (14.0s/unit)
+      [synth_reg_concept_earlynoisy seeds] 2/5  elapsed 28s  eta 42s  (14.1s/unit)
+      [synth_reg_concept_earlynoisy seeds] 3/5  elapsed 41s  eta 27s  (13.9s/unit)
+      [synth_reg_concept_earlynoisy seeds] 4/5  elapsed 54s  eta 13s  (13.6s/unit)
+      [synth_reg_concept_earlynoisy seeds] 5/5  elapsed 1m09s  eta 0s  (13.8s/unit)
+      [injection topvar@auto] 1/10  elapsed 15s  eta 2m18s  (15.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 30s  eta 2m03s  (15.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 46s  eta 1m47s  (15.4s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m01s  eta 1m32s  (15.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m14s  eta 1m14s  (14.9s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m27s  eta 58s  (14.6s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m40s  eta 43s  (14.3s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m54s  eta 28s  (14.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m10s  eta 14s  (14.5s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m27s  eta 0s  (14.8s/unit)
+  synth_reg_concept_ea W=10 D=0.510 gate=3.70! stale=+0.355[+0.294,+0.417] den=+0.319[+0.248,+0.390] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [battery cells] 4/14  elapsed 14m23s  eta 35m59s  (216.0s/unit) <- synth_reg_concept_earlynoisy
+  [5/14] synth_covariate
+      [synth_covariate seeds] 1/5  elapsed 17s  eta 1m11s  (18.0s/unit)
+      [synth_covariate seeds] 2/5  elapsed 36s  eta 54s  (18.1s/unit)
+      [synth_covariate seeds] 3/5  elapsed 54s  eta 36s  (18.2s/unit)
+      [synth_covariate seeds] 4/5  elapsed 1m12s  eta 18s  (18.2s/unit)
+      [synth_covariate seeds] 5/5  elapsed 1m31s  eta 0s  (18.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 16s  eta 2m30s  (16.7s/unit)
+      [injection topvar@auto] 2/10  elapsed 33s  eta 2m14s  (16.9s/unit)
+      [injection topvar@auto] 3/10  elapsed 50s  eta 1m57s  (16.8s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m07s  eta 1m40s  (16.8s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m23s  eta 1m23s  (16.7s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m40s  eta 1m06s  (16.7s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m56s  eta 50s  (16.7s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m13s  eta 33s  (16.7s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m30s  eta 16s  (16.7s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m47s  eta 0s  (16.7s/unit)
+  synth_covariate      W=10 D=0.995 gate=0.71 stale=-0.001[-0.002,+0.000] den=-0.000[-0.002,+0.002] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 5/14  elapsed 18m52s  eta 33m58s  (226.5s/unit) <- synth_covariate
+  [6/14] synth_stable
+      [synth_stable seeds] 1/5  elapsed 14s  eta 59s  (14.9s/unit)
+      [synth_stable seeds] 2/5  elapsed 29s  eta 44s  (14.9s/unit)
+      [synth_stable seeds] 3/5  elapsed 44s  eta 29s  (15.0s/unit)
+      [synth_stable seeds] 4/5  elapsed 59s  eta 14s  (14.9s/unit)
+      [synth_stable seeds] 5/5  elapsed 1m14s  eta 0s  (15.0s/unit)
+  synth_stable         W=10 D=0.510 gate=0.69 stale=-0.001[-0.001,-0.000] den=-0.000[-0.001,+0.000] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 6/14  elapsed 20m18s  eta 27m04s  (203.1s/unit) <- synth_stable
+  [7/14] synth_covariate_mc
+      [synth_covariate_mc seeds] 1/5  elapsed 45s  eta 3m01s  (45.4s/unit)
+      [synth_covariate_mc seeds] 2/5  elapsed 1m29s  eta 2m14s  (44.8s/unit)
+      [synth_covariate_mc seeds] 3/5  elapsed 2m13s  eta 1m29s  (44.5s/unit)
+      [synth_covariate_mc seeds] 4/5  elapsed 2m55s  eta 43s  (43.8s/unit)
+      [synth_covariate_mc seeds] 5/5  elapsed 3m37s  eta 0s  (43.5s/unit)
+      [injection topvar@auto] 1/10  elapsed 23s  eta 3m35s  (23.9s/unit)
+      [injection topvar@auto] 2/10  elapsed 48s  eta 3m13s  (24.2s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m20s  eta 3m08s  (26.9s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m49s  eta 2m44s  (27.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 2m21s  eta 2m21s  (28.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 2m54s  eta 1m56s  (29.0s/unit)
+      [injection topvar@auto] 7/10  elapsed 3m16s  eta 1m24s  (28.1s/unit)
+      [injection topvar@auto] 8/10  elapsed 3m46s  eta 56s  (28.4s/unit)
+      [injection topvar@auto] 9/10  elapsed 4m19s  eta 28s  (28.8s/unit)
+      [injection topvar@auto] 10/10  elapsed 4m47s  eta 0s  (28.8s/unit)
+  synth_covariate_mc   W=10 D=0.995 gate=0.87 stale=-0.002[-0.005,+0.001] den=-0.002[-0.005,+0.001] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+      [battery cells] 7/14  elapsed 28m54s  eta 28m54s  (247.8s/unit) <- synth_covariate_mc
+  [8/14] synth_covariate_mild
+      [synth_covariate_mild seeds] 1/5  elapsed 18s  eta 1m14s  (18.6s/unit)
+      [synth_covariate_mild seeds] 2/5  elapsed 37s  eta 56s  (18.7s/unit)
+      [synth_covariate_mild seeds] 3/5  elapsed 55s  eta 37s  (18.6s/unit)
+      [synth_covariate_mild seeds] 4/5  elapsed 1m14s  eta 18s  (18.7s/unit)
+      [synth_covariate_mild seeds] 5/5  elapsed 1m33s  eta 0s  (18.7s/unit)
+  synth_covariate_mild W=10 D=0.727 gate=0.99 stale=-0.004[-0.005,-0.002] den=-0.000[-0.002,+0.002] => NO-STRONG-CONCEPT
+      [battery cells] 8/14  elapsed 30m39s  eta 22m59s  (229.9s/unit) <- synth_covariate_mild
+  [9/14] synth_reg_stable
+      [synth_reg_stable seeds] 1/5  elapsed 18s  eta 1m13s  (18.4s/unit)
+      [synth_reg_stable seeds] 2/5  elapsed 36s  eta 55s  (18.4s/unit)
+      [synth_reg_stable seeds] 3/5  elapsed 54s  eta 36s  (18.3s/unit)
+      [synth_reg_stable seeds] 4/5  elapsed 1m13s  eta 18s  (18.3s/unit)
+      [synth_reg_stable seeds] 5/5  elapsed 1m31s  eta 0s  (18.3s/unit)
+  synth_reg_stable     W=10 D=0.510 gate=0.99 stale=-0.011[-0.012,-0.010] den=-0.000[-0.003,+0.003] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 9/14  elapsed 32m22s  eta 17m58s  (215.8s/unit) <- synth_reg_stable
+  [10/14] synth_reg_cov_linear
+      [synth_reg_cov_linear seeds] 1/5  elapsed 18s  eta 1m13s  (18.5s/unit)
+      [synth_reg_cov_linear seeds] 2/5  elapsed 36s  eta 55s  (18.4s/unit)
+      [synth_reg_cov_linear seeds] 3/5  elapsed 54s  eta 36s  (18.3s/unit)
+      [synth_reg_cov_linear seeds] 4/5  elapsed 1m12s  eta 18s  (18.2s/unit)
+      [synth_reg_cov_linear seeds] 5/5  elapsed 1m30s  eta 0s  (18.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 18s  eta 2m43s  (18.1s/unit)
+      [injection topvar@auto] 2/10  elapsed 36s  eta 2m25s  (18.2s/unit)
+      [injection topvar@auto] 3/10  elapsed 54s  eta 2m07s  (18.2s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m12s  eta 1m49s  (18.2s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m31s  eta 1m31s  (18.2s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m46s  eta 1m11s  (17.8s/unit)
+      [injection topvar@auto] 7/10  elapsed 2m00s  eta 51s  (17.2s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m16s  eta 34s  (17.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m31s  eta 16s  (16.8s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m46s  eta 0s  (16.7s/unit)
+  synth_reg_cov_linear W=10 D=0.995 gate=0.93 stale=+0.001[+0.000,+0.002] den=+0.004[+0.003,+0.005] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 10/14  elapsed 36m50s  eta 14m44s  (221.1s/unit) <- synth_reg_cov_linear
+  [11/14] synth_reg_cov_nonlinear
+      [synth_reg_cov_nonlinear seeds] 1/5  elapsed 15s  eta 1m00s  (15.1s/unit)
+      [synth_reg_cov_nonlinear seeds] 2/5  elapsed 28s  eta 42s  (14.3s/unit)
+      [synth_reg_cov_nonlinear seeds] 3/5  elapsed 41s  eta 27s  (14.0s/unit)
+      [synth_reg_cov_nonlinear seeds] 4/5  elapsed 56s  eta 14s  (14.0s/unit)
+      [synth_reg_cov_nonlinear seeds] 5/5  elapsed 1m11s  eta 0s  (14.3s/unit)
+      [injection topvar@auto] 1/10  elapsed 13s  eta 2m00s  (13.3s/unit)
+      [injection topvar@auto] 2/10  elapsed 26s  eta 1m46s  (13.3s/unit)
+      [injection topvar@auto] 3/10  elapsed 39s  eta 1m32s  (13.3s/unit)
+      [injection topvar@auto] 4/10  elapsed 53s  eta 1m19s  (13.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m06s  eta 1m06s  (13.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m19s  eta 53s  (13.3s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m32s  eta 39s  (13.3s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m46s  eta 26s  (13.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 2m00s  eta 13s  (13.4s/unit)
+      [injection topvar@auto] 10/10  elapsed 2m13s  eta 0s  (13.3s/unit)
+  synth_reg_cov_nonlin W=10 D=0.995 gate=0.90 stale=-0.006[-0.009,-0.003] den=-0.003[-0.005,-0.001] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: unident-earned]
+      [battery cells] 11/14  elapsed 40m24s  eta 11m01s  (220.4s/unit) <- synth_reg_cov_nonlinear
+  [12/14] synth_reg_early_noisy
+      [synth_reg_early_noisy seeds] 1/5  elapsed 13s  eta 52s  (13.2s/unit)
+      [synth_reg_early_noisy seeds] 2/5  elapsed 25s  eta 38s  (12.8s/unit)
+      [synth_reg_early_noisy seeds] 3/5  elapsed 38s  eta 25s  (12.9s/unit)
+      [synth_reg_early_noisy seeds] 4/5  elapsed 51s  eta 12s  (12.9s/unit)
+      [synth_reg_early_noisy seeds] 5/5  elapsed 1m04s  eta 0s  (12.9s/unit)
+  synth_reg_early_nois W=10 D=0.510 gate=3.53! stale=+0.022[+0.020,+0.024] den=+0.005[+0.000,+0.009] => NOISE-DRIFT-CONFOUNDED  [TRUST: no-covariate-movement;future-easier]
+      [battery cells] 12/14  elapsed 41m37s  eta 6m56s  (208.1s/unit) <- synth_reg_early_noisy
+  [13/14] synth_reg_late_noisy
+      [synth_reg_late_noisy seeds] 1/5  elapsed 12s  eta 51s  (12.9s/unit)
+      [synth_reg_late_noisy seeds] 2/5  elapsed 26s  eta 40s  (13.4s/unit)
+      [synth_reg_late_noisy seeds] 3/5  elapsed 40s  eta 26s  (13.4s/unit)
+      [synth_reg_late_noisy seeds] 4/5  elapsed 54s  eta 13s  (13.7s/unit)
+      [synth_reg_late_noisy seeds] 5/5  elapsed 1m10s  eta 0s  (14.0s/unit)
+  synth_reg_late_noisy W=10 D=0.510 gate=0.14 stale=-0.022[-0.024,-0.020] den=-0.018[-0.020,-0.016] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [battery cells] 13/14  elapsed 42m56s  eta 3m18s  (198.2s/unit) <- synth_reg_late_noisy
+  [14/14] synth_reg_xdep_noise
+      [synth_reg_xdep_noise seeds] 1/5  elapsed 14s  eta 56s  (14.0s/unit)
+      [synth_reg_xdep_noise seeds] 2/5  elapsed 26s  eta 40s  (13.4s/unit)
+      [synth_reg_xdep_noise seeds] 3/5  elapsed 39s  eta 26s  (13.3s/unit)
+      [synth_reg_xdep_noise seeds] 4/5  elapsed 54s  eta 13s  (13.5s/unit)
+      [synth_reg_xdep_noise seeds] 5/5  elapsed 1m06s  eta 0s  (13.4s/unit)
+  synth_reg_xdep_noise W=10 D=0.510 gate=3.72! stale=+0.025[+0.022,+0.029] den=+0.006[+0.004,+0.009] => NOISE-DRIFT-CONFOUNDED  [TRUST: no-covariate-movement;future-easier]
+      [battery cells] 14/14  elapsed 44m12s  eta 0s  (189.5s/unit) <- synth_reg_xdep_noise
+      [battery cells] done in 44m12s
+
+  GROUND-TRUTH PASS
+  wrote results/phase1/deployment_decay/synth_summary.json
+### GATE PASSED 2026-08-02T15:56:57Z
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_brier] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_brier seeds] 1/10  elapsed 10s  eta 1m36s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 2/10  elapsed 21s  eta 1m25s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 3/10  elapsed 32s  eta 1m15s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 4/10  elapsed 42s  eta 1m04s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 5/10  elapsed 53s  eta 53s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 6/10  elapsed 1m04s  eta 42s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 7/10  elapsed 1m14s  eta 31s  (10.7s/unit)
+      [acs_pubcov_PA_brier seeds] 8/10  elapsed 1m25s  eta 21s  (10.6s/unit)
+      [acs_pubcov_PA_brier seeds] 9/10  elapsed 1m35s  eta 10s  (10.6s/unit)
+      [acs_pubcov_PA_brier seeds] 10/10  elapsed 1m46s  eta 0s  (10.6s/unit)
+  acs_pubcov_PA_brier  W= 5 D=0.534 gate=0.98 stale=-0.005[-0.005,-0.004] den=+0.002[+0.002,+0.003] => SUBFLOOR-CONCEPT-SIGNAL
+      [datasets] 1/1  elapsed 1m52s  eta 0s  (112.9s/unit) <- acs_pubcov_PA_brier
+      [datasets] done in 1m52s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T155850_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_brier] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_brier seeds] 1/10  elapsed 10s  eta 1m35s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 2/10  elapsed 21s  eta 1m24s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 3/10  elapsed 31s  eta 1m13s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 4/10  elapsed 42s  eta 1m03s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 5/10  elapsed 52s  eta 52s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 6/10  elapsed 1m03s  eta 42s  (10.6s/unit)
+      [acs_pubcov_TX_brier seeds] 7/10  elapsed 1m13s  eta 31s  (10.5s/unit)
+      [acs_pubcov_TX_brier seeds] 8/10  elapsed 1m24s  eta 21s  (10.5s/unit)
+      [acs_pubcov_TX_brier seeds] 9/10  elapsed 1m34s  eta 10s  (10.5s/unit)
+      [acs_pubcov_TX_brier seeds] 10/10  elapsed 1m45s  eta 0s  (10.5s/unit)
+  acs_pubcov_TX_brier  W= 5 D=0.523 gate=1.00 stale=-0.005[-0.006,-0.005] den=-0.002[-0.002,-0.001] => NO-STRONG-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 1m51s  eta 0s  (111.7s/unit) <- acs_pubcov_TX_brier
+      [datasets] done in 1m51s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T160043_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_PA_logloss] task=binclass feats=19 n=76717
+      [acs_pubcov_PA_logloss seeds] 1/10  elapsed 10s  eta 1m34s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 2/10  elapsed 20s  eta 1m23s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 3/10  elapsed 31s  eta 1m13s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 4/10  elapsed 41s  eta 1m02s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 5/10  elapsed 52s  eta 52s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 6/10  elapsed 1m02s  eta 41s  (10.4s/unit)
+      [acs_pubcov_PA_logloss seeds] 7/10  elapsed 1m13s  eta 31s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 8/10  elapsed 1m24s  eta 21s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 9/10  elapsed 1m34s  eta 10s  (10.5s/unit)
+      [acs_pubcov_PA_logloss seeds] 10/10  elapsed 1m47s  eta 0s  (10.7s/unit)
+      [injection topvar@auto] 1/10  elapsed 12s  eta 1m52s  (12.5s/unit)
+      [injection topvar@auto] 2/10  elapsed 24s  eta 1m36s  (12.1s/unit)
+      [injection topvar@auto] 3/10  elapsed 34s  eta 1m21s  (11.6s/unit)
+      [injection topvar@auto] 4/10  elapsed 45s  eta 1m07s  (11.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 55s  eta 55s  (11.2s/unit)
+      [injection topvar@auto] 6/10  elapsed 1m06s  eta 44s  (11.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 1m16s  eta 32s  (11.0s/unit)
+      [injection topvar@auto] 8/10  elapsed 1m28s  eta 22s  (11.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 1m38s  eta 10s  (10.9s/unit)
+      [injection topvar@auto] 10/10  elapsed 1m49s  eta 0s  (10.9s/unit)
+  acs_pubcov_PA_loglos W= 5 D=0.534 gate=0.96 stale=-0.018[-0.019,-0.016] den=+0.021[+0.019,+0.023] => DEPLOYMENT-CONCEPT  [TRUST: injection-vacuous]
+      [datasets] 1/1  elapsed 3m43s  eta 0s  (223.3s/unit) <- acs_pubcov_PA_logloss
+      [datasets] done in 3m43s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T160427_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_logloss] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_logloss seeds] 1/10  elapsed 10s  eta 1m33s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 2/10  elapsed 20s  eta 1m22s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 3/10  elapsed 30s  eta 1m11s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 4/10  elapsed 41s  eta 1m01s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 5/10  elapsed 51s  eta 51s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 6/10  elapsed 1m01s  eta 40s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 7/10  elapsed 1m11s  eta 30s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 8/10  elapsed 1m21s  eta 20s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 9/10  elapsed 1m32s  eta 10s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 10/10  elapsed 1m42s  eta 0s  (10.2s/unit)
+  acs_pubcov_TX_loglos W= 5 D=0.523 gate=1.00 stale=-0.023[-0.024,-0.022] den=+0.006[+0.005,+0.008] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 1m48s  eta 0s  (108.8s/unit) <- acs_pubcov_TX_logloss
+      [datasets] done in 1m48s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T160617_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [ecom_offers] task=binclass feats=119 n=109341
+      [ecom_offers seeds] 1/10  elapsed 22s  eta 3m25s  (22.8s/unit)
+      [ecom_offers seeds] 2/10  elapsed 46s  eta 3m04s  (23.1s/unit)
+      [ecom_offers seeds] 3/10  elapsed 1m09s  eta 2m41s  (23.0s/unit)
+      [ecom_offers seeds] 4/10  elapsed 1m31s  eta 2m17s  (22.9s/unit)
+      [ecom_offers seeds] 5/10  elapsed 1m54s  eta 1m54s  (22.9s/unit)
+      [ecom_offers seeds] 6/10  elapsed 2m17s  eta 1m31s  (22.9s/unit)
+      [ecom_offers seeds] 7/10  elapsed 2m39s  eta 1m08s  (22.8s/unit)
+      [ecom_offers seeds] 8/10  elapsed 3m02s  eta 45s  (22.8s/unit)
+      [ecom_offers seeds] 9/10  elapsed 3m25s  eta 22s  (22.8s/unit)
+      [ecom_offers seeds] 10/10  elapsed 3m47s  eta 0s  (22.8s/unit)
+      [injection topvar@auto] 1/10  elapsed 22s  eta 3m21s  (22.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 44s  eta 2m59s  (22.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m07s  eta 2m37s  (22.5s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m29s  eta 2m14s  (22.4s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m52s  eta 1m52s  (22.4s/unit)
+      [injection topvar@auto] 6/10  elapsed 2m14s  eta 1m29s  (22.4s/unit)
+      [injection topvar@auto] 7/10  elapsed 2m36s  eta 1m07s  (22.4s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m59s  eta 44s  (22.4s/unit)
+      [injection topvar@auto] 9/10  elapsed 3m21s  eta 22s  (22.4s/unit)
+      [injection topvar@auto] 10/10  elapsed 3m45s  eta 0s  (22.5s/unit)
+  ecom_offers          W=10 D=1.000 gate=1.08 stale=+0.002[+0.000,+0.005] den=+0.009[+0.004,+0.014] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+      [datasets] 1/3  elapsed 7m48s  eta 15m37s  (468.9s/unit) <- ecom_offers
+  [2/3] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 1m39s  eta 14m57s  (99.8s/unit)
+      [homecredit_default seeds] 2/10  elapsed 3m18s  eta 13m13s  (99.2s/unit)
+      [homecredit_default seeds] 3/10  elapsed 4m56s  eta 11m32s  (98.9s/unit)
+      [homecredit_default seeds] 4/10  elapsed 6m35s  eta 9m53s  (98.9s/unit)
+      [homecredit_default seeds] 5/10  elapsed 8m11s  eta 8m11s  (98.4s/unit)
+      [homecredit_default seeds] 6/10  elapsed 9m49s  eta 6m33s  (98.3s/unit)
+      [homecredit_default seeds] 7/10  elapsed 11m26s  eta 4m54s  (98.1s/unit)
+      [homecredit_default seeds] 8/10  elapsed 13m05s  eta 3m16s  (98.2s/unit)
+      [homecredit_default seeds] 9/10  elapsed 14m43s  eta 1m38s  (98.2s/unit)
+      [homecredit_default seeds] 10/10  elapsed 16m22s  eta 0s  (98.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 1m21s  eta 12m13s  (81.5s/unit)
+      [injection topvar@auto] 2/10  elapsed 2m42s  eta 10m51s  (81.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 4m03s  eta 9m29s  (81.3s/unit)
+      [injection topvar@auto] 4/10  elapsed 5m25s  eta 8m08s  (81.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 6m46s  eta 6m46s  (81.3s/unit)
+      [injection topvar@auto] 6/10  elapsed 8m07s  eta 5m24s  (81.2s/unit)
+      [injection topvar@auto] 7/10  elapsed 9m28s  eta 4m03s  (81.2s/unit)
+      [injection topvar@auto] 8/10  elapsed 10m49s  eta 2m42s  (81.2s/unit)
+      [injection topvar@auto] 9/10  elapsed 12m10s  eta 1m21s  (81.2s/unit)
+      [injection topvar@auto] 10/10  elapsed 13m31s  eta 0s  (81.2s/unit)
+  homecredit_default   W=10 D=1.000 gate=1.00 stale=-0.000[-0.000,-0.000] den=+0.000[-0.000,+0.000] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:80;injection-vacuous]
+      [datasets] 2/3  elapsed 39m22s  eta 19m41s  (1181.1s/unit) <- homecredit_default
+  [3/3] [homesite_insurance] task=binclass feats=299 n=224320
+      [homesite_insurance seeds] 1/10  elapsed 46s  eta 6m57s  (46.4s/unit)
+      [homesite_insurance seeds] 2/10  elapsed 1m32s  eta 6m11s  (46.5s/unit)
+      [homesite_insurance seeds] 3/10  elapsed 2m20s  eta 5m27s  (46.8s/unit)
+      [homesite_insurance seeds] 4/10  elapsed 3m20s  eta 5m00s  (50.2s/unit)
+      [homesite_insurance seeds] 5/10  elapsed 4m21s  eta 4m21s  (52.3s/unit)
+      [homesite_insurance seeds] 6/10  elapsed 5m21s  eta 3m34s  (53.6s/unit)
+      [homesite_insurance seeds] 7/10  elapsed 6m08s  eta 2m38s  (52.7s/unit)
+      [homesite_insurance seeds] 8/10  elapsed 6m56s  eta 1m44s  (52.0s/unit)
+      [homesite_insurance seeds] 9/10  elapsed 7m43s  eta 51s  (51.5s/unit)
+      [homesite_insurance seeds] 10/10  elapsed 8m31s  eta 0s  (51.2s/unit)
+      [injection topvar@auto] 1/10  elapsed 43s  eta 6m35s  (43.9s/unit)
+      [injection topvar@auto] 2/10  elapsed 1m34s  eta 6m18s  (47.3s/unit)
+      [injection topvar@auto] 3/10  elapsed 2m20s  eta 5m27s  (46.7s/unit)
+      [injection topvar@auto] 4/10  elapsed 3m08s  eta 4m42s  (47.0s/unit)
+      [injection topvar@auto] 5/10  elapsed 4m02s  eta 4m02s  (48.6s/unit)
+      [injection topvar@auto] 6/10  elapsed 4m48s  eta 3m12s  (48.1s/unit)
+      [injection topvar@auto] 7/10  elapsed 5m28s  eta 2m20s  (46.9s/unit)
+      [injection topvar@auto] 8/10  elapsed 6m08s  eta 1m32s  (46.0s/unit)
+      [injection topvar@auto] 9/10  elapsed 6m47s  eta 45s  (45.3s/unit)
+      [injection topvar@auto] 10/10  elapsed 7m27s  eta 0s  (44.7s/unit)
+  homesite_insurance   W=10 D=1.000 gate=1.01 stale=-0.005[-0.005,-0.004] den=-0.003[-0.003,-0.002] => UNIDENTIFIABLE-INERT  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 3/3  elapsed 55m58s  eta 0s  (1119.4s/unit) <- homesite_insurance
+      [datasets] done in 55m58s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T170217_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [ecom_offers] task=binclass feats=119 n=109341
+      [ecom_offers seeds] 1/10  elapsed 22s  eta 3m23s  (22.6s/unit)
+      [ecom_offers seeds] 2/10  elapsed 45s  eta 3m01s  (22.7s/unit)
+      [ecom_offers seeds] 3/10  elapsed 1m08s  eta 2m39s  (22.7s/unit)
+      [ecom_offers seeds] 4/10  elapsed 1m30s  eta 2m15s  (22.6s/unit)
+      [ecom_offers seeds] 5/10  elapsed 1m52s  eta 1m52s  (22.6s/unit)
+      [ecom_offers seeds] 6/10  elapsed 2m15s  eta 1m30s  (22.6s/unit)
+      [ecom_offers seeds] 7/10  elapsed 2m38s  eta 1m07s  (22.6s/unit)
+      [ecom_offers seeds] 8/10  elapsed 3m00s  eta 45s  (22.6s/unit)
+      [ecom_offers seeds] 9/10  elapsed 3m23s  eta 22s  (22.6s/unit)
+      [ecom_offers seeds] 10/10  elapsed 3m45s  eta 0s  (22.6s/unit)
+      [injection topvar@auto] 1/10  elapsed 22s  eta 3m21s  (22.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 44s  eta 2m59s  (22.4s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m07s  eta 2m36s  (22.4s/unit)
+      [injection topvar@auto] 4/10  elapsed 1m29s  eta 2m13s  (22.3s/unit)
+      [injection topvar@auto] 5/10  elapsed 1m51s  eta 1m51s  (22.2s/unit)
+      [injection topvar@auto] 6/10  elapsed 2m14s  eta 1m29s  (22.4s/unit)
+      [injection topvar@auto] 7/10  elapsed 2m36s  eta 1m07s  (22.3s/unit)
+      [injection topvar@auto] 8/10  elapsed 2m58s  eta 44s  (22.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 3m21s  eta 22s  (22.4s/unit)
+      [injection topvar@auto] 10/10  elapsed 3m43s  eta 0s  (22.3s/unit)
+  ecom_offers          W=10 D=1.000 gate=1.16 stale=-0.027[-0.037,-0.018] den=-0.008[-0.021,+0.006] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: injection-vacuous]
+      [datasets] 1/3  elapsed 7m44s  eta 15m29s  (464.8s/unit) <- ecom_offers
+  [2/3] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 1m40s  eta 15m05s  (100.6s/unit)
+      [homecredit_default seeds] 2/10  elapsed 3m25s  eta 13m43s  (102.9s/unit)
+      [homecredit_default seeds] 3/10  elapsed 5m22s  eta 12m32s  (107.5s/unit)
+      [homecredit_default seeds] 4/10  elapsed 7m19s  eta 10m58s  (109.8s/unit)
+      [homecredit_default seeds] 5/10  elapsed 9m19s  eta 9m19s  (112.0s/unit)
+      [homecredit_default seeds] 6/10  elapsed 11m18s  eta 7m32s  (113.1s/unit)
+      [homecredit_default seeds] 7/10  elapsed 13m18s  eta 5m42s  (114.1s/unit)
+      [homecredit_default seeds] 8/10  elapsed 15m17s  eta 3m49s  (114.7s/unit)
+      [homecredit_default seeds] 9/10  elapsed 17m17s  eta 1m55s  (115.2s/unit)
+      [homecredit_default seeds] 10/10  elapsed 19m16s  eta 0s  (115.7s/unit)
+      [injection topvar@auto] 1/10  elapsed 1m42s  eta 15m18s  (102.0s/unit)
+      [injection topvar@auto] 2/10  elapsed 3m06s  eta 12m26s  (93.3s/unit)
+      [injection topvar@auto] 3/10  elapsed 4m35s  eta 10m42s  (91.7s/unit)
+      [injection topvar@auto] 4/10  elapsed 6m02s  eta 9m04s  (90.7s/unit)
+      [injection topvar@auto] 5/10  elapsed 7m32s  eta 7m32s  (90.5s/unit)
+      [injection topvar@auto] 6/10  elapsed 8m56s  eta 5m57s  (89.4s/unit)
+      [injection topvar@auto] 7/10  elapsed 10m23s  eta 4m27s  (89.0s/unit)
+      [injection topvar@auto] 8/10  elapsed 11m46s  eta 2m56s  (88.3s/unit)
+      [injection topvar@auto] 9/10  elapsed 13m12s  eta 1m28s  (88.1s/unit)
+      [injection topvar@auto] 10/10  elapsed 14m33s  eta 0s  (87.3s/unit)
+  homecredit_default   W=10 D=1.000 gate=1.00 stale=-0.089[-0.092,-0.086] den=+0.005[+0.003,+0.006] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:80;injection-vacuous]
+      [datasets] 2/3  elapsed 43m13s  eta 21m36s  (1296.7s/unit) <- homecredit_default
+  [3/3] [homesite_insurance] task=binclass feats=299 n=224320
+      [homesite_insurance seeds] 1/10  elapsed 1m00s  eta 9m00s  (60.0s/unit)
+      [homesite_insurance seeds] 2/10  elapsed 1m59s  eta 7m58s  (59.8s/unit)
+      [homesite_insurance seeds] 3/10  elapsed 2m48s  eta 6m33s  (56.3s/unit)
+      [homesite_insurance seeds] 4/10  elapsed 3m35s  eta 5m22s  (53.8s/unit)
+      [homesite_insurance seeds] 5/10  elapsed 4m21s  eta 4m21s  (52.4s/unit)
+      [homesite_insurance seeds] 6/10  elapsed 5m15s  eta 3m30s  (52.6s/unit)
+      [homesite_insurance seeds] 7/10  elapsed 6m05s  eta 2m36s  (52.2s/unit)
+      [homesite_insurance seeds] 8/10  elapsed 6m51s  eta 1m42s  (51.4s/unit)
+      [homesite_insurance seeds] 9/10  elapsed 7m36s  eta 50s  (50.8s/unit)
+      [homesite_insurance seeds] 10/10  elapsed 8m20s  eta 0s  (50.1s/unit)
+      [injection topvar@auto] 1/10  elapsed 37s  eta 5m36s  (37.4s/unit)
+      [injection topvar@auto] 2/10  elapsed 1m22s  eta 5m28s  (41.1s/unit)
+      [injection topvar@auto] 3/10  elapsed 1m59s  eta 4m39s  (40.0s/unit)
+      [injection topvar@auto] 4/10  elapsed 2m37s  eta 3m56s  (39.5s/unit)
+      [injection topvar@auto] 5/10  elapsed 3m21s  eta 3m21s  (40.4s/unit)
+      [injection topvar@auto] 6/10  elapsed 4m01s  eta 2m40s  (40.2s/unit)
+      [injection topvar@auto] 7/10  elapsed 4m41s  eta 2m00s  (40.2s/unit)
+      [injection topvar@auto] 8/10  elapsed 5m21s  eta 1m20s  (40.1s/unit)
+      [injection topvar@auto] 9/10  elapsed 6m00s  eta 40s  (40.0s/unit)
+      [injection topvar@auto] 10/10  elapsed 6m46s  eta 0s  (40.6s/unit)
+  homesite_insurance   W=10 D=1.000 gate=1.02 stale=-0.038[-0.040,-0.035] den=-0.018[-0.021,-0.016] => UNIDENTIFIABLE-EXPLOITABLE  [TRUST: proxy-stripped:3;injection-vacuous]
+      [datasets] 3/3  elapsed 58m58s  eta 0s  (1179.4s/unit) <- homesite_insurance
+      [datasets] done in 58m58s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T180117_a8f1549.json  (+ summary_latest.json)  <-- send me this
+### E1 DONE 2026-08-02T18:01:17Z
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 14s  eta 2m12s  (14.8s/unit)
+      [delivery_eta seeds] 2/10  elapsed 29s  eta 1m58s  (14.8s/unit)
+      [delivery_eta seeds] 3/10  elapsed 44s  eta 1m43s  (14.8s/unit)
+      [delivery_eta seeds] 4/10  elapsed 58s  eta 1m28s  (14.7s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m13s  eta 1m13s  (14.7s/unit)
+      [delivery_eta seeds] 6/10  elapsed 1m28s  eta 58s  (14.7s/unit)
+      [delivery_eta seeds] 7/10  elapsed 1m42s  eta 44s  (14.7s/unit)
+      [delivery_eta seeds] 8/10  elapsed 1m58s  eta 29s  (14.8s/unit)
+      [delivery_eta seeds] 9/10  elapsed 2m12s  eta 14s  (14.8s/unit)
+      [delivery_eta seeds] 10/10  elapsed 2m27s  eta 0s  (14.8s/unit)
+  delivery_eta         W=10 D=0.521 gate=0.92 stale=+0.005[+0.005,+0.006] den=-0.002[-0.002,-0.001] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 7m16s  eta 7m16s  (436.9s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 14s  eta 2m07s  (14.2s/unit)
+      [homecredit_default seeds] 2/10  elapsed 28s  eta 1m53s  (14.2s/unit)
+      [homecredit_default seeds] 3/10  elapsed 43s  eta 1m41s  (14.5s/unit)
+      [homecredit_default seeds] 4/10  elapsed 58s  eta 1m27s  (14.6s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m14s  eta 1m14s  (14.9s/unit)
+      [homecredit_default seeds] 6/10  elapsed 1m31s  eta 1m01s  (15.3s/unit)
+      [homecredit_default seeds] 7/10  elapsed 1m48s  eta 46s  (15.5s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m04s  eta 31s  (15.6s/unit)
+      [homecredit_default seeds] 9/10  elapsed 2m19s  eta 15s  (15.5s/unit)
+      [homecredit_default seeds] 10/10  elapsed 2m33s  eta 0s  (15.4s/unit)
+  homecredit_default   W=10 D=0.721 gate=1.05 stale=-0.002[-0.005,+0.000] den=+0.013[+0.010,+0.016] => SUBFLOOR-CONCEPT-SIGNAL
+      [datasets] 2/2  elapsed 18m53s  eta 0s  (566.8s/unit) <- homecredit_default
+      [datasets] done in 18m53s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T182013_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 17s  eta 2m33s  (17.1s/unit)
+      [delivery_eta seeds] 2/10  elapsed 36s  eta 2m24s  (18.1s/unit)
+      [delivery_eta seeds] 3/10  elapsed 56s  eta 2m11s  (18.7s/unit)
+      [delivery_eta seeds] 4/10  elapsed 1m13s  eta 1m50s  (18.5s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m30s  eta 1m30s  (18.1s/unit)
+      [delivery_eta seeds] 6/10  elapsed 1m47s  eta 1m11s  (17.9s/unit)
+      [delivery_eta seeds] 7/10  elapsed 2m03s  eta 52s  (17.6s/unit)
+      [delivery_eta seeds] 8/10  elapsed 2m19s  eta 34s  (17.4s/unit)
+      [delivery_eta seeds] 9/10  elapsed 2m35s  eta 17s  (17.2s/unit)
+      [delivery_eta seeds] 10/10  elapsed 2m51s  eta 0s  (17.1s/unit)
+  delivery_eta         W=10 D=0.540 gate=0.92 stale=+0.004[+0.003,+0.005] den=-0.004[-0.005,-0.004] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 7m51s  eta 7m51s  (471.6s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 17s  eta 2m35s  (17.3s/unit)
+      [homecredit_default seeds] 2/10  elapsed 35s  eta 2m22s  (17.8s/unit)
+      [homecredit_default seeds] 3/10  elapsed 58s  eta 2m16s  (19.5s/unit)
+      [homecredit_default seeds] 4/10  elapsed 1m19s  eta 1m58s  (19.8s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m36s  eta 1m36s  (19.4s/unit)
+      [homecredit_default seeds] 6/10  elapsed 1m54s  eta 1m16s  (19.1s/unit)
+      [homecredit_default seeds] 7/10  elapsed 2m12s  eta 56s  (18.9s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m30s  eta 37s  (18.8s/unit)
+      [homecredit_default seeds] 9/10  elapsed 2m47s  eta 18s  (18.6s/unit)
+      [homecredit_default seeds] 10/10  elapsed 3m05s  eta 0s  (18.5s/unit)
+  homecredit_default   W=10 D=0.796 gate=1.11 stale=-0.008[-0.012,-0.004] den=+0.006[+0.004,+0.008] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: future-easier;proxy-stripped:1]
+      [datasets] 2/2  elapsed 20m21s  eta 0s  (610.8s/unit) <- homecredit_default
+      [datasets] done in 20m21s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T184036_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 16s  eta 2m31s  (16.8s/unit)
+      [delivery_eta seeds] 2/10  elapsed 33s  eta 2m14s  (16.8s/unit)
+      [delivery_eta seeds] 3/10  elapsed 50s  eta 1m57s  (16.7s/unit)
+      [delivery_eta seeds] 4/10  elapsed 1m06s  eta 1m40s  (16.7s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m23s  eta 1m23s  (16.7s/unit)
+      [delivery_eta seeds] 6/10  elapsed 1m40s  eta 1m06s  (16.7s/unit)
+      [delivery_eta seeds] 7/10  elapsed 1m57s  eta 50s  (16.7s/unit)
+      [delivery_eta seeds] 8/10  elapsed 2m13s  eta 33s  (16.7s/unit)
+      [delivery_eta seeds] 9/10  elapsed 2m30s  eta 16s  (16.7s/unit)
+      [delivery_eta seeds] 10/10  elapsed 2m47s  eta 0s  (16.7s/unit)
+  delivery_eta         W=10 D=0.555 gate=0.92 stale=+0.004[+0.003,+0.006] den=-0.005[-0.006,-0.004] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 7m44s  eta 7m44s  (464.2s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 17s  eta 2m37s  (17.5s/unit)
+      [homecredit_default seeds] 2/10  elapsed 34s  eta 2m19s  (17.4s/unit)
+      [homecredit_default seeds] 3/10  elapsed 52s  eta 2m01s  (17.4s/unit)
+      [homecredit_default seeds] 4/10  elapsed 1m09s  eta 1m44s  (17.4s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m27s  eta 1m27s  (17.4s/unit)
+      [homecredit_default seeds] 6/10  elapsed 1m44s  eta 1m09s  (17.4s/unit)
+      [homecredit_default seeds] 7/10  elapsed 2m02s  eta 52s  (17.4s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m19s  eta 34s  (17.4s/unit)
+      [homecredit_default seeds] 9/10  elapsed 2m36s  eta 17s  (17.4s/unit)
+      [homecredit_default seeds] 10/10  elapsed 2m54s  eta 0s  (17.4s/unit)
+  homecredit_default   W=10 D=0.833 gate=1.15 stale=-0.014[-0.018,-0.009] den=+0.006[+0.004,+0.007] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: future-easier;proxy-stripped:2;proxy-sensitive]
+      [datasets] 2/2  elapsed 19m47s  eta 0s  (593.8s/unit) <- homecredit_default
+      [datasets] done in 19m47s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T190026_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/2] [delivery_eta] task=regression feats=223 n=279415
+      [delivery_eta seeds] 1/10  elapsed 20s  eta 3m04s  (20.5s/unit)
+      [delivery_eta seeds] 2/10  elapsed 40s  eta 2m43s  (20.5s/unit)
+      [delivery_eta seeds] 3/10  elapsed 1m01s  eta 2m23s  (20.5s/unit)
+      [delivery_eta seeds] 4/10  elapsed 1m21s  eta 2m02s  (20.5s/unit)
+      [delivery_eta seeds] 5/10  elapsed 1m42s  eta 1m42s  (20.4s/unit)
+      [delivery_eta seeds] 6/10  elapsed 2m02s  eta 1m21s  (20.5s/unit)
+      [delivery_eta seeds] 7/10  elapsed 2m23s  eta 1m01s  (20.5s/unit)
+      [delivery_eta seeds] 8/10  elapsed 2m43s  eta 40s  (20.5s/unit)
+      [delivery_eta seeds] 9/10  elapsed 3m04s  eta 20s  (20.5s/unit)
+      [delivery_eta seeds] 10/10  elapsed 3m24s  eta 0s  (20.5s/unit)
+  delivery_eta         W=10 D=0.801 gate=0.90 stale=-0.006[-0.007,-0.005] den=-0.013[-0.013,-0.012] => DEPLOYMENT-DECAY-COVARIATE
+      [datasets] 1/2  elapsed 8m28s  eta 8m28s  (508.8s/unit) <- delivery_eta
+  [2/2] [homecredit_default] task=binclass feats=696 n=267645
+      [homecredit_default seeds] 1/10  elapsed 20s  eta 3m03s  (20.3s/unit)
+      [homecredit_default seeds] 2/10  elapsed 40s  eta 2m42s  (20.3s/unit)
+      [homecredit_default seeds] 3/10  elapsed 1m00s  eta 2m22s  (20.3s/unit)
+      [homecredit_default seeds] 4/10  elapsed 1m21s  eta 2m01s  (20.3s/unit)
+      [homecredit_default seeds] 5/10  elapsed 1m41s  eta 1m41s  (20.3s/unit)
+      [homecredit_default seeds] 6/10  elapsed 2m06s  eta 1m24s  (21.0s/unit)
+      [homecredit_default seeds] 7/10  elapsed 2m29s  eta 1m04s  (21.4s/unit)
+      [homecredit_default seeds] 8/10  elapsed 2m53s  eta 43s  (21.7s/unit)
+      [homecredit_default seeds] 9/10  elapsed 3m17s  eta 21s  (22.0s/unit)
+      [homecredit_default seeds] 10/10  elapsed 3m38s  eta 0s  (21.8s/unit)
+  homecredit_default   W=10 D=0.912 gate=1.20 stale=-0.017[-0.021,-0.014] den=-0.010[-0.012,-0.008] => DEPLOYMENT-DECAY-COVARIATE  [TRUST: future-easier;proxy-stripped:3;proxy-sensitive]
+      [datasets] 2/2  elapsed 21m25s  eta 0s  (642.5s/unit) <- homecredit_default
+      [datasets] done in 21m25s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T192153_a8f1549.json  (+ summary_latest.json)  <-- send me this
+### E3 DONE 2026-08-02T19:21:53Z
+
+==== type-attributing frames on ground-truth battery cells ====
+  ground truth: concept/reg_concept = rule MOVED; the rest = rule FIXED
+
+cell                 truth      cov_AUC      ESS%     CV(w)   gap_prim  gap_brier     gap_kl
+--------------------------------------------------------------------------------------------
+  (gap_prim = auc for binclass, rmse for regression; brier/logloss/kl are classification-only)
+synth_concept        RULE         0.500      71.3      0.63     0.4345     0.6501     2.6641
+synth_reg_concept    RULE         0.500      71.3      0.63     0.8207          -          -
+synth_reg_early_nois fixed        0.500      71.3      0.63     0.0576          -          -
+synth_reg_xdep_noise fixed        0.500      71.3      0.63     0.0615          -          -
+synth_reg_stable     fixed        0.500      71.3      0.63    -0.0208          -          -
+synth_covariate      fixed        0.941       1.4      8.53          -          -          -
+
+  READ: a frame SEPARATES the two mechanisms only if its Y|X-side number is
+  materially larger on the RULE cells than on the fixed-rule noise-decay cells.
+  If reg_concept and reg_early_noisy look alike, the frame answers 'Y|X shifted'
+  for both and cannot tell a practitioner which action pays off.
+
+  wrote results/phase1/detector_h2h/detector_h2h_a8f1549.json
+### E2 DONE 2026-08-02T19:25:53Z
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [river_stagger_abrupt] task=binclass feats=3 n=8000
+      [river_stagger_abrupt seeds] 1/10  elapsed 4s  eta 40s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 2/10  elapsed 9s  eta 37s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 3/10  elapsed 13s  eta 32s  (4.6s/unit)
+      [river_stagger_abrupt seeds] 4/10  elapsed 18s  eta 27s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 5/10  elapsed 24s  eta 24s  (4.9s/unit)
+      [river_stagger_abrupt seeds] 6/10  elapsed 30s  eta 20s  (5.0s/unit)
+      [river_stagger_abrupt seeds] 7/10  elapsed 36s  eta 15s  (5.2s/unit)
+      [river_stagger_abrupt seeds] 8/10  elapsed 43s  eta 10s  (5.4s/unit)
+      [river_stagger_abrupt seeds] 9/10  elapsed 49s  eta 5s  (5.5s/unit)
+      [river_stagger_abrupt seeds] 10/10  elapsed 55s  eta 0s  (5.6s/unit)
+      [injection topvar@hi] 1/10  elapsed 9s  eta 1m28s  (9.8s/unit)
+      [injection topvar@hi] 2/10  elapsed 18s  eta 1m14s  (9.3s/unit)
+      [injection topvar@hi] 3/10  elapsed 27s  eta 1m04s  (9.2s/unit)
+      [injection topvar@hi] 4/10  elapsed 36s  eta 54s  (9.1s/unit)
+      [injection topvar@hi] 5/10  elapsed 45s  eta 45s  (9.1s/unit)
+      [injection topvar@hi] 6/10  elapsed 53s  eta 35s  (8.9s/unit)
+      [injection topvar@hi] 7/10  elapsed 59s  eta 25s  (8.6s/unit)
+      [injection topvar@hi] 8/10  elapsed 1m06s  eta 16s  (8.3s/unit)
+      [injection topvar@hi] 9/10  elapsed 1m13s  eta 8s  (8.2s/unit)
+      [injection topvar@hi] 10/10  elapsed 1m21s  eta 0s  (8.2s/unit)
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/3  elapsed 2m22s  eta 4m44s  (142.3s/unit) <- river_stagger_abrupt
+  [2/3] [river_sine_abrupt] task=binclass feats=2 n=8000
+      [river_sine_abrupt seeds] 1/10  elapsed 11s  eta 1m41s  (11.3s/unit)
+      [river_sine_abrupt seeds] 2/10  elapsed 23s  eta 1m32s  (11.5s/unit)
+      [river_sine_abrupt seeds] 3/10  elapsed 35s  eta 1m21s  (11.7s/unit)
+      [river_sine_abrupt seeds] 4/10  elapsed 47s  eta 1m10s  (11.8s/unit)
+      [river_sine_abrupt seeds] 5/10  elapsed 59s  eta 59s  (11.8s/unit)
+      [river_sine_abrupt seeds] 6/10  elapsed 1m11s  eta 47s  (11.8s/unit)
+      [river_sine_abrupt seeds] 7/10  elapsed 1m23s  eta 35s  (11.9s/unit)
+      [river_sine_abrupt seeds] 8/10  elapsed 1m35s  eta 23s  (11.9s/unit)
+      [river_sine_abrupt seeds] 9/10  elapsed 1m47s  eta 11s  (12.0s/unit)
+      [river_sine_abrupt seeds] 10/10  elapsed 1m59s  eta 0s  (12.0s/unit)
+      [injection topvar@hi] 1/10  elapsed 14s  eta 2m08s  (14.2s/unit)
+      [injection topvar@hi] 2/10  elapsed 28s  eta 1m53s  (14.2s/unit)
+      [injection topvar@hi] 3/10  elapsed 42s  eta 1m38s  (14.1s/unit)
+      [injection topvar@hi] 4/10  elapsed 56s  eta 1m24s  (14.1s/unit)
+      [injection topvar@hi] 5/10  elapsed 1m10s  eta 1m10s  (14.1s/unit)
+      [injection topvar@hi] 6/10  elapsed 1m24s  eta 56s  (14.1s/unit)
+      [injection topvar@hi] 7/10  elapsed 1m38s  eta 42s  (14.1s/unit)
+      [injection topvar@hi] 8/10  elapsed 1m52s  eta 28s  (14.1s/unit)
+      [injection topvar@hi] 9/10  elapsed 2m06s  eta 14s  (14.1s/unit)
+      [injection topvar@hi] 10/10  elapsed 2m20s  eta 0s  (14.1s/unit)
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 2/3  elapsed 6m50s  eta 3m25s  (205.5s/unit) <- river_sine_abrupt
+  [3/3] [river_hyperplane_incr] task=binclass feats=10 n=8000
+      [river_hyperplane_incr seeds] 1/10  elapsed 16s  eta 2m24s  (16.0s/unit)
+      [river_hyperplane_incr seeds] 2/10  elapsed 32s  eta 2m08s  (16.0s/unit)
+      [river_hyperplane_incr seeds] 3/10  elapsed 47s  eta 1m51s  (16.0s/unit)
+      [river_hyperplane_incr seeds] 4/10  elapsed 1m03s  eta 1m35s  (15.9s/unit)
+      [river_hyperplane_incr seeds] 5/10  elapsed 1m16s  eta 1m16s  (15.3s/unit)
+      [river_hyperplane_incr seeds] 6/10  elapsed 1m29s  eta 59s  (15.0s/unit)
+      [river_hyperplane_incr seeds] 7/10  elapsed 1m42s  eta 43s  (14.6s/unit)
+      [river_hyperplane_incr seeds] 8/10  elapsed 1m54s  eta 28s  (14.3s/unit)
+      [river_hyperplane_incr seeds] 9/10  elapsed 2m06s  eta 14s  (14.1s/unit)
+      [river_hyperplane_incr seeds] 10/10  elapsed 2m19s  eta 0s  (13.9s/unit)
+      [injection topvar@hi] 1/10  elapsed 11s  eta 1m42s  (11.3s/unit)
+      [injection topvar@hi] 2/10  elapsed 22s  eta 1m30s  (11.3s/unit)
+      [injection topvar@hi] 3/10  elapsed 33s  eta 1m18s  (11.3s/unit)
+      [injection topvar@hi] 4/10  elapsed 45s  eta 1m07s  (11.3s/unit)
+      [injection topvar@hi] 5/10  elapsed 56s  eta 56s  (11.2s/unit)
+      [injection topvar@hi] 6/10  elapsed 1m07s  eta 44s  (11.2s/unit)
+      [injection topvar@hi] 7/10  elapsed 1m18s  eta 33s  (11.2s/unit)
+      [injection topvar@hi] 8/10  elapsed 1m30s  eta 22s  (11.3s/unit)
+      [injection topvar@hi] 9/10  elapsed 1m43s  eta 11s  (11.5s/unit)
+      [injection topvar@hi] 10/10  elapsed 1m55s  eta 0s  (11.5s/unit)
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [datasets] 3/3  elapsed 11m16s  eta 0s  (225.5s/unit) <- river_hyperplane_incr
+      [datasets] done in 11m16s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T193710_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [river_stagger_abrupt] task=binclass feats=3 n=8000
+      [river_stagger_abrupt seeds] 1/10  elapsed 4s  eta 39s  (4.3s/unit)
+      [river_stagger_abrupt seeds] 2/10  elapsed 8s  eta 35s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 3/10  elapsed 13s  eta 31s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 4/10  elapsed 17s  eta 26s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 5/10  elapsed 22s  eta 22s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 6/10  elapsed 26s  eta 17s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 7/10  elapsed 30s  eta 13s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 8/10  elapsed 35s  eta 8s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 9/10  elapsed 39s  eta 4s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 10/10  elapsed 43s  eta 0s  (4.4s/unit)
+      [injection lowvar@lo] 1/10  elapsed 6s  eta 58s  (6.5s/unit)
+      [injection lowvar@lo] 2/10  elapsed 13s  eta 52s  (6.5s/unit)
+      [injection lowvar@lo] 3/10  elapsed 19s  eta 45s  (6.5s/unit)
+      [injection lowvar@lo] 4/10  elapsed 26s  eta 39s  (6.5s/unit)
+      [injection lowvar@lo] 5/10  elapsed 32s  eta 32s  (6.5s/unit)
+      [injection lowvar@lo] 6/10  elapsed 39s  eta 26s  (6.5s/unit)
+      [injection lowvar@lo] 7/10  elapsed 45s  eta 19s  (6.5s/unit)
+      [injection lowvar@lo] 8/10  elapsed 52s  eta 13s  (6.5s/unit)
+      [injection lowvar@lo] 9/10  elapsed 58s  eta 6s  (6.5s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m05s  eta 0s  (6.5s/unit)
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/3  elapsed 1m53s  eta 3m47s  (113.8s/unit) <- river_stagger_abrupt
+  [2/3] [river_sine_abrupt] task=binclass feats=2 n=8000
+      [river_sine_abrupt seeds] 1/10  elapsed 8s  eta 1m17s  (8.6s/unit)
+      [river_sine_abrupt seeds] 2/10  elapsed 17s  eta 1m08s  (8.6s/unit)
+      [river_sine_abrupt seeds] 3/10  elapsed 26s  eta 1m01s  (8.8s/unit)
+      [river_sine_abrupt seeds] 4/10  elapsed 35s  eta 53s  (8.9s/unit)
+      [river_sine_abrupt seeds] 5/10  elapsed 45s  eta 45s  (9.2s/unit)
+      [river_sine_abrupt seeds] 6/10  elapsed 55s  eta 37s  (9.3s/unit)
+      [river_sine_abrupt seeds] 7/10  elapsed 1m06s  eta 28s  (9.5s/unit)
+      [river_sine_abrupt seeds] 8/10  elapsed 1m16s  eta 19s  (9.6s/unit)
+      [river_sine_abrupt seeds] 9/10  elapsed 1m27s  eta 9s  (9.7s/unit)
+      [river_sine_abrupt seeds] 10/10  elapsed 1m37s  eta 0s  (9.8s/unit)
+      [injection lowvar@lo] 1/10  elapsed 12s  eta 1m52s  (12.5s/unit)
+      [injection lowvar@lo] 2/10  elapsed 25s  eta 1m40s  (12.5s/unit)
+      [injection lowvar@lo] 3/10  elapsed 37s  eta 1m27s  (12.5s/unit)
+      [injection lowvar@lo] 4/10  elapsed 49s  eta 1m14s  (12.4s/unit)
+      [injection lowvar@lo] 5/10  elapsed 1m01s  eta 1m01s  (12.2s/unit)
+      [injection lowvar@lo] 6/10  elapsed 1m13s  eta 48s  (12.2s/unit)
+      [injection lowvar@lo] 7/10  elapsed 1m24s  eta 36s  (12.1s/unit)
+      [injection lowvar@lo] 8/10  elapsed 1m36s  eta 24s  (12.1s/unit)
+      [injection lowvar@lo] 9/10  elapsed 1m48s  eta 12s  (12.0s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m59s  eta 0s  (11.9s/unit)
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 2/3  elapsed 5m37s  eta 2m48s  (168.5s/unit) <- river_sine_abrupt
+  [3/3] [river_hyperplane_incr] task=binclass feats=10 n=8000
+      [river_hyperplane_incr seeds] 1/10  elapsed 12s  eta 1m56s  (13.0s/unit)
+      [river_hyperplane_incr seeds] 2/10  elapsed 25s  eta 1m43s  (13.0s/unit)
+      [river_hyperplane_incr seeds] 3/10  elapsed 39s  eta 1m33s  (13.3s/unit)
+      [river_hyperplane_incr seeds] 4/10  elapsed 53s  eta 1m20s  (13.5s/unit)
+      [river_hyperplane_incr seeds] 5/10  elapsed 1m08s  eta 1m08s  (13.6s/unit)
+      [river_hyperplane_incr seeds] 6/10  elapsed 1m22s  eta 54s  (13.7s/unit)
+      [river_hyperplane_incr seeds] 7/10  elapsed 1m36s  eta 41s  (13.7s/unit)
+      [river_hyperplane_incr seeds] 8/10  elapsed 1m48s  eta 27s  (13.6s/unit)
+      [river_hyperplane_incr seeds] 9/10  elapsed 2m00s  eta 13s  (13.4s/unit)
+      [river_hyperplane_incr seeds] 10/10  elapsed 2m12s  eta 0s  (13.3s/unit)
+      [injection lowvar@lo] 1/10  elapsed 10s  eta 1m37s  (10.8s/unit)
+      [injection lowvar@lo] 2/10  elapsed 22s  eta 1m29s  (11.2s/unit)
+      [injection lowvar@lo] 3/10  elapsed 32s  eta 1m16s  (11.0s/unit)
+      [injection lowvar@lo] 4/10  elapsed 43s  eta 1m05s  (10.9s/unit)
+      [injection lowvar@lo] 5/10  elapsed 54s  eta 54s  (10.9s/unit)
+      [injection lowvar@lo] 6/10  elapsed 1m05s  eta 43s  (10.9s/unit)
+      [injection lowvar@lo] 7/10  elapsed 1m15s  eta 32s  (10.8s/unit)
+      [injection lowvar@lo] 8/10  elapsed 1m26s  eta 21s  (10.8s/unit)
+      [injection lowvar@lo] 9/10  elapsed 1m37s  eta 10s  (10.8s/unit)
+      [injection lowvar@lo] 10/10  elapsed 1m47s  eta 0s  (10.8s/unit)
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [datasets] 3/3  elapsed 9m47s  eta 0s  (195.8s/unit) <- river_hyperplane_incr
+      [datasets] done in 9m47s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T194658_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [river_stagger_abrupt] task=binclass feats=3 n=8000
+      [river_stagger_abrupt seeds] 1/10  elapsed 4s  eta 39s  (4.4s/unit)
+      [river_stagger_abrupt seeds] 2/10  elapsed 9s  eta 36s  (4.6s/unit)
+      [river_stagger_abrupt seeds] 3/10  elapsed 13s  eta 31s  (4.5s/unit)
+      [river_stagger_abrupt seeds] 4/10  elapsed 18s  eta 28s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 5/10  elapsed 23s  eta 23s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 6/10  elapsed 27s  eta 18s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 7/10  elapsed 32s  eta 13s  (4.6s/unit)
+      [river_stagger_abrupt seeds] 8/10  elapsed 36s  eta 9s  (4.6s/unit)
+      [river_stagger_abrupt seeds] 9/10  elapsed 42s  eta 4s  (4.7s/unit)
+      [river_stagger_abrupt seeds] 10/10  elapsed 47s  eta 0s  (4.8s/unit)
+      [injection interaction@lo] 1/10  elapsed 11s  eta 1m41s  (11.3s/unit)
+      [injection interaction@lo] 2/10  elapsed 22s  eta 1m30s  (11.3s/unit)
+      [injection interaction@lo] 3/10  elapsed 32s  eta 1m16s  (11.0s/unit)
+      [injection interaction@lo] 4/10  elapsed 41s  eta 1m02s  (10.3s/unit)
+      [injection interaction@lo] 5/10  elapsed 49s  eta 49s  (9.9s/unit)
+      [injection interaction@lo] 6/10  elapsed 57s  eta 38s  (9.7s/unit)
+      [injection interaction@lo] 7/10  elapsed 1m06s  eta 28s  (9.4s/unit)
+      [injection interaction@lo] 8/10  elapsed 1m14s  eta 18s  (9.4s/unit)
+      [injection interaction@lo] 9/10  elapsed 1m24s  eta 9s  (9.3s/unit)
+      [injection interaction@lo] 10/10  elapsed 1m32s  eta 0s  (9.3s/unit)
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/3  elapsed 2m25s  eta 4m50s  (145.1s/unit) <- river_stagger_abrupt
+  [2/3] [river_sine_abrupt] task=binclass feats=2 n=8000
+      [river_sine_abrupt seeds] 1/10  elapsed 8s  eta 1m20s  (9.0s/unit)
+      [river_sine_abrupt seeds] 2/10  elapsed 18s  eta 1m12s  (9.1s/unit)
+      [river_sine_abrupt seeds] 3/10  elapsed 27s  eta 1m03s  (9.1s/unit)
+      [river_sine_abrupt seeds] 4/10  elapsed 36s  eta 54s  (9.1s/unit)
+      [river_sine_abrupt seeds] 5/10  elapsed 45s  eta 45s  (9.1s/unit)
+      [river_sine_abrupt seeds] 6/10  elapsed 54s  eta 36s  (9.1s/unit)
+      [river_sine_abrupt seeds] 7/10  elapsed 1m03s  eta 27s  (9.1s/unit)
+      [river_sine_abrupt seeds] 8/10  elapsed 1m12s  eta 18s  (9.1s/unit)
+      [river_sine_abrupt seeds] 9/10  elapsed 1m21s  eta 9s  (9.1s/unit)
+      [river_sine_abrupt seeds] 10/10  elapsed 1m32s  eta 0s  (9.2s/unit)
+      [injection interaction@lo] 1/10  elapsed 15s  eta 2m17s  (15.2s/unit)
+      [injection interaction@lo] 2/10  elapsed 30s  eta 2m01s  (15.2s/unit)
+      [injection interaction@lo] 3/10  elapsed 43s  eta 1m42s  (14.7s/unit)
+      [injection interaction@lo] 4/10  elapsed 57s  eta 1m26s  (14.4s/unit)
+      [injection interaction@lo] 5/10  elapsed 1m11s  eta 1m11s  (14.3s/unit)
+      [injection interaction@lo] 6/10  elapsed 1m25s  eta 56s  (14.2s/unit)
+      [injection interaction@lo] 7/10  elapsed 1m38s  eta 42s  (14.1s/unit)
+      [injection interaction@lo] 8/10  elapsed 1m53s  eta 28s  (14.2s/unit)
+      [injection interaction@lo] 9/10  elapsed 2m07s  eta 14s  (14.2s/unit)
+      [injection interaction@lo] 10/10  elapsed 2m22s  eta 0s  (14.2s/unit)
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 2/3  elapsed 6m25s  eta 3m12s  (193.0s/unit) <- river_sine_abrupt
+  [3/3] [river_hyperplane_incr] task=binclass feats=10 n=8000
+      [river_hyperplane_incr seeds] 1/10  elapsed 16s  eta 2m31s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 2/10  elapsed 33s  eta 2m14s  (16.9s/unit)
+      [river_hyperplane_incr seeds] 3/10  elapsed 50s  eta 1m57s  (16.9s/unit)
+      [river_hyperplane_incr seeds] 4/10  elapsed 1m07s  eta 1m40s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 5/10  elapsed 1m23s  eta 1m23s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 6/10  elapsed 1m40s  eta 1m07s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 7/10  elapsed 1m57s  eta 50s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 8/10  elapsed 2m14s  eta 33s  (16.8s/unit)
+      [river_hyperplane_incr seeds] 9/10  elapsed 2m30s  eta 16s  (16.7s/unit)
+      [river_hyperplane_incr seeds] 10/10  elapsed 2m47s  eta 0s  (16.7s/unit)
+      [injection interaction@lo] 1/10  elapsed 16s  eta 2m27s  (16.4s/unit)
+      [injection interaction@lo] 2/10  elapsed 32s  eta 2m11s  (16.4s/unit)
+      [injection interaction@lo] 3/10  elapsed 49s  eta 1m55s  (16.5s/unit)
+      [injection interaction@lo] 4/10  elapsed 1m06s  eta 1m39s  (16.6s/unit)
+      [injection interaction@lo] 5/10  elapsed 1m22s  eta 1m22s  (16.6s/unit)
+      [injection interaction@lo] 6/10  elapsed 1m39s  eta 1m06s  (16.5s/unit)
+      [injection interaction@lo] 7/10  elapsed 1m55s  eta 49s  (16.5s/unit)
+      [injection interaction@lo] 8/10  elapsed 2m11s  eta 32s  (16.4s/unit)
+      [injection interaction@lo] 9/10  elapsed 2m27s  eta 16s  (16.4s/unit)
+      [injection interaction@lo] 10/10  elapsed 2m44s  eta 0s  (16.4s/unit)
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [datasets] 3/3  elapsed 12m09s  eta 0s  (243.0s/unit) <- river_hyperplane_incr
+      [datasets] done in 12m09s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T195909_a8f1549.json  (+ summary_latest.json)  <-- send me this
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/3] [river_stagger_abrupt] task=binclass feats=3 n=8000
+      [river_stagger_abrupt seeds] 1/10  elapsed 4s  eta 43s  (4.9s/unit)
+      [river_stagger_abrupt seeds] 2/10  elapsed 10s  eta 40s  (5.1s/unit)
+      [river_stagger_abrupt seeds] 3/10  elapsed 15s  eta 35s  (5.1s/unit)
+      [river_stagger_abrupt seeds] 4/10  elapsed 21s  eta 31s  (5.3s/unit)
+      [river_stagger_abrupt seeds] 5/10  elapsed 27s  eta 27s  (5.4s/unit)
+      [river_stagger_abrupt seeds] 6/10  elapsed 32s  eta 21s  (5.4s/unit)
+      [river_stagger_abrupt seeds] 7/10  elapsed 37s  eta 16s  (5.4s/unit)
+      [river_stagger_abrupt seeds] 8/10  elapsed 43s  eta 10s  (5.5s/unit)
+      [river_stagger_abrupt seeds] 9/10  elapsed 49s  eta 5s  (5.5s/unit)
+      [river_stagger_abrupt seeds] 10/10  elapsed 54s  eta 0s  (5.5s/unit)
+      [injection subpop@lo] 1/10  elapsed 9s  eta 1m21s  (9.0s/unit)
+      [injection subpop@lo] 2/10  elapsed 17s  eta 1m11s  (9.0s/unit)
+      [injection subpop@lo] 3/10  elapsed 27s  eta 1m03s  (9.1s/unit)
+      [injection subpop@lo] 4/10  elapsed 36s  eta 54s  (9.1s/unit)
+      [injection subpop@lo] 5/10  elapsed 45s  eta 45s  (9.1s/unit)
+      [injection subpop@lo] 6/10  elapsed 54s  eta 36s  (9.1s/unit)
+      [injection subpop@lo] 7/10  elapsed 1m03s  eta 27s  (9.1s/unit)
+      [injection subpop@lo] 8/10  elapsed 1m12s  eta 18s  (9.1s/unit)
+      [injection subpop@lo] 9/10  elapsed 1m21s  eta 9s  (9.1s/unit)
+      [injection subpop@lo] 10/10  elapsed 1m30s  eta 0s  (9.1s/unit)
+  river_stagger_abrupt W=10 D=0.500 gate=  - stale=+0.117[+0.096,+0.137] den=+0.117[+0.096,+0.137] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 1/3  elapsed 2m30s  eta 5m01s  (150.7s/unit) <- river_stagger_abrupt
+  [2/3] [river_sine_abrupt] task=binclass feats=2 n=8000
+      [river_sine_abrupt seeds] 1/10  elapsed 12s  eta 1m49s  (12.1s/unit)
+      [river_sine_abrupt seeds] 2/10  elapsed 24s  eta 1m37s  (12.2s/unit)
+      [river_sine_abrupt seeds] 3/10  elapsed 36s  eta 1m25s  (12.2s/unit)
+      [river_sine_abrupt seeds] 4/10  elapsed 48s  eta 1m13s  (12.2s/unit)
+      [river_sine_abrupt seeds] 5/10  elapsed 1m01s  eta 1m01s  (12.3s/unit)
+      [river_sine_abrupt seeds] 6/10  elapsed 1m13s  eta 48s  (12.2s/unit)
+      [river_sine_abrupt seeds] 7/10  elapsed 1m25s  eta 36s  (12.2s/unit)
+      [river_sine_abrupt seeds] 8/10  elapsed 1m36s  eta 24s  (12.1s/unit)
+      [river_sine_abrupt seeds] 9/10  elapsed 1m48s  eta 12s  (12.1s/unit)
+      [river_sine_abrupt seeds] 10/10  elapsed 2m00s  eta 0s  (12.0s/unit)
+      [injection subpop@lo] 1/10  elapsed 13s  eta 2m02s  (13.6s/unit)
+      [injection subpop@lo] 2/10  elapsed 27s  eta 1m48s  (13.6s/unit)
+      [injection subpop@lo] 3/10  elapsed 40s  eta 1m35s  (13.7s/unit)
+      [injection subpop@lo] 4/10  elapsed 54s  eta 1m21s  (13.6s/unit)
+      [injection subpop@lo] 5/10  elapsed 1m08s  eta 1m08s  (13.7s/unit)
+      [injection subpop@lo] 6/10  elapsed 1m22s  eta 54s  (13.7s/unit)
+      [injection subpop@lo] 7/10  elapsed 1m36s  eta 41s  (13.7s/unit)
+      [injection subpop@lo] 8/10  elapsed 1m49s  eta 27s  (13.7s/unit)
+      [injection subpop@lo] 9/10  elapsed 2m03s  eta 13s  (13.7s/unit)
+      [injection subpop@lo] 10/10  elapsed 2m16s  eta 0s  (13.7s/unit)
+  river_sine_abrupt    W=10 D=0.488 gate=0.69 stale=+0.031[+0.027,+0.035] den=+0.027[+0.022,+0.033] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement]
+      [datasets] 2/3  elapsed 6m56s  eta 3m28s  (208.1s/unit) <- river_sine_abrupt
+  [3/3] [river_hyperplane_incr] task=binclass feats=10 n=8000
+      [river_hyperplane_incr seeds] 1/10  elapsed 16s  eta 2m24s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 2/10  elapsed 32s  eta 2m08s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 3/10  elapsed 48s  eta 1m52s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 4/10  elapsed 1m04s  eta 1m36s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 5/10  elapsed 1m20s  eta 1m20s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 6/10  elapsed 1m36s  eta 1m04s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 7/10  elapsed 1m52s  eta 48s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 8/10  elapsed 2m08s  eta 32s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 9/10  elapsed 2m25s  eta 16s  (16.1s/unit)
+      [river_hyperplane_incr seeds] 10/10  elapsed 2m41s  eta 0s  (16.1s/unit)
+      [injection subpop@lo] 1/10  elapsed 14s  eta 2m12s  (14.7s/unit)
+      [injection subpop@lo] 2/10  elapsed 29s  eta 1m56s  (14.6s/unit)
+      [injection subpop@lo] 3/10  elapsed 43s  eta 1m42s  (14.6s/unit)
+      [injection subpop@lo] 4/10  elapsed 58s  eta 1m27s  (14.6s/unit)
+      [injection subpop@lo] 5/10  elapsed 1m13s  eta 1m13s  (14.6s/unit)
+      [injection subpop@lo] 6/10  elapsed 1m27s  eta 58s  (14.6s/unit)
+      [injection subpop@lo] 7/10  elapsed 1m41s  eta 43s  (14.5s/unit)
+      [injection subpop@lo] 8/10  elapsed 1m56s  eta 29s  (14.5s/unit)
+      [injection subpop@lo] 9/10  elapsed 2m10s  eta 14s  (14.5s/unit)
+      [injection subpop@lo] 10/10  elapsed 2m25s  eta 0s  (14.5s/unit)
+  river_hyperplane_inc W=10 D=0.493 gate=3.54! stale=+0.112[+0.097,+0.128] den=+0.122[+0.106,+0.138] => DEPLOYMENT-CONCEPT  [TRUST: no-covariate-movement;noise-drift-present]
+      [datasets] 3/3  elapsed 12m13s  eta 0s  (244.6s/unit) <- river_hyperplane_incr
+      [datasets] done in 12m13s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T201124_a8f1549.json  (+ summary_latest.json)  <-- send me this
+### E4 DONE 2026-08-02T20:11:24Z
+=== 완료 점검 2026-08-02T20:11:24Z ===
+OK   logs/e1_brier_PA.log  판정 1/1
+OK   logs/e1_brier_TX.log  판정 1/1
+OK   logs/e1_logloss_PA.log  판정 1/1
+OK   logs/e1_logloss_TX.log  판정 1/1
+OK   logs/e1_tabred_brier.log  판정 3/3
+OK   logs/e1_tabred_logloss.log  판정 3/3
+OK   logs/e3_k5.log  판정 2/2
+OK   logs/e3_k10.log  판정 2/2
+OK   logs/e3_k20.log  판정 2/2
+OK   logs/e3_k50.log  판정 2/2
+OK   logs/e4_topvar_hi.log  판정 3/3
+OK   logs/e4_lowvar_lo.log  판정 3/3
+OK   logs/e4_interaction_lo.log  판정 3/3
+OK   logs/e4_subpop_lo.log  판정 3/3
+OK   logs/e2_h2h.log  셀 6

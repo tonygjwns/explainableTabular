@@ -1,0 +1,22 @@
+
+==== DEPLOYMENT-DECAY probe (rolling-origin: train past -> predict future) ====
+  [1/1] [acs_pubcov_TX_logloss] task=binclass feats=19 n=62753
+      [acs_pubcov_TX_logloss seeds] 1/10  elapsed 10s  eta 1m33s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 2/10  elapsed 20s  eta 1m22s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 3/10  elapsed 30s  eta 1m11s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 4/10  elapsed 41s  eta 1m01s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 5/10  elapsed 51s  eta 51s  (10.3s/unit)
+      [acs_pubcov_TX_logloss seeds] 6/10  elapsed 1m01s  eta 40s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 7/10  elapsed 1m11s  eta 30s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 8/10  elapsed 1m21s  eta 20s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 9/10  elapsed 1m32s  eta 10s  (10.2s/unit)
+      [acs_pubcov_TX_logloss seeds] 10/10  elapsed 1m42s  eta 0s  (10.2s/unit)
+  acs_pubcov_TX_loglos W= 5 D=0.523 gate=1.00 stale=-0.023[-0.024,-0.022] den=+0.006[+0.005,+0.008] => SUBFLOOR-CONCEPT-SIGNAL  [TRUST: no-covariate-movement]
+      [datasets] 1/1  elapsed 1m48s  eta 0s  (108.8s/unit) <- acs_pubcov_TX_logloss
+      [datasets] done in 1m48s
+
+  v3 READ (PREREG_DEPLOYMENT_V2.md): DEPLOYMENT-CONCEPT needs the DENOISED arm within the
+  noise envelope; raw-only positives are NOISE-DRIFT-CONFOUNDED or RAW-ONLY-POSITIVE, never
+  concept. All verdicts are tree-ensemble-class-scoped; D = window separability, not overlap.
+
+  wrote results/phase1/deployment_decay/summary_20260802T160617_a8f1549.json  (+ summary_latest.json)  <-- send me this
