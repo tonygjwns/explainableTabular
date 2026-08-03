@@ -92,16 +92,31 @@ exists beyond it (at ratio ≈6 a true rotation reads +0.086 against the null's 
 CIs), but a threshold there would rest on a single noise family, so we refuse the verdict instead
 of calibrating one. Abstention is a measured envelope, not a disclaimer.
 
-`[E2 — detector head-to-head]` *The claim this section still owes: that the channel reaches
-type-attributing frames in field use, not only our own probe. The pre-registered test points
-DISDE-style reweighting health and the within-overlap decomposition at battery cells whose ground
-truth is fixed by construction (`reg_early_noisy`, den +0.0045 at gate 3.53; `reg_xdep_noise`,
-+0.0063 at 3.72). Under the field-standard definition (Webb, Gama) noise decay* is *a Y|X change,
-so a fire is not by itself an error — the registered question is whether the frames separate the
-two mechanisms by magnitude. A local preliminary already weakens the strong version: the frames do
-separate by size (rule 0.818 vs noise 0.059, 14×), which refutes "field tools misread this". The
-claim that survives is narrower — sign alone does not separate, and a threshold reading calls both
-Y|X while the implied repair is right for only one. Fill from `logs/e2_h2h.log`.*
+### 3.4 Does the channel reach the frames practitioners actually use?
+
+The sections above measure our own probe. The obvious objection is that a field tool built on a
+different principle — reweighting-based decomposition of the shift into X-side and Y|X-side terms
+— would not be fooled. We pointed such a frame at battery cells whose ground truth is fixed by
+construction, under conditions favourable to it (covariate overlap intact, cov-AUC 0.500, effective
+sample size 71.3% after reweighting).
+
+| cell | truth | Y\|X-side gap |
+|---|---|---|
+| rotating rule (binary) | rule moved | **+0.4345** |
+| rotating rule (regression) | rule moved | **+0.8207** |
+| label-noise decay, fixed rule | rule fixed | +0.0576 |
+| x-dependent noise decay, fixed rule | rule fixed | +0.0615 |
+| stationary (regression) | rule fixed, no noise trend | −0.0208 |
+
+The strong version of our claim is refuted by this, and we say so: the frame does **separate the
+two mechanisms by magnitude**, 7.5–14× — a practitioner reading the number, not the label, is not
+misled. What survives is narrower and still costly. **Sign does not separate.** Both noise-decay
+cells return a *positive* Y|X-side gap where the true stationary cell returns a negative one, so
+under the field-standard definition (Webb et al.; Gama et al.) — under which noise decay *is* a
+Y|X change — a threshold reading files both as the same event. The two events have different
+repairs: retrain-on-recent is right for one and discards valid labels in the other. Attribution by
+sign or by threshold is what fails; attribution by calibrated magnitude, against a null of the kind
+built in §3.1, is what a monitor would need.
 
 ---
 
@@ -158,12 +173,25 @@ dataset: Electricity's identical planted rule recovers **+0.190 at D = 0.905** u
 probe, ten times its recovery at D = 1.000. A certificate therefore certifies that the geometry
 had power *at this separability* — not that power is uniform across certified cells.
 
-`[E3 — within-cell D ladder]` *The contrast above still moves D by changing the probe class, which
-changes two things at once. The registered test narrows the representation of a single cell
-(`--mi-k` ∈ {5, 10, 20, 50}) on the two highest-D certified cells, moving D while holding dataset
-and probe fixed. Prediction, committed before the run: D falls monotonically with k (80%);
-recovery rises as D falls on delivery_eta (60%). Fill from `logs/e3_k*.log`; if it holds, this
-subsection upgrades from a correlation to a controlled ladder.*
+We tried to convert that correlation into a controlled ladder and could not, which is worth
+reporting because the failure is informative. Narrowing a single cell's representation
+(mutual-information top-k, k ∈ {5, 10, 20, 50}) moves D monotonically while holding dataset and
+probe fixed — delivery_eta 0.521 → 0.540 → 0.555 → 0.801, homecredit_default 0.721 → 0.796 →
+0.833 → 0.912, against 0.999 and 1.000 at full representation. But the narrowed cells fall
+*below* the routing threshold, so the injection control never runs and there is no recovery to
+read: the handle that moves D also moves the cell out of the region where power is measured. The
+within-cell recovery ladder therefore remains unmeasured, and we state the correlation as a
+correlation. (Registered predictions, for the record: D was predicted to fall with k and rises;
+the recovery prediction was unmeasurable for the reason just given.)
+
+Two things the ladder did show. The denoised reading itself moves with representation on a fixed
+cell (delivery_eta −0.002 → −0.013; homecredit_default **+0.013 [+0.010, +0.016]** at k = 5, where
+D = 0.721 puts it in the identifiable region, decaying to −0.010 at k = 50) — so representation
+choice sets both whether a cell is identifiable *and* the sign of what is read there. And in the
+adjacent low-D regime the picture is the opposite of the high-D panel: at D ≈ 0.49 on the river
+anchors, all four signal families recover (+0.076 to +0.238, all learnable at 0.916–0.968),
+including the subpopulation-local family that fails at high D in §6.3. Representation dependence
+is a known hazard for this literature's estimands; here it is a measured one.
 
 ### 6.3 Family relativity: the certificate is relative to the class of rule change
 
@@ -177,7 +205,16 @@ gate is 0.20), **fails to recover at −0.050**, reproducing on confirmatory see
 
 That combination is the point. Learnability and recoverability come apart: the instrument has
 power against changes in feature *direction* and none against changes in subpopulation
-*membership*, in the same geometry, at the same strength. Every "verified no-concept" in this
+*membership*, in the same geometry, at the same strength.
+
+The blind spot is a property of family *and* geometry rather than of the family alone, and an
+anchor sweep pins that down: on the single-switch river anchors, where separability is low
+(D ≈ 0.49), the subpopulation-local family recovers on all three anchors (+0.119, +0.079, +0.076,
+learnable at 0.937–0.963), as do the other three (+0.135 to +0.238). It is also, consistently, the
+*smallest* recovery of the four — the family that falls off first as separability rises, and the
+one that has already fallen off in the high-D industrial geometry. So the scope of a certificate is
+a joint statement about which rule families were tested and at what separability, and §7 reports
+both. Every "verified no-concept" in this
 paper therefore carries an explicit family denominator, and the two certificates that stand on the
 industrial panel (weather, homesite_insurance) stand against the families actually tested — weather
 recovering +0.183 / +0.193 on fresh seeds under the low-variance carrier and +0.083 / +0.078 under
@@ -220,11 +257,31 @@ The scope statement is fixed and we hold to it (`PREREG_ACS_EXTENSION` §6(b)): 
 "there is no drift in ACS" but **"this instrument does not see a real rule change of this size."**
 We do not reinterpret it as a property of the data after the fact.
 
-`[E1 — proper-score probe]` *Whether the probe itself fires on Pennsylvania under Brier and
-log-loss. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated
-floor, so no E1 run is a map verdict, and the reading rule fixed before execution discards the
-verdict label and reads only arm magnitudes and the PA-vs-TX contrast. Committed predictions: PA
-staleness turns positive under a proper score 55%; clears the floor 25%; TX stays ≤ 0 under every
-metric 70%. Fill from `logs/e1_*.log`. If PA fires, this subsection gains a repair direction —
-blindness localised to the metric and removable by changing it — while §7's nulls keep their
-AUC scope. If PA stays null, the blindness is deeper than the score and this subsection says so.*
+**The blind spot is localised, and the repair direction is measurable.** Re-running the probe
+itself under proper scores — diagnostic only, since changing the score changes the estimand and
+voids the AUC-calibrated floor, so the reading rule fixed before execution discards the verdict
+label and reads arm magnitudes and the PA-versus-TX contrast — flips the sign of the Pennsylvania
+reading:
+
+| state | AUC (raw / denoised) | Brier | log-loss |
+|---|---|---|---|
+| Pennsylvania (expanded) | −0.011 / −0.009 | −0.005 / **+0.002** | −0.018 / **+0.021** |
+| Texas (never adopted) | −0.015 / −0.011 | −0.005 / −0.002 | −0.023 / **+0.006** |
+
+The denoised arm turns positive under both proper scores on the treatment state, reaching +0.021 —
+the size of the decision floor — under log-loss, against +0.006 on the control, a 3.5× contrast in
+the right direction. The raw arm stays negative under every metric. So the mechanism registered
+before the run is confirmed on the instrument itself and not only through the external lens: what
+the probe could not see, it could not see *because of the score*.
+
+Three things this does not license, all of which we state rather than absorb. The proper-score arm
+carries **no certificate** — the injection planted in that run is unlearnable (learnability −0.185),
+so this reading has no power guarantee behind it. The **control state also moves positive** under
+log-loss (+0.006), so only the ratio is interpretable, never the absolute value; the honest summary
+of §6.4 remains that the metric compresses the signal six- to sevenfold and the residue still sits
+under the floor. And +0.021 "clearing 0.02" compares against a constant calibrated in AUC units,
+which is not a verdict; we record it and leave the constant alone.
+
+The scope sentence therefore gains a clause and loses none of its force: not "there is no drift in
+ACS", but **"this instrument does not see a real rule change of this size through a rank-based
+score; through log-loss it sees something floor-sized, uncertified, and shared with its control."**

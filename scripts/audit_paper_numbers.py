@@ -67,6 +67,8 @@ def walk(vals, node, label, key=""):
         own = next((str(node[k]) for k in LABEL_KEY if isinstance(node.get(k), str)), "")
         sub = f"{label}/{own}" if own else label
         for k, v in node.items():
+            if "per_seed" in k:      # 25-element seed arrays; they flood the pool and the
+                continue             # manuscript quotes their aggregates, not their elements
             walk(vals, v, sub, k)
     elif isinstance(node, list):
         for v in node:
@@ -97,6 +99,9 @@ def load_artifacts():
                 walk(vals, blob, Path(f).stem)
                 continue
             n_files += 1
+            # Row files can still carry readings under names outside FIELDS (the detector
+            # head-to-head stores gap_prim/gap_brier/gap_kl), so walk them as well.
+            walk(vals, blob, Path(f).stem)
             meta = blob.get("meta", {})
             a = " ".join(meta.get("argv", []))
             tag = []
