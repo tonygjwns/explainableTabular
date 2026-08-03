@@ -490,7 +490,7 @@ the repair keeps power where both mechanisms co-occur: denoised retention is 58\
 rotating-rule signal ($+0.316$ vs $+0.541$), and the same holds at small rule-change magnitudes
 (a 0.8-rad rotation: clean denoised $+0.108$, with noise decay $+0.062$---attenuated, still firing).
 Robustness of the denoiser to a small old window was checked directly (old window capped at 600
-rows, cross-fit folds of 300): no false positive ($+0.004$) and no false negative ($+0.430$).
+rows, cross-fit folds of 300): no false positive ($+0.004$) and no false negative ($+0.429$).
 
 \paragraph{Floor comparability across metrics.} The 0.02 decision floor is shared across AUC, accuracy,
 and z-scored $-$RMSE, which are not decision-equivalent units. Two mitigations are structural:
@@ -717,7 +717,7 @@ gradual / reoccurring variants) and all seven INSECTS variants (real sensor data
 temperature drift; \citealp{souza2020challenges}).
 
 \paragraph{Monotone and single-switch rule changes fire: 9/9.} River: \texttt{agrawal\_abrupt} $+0.045$,
-\texttt{agrawal\_gradual} $+0.047$, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} $+0.031$, \texttt{hyperplane\_incremental} $+0.113$ (with
+\texttt{agrawal\_gradual} $+0.047$, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} $+0.031$, \texttt{hyperplane\_incremental} $+0.112$ (with
 the gate correctly co-flagging its noise component), \texttt{sine\_reoccur2}\footnote{Reoccurring
 in name only for this lens's horizon: the stream returns to its
 initial regime just in its final ${\approx}22\%$, so most evaluated back-half windows sit inside

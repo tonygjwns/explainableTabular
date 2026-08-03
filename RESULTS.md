@@ -445,3 +445,38 @@ weather 24k(cap-bound), maps ≈14.3k.
 
 **반영**: PAPER_DRAFT_V4(.md/_KO/§tex) 부록 B 신설 + §6 ACS 문단 포인터 + §7 한계(1b) δ(N) 1차
 실행 반영. 잔여 리버탈 카드 = FT-Transformer급 프로브(선택, GPU).
+
+---
+
+## 31. 원고 수치 전수 감사 (2026-08-03, 로컬) — 오탈 2건 수정, 출처 공백 2건 기록
+
+`scripts/audit_paper_numbers.py`를 확장해 실행. 이전 버전은 `rows` 스키마 파일 164개만 읽어
+**행 스키마 이전 아티팩트 35개(배터리·모델클래스 행렬·회귀 컨트롤·whyshift·gap hygiene)와
+로그 27개를 통째로 건너뛰고 있었다** — 그래서 근거가 있는 수치가 대량으로 unmatched로 나왔다.
+확장 3건: ①임의 깊이 재귀 walk(계기 이름을 가진 leaf만) ②`logs/**/*.log`의 `key=value`·CI 수확
+③**값 일치만으로 MATCH를 주지 않음** — 아티팩트 라벨(데이터셋·배터리 행 이름)이 그 수치를
+인용한 문장에도 나타날 때만 CONFIRMED, 아니면 value-only. (4dp에서 2천 개 값이면 우연 일치가
+실재한다.) Windows cp949 stdout·3dp 인용이 tol 경계에 정확히 앉는 문제도 고침.
+
+**결과**: 세 파일(EN/KO/tex) 328·328·303 수치 중 unmatched 25 → **3**, cross-file 불일치 0.
+
+**수정한 오탈 2건** (둘 다 세 파일 동시, 아티팩트가 정본):
+- `hyperplane_incremental` **+0.113 → +0.112** (`summary_20260704T172128_5f3217d.json`
+  staleness_harm = 0.11249). 같은 문장의 나머지 river 수치 4개는 전부 정확 — 반올림 규약은
+  최근접이 맞고 이 항목만 어긋났다.
+- 작은 old 윈도우(600행/fold 300) 미탐 없음 **+0.430 → +0.429**
+  (`exp-estimator/battery_results.json` `reg_concept__oldcap600` denoised = 0.42946).
+  같은 문장의 오탐 없음 +0.004 = `reg_early_noisy__oldcap600` 0.004269 ✓.
+
+**확인된 것 (수정 불요)**: weather_fs subpop@lo −0.050/R² 0.560 = 실측 −0.04947/0.5602이고
+확증 시드 −0.04246/0.5233로 재현 ✓ / 같은 윈도우 lowvar +0.128(0.12840)·interaction
++0.046(0.04617) ✓ / **ACS PA 양성률 0.234→0.268→0.293→0.305→0.306, TX 0.183–0.185 =
+`logs/acsprep_{PA,TX}.log` 원문과 일치** ✓ (JSON이 아니라 로그가 유일 출처였다).
+
+**출처 공백 2건 (주장은 유효, 재현 경로가 얇다)**:
+- envelope 표의 `synth_reg_stable` 절대 수준 −0.1343 → −0.1222: 차이인 size term +0.01212는
+  `exp-reg/reg_controls_results.json` staleness_harm −0.01212와 정확히 일치하나, **절대 수준은
+  어떤 커밋된 아티팩트에도 없다**(그 런이 per-seed 수준을 저장하지 않음).
+- 부록 C 학습가능성 게이트 행의 junk 0.506 / 학습가능 0.964 → 회복 +0.195: 출처가
+  `AUDIT_FINAL_2026-07-04.md` §C1(실행된 감사)이고 **JSON 아티팩트가 없다.**
+→ 재현 패키지를 만들 때 이 둘은 재실행해서 아티팩트를 남기는 게 맞다. 지금 수치를 바꾸지 않는다.
