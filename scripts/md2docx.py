@@ -21,6 +21,7 @@ from docx.oxml.ns import qn
 from docx.shared import Pt
 
 BOLD = re.compile(r"\*\*([^*]+)\*\*")
+ITAL = re.compile(r"(?<!\*)\*([^*\n]+)\*(?!\*)")
 CODE = re.compile(r"`([^`]+)`")
 
 
@@ -32,16 +33,30 @@ def set_fonts(doc, latin="Calibri", east="Malgun Gothic"):
 
 
 def add_runs(par, text):
-    """Emit bold and inline-code spans as runs; everything else plain."""
+    """Emit bold, italic and inline-code spans as runs; everything else plain.
+
+    Italics matter as much as bold: leaving single asterisks unhandled printed 229 literal stars
+    into the first Korean reading copy.
+    """
     text = CODE.sub(r"\1", text)
+    text = text.replace(chr(92) + "*", chr(1))          # escaped star: not markup (D\* etc.)
+    marks = [(m.start(), m.end(), m.group(1), "b") for m in BOLD.finditer(text)]
+    for m in ITAL.finditer(text):
+        if not any(a <= m.start() < b for a, b, _, _ in marks):
+            marks.append((m.start(), m.end(), m.group(1), "i"))
+    marks.sort()
     pos = 0
-    for m in BOLD.finditer(text):
-        if m.start() > pos:
-            par.add_run(text[pos:m.start()])
-        par.add_run(m.group(1)).bold = True
-        pos = m.end()
+    for a, b, inner, kind in marks:
+        if a > pos:
+            par.add_run(text[pos:a].replace(chr(1), chr(42)))
+        run = par.add_run(inner.replace(chr(1), chr(42)))
+        if kind == "b":
+            run.bold = True
+        else:
+            run.italic = True
+        pos = b
     if pos < len(text):
-        par.add_run(text[pos:])
+        par.add_run(text[pos:].replace(chr(1), chr(42)))
 
 
 def main(src, dst):
@@ -62,12 +77,11 @@ def main(src, dst):
         s = ln.strip()
         if not s:
             flush(); i += 1; continue
-        if s.startswith("> "):                                  # status blockquote
+        if s.startswith(">"):        # internal build note, not part of the manuscript
             flush()
-            p = doc.add_paragraph()
-            add_runs(p, s[2:])
-            p.runs and setattr(p.runs[0].font, "italic", True)
-            i += 1; continue
+            while i < len(lines) and lines[i].strip().startswith(">"):
+                i += 1
+            continue
         if s.startswith("#"):
             flush()
             lvl = len(s) - len(s.lstrip("#"))
