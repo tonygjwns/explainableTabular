@@ -34,8 +34,9 @@
 \newcommand{\no}{$\times$}
 \newcommand{\marginalmark}{$\triangle$}
 
-\title{Is There Exploitable Concept Drift in Industrial Tabular Data?\\
-A Pre-Registered Identifiability Audit}
+\title{Label-Noise Decay Mints Concept Drift:\\
+A False-Positive Channel in Loss-Based Drift Attribution,\\
+and What a Certified Instrument Looks Like}
 
 % Authors are hidden automatically while the tmlr package is used without the
 % [accepted] or [preprint] options. Fill in before switching options.
@@ -51,153 +52,149 @@ A Pre-Registered Identifiability Audit}
 \maketitle
 
 \begin{abstract}
-Which kind of temporal shift a tabular dataset exhibits---a changing rule $P(y \mid x)$ or moving
-covariates $P(x)$---is rarely measured, and we show the verdict depends on the measuring
-instrument. We study \emph{staleness harm}, a deployment-native probe: does adding old examples
-to a fixed recent training set hurt future performance? Three executed failure modes make the
-naive probe untrustworthy. Label-noise decay under a provably fixed rule mints a ``concept
-drift'' verdict statistically matching a real industrial positive ($+0.021$ vs $+0.024$); the
-separability gate that should certify nulls saturates under duplicate rows and entity cohorts;
-and the concept/covariate separation is hypothesis-class-relative---kNN and linear probes
-false-fire where tree ensembles read correctly. We repair the instrument---a cross-fitted
-\emph{denoised staleness} arm with a noise gate and a mapped abstention envelope, group-aware
-separability, and learnability-gated injection certificates---and validate it on a 14-cell
-pre-registered battery that includes rule change and noise drift co-occurring. A pre-registered
-audit of eight industrial datasets (TabReD) with confirmatory fresh-seed replication (10/10
-stable) then yields an identifiability \emph{map}, not a detection table:
-\textbf{no industrial dataset shows exploitable mean-rule drift above its detectable floor for
-the deployed tree-ensemble class (0/8 audited---and 0/5 among the cells whose identifiability is
-certified; the other two are uninformative rather than negative)};
-the sole robust positive is designed drift; the one prior industrial positive is \emph{diagnosed} by
-the instrument itself as label-noise decay; every remaining cell is either an identifiable null
-or carries a certificate verdict---verified, blind, refused, or (one cell) unstable. Anchor
-streams fix the sensitivity profile: monotone and
-single-switch rule changes fire 9/9, and recurring regimes are correctly silent with a
-negative-recency fingerprint. We release the instrument, battery, and audit trail, and argue that
-drift-type attribution without identifiability certificates---the current default in drift
-monitoring---is unreliable.
+A drift monitor must say what moved, not merely that something did, because a changed rule P(y|x)
+calls for retraining on recent data and moving covariates under a fixed rule do not. The loss-based
+comparison this attribution rests on has a false-positive channel we have not found reported
+elsewhere. Hold the rule provably fixed, let only label noise decay over time, and the comparison
+returns a concept-drift verdict: +0.021 against a decision floor of 0.02, and within 0.003 of the
++0.024 industrial positive our own earlier instrument had reported and we had believed. Two further
+channels, built adversarially against our own repair, fire the same way under fixed rules.
+
+We then repair the instrument. Old labels are replaced by cross-fitted predictions from inside their
+own window, a per-window gate flags high label noise, and the validity envelope is measured out to
+the noise level at which the repaired arm itself crosses the floor on a null. A 14-cell
+pre-registered battery validates the repair, including a cell where rule change and noise decay
+co-occur and the repaired arm must still fire; it does, at 58\% of its clean power. Verdicts are
+earned through three certificates: separability, injection, and learnability.
+
+The repaired instrument then diagnoses the mechanism of its own earlier false positive on real
+data, with the power to have seen a rule change certified in the same windows. We also measure where
+it is blind, along four axes, and the last is settled from outside. Against the ACA Medicaid
+expansion, a rule change documented in law, the probe read null in a fully identifiable regime and
+at the tightest detectable bound in the paper, because its score is rank-based and an eligibility
+threshold moves mass across a decision boundary without reordering anyone.
+
+On eight industrial datasets (TabReD), with a fresh-seed replication that leaves 10 of 10 verdicts unchanged, it finds
+no exploitable mean-rule drift above each dataset's detectable floor for the deployed tree-ensemble
+class: 0/8 audited, 0/5 among the cells that carry an informative reading. A frame that does attribute shift types, run head-to-head on the same battery, separates
+the two mechanisms by magnitude but not by sign, so a threshold reading files two events with
+different repairs as one. We release the instrument, the battery and the audit trail, and argue that
+drift-type attribution without identifiability certificates, the current default, is unreliable.
 \end{abstract}
 
 \section{Introduction}\label{sec:intro}
 
-Time-based splits on industrial tabular data collapse elaborate time-aware deep methods while
-gradient-boosted trees survive \citep[TabReD;][]{rubachev2025tabred}. The standard motivation for
-time-aware architecture is \emph{concept drift}: if the labeling rule $P(y \mid x)$ changes over time, a
-model that indexes, retrieves, or modulates by time should beat one that merely receives time as
-a feature. But whether the rule actually changes on these benchmarks---as opposed to the
-covariates $P(x)$ moving under a fixed rule---has not been measured, and our central claim is that
-measuring it is harder than the field assumes: \textbf{the concept/covariate verdict is a property
-of the measuring instrument (its hypothesis class, its noise assumptions, its window geometry) as
-much as of the data.} We make the measurement itself the object of study, in the setting a
-deployed system actually faces: train on the past, predict the future, decide what to do with
-old data.
+A team watching a deployed tabular model sees its recent loss rise and has to choose. Retrain on
+recent data only, discarding older rows as stale, which is right if the labeling rule has changed.
+Or keep everything, because the rule is intact and the older rows still carry correct labels, which
+is right if only the covariates moved. Choosing wrongly is expensive in both directions, and
+choosing is what drift-type attribution is for.
 
-\paragraph{The probe.} We start from a deployment-native quantity we call \emph{staleness harm}:
-\begin{equation*}
-\text{staleness} \;=\; \text{score}(\text{train on recent } N) \;-\; \text{score}(\text{train on recent } N \cup \text{old } N),
-\quad\text{evaluated on a future window,}
-\end{equation*}
-computed rolling-origin over $K$ timestamp-value windows. Because the recent portion is identical
-in both arms, covariate \emph{coverage} cancels by construction: the only difference is $N$ extra old
-examples. If the rule is fixed, old examples carry correct labels and adding them should not
-hurt; if the rule has changed, old labels contradict the current rule and pollute the fit---%
-staleness $> 0$. This construction (unlike train-window selection, which uses the same mechanics
-for \emph{adaptation}; \citealp{klinkenberg2000detecting}) attributes \emph{why} old data helps or hurts, and it
-needs no importance weights, no density ratios, and no overlap between window supports to
-compute---which is exactly what makes it attractive for industrial feature spaces where
-overlap-based decompositions degenerate \citep{damour2021overlap,cai2023disde}.
+The comparison that attribution usually rests on is simple enough to be trusted without checking:
+fit a model on recent data, fit another on recent plus old data, and read the gap on a future
+window. If old rows now mislead, adding them hurts. We call this quantity \emph{staleness harm}, and it
+is deployment-native in a way importance-weighted decompositions are not. The recent portion is
+identical in both arms, so covariate coverage cancels by construction, and nothing needs density
+ratios or overlapping supports, which is exactly what fails in industrial feature spaces.
 
-\paragraph{Three executed failure modes.} The naive form of this argument---``correct labels can only
-help''---is false for finite-capacity empirical risk minimization, and we show it fails silently
-in three distinct ways, each demonstrated by a constructed null that the probe misreads:
+\textbf{The comparison has a false-positive channel.} Its informal justification, that correct labels cannot
+hurt, is false for finite-capacity empirical risk minimization. Hold the rule provably fixed, let
+only the \emph{noise} on the labels decay over time, and the comparison fires: unweighted ERM is not
+efficient under heteroscedasticity, so noisier old rows inflate the loss of any model that fits
+them, and removing them improves recent-window loss for reasons that have nothing to do with the
+rule. On a constructed null this reads +0.021, above the 0.02 floor this literature's thresholds live
+near and within 0.003 of +0.024, an industrial positive our own v2 instrument had reported and we
+had believed. A monitor consuming that number would retrain on recent data and
+throw away correct labels, while telling its owners the rule had changed. Two further channels,
+constructed adversarially against our own repair, fire the same way: x-dependent noise whose scale
+decays (+0.025), and noise correlated with the rule-carrying feature (+0.026), the denoiser's worst
+case. Growing noise reads $-0.023$, so the artifact is directional rather than a constant bias.
+
+\textbf{Two more ways the naive instrument lies}, repaired in Section~\ref{sec:certificates} and mapped in Section~\ref{sec:classrel} respectively. The
+natural certificate for ``a null here is uninformative'' is a window-separability AUC, which asks
+whether a classifier can tell old rows from future rows. Computed row-wise it saturates to
+0.994--1.000 under exact duplicates, near-duplicates and entity cohorts with no covariate shift at
+all: the classifier memorizes rows, not distributions, and
+eight of ten real datasets read exactly 1.000 under the naive gate. And the concept/covariate
+separation is hypothesis-class-relative: a kNN probe reads pure covariate shift as concept drift
+(+0.098) and a two-layer MLP reads fixed-rule prior shift as concept drift (denoised +0.042), while
+tree ensembles pass all controls. That is Shimodaira's misspecification result made empirical, and
+it means ``old data hurts'' can be manufactured by geometry alone.
+
+\textbf{The repair, and the discipline it needs.} Each failure gets a repair validated by execution
+(Section~\ref{sec:instrument}--Section~\ref{sec:validation}). A \emph{denoised staleness} arm replaces old labels with cross-fitted predictions from inside
+their own window: under noise-only drift those pseudo-labels are approximately correct and the harm
+vanishes, while under a changed rule they still encode the old rule and the harm persists. A
+per-window noise gate flags the confound, and its validity envelope is measured rather than assumed,
+out to the noise level at which the denoiser itself crosses the decision floor on a null; beyond
+that the instrument abstains. A group-aware separability estimate deflates memorization while
+leaving honest drift intact. And learnability-gated injection controls turn "this dataset is
+unmeasurable" from an assumption into a demonstration. All verdicts are scoped to the tree-ensemble class, with linear and kNN
+probes carried as canaries whose false fires are reported rather than hidden.
+
+\textbf{The instrument turned on itself.} Pointed back at the dataset that produced our prior positive,
+the repaired instrument reproduces the v2 raw reading bit-for-bit, measures old-window label noise
+at 2.1--2.9$\times$ the recent median, and returns a \emph{significantly negative} denoised arm at every window
+resolution: with the noise removed the old rows help. The same windows recover a rule planted at
+reference strength (+0.086, learnable at R$^2$ 0.93), so the negative is certified rather than
+argued. We are not aware of a prior case of a drift-attribution instrument diagnosing the
+\emph{mechanism} of its own earlier false positive on real data, as opposed to failing to replicate it.
+
+\textbf{And its blind spots, measured.} A null is worth its blind spots, so we map ours (Section~\ref{sec:blind}) along four
+axes: probe class, separability, rule family, and metric. The last is settled from outside. The ACA
+Medicaid expansion, implemented by Pennsylvania on 2015-01-01 and never adopted by Texas, is a rule
+change documented in law and visible in the raw positive rates (0.234 $\to$ 0.306 against a flat
+0.183--0.185). The probe read both states null, in a fully identifiable regime and at the
+tightest detectable bound anywhere in this paper, so a confident zero rather than an underpowered
+one. The mechanism was registered before the run: our binary score is AUC, which is rank-based, and
+an eligibility threshold moves a large mass across a decision boundary without reordering anyone.
+Under proper scores the same windows turn positive on the treated state (+0.021 under log-loss)
+against +0.006 on the control. That localises the blindness and gives a repair direction, and Section~\ref{sec:metricrel}
+states the three things the reading does not license.
+
+\textbf{The application.} With the instrument certified and its blind spots mapped, we spend it on the
+question that motivated building it (Section~\ref{sec:application}): a pre-registered audit of eight TabReD datasets,
+Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
+result is an identifiability map rather than a detection table: 0/8 audited and 0/5 among the cells
+that carry an informative reading, the sole robust positive being designed drift, with two cells
+refusing a certificate outright rather than counting as evidence and one already diagnosed in
+Section~\ref{sec:diagnosis}. Anchor streams fix the
+sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
+correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
+
+\textbf{Contributions.}
+
 \begin{enumerate}
-\item \textbf{Label-noise drift (the diagnosis that motivated this paper).} A regression stream with a
-   \emph{fixed} conditional mean and label-noise standard deviation shrinking $1.5 \to 0.3$ over time mints
-   a ``concept'' verdict at staleness $+0.021$ $[+0.020, +0.023]$---statistically indistinguishable
-   from a real industrial positive we had previously obtained ($+0.024$ $[+0.018, +0.030]$ on
-   sberbank-housing). Old labels need not be \emph{wrong} to hurt; being \emph{noisier} suffices, because
-   unweighted ERM is not efficient under heteroscedasticity. A second channel---$x$-dependent
-   noise whose scale decays---fires the raw probe at $+0.025$ under an equally fixed rule.
-\item \textbf{Overlap-gate saturation.} The natural certificate for ``a null here is uninformative'' is a
-   window-separability AUC (can a classifier tell old rows from future rows?). Computed with a
-   row-level train/test split, this gate saturates to 0.994--1.000 under exact duplicates, tight
-   near-duplicates, and entity cohorts with \emph{zero} covariate shift---the classifier memorizes
-   rows, not distributions. Eight of ten real datasets read exactly 1.000 under the naive gate.
-\item \textbf{Hypothesis-class relativity.} Rerunning the probe's own ground-truth suite with the model
-   class swapped shows the concept/covariate \emph{separation} is not a property of the probe design:
-   a kNN probe reads pure covariate shift as concept drift ($+0.098$) and a linear probe reads
-   prior shift as concept drift ($+0.026$), while HGB and random forests pass all controls. This
-   is the empirical face of known theory \citep{shimodaira2000improving,hinder2023hardness}: under
-   misspecification, the ERM optimum depends on the training covariate distribution, so
-   ``old data hurts'' can be manufactured by geometry alone.
+\item \emph{A false-positive channel in loss-based drift attribution} (Section~\ref{sec:channel}), executed rather than argued:
+label-noise decay under a provably fixed rule mints concept verdicts at magnitudes matching real
+borderline positives, with two further channels found by adversarial construction, and a
+head-to-head showing a type-attributing frame separates the mechanisms by magnitude but not by
+sign.
+\item \emph{A repaired, abstaining instrument} (Section~\ref{sec:instrument}--Section~\ref{sec:validation}): denoised staleness with a noise gate and a measured
+validity envelope, group-aware separability, learnability-gated injection certificates,
+class-scoped verdicts with canaries, validated on a 14-cell pre-registered battery including
+the adversarial combination in which rule change and noise decay co-occur (fires at 58\% of
+clean power).
+\item \emph{A measured map of an instrument's blind spots} (Section~\ref{sec:blind}), including one settled against external
+ground truth: class relativity (a linear monitor flips the canonical Electricity dataset to
+concept drift on identical bytes), continuous power collapse inside the separability gate
+($\rho$ = $-0.47$), family relativity (a subpopulation-local rule learnable at R$^2$ 0.560 and
+unrecovered at $-0.050$), and metric relativity (the ACS falsification).
+\item \emph{A pre-registered identifiability map of industrial tabular ML} (Section~\ref{sec:application}): 0/8 audited and 0/5
+informative, one diagnosed false positive with mechanism, per-dataset certificates and
+detectable-effect bounds, 10/10 confirmatory stability and 10/10 cross-class agreement.
 \end{enumerate}
 
-\paragraph{The repaired instrument.} Each failure mode gets a repair that is itself validated by
-execution (\S\ref{sec:instrument}--\ref{sec:validation}): a \emph{denoised staleness} arm that replaces old labels with cross-fitted
-within-old-window model predictions---under noise-only drift the pseudo-labels are
-approximately correct and the harm vanishes; under a changed rule they still encode the old rule
-and the harm persists---plus a per-window \emph{noise gate} with an explicitly mapped validity
-envelope beyond which the instrument abstains; a group-aware, size-matched separability estimate
-that deflates the memorization channel while leaving honest drift intact; and
-\emph{learnability-gated injection controls} that turn ``this dataset is unmeasurable'' from an
-assumption into a demonstration: a known rule rotation is planted in the dataset's own covariate
-geometry, verified to be learnable in-window, and only then is a persistent null allowed to
-certify blindness. All verdicts are explicitly scoped to the tree-ensemble hypothesis class,
-with linear and kNN probes carried as \emph{canaries} whose false fires are reported, not hidden.
-
-\paragraph{The audit.} We pre-registered the decision cascade, thresholds, seed protocol, and aggregate
-reading before the runs (rule $\to$ prediction $\to$ execution $\to$ read, evidenced by commit timestamps),
-then audited eight TabReD datasets, Electricity, and the INSECTS streams, with a confirmatory
-fresh-seed replication and a model-class panel. The result is not a detection table but an
-identifiability map (\S\ref{sec:map}): industrial mean-rule drift above the per-dataset detectable floor is
-\textbf{0/8 audited---0/5 among the certified cells}, the remaining two being uninformative rather
-than negative; the designed-drift stream is the sole positive (and its denoised staleness \emph{exceeds} the
-raw one---the signature of genuine rule change); the single prior industrial positive is
-\emph{diagnosed}---not merely retracted---as label-noise decay, by the same instrument that once
-minted it; two industrial datasets earn a verified no-concept certificate via injection recovery,
-while \emph{all four} of the industrial ``unidentifiable'' cells end without an earned
-certificate---three because their injections are unlearnable (a fact the
-naive protocol would have laundered into ``earned blindness'') and the fourth because its
-learnability score straddles the gate across seed sets; the panel's only earned blindness is
-Electricity, which is not one of the industrial eight. Anchor streams (\S\ref{sec:anchors}) give the
-instrument a coherent sensitivity profile---monotone and single-switch rule changes fire 9/9;
-recurring regimes are correctly silent and are flagged by a negative recency gain, which is
-impossible under one-way drift; malware (EMBER) reads as coverage-driven decay, not label rot,
-consistent with how temporal degradation actually arises there \citep{pendlebury2019tesseract}.
-
-\paragraph{Contributions.}
-\begin{enumerate}
-\item \emph{An executed anatomy of drift-type attribution failure} (\S\ref{sec:instrument}--\ref{sec:validation}): three constructed nulls that
-   silently mint concept-drift verdicts (noise decay, gate memorization, class relativity), each
-   with magnitudes matching real borderline positives.
-\item \emph{A repaired, abstaining instrument} (\S\ref{sec:instrument}): denoised staleness $+$ noise gate with a mapped
-   validity envelope; group-aware separability; learnability-gated injection certificates;
-   class-scoped verdicts with canaries. Validated on a 14-cell pre-registered battery including
-   the adversarial combinations (rule change \emph{and} noise drift co-occurring must still fire---%
-   it does, at 58\% of clean power).
-\item \emph{A pre-registered identifiability map of industrial tabular ML} (\S\ref{sec:map}): 0/8 exploitable
-   mean-rule drift over the audited panel---0/5 once the two certificate-less cells are separated
-   out, which is the map's point rather than a caveat to it;
-   one diagnosed false positive with mechanism; per-dataset certificates and
-   detectable-effect bounds; 10/10 confirmatory stability and 10/10 cross-class (HGB$\leftrightarrow$RF)
-   agreement, with a real-data demonstration that a linear monitor flips the canonical
-   Electricity dataset to ``concept drift''.
-\item \emph{A sensitivity profile with anchors} (\S\ref{sec:anchors}): what this lens can and cannot see, established on
-   designed-drift streams (fires iff old labels contradict the \emph{current} regime), with the
-   negative-recency fingerprint for recurring regimes and an honest malware null.
-\end{enumerate}
-
-\paragraph{What we do not claim.} We do not claim concept drift is absent from industrial tabular data---%
+\textbf{What we do not claim.} We do not claim concept drift is absent from industrial tabular data:
 several cells are certified \emph{blind}, and blindness is not absence. We do not claim the
-identifiability theory is new---that overlap failure blocks nonparametric identification is
-classical \citep{damour2021overlap,bendavid2010impossibility}, and the class-relativity principle is
-established \citep{hinder2023hardness}; our contribution is the executed instrument, its failure
-anatomy, and the certified map. And we do not claim model-agnosticism: every verdict is relative
-to the deployed hypothesis class, which we argue is the only honest way to state drift-type
-attribution at all. Finally, the map does not adjudicate what a \emph{deep} time-aware
-architecture could exploit: it fixes what the dominant deployed class has to exploit, and the
-battery (\S\ref{sec:classmatrix}) is the entry bar any richer probe must pass before its
-verdicts join the map.
+identifiability theory is new: that overlap failure blocks nonparametric identification is
+classical, and class-relativity is established. Our contribution is the executed channel, the
+repaired instrument, and the certified map. We do not claim model-agnosticism: every verdict is
+relative to the deployed hypothesis class, which we argue is the only honest way to state
+drift-type attribution at all. We do not claim the noise channel is the only way this comparison
+fails, only that it is one nobody had reported and that it is large enough to have fooled us. And
+we do not claim our own instrument is trustworthy everywhere. Section~\ref{sec:blind} is the list of places where it is
+not, and one entry on that list was set by a state's policy decision rather than by us.
 
 \section{Related Work}\label{sec:related}
 
