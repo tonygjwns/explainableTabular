@@ -786,7 +786,7 @@ computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-s
 
 **Table 5.** The audited panel. Verdicts are identical on exploratory and confirmatory seeds; certificates state what each null is worth.
 | dataset | verdict (= confirmatory) | raw | denoised | gate | D | Rec. | certificate |
-|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|---|
 | insects | **DEPLOYMENT-CONCEPT** | +0.135 / +0.129 | **+0.152 / +0.145** | 1.24 | 0.844 | +0.162 | injection recovers |
 | sberbank_housing | **NOISE-DRIFT-CONFOUNDED** | +0.024 / +0.033 (fires) | **−0.015 / −0.011** | **2.11 / 2.21 (fires)** | 1.000 | — | diagnosed (§3.2) |
 | cooking_time | INJECTION-RECOVERED | −0.011 | −0.018 | 0.92 | 0.966 | **+0.546** | **verified no-concept** |
@@ -1110,7 +1110,7 @@ nothing else:
 
 **Table B3.** The sample-size term measured directly on fixed-rule battery cells.
 | battery cell | task | recent → recent ∪ old | size term | vs. floor | per-window (n = 25) |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | synth_stable | binclass (AUC) | 0.9895 → 0.9902 | **+0.00074** | 4% | SD 0.0016, sign mixed |
 | synth_covariate | binclass (AUC) | 0.9577 → 0.9583 | +0.00064 | 3% | SD 0.0019, sign mixed |
 | synth_covariate_mild | binclass (AUC) | 0.9631 → 0.9665 | +0.00340 | 17% | SD 0.0033 |
@@ -1167,7 +1167,7 @@ code. Recovered staleness, "vac" = injection unlearnable (no admissible number):
 
 **Table B5.** Injection recovery by signal family and carrier.
 | cell | topvar@hi | lowvar@lo | interaction@lo | subpop@lo | reading |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | cooking_time | +0.546 | +0.467 | +0.357 | +0.131 | verified, 4/4 |
 | delivery_eta | +0.332 | vac | +0.274 | vac | verified, 2/2 learnable |
 | elec2 | +0.018 | −0.003 | −0.001 | −0.002 | blindness earned, 4/4 |
@@ -1198,7 +1198,7 @@ implementation year, Texas stays within 0.183–0.185 throughout:
 
 **Table B6.** The two ACS states under the deployment lens.
 | | verdict | raw | denoised | recency | D | δ |
-|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|
 | Pennsylvania (treated) | NO-STRONG-CONCEPT | −0.011 | −0.009 | **+0.009** | 0.534 | **0.00083** |
 | Texas (control) | NO-STRONG-CONCEPT | −0.015 | −0.011 | −0.001 | 0.523 | 0.00200 |
 
@@ -1211,7 +1211,7 @@ cells.
 
 **Table B7.** Classic stream detectors on the battery: detections per 1,000 samples, three seeds.
 | cell | truth | ADWIN | DDM | KSWIN | PageHinkley |
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 | concept | rule moved | 0.167 | 0.278 | 0.000 | 0.194 |
 | nuisance_proxy | rule moved | 0.111 | 0.139 | 0.028 | 0.195 |
 | **concept + noise decay** | **rule moved** | 0.083 | **0.000** | 0.000 | 0.083 |
@@ -1238,10 +1238,6 @@ decay drives error *down* — could not be tested here, because the battery's tw
 are both regression and DDM needs a binary error stream. We did not add a binary noise-decay cell
 after seeing this. None of these detectors emits a drift-type verdict, so none of this enters the
 map; the point is only that a fire carries no type information, which is what §2 claims.
-
----|
-| Pennsylvania (treated) | NO-STRONG-CONCEPT | −0.011 | −0.009 | +0.009 | 0.534 | 0.00083 |
-| Texas (control) | NO-STRONG-CONCEPT | −0.015 | −0.011 | −0.001 | 0.523 | 0.00200 |
 
 Both null. The one arm that separates them is recency gain, positive and CI-excluding-zero on the
 treated state and indistinguishable from zero on the control — directionally right, and still
