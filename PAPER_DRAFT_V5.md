@@ -1198,7 +1198,11 @@ implementation year, Texas stays within 0.183–0.185 throughout:
 
 **Table B6.** The two ACS states under the deployment lens.
 | | verdict | raw | denoised | recency | D | δ |
-|---|---|---|---|---|---|**B.7 Classic stream detectors on the battery: the fire rate does not track the truth.** Section 2
+|---|---|---|---|---|---|---|
+| Pennsylvania (treated) | NO-STRONG-CONCEPT | −0.011 | −0.009 | **+0.009** | 0.534 | **0.00083** |
+| Texas (control) | NO-STRONG-CONCEPT | −0.015 | −0.011 | −0.001 | 0.523 | 0.00200 |
+
+**B.7 Classic stream detectors on the battery: the fire rate does not track the truth.** Section 2
 argues that loss-stream detectors are type-blind by construction. This measures it. Four standard
 detectors (ADWIN, KSWIN, DDM, PageHinkley) were run over the prequential error stream of a river
 learner on the battery cells, whose ground truth is fixed by construction; detections per 1,000

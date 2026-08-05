@@ -256,7 +256,7 @@ data, where \emph{all four} of the industrial ``unidentifiable'' cells fail to e
 learnability score straddles the gate across seed sets). We do not run
 these detectors head-to-head on the audited cells: a loss-stream detector answers ``did anything
 change?'' and is type-blind by construction, so its fires would not bear on drift-\emph{type}
-attribution; the canary panel (\S\ref{sec:classmatrix}) is the like-for-like comparison---what a
+attribution; the canary panel (\S\ref{sec:classrel}) is the like-for-like comparison---what a
 weaker \emph{attribution} instrument reports on the same bytes---and porting the certificate
 protocol to streaming monitors is future work (\S\ref{sec:discussion}).
 
@@ -391,7 +391,7 @@ built in Section~\ref{sec:noisechannel}, is what a monitor would need.
 \caption{The decision cascade of the instrument. The cascade is specified verbatim in
 \S\ref{sec:cascade} and PREREG \S3. Side channels attached to every run: the strict-rule shadow
 verdict (rule-sensitive flag), the negative-recency fingerprint for recurring regimes
-(\S\ref{sec:anchors}), the canary-probe panel (\S\ref{sec:classmatrix}), and provenance stamping
+(\S\ref{sec:anchors}), the canary-probe panel (\S\ref{sec:classrel}), and provenance stamping
 on every run.}
 \label{fig:cascade}
 \end{figure}
@@ -450,7 +450,7 @@ Student-$t$ over 10 seeds; each seed re-draws a 90\% row subsample, re-jitters w
 and re-samples all training sets. These are seed-level intervals over heavily overlapping
 subsamples and are anti-conservative for tiny effects (\S\ref{sec:anchors} calibrates the resulting no-evidence
 band on no-drift anchors); verdict-level inference does not rest on them alone---the
-confirmatory fresh-seed replication (\S\ref{sec:protocol}) is the operative stability check, and per-seed values
+confirmatory fresh-seed replication (\S\ref{sec:panel}) is the operative stability check, and per-seed values
 are emitted with every run so that alternative constructions (window-block bootstrap, split-half)
 can be applied without re-execution. The pre-registered estimand is \emph{exploitable mean-rule drift}:
 a change in the decision-relevant functional of $P(y \mid x)$ that makes old labels contradict the
@@ -505,7 +505,7 @@ the two highest-variance features---is planted in the dataset's own $(X, t)$ geo
 staleness pipeline re-run (10 seeds, same power as the main read). Before the null is allowed to
 mean anything, the injected rule must be \emph{learnable in-window} (held-out AUC $\ge 0.65$ / $R^2 \ge 0.20$
 / accuracy $\ge$ majority $+\ 0.10$): executed on a constructed geometry whose top-variance features
-are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.506) and the naive
+are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.482) and the naive
 protocol grants ``earned blindness'' vacuously; the gate converts that to \emph{injection-vacuous}---%
 certificate refused. Outcomes: recovery ($\Rightarrow$ the real null was informative: verified no-concept),
 earned blindness (learnable but unrecoverable $\Rightarrow$ the geometry genuinely hides this signal
@@ -515,7 +515,7 @@ tried and end with no certificate; the other two resolve only once the family is
 ---\texttt{homesite\_insurance} scores within 0.05 of the gate on the reference family and flips
 across seed sets, but is comfortably learnable and consistently unrecovered on the low-variance
 one, and weather is unlearnable on the reference family yet recovers on two others
-(\S\ref{sec:results}). The certificate is explicitly
+(\S\ref{sec:panel}). The certificate is explicitly
 relative to this reference family: recovery certifies power against rotations carried by the
 dataset's high-variance directions, not against rule changes living in low-variance features,
 interactions, or subpopulations (\S\ref{sec:discussion}, Limitation 6).
@@ -532,7 +532,7 @@ boundary, and never a measure of support overlap itself---which is why $D \geq D
 nothing on its own and hands off to the injection control. And a cell without an identifiability
 certificate cannot be evidence of \emph{no drift}; it is only evidence of \emph{no measurement},
 which is why we carry the 0/5 certified count alongside the pre-registered 0/8
-(\S\ref{sec:results}). In the opposite direction---\emph{soundness}, i.e.\ staleness $>0$ implying
+(\S\ref{sec:panel}). In the opposite direction---\emph{soundness}, i.e.\ staleness $>0$ implying
 rule change---no theorem is available to be had: \citet{loog2019minimizers} show ERM risk is
 non-monotone in added same-distribution data, so $\mathbb{E}[\text{staleness}] > 0$ is possible
 under zero drift and zero heteroscedasticity. That asymmetry is why \S\ref{sec:gate} reports a
@@ -618,11 +618,53 @@ magnitudes (binary $+0.28$ vs regression $+0.55$ $\Rightarrow$ regression floor 
 concept/no-concept boundary; the only affected cell is the mechanism label of the diagnosed
 regression positive (\S\ref{sec:diagnosis}), which is already flagged rule-sensitive and barred from headlines.
 
-\subsection{The model-class matrix: why verdicts are class-scoped}\label{sec:classmatrix}
+\subsection{The gate has teeth: re-gating after the instrument changes}\label{sec:regate}
 
-Re-running the five core controls with the probe's model class swapped (the instrument's every
-component---staleness arms, gate, separability, injection---follows the swap) yields
-Table~\ref{tab:classmatrix}.
+The battery is not run once. It is the re-gate that any change to the instrument must pass, and the
+rule committed with it is that a mismatch reverts the change rather than explaining it. That rule
+has now been exercised after the fact: when two opt-in diagnostic flags were added to the probe, the
+battery was re-run and required to return bit-identical results against the reference
+environment --- all fourteen cells, every field, verdicts included. It did. A pre-registered
+instrument means little if its gate cannot fail once the code is already written; this is the record
+that it can.
+
+\section{Where the instrument is blind}\label{sec:blind}
+
+Sections 4 and 5 establish what the repaired instrument can say. This section establishes what it
+cannot, along four axes, each measured rather than asserted. Three are measured with our own
+tools; the fourth is settled from outside, against a rule change documented in law.
+
+We put this before the application (Section~\ref{sec:application}) deliberately. A verdict of ``no rule change'' is only worth
+its blind spots, and a reader who does not know them cannot price the map that follows.
+
+\subsection{Class relativity: the same bytes, a different probe, a different verdict}\label{sec:classrel}
+
+Every component of the instrument --- both staleness arms, the noise gate, separability, the
+injection control --- follows the probe's model class. Swapping that class through the five core
+controls separates two properties that are usually conflated. Concept \emph{detection} is class-robust:
+all five classes fire on a true rotation (+0.280 to +0.310). Concept/covariate \emph{separation} --- the
+property a verdict actually rests on --- is not. kNN reads pure covariate shift with a fixed rule as
+concept (+0.098); on fixed-rule prior shift, kNN (+0.048), linear (+0.026) and a two-layer MLP
+(denoised +0.042) all false-fire. This is Shimodaira (2000) made empirical: under misspecification
+the mixture-ERM optimum moves with P(x), so covariate shift alone manufactures ``old data hurts.''
+Denoising does not repair it --- kNN still false-fires at +0.111 on pseudo-labels, because the
+misspecification is in the probe, not in the labels.
+
+The neural result deserves its own sentence, because the field's motivating question is whether
+deep tabular models have a rule change to exploit: the first neural probe we tested fails the
+separation battery and is therefore carried as a canary, not as decision grade. We do not
+extrapolate that to modern deep architectures at production scale; we claim the direction of the
+burden --- a probe class earns drift-verdict authority by passing this battery.
+
+On real data the consequence is not hypothetical. Electricity --- the literature's canonical
+concept-drift dataset --- reads DEPLOYMENT-CONCEPT under two independent canary classes (linear:
+raw +0.023, denoised +0.033, injection recovers +0.190; MLP: raw +0.007, denoised +0.025) and
+unidentifiable-with-earned-blindness under the tree-ensemble probe, on identical bytes. Whether a
+monitor confirms that dataset's reputation is a property of the monitor. A second canary behaviour
+is worth reporting as a warning: on ecom_offers the linear probe fires the \emph{denoised} arm alone
+(+0.028) with the raw arm null ($-0.002$) --- a denoiser artifact specific to misspecified probes,
+since the linear ĝ_old's systematic error is itself informative to the linear downstream model.
+The denoised arm's semantics are class-scoped too.
 
 \begin{table}[t]
 \caption{The model-class matrix: the five core controls with the probe's model class swapped.}
@@ -643,40 +685,219 @@ rotating rule + nuisance & \yes\ ($+0.203$) & \yes\ ($+0.200$) & \yes\ ($+0.228$
 \end{tabular}
 \end{table}
 
-Concept \emph{detection} is class-robust (all five classes fire on true rotations); the
-concept/covariate \emph{separation}---the property the verdict rests on---holds only for classes
-flexible enough to represent the fixed rule. This is \citet{shimodaira2000improving} made empirical: under
-misspecification the mixture-ERM optimum moves with $P(x)$, so covariate shift alone manufactures
-``old data hurts.'' Denoising does not repair this channel (kNN still false-fires at $+0.111$ with
-pseudo-labels---the misspecification is in the \emph{probe}, not the labels), which is why the
-instrument's verdicts are stated as tree-ensemble-scoped, with linear/kNN carried as canaries.
-The neural probe deserves emphasis, because the paper's motivating question is whether deep
-tabular architectures have a rule change to exploit: \textbf{a two-layer MLP probe fails the
-separation battery}---it reads fixed-rule prior shift as concept drift (denoised $+0.042$, a
-fire) and leans positive on pure covariate shift (denoised $+0.045$, saved only by CI width)---so
-it joins the canaries rather than the decision-grade classes. We do not claim this extrapolates
-to modern deep tabular architectures at scale; we claim the direction of the burden: a probe
-class earns drift-verdict authority by passing this battery, and the first neural probe we
-tested does not. The practical reading for the field is uncomfortable: \textbf{a drift monitor built
-on a linear, local, or small-neural probe can report concept drift on data where a
-tree-ensemble monitor reports none, on the same bytes}---and \S\ref{sec:classpanel} shows this happens on the
-canonical real drift dataset, not just in synthetics.
+\subsection{Power collapses continuously inside the separability gate}\label{sec:powerrel}
 
-\section{The Map}\label{sec:map}
+The separability threshold D\* = 0.96 routes cells to the injection control, and it reads as a
+cliff. It is not one. Just inside it, a planted rule of \emph{fixed} strength recovers at wildly
+different magnitudes: cooking_time (D = 0.966) +0.546, delivery_eta (D = 0.999) +0.332,
+Electricity (D = 1.000) +0.018, homesite_insurance (D = 1.000) $-0.052$.
 
-\subsection{Protocol}\label{sec:protocol}
+Learnability does not explain the ordering --- Electricity's planted rule is the \emph{most} learnable in
+the panel (in-window AUC 0.976) and still barely recovers. What decays across D is recovery, not
+learnability. Over every learnable injection run at decision grade, the rank correlation between D
+and recovery is $\rho$ = $-0.47$ (p = 0.037, n = 20), and the cleanest contrast is within a single
+dataset: Electricity's identical planted rule recovers +0.190 at D = 0.905 under the linear
+probe, ten times its recovery at D = 1.000. A certificate therefore certifies that the geometry
+had power \emph{at this separability} --- not that power is uniform across certified cells.
 
-Eight TabReD datasets \citep[train segments of the official temporal splits]{rubachev2025tabred},
-Electricity (elec2), and INSECTS (incremental-balanced)---HGB probe, $K = 10$, 10 exploratory
-seeds (0--9), then a \textbf{confirmatory rerun with fresh seeds (100--109)}; any verdict that moves
-between the two is reported unstable and barred from claims. Decision cascade, thresholds, seed
-protocol, and the aggregate reading were committed before execution; the prior (v2-era)
-industrial positive was pre-registered as a \emph{retraction candidate with a prediction}
-(NOISE-DRIFT-CONFOUNDED or denoised-null), and a survival battery was pre-specified in case the
-prediction failed. Both the primary rule (CI $> 0$ $\wedge$ mean $>$ floor) and the strict rule
-(CI $>$ floor) are computed; rule-sensitive cells are flagged.
+We tried to convert that correlation into a controlled ladder and could not, which is worth
+reporting because the failure is informative. Narrowing a single cell's representation
+(mutual-information top-k, k $\in$ {5, 10, 20, 50}) moves D monotonically while holding dataset and
+probe fixed --- delivery_eta 0.521 $\to$ 0.540 $\to$ 0.555 $\to$ 0.801, homecredit_default 0.721 $\to$ 0.796 $\to$
+0.833 $\to$ 0.912, against 0.999 and 1.000 at full representation. But the narrowed cells fall
+\emph{below} the routing threshold, so the injection control never runs and there is no recovery to
+read: the handle that moves D also moves the cell out of the region where power is measured. The
+within-cell recovery ladder therefore remains unmeasured, and we state the correlation as a
+correlation. (Registered predictions, for the record: D was predicted to fall with k and rises;
+the recovery prediction was unmeasurable for the reason just given.)
 
-\subsection{Results: 10/10 confirmatory-stable; industrial mean-rule drift 0/8 audited, 0/5 certified}\label{sec:results}
+Two things the ladder did show. The denoised reading itself moves with representation on a fixed
+cell (delivery_eta $-0.002$ $\to$ $-0.013$; homecredit_default +0.013 [+0.010, +0.016] at k = 5, where
+D = 0.721 puts it in the identifiable region, decaying to $-0.010$ at k = 50) --- so representation
+choice sets both whether a cell is identifiable \emph{and} the sign of what is read there. And in the
+adjacent low-D regime the picture is the opposite of the high-D panel: at D $\approx$ 0.49 on the river
+anchors, all four signal families recover (+0.076 to +0.238, all learnable at 0.916--0.968),
+including the subpopulation-local family that fails at high D in Section~\ref{sec:familyrel}. Representation dependence
+is a known hazard for this literature's estimands; here it is a measured one.
+
+\subsection{Family relativity: the certificate is relative to the class of rule change}\label{sec:familyrel}
+
+An injection certificate says the geometry could carry \emph{a} planted rule. It cannot say the
+geometry could carry \emph{any} rule, and the difference is measurable. Sweeping the injection across
+signal families on the same windows: on weather's full deployment span, a low-variance rotation
+recovers +0.128 and an interaction-borne rule recovers +0.046, both clearing the strict
+rule --- while a subpopulation-local rule, comfortably learnable in-window at R$^2$ 0.560 (the
+gate is 0.20), fails to recover at $-0.050$, reproducing on confirmatory seeds (R$^2$ 0.523,
+$-0.042$).
+
+That combination is the point. Learnability and recoverability come apart: the instrument has
+power against changes in feature \emph{direction} and none against changes in subpopulation
+\emph{membership}, in the same geometry, at the same strength.
+
+The blind spot is a property of family \emph{and} geometry rather than of the family alone, and an
+anchor sweep pins that down: on the single-switch river anchors, where separability is low
+(D $\approx$ 0.49), the subpopulation-local family recovers on all three anchors (+0.119, +0.079, +0.076,
+learnable at 0.937--0.963), as do the other three (+0.135 to +0.238). It is also, consistently, the
+\emph{smallest} recovery of the four --- the family that falls off first as separability rises, and the
+one that has already fallen off in the high-D industrial geometry. So the scope of a certificate is
+a joint statement about which rule families were tested and at what separability, and Section~\ref{sec:application} reports
+both. Every ``verified no-concept'' in this
+paper therefore carries an explicit family denominator, and the two certificates that stand on the
+industrial panel (weather, homesite_insurance) stand against the families actually tested --- weather
+recovering +0.183 / +0.193 on fresh seeds under the low-variance carrier and +0.083 / +0.078 under
+the interaction family.
+
+\subsection{Metric relativity: falsified against an externally documented rule change}\label{sec:metricrel}
+
+The three axes above are the instrument measured with the instrument. This one is settled from
+outside, and it is the sharpest thing we can say about our own tool.
+
+The ACA Medicaid expansion is a rule change documented in law: Pennsylvania implemented it on
+2015-01-01, Texas never adopted it. On the ACS public-coverage task over 2014--2018 the effect is
+visible in the raw data --- Pennsylvania's positive rate moves 0.234 $\to$ 0.268 $\to$ 0.293 $\to$ 0.305 $\to$
+0.306 with the step at the implementation year, while Texas stays within 0.183--0.185 throughout.
+
+\textbf{The probe read both states null.} Pennsylvania: D = 0.534 --- fully identifiable, not a gated
+abstention --- gate 0.91, raw $-0.011$ [$-0.011$, $-0.010$], denoised $-0.009$ [$-0.010$, $-0.008$]. Texas:
+D = 0.523, raw $-0.015$, denoised $-0.011$. And the Pennsylvania null carries the tightest
+detectable bound anywhere in this paper ($\delta$ = 0.00083), so this is a confident zero rather than an
+underpowered one --- which makes the miss sharper, not softer.
+
+The mechanism was registered before the run and is confirmed by it. Our binary score is AUC, which
+is rank-based, and an eligibility threshold can move a large mass of people across a decision
+boundary without reordering anyone. Measured on the same rows with proper scores, the
+treatment-versus-control separation widens from 3.1$\times$ under AUC to 6.3$\times$ under Brier, 6.6$\times$ under
+log-loss and 15$\times$ under a rule-movement divergence. But it does not become large: every reading
+stays below the decision floors of both instruments, and the control state also returns
+placebo-significant gaps, so only the treatment/control \emph{ratio} is interpretable. The honest
+statement is therefore not ``the metric explains the miss'' but "the metric compresses the signal
+six- to sevenfold, and even uncompressed this policy change sits under our floor."
+
+Two consequences, and we take both. Every null in Section~\ref{sec:application} is scoped to a rank-based score --- the right
+scope for a ranking or triage system, the wrong one for the fixed-threshold eligibility systems
+this very task represents. And the 0.02 decision floor, calibrated on planted effects and no-drift
+anchors, is larger than a real population-scale policy rule change. We record that as a
+measured criticism of the constant (Appendix C) and do not act on it: changing a pre-registered
+threshold after seeing results is precisely what this paper argues against.
+
+The scope statement is fixed and we hold to it (\texttt{PREREG\_ACS\_EXTENSION} Section~\ref{sec:blind}(b)): the finding is not
+``there is no drift in ACS'' but ``this instrument does not see a real rule change of this size.''
+We do not reinterpret it as a property of the data after the fact.
+
+\textbf{The blind spot is localised, and the repair direction is measurable.} Re-running the probe
+itself under proper scores --- diagnostic only, since changing the score changes the estimand and
+voids the AUC-calibrated floor, so the reading rule fixed before execution discards the verdict
+label and reads arm magnitudes and the PA-versus-TX contrast --- flips the sign of the Pennsylvania
+reading:
+
+\begin{table}[t]
+\centering
+\small
+\caption{The ACS public-coverage cells under three scores. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated floor.}
+\label{tab:4}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+state & AUC (raw / denoised) & Brier & log-loss \\
+\midrule
+Pennsylvania (expanded) & $-0.011$ / $-0.009$ & $-0.005$ / \textbf{+0.002} & $-0.018$ / \textbf{+0.021} \\
+Texas (never adopted) & $-0.015$ / $-0.011$ & $-0.005$ / $-0.002$ & $-0.023$ / \textbf{+0.006} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+The denoised arm turns positive under both proper scores on the treatment state, reaching +0.021 ---
+the size of the decision floor --- under log-loss, against +0.006 on the control, a 3.5$\times$ contrast in
+the right direction. The raw arm stays negative under every metric. So the mechanism registered
+before the run is confirmed on the instrument itself and not only through the external lens: what
+the probe could not see, it could not see \emph{because of the score}.
+
+Three things this does not license, all of which we state rather than absorb. The proper-score arm
+carries no certificate --- the injection planted in that run is unlearnable (learnability $-0.185$),
+so this reading has no power guarantee behind it. The control state also moves positive under
+log-loss (+0.006), so only the ratio is interpretable, never the absolute value; the honest summary
+of Section~\ref{sec:metricrel} remains that the metric compresses the signal six- to sevenfold and the residue still sits
+under the floor. And +0.021 ``clearing 0.02'' compares against a constant calibrated in AUC units,
+which is not a verdict; we record it and leave the constant alone.
+
+The scope sentence therefore gains a clause and loses none of its force: not "there is no drift in
+ACS``, but ''this instrument does not see a real rule change of this size through a rank-based
+score; through log-loss it sees something floor-sized, uncertified, and shared with its control."
+
+\section{Application: auditing an industrial panel}\label{sec:application}
+
+Everything above is about an instrument. This section spends it on the question that motivated
+building one: does industrial tabular data contain rule change a deployed model could exploit?
+The answer is a map, and the map is worth exactly what Section~\ref{sec:blind} says it is worth --- every number below is
+scoped to a tree-ensemble probe class (Section~\ref{sec:classrel}), to the separability at which its certificate was
+earned (Section~\ref{sec:powerrel}), to the rule families that certificate was tested against (Section~\ref{sec:familyrel}), and to a
+rank-based score (Section~\ref{sec:metricrel}). We state the qualifiers with the result rather than after it.
+
+\subsection{Protocol and result}\label{sec:panel}
+
+Eight TabReD datasets (Rubachev et al., 2025; train segments of the official temporal splits),
+Electricity, and INSECTS (incremental-balanced) --- HGB probe, K = 10, ten exploratory seeds (0--9),
+then a confirmatory rerun with fresh seeds (100--109); any verdict that moves between the two is
+reported unstable and barred from claims. The decision cascade, thresholds, seed protocol and
+aggregate reading were committed before execution. The prior v2-era industrial positive was
+pre-registered as a \emph{retraction candidate with a prediction} (NOISE-DRIFT-CONFOUNDED or
+denoised-null) and a survival battery was pre-specified in case the prediction failed; Section~\ref{sec:diagnosis} reports
+what happened. Both the primary rule (CI > 0 and mean > floor) and the strict rule (CI > floor) are
+computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-stable.
+
+\begin{table}[t]
+\centering
+\small
+\caption{The audited panel. Verdicts are identical on exploratory and confirmatory seeds; certificates state what each null is worth.}
+\label{tab:5}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+dataset & verdict (= confirmatory) & raw & denoised & gate & D & Rec. & certificate \\
+\midrule
+insects & \textbf{DEPLOYMENT-CONCEPT} & +0.135 / +0.129 & \textbf{+0.152 / +0.145} & 1.24 & 0.844 & +0.162 & injection recovers \\
+sberbank_housing & \textbf{NOISE-DRIFT-CONFOUNDED} & +0.024 / +0.033 (fires) & \textbf{$-0.015$ / $-0.011$} & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & diagnosed (Section~\ref{sec:diagnosis}) \\
+cooking_time & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & \textbf{+0.546} & \textbf{verified no-concept} \\
+delivery_eta & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & \textbf{+0.332} & \textbf{verified no-concept} \\
+maps_routing & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
+elec2 & UNIDENTIFIABLE & +0.001 & +0.001 & 0.66 & 1.000 & +0.018 & \textbf{blindness earned} \\
+ecom_offers & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous} --- injection unlearnable (0/4 families) \\
+homecredit_default & UNIDENTIFIABLE & $-0.007$ & +0.004 & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 families; 80 proxy features stripped) \\
+weather & INJECTION-RECOVERED $\dagger$ & $-0.012$ & $-0.011$ & 0.93 & 0.994 & \textbf{+0.183} & \textbf{verified no-concept} (2/3 learnable families) \\
+homesite_insurance & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 learnable families, stable) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\emph{D} = the group-aware separability median (D\\emph{ = 0.96 routes to the injection control); }Rec.* =
+recovered staleness of a rule planted at reference strength; ``---'' = the injection was unlearnable in
+every family tried, so no recovery number is admissible, and \emph{n/a} = the cell never routes to the
+control. Recovery moves by less than 0.01 between seed sets everywhere. $\dagger$ weather's reference-family
+rule is unlearnable in its geometry; recovery is measured under the low-variance carrier, where it
+reproduces on fresh seeds (+0.183 / +0.193), and under the interaction family (+0.083 / +0.078).
+The ``(m/n families)'' counts are the family denominator of Section~\ref{sec:familyrel}, printed so a certificate is never
+read as stronger than the class of rule change it was tested against.
+
+\textbf{The aggregate, as pre-registered and as it is worth.} Relative to the tree-ensemble class, the
+number of industrial datasets with exploitable mean-rule drift above the per-dataset detectable
+floor is 0/8 audited. Over the cells that carry an informative reading it is 0/5, and the
+denominator is worth spelling out because three cells leave it for two different reasons.
+ecom_offers and homecredit_default end with no certificate --- their planted probe rule is unlearnable
+under every family tried --- so they contribute no evidence in either direction. sberbank-housing is
+not a null at all: it is the diagnosed noise cell of Section~\ref{sec:diagnosis}, and counting a diagnosed mechanism as a
+null would double-count it. What remains are the three verified no-concept certificates
+(cooking_time, delivery_eta, weather), the earned-blindness certificate (homesite_insurance), and
+the identifiable null that needs no certificate (maps_routing). We report both aggregates wherever
+they appear; the first is what was pre-registered, the second is what it is worth.
+
+Three readings deserve their own sentence. The only concept positive is the designed-drift stream,
+where the denoised arm \emph{exceeds} the raw arm --- pseudo-labels encode the old rule cleanly once label
+noise is removed, the signature of genuine rule change and the mirror image of Section~\ref{sec:noisechannel}'s channel. Two
+of the four blindness claims a naive protocol would have granted are \emph{vacuous}, a distinction
+invisible without the learnability gate. And the strongest cells in the map are, counter-
+intuitively, the two verified no-concept certificates: geometry demonstrably had power (+0.546 and
++0.332 recovery of a planted rule) and the real staleness is still null. What that power does \emph{not}
+mean uniformly is the subject of Section~\ref{sec:powerrel}.
 
 \begin{figure}[t]
 \centering
@@ -726,277 +947,201 @@ many signal families were learnable and how many of those recovered, so a certif
 read as stronger than the class of rule change it was actually tested against.}
 \end{table}
 
-Figure~\ref{fig:map} gives the map at a glance; Table~\ref{tab:map} is the precise record. The
-pre-registered aggregate reading:
-\textbf{relative to the tree-ensemble class, the number of industrial datasets with exploitable
-mean-rule drift above the per-dataset detectable floor is 0/8.} That count is over the eight
-datasets \emph{audited}; the count over the datasets \emph{whose identifiability is certified} is
-\textbf{0/5}, because \texttt{ecom\_offers} and \texttt{homecredit\_default} alone end with no
-certificate---their planted probe rule is unlearnable under every signal family tried---and so
-contribute no evidence in either direction. We report both numbers wherever the aggregate appears: the first is what was
-pre-registered, the second is what it is worth. The only concept positive is
-the designed-drift stream, where the denoised arm \emph{exceeds} the raw arm---pseudo-labels encode
-the old rule cleanly once label noise is removed, the signature of genuine rule change. Two of
-the four industrial blindness claims that a naive protocol would have granted end without any
-earned certificate, because the planted probe rule is unlearnable in those geometries and their
-top-variance features cannot carry it---a distinction invisible without the learnability gate.
-The other two are settled by widening the signal family rather than by assumption: weather's
-geometry carries a rule fine on its \emph{low-variance} features and the real null survives the
-power certificate that follows, and \texttt{homesite\_insurance} is learnable there too and stays
-unrecovered, which converts the seed-unstable label of the first reading into earned blindness. The strongest cells in the map are,
-counter-intuitively, the two verified no-concept certificates: geometry demonstrably has power
-($+0.55$/$+0.33$ recovery of a planted rule) and the real staleness is still null.
+\subsection{Across the deployment gap}\label{sec:gap}
 
-\paragraph{Certified is not uniform: power collapses inside the routing region.}
-$D^\star = 0.96$ is a binary gate, but the injection control---a planted rule of \emph{fixed}
-strength (2.5\,rad)---is recovered at very different magnitudes just inside it:
-\texttt{cooking\_time} ($D = 0.966$) recovers $+0.546$, \texttt{delivery\_eta} ($D = 0.999$)
-$+0.332$, Electricity ($D = 1.000$) $+0.018$, \texttt{homesite\_insurance} ($D = 1.000$) $-0.052$.
-Learnability does not explain the ordering---Electricity's planted rule is the \emph{most}
-learnable in the panel (in-window AUC 0.976) and still barely recovers; what collapses across $D$
-is recovery, not learnability. Over every learnable injection run at decision grade the rank
-correlation between $D$ and recovery is $\rho = -0.47$ ($p = 0.037$, $n = 20$); the cleanest
-within-dataset contrast is Electricity itself, whose identical planted rule recovers $+0.190$ at
-$D = 0.905$ under the linear probe---ten times its recovery at $D = 1.000$ under HGB. A
-certificate therefore certifies that the geometry had power \emph{at this separability}, not that
-power is uniform across the certified cells; the Rec.\ column of Table~\ref{tab:map} makes that
-spread visible, and the threshold of \S\ref{sec:certificates} should be read as routing laid over
-a continuous and steep decay rather than as a cliff.
+The map covers the train segments of TabReD's official temporal splits, which is where a
+practitioner would fit but not where the model is judged. Re-running all eight cells with train,
+validation and test concatenated on the shared normalised timestamp --- so the windows cross the
+held-out gap the official split withholds --- leaves 8/8 verdicts identical between exploratory and
+confirmatory seeds and no industrial cell firing CONCEPT. The aggregate is therefore not
+re-scoped to train segments.
 
-\subsection{The class panel on real data}\label{sec:classpanel}
+Three cells move in ways worth recording rather than burying. sberbank's raw arm no longer clears
+the floor over the longer span, so the noise diagnosis of Section~\ref{sec:diagnosis} is explicitly scoped to the train
+segment. cooking_time's separability \emph{falls} below D\* (0.927), against our expectation that a
+longer span would raise it, leaving an identifiable null that needs no certificate. And
+homecredit_default's denoised arm reads +0.018 --- 89\% of the decision floor, the largest
+positive-direction number anywhere in this paper --- with a certificate that is \emph{earned} here rather
+than refused, so it reads as ``measured and under the floor'' rather than ``not measured''. That cell
+is the closest thing this panel has to a positive, and we flag it as the place a larger-N or
+finer-window follow-up should look first.
 
-The decision-grade classes agree: \textbf{HGB and random-forest verdicts match operatively on 10/10
-datasets} (one sub-label difference). The canaries do not---and the flip that matters is
-replicated across two independent canary classes: \textbf{both the linear probe (raw $+0.023$, denoised
-$+0.033$, injection recovers $+0.190$) and the MLP probe (raw $+0.007$, denoised $+0.025$) read
-Electricity as DEPLOYMENT-CONCEPT} where the tree-ensemble probe reads it
-unidentifiable-with-earned-blindness. Electricity is the literature's canonical concept-drift
-dataset; whether a monitor confirms that reputation depends on the probe class, on identical
-data. The MLP panel also illustrates why canary verdicts must not be consumed directly: on the
-regression datasets its staleness estimates are numerically unstable (sberbank CI spanning $\pm 15$
-z-units; weather CI width 0.5)---driven by a few divergent fits: on sberbank, three of ten seeds
-land at $|\text{staleness}| > 10$ z-units while the other seven lie within $\pm 2$ (per-seed
-values in the committed artifact), i.e., occasional optimization failure of the un-tuned probe
-rather than signal---and no TabReD cell produces a new positive under it---the
-decision-grade map is unchanged. A second canary behavior is worth reporting as a
-warning: on \texttt{ecom\_offers} the linear probe fires the \emph{denoised} arm only ($+0.028$) with the raw arm
-null ($-0.002$)---a denoiser-artifact channel specific to misspecified probes (the linear $\hat{g}_{\text{old}}$'s
-systematic error is itself informative to the linear downstream model), reinforcing that the
-denoised arm's semantics are also class-scoped.
+\subsection{Anchors and the sensitivity profile}\label{sec:anchors}
 
-\section{Anchors and the Sensitivity Profile}\label{sec:anchors}
+A map of nulls is only as informative as the sensitivity of the instrument that drew it, so we ran
+it over 23 synthetic river streams (SEA / Agrawal / STAGGER / Sine / Hyperplane; no-drift, abrupt
+single-switch, gradual and reoccurring variants) and all seven INSECTS variants (real sensor data,
+lab-controlled temperature drift).
 
-The map's credibility rests on knowing what the instrument \emph{can} see. We ran it over 23
-synthetic river streams (SEA/Agrawal/STAGGER/Sine/Hyperplane; no-drift / abrupt single-switch /
-gradual / reoccurring variants) and all seven INSECTS variants (real sensor data, lab-controlled
-temperature drift; \citealp{souza2020challenges}).
+\textbf{Monotone and single-switch rule changes fire: 9/9.} River: agrawal_abrupt +0.045,
+agrawal_gradual +0.047, stagger_abrupt, sine_abrupt +0.031, hyperplane_incremental +0.112 (with the
+gate correctly co-flagging its noise component), sine_reoccur2 +0.047. INSECTS: gradual-balanced
++0.092, gradual-imbalanced +0.069, incremental +0.135 --- in every firing cell denoised is at least
+raw, and the injection positive control recovers. Weak switches (SEA's threshold nudge) land in the
+no-evidence band with consistent sign and are reported with their detectable floors.
 
-\paragraph{Monotone and single-switch rule changes fire: 9/9.} River: \texttt{agrawal\_abrupt} $+0.045$,
-\texttt{agrawal\_gradual} $+0.047$, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} $+0.031$, \texttt{hyperplane\_incremental} $+0.112$ (with
-the gate correctly co-flagging its noise component), \texttt{sine\_reoccur2}\footnote{Reoccurring
-in name only for this lens's horizon: the stream returns to its
-initial regime just in its final ${\approx}22\%$, so most evaluated back-half windows sit inside
-the middle regime, whose rule is a near label-inversion of the anchor's---its recency gain is
-strongly \emph{positive} ($+0.30$), the opposite of the recurring fingerprint, and
-geometry-matched siblings whose middle regime is not label-inverting read ${\approx}0$
-(\texttt{sine\_reoccur} $-0.003$, \texttt{sine\_reoccur3} $-0.003$).} $+0.047$. INSECTS:
-gradual-balanced $+0.092$, gradual-imbalanced $+0.069$, incremental $+0.135$---in every firing cell,
-denoised $\ge$ raw, and the injection positive-control recovers. Weak switches (SEA's threshold
-nudge) land in the no-evidence band with consistent sign, reported with their detectable floors.
+\textbf{Recurring regimes are correctly silent --- and fingerprinted.} INSECTS abrupt variants
+(oscillating temperature) read \emph{negative} staleness ($-0.070$, $-0.027$) with negative recency gain
+($-0.058$, $-0.023$): the window adjacent to the test predicts it \emph{worse} than the oldest window does.
+Negative recency is impossible under one-way drift; it is the signature of a regime that has
+returned, and it replicates across river's reoccurring cells and INSECTS incremental-reoccurring.
+This is a scope statement, not a defect. The lens answers the deployment question of whether old
+data harms a model trained today, and when old regimes recur, old data genuinely does not harm. A
+monitor built on this lens will not \emph{detect} recurring drift; it will correctly say old data is
+safe to keep, and the negative-recency flag says why.
 
-\paragraph{Recurring regimes are correctly silent---and fingerprinted.} INSECTS abrupt variants
-(oscillating temperature) read \emph{negative} staleness (old data helps: $-0.070$, $-0.027$) with
-\textbf{negative recency gain} ($-0.058$, $-0.023$): the window adjacent to the test predicts it \emph{worse}
-than the oldest window does. Negative recency is impossible under one-way drift; it is the
-signature of a regime that has returned. The same pattern holds across river's reoccurring
-cells and INSECTS incremental-reoccurring---three independent confirmations. This is a scope
-statement, not a defect: the lens answers the deployment question (``does old data harm a model
-trained today?''), and when old regimes recur, old data genuinely does not harm---recency does.
-A monitor built on this lens will not \emph{detect} recurring concept drift; it will correctly tell
-you old data is safe to keep, and its negative-recency flag tells you why. On the audited panel
-that flag is silent: every industrial cell reads recency gain $\ge 0$ (from $+0.000$ on
-\texttt{maps\_routing} to $+0.325$ on sberbank-housing), nowhere near the recurring signature
-($-0.023$ to $-0.058$ on the oscillating streams). This is deliberately a scoped statement:
-negative recency certifies recurrence only at scales that dominate the evaluation horizon---our
-own \texttt{sine\_reoccur2} anchor shows a late-returning regime (final ${\approx}22\%$)
-reading recency $+0.30$---and drift at sub-window timescales is averaged away
-(\S\ref{sec:discussion}, Limitation 2). The silent flag therefore rules out horizon-dominating
-recurrence on the audited panel; it says nothing about late, brief, or sub-window-periodic
-returns (intraday or day-of-week seasonality included), which remain uncovered by this check.
+On the audited panel that flag is silent:
+every industrial cell reads recency gain at or above zero (+0.000 on maps_routing to +0.325 on
+sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
+horizon --- our own sine_reoccur2 anchor returns to its initial regime in the final ~22\% and reads
+recency +0.30 --- so it rules out horizon-dominating recurrence and says nothing about late, brief or
+sub-window-periodic returns.
 
-\paragraph{Calibration of the no-evidence band.} Two of five no-drift anchor streams produce
-``CI-significant'' sub-floor denoised positives at 1/10--1/20 of the decision floor---seed-level
-CIs on overlapping subsamples are anti-conservative at tiny magnitudes. Accordingly, the
-sub-floor band is read as \emph{no evidence} everywhere in this paper, a calibration the anchor suite
-forced and the pre-registration records.
+\textbf{Calibration of the no-evidence band.} Two of five no-drift anchor streams produce
+``CI-significant'' sub-floor denoised positives at 1/10 to 1/20 of the decision floor: seed-level CIs
+on overlapping subsamples are anti-conservative at tiny magnitudes. The sub-floor band is therefore
+read as \emph{no evidence} everywhere in this paper --- a calibration the anchor suite forced and the
+pre-registration records.
 
-\paragraph{Malware (EMBER).} On 2018-dense monthly windows the cell is certificate-grade:
-DEPLOYMENT-DECAY-COVARIATE with $D = 0.834$ (identifiable---the null carries full weight), raw
-staleness $-0.008$ $[-.009, -.007]$ (old data helps), denoised $-0.004$, gate quiet, recency gain
-$+0.031$ above the floor, detectable floor 0.0013. (``Certificate-grade'' refers to
-identifiability, not magnitude: the mechanism label rests on the above-floor recency gain and
-the significantly negative staleness; the no-evidence-band discipline governs sub-floor
-\emph{positives} and is not invoked here.) Malware's temporal degradation
-\citep{pendlebury2019tesseract} is real and recency-recoverable, but it is coverage-driven---new
-families appear; old labels do not rot---and the deployment lens draws exactly that distinction:
-keep the old data, expect decay anyway, retrain for coverage. (A full-history windowing over 126
-sparse months gives the same null at lower power, and a mis-windowed attempt on 19-row windows
-correctly refused to emit a verdict.)
+\textbf{Malware.} On EMBER, over 2018-dense monthly windows, the instrument returns a
+certificate-grade DEPLOYMENT-DECAY-COVARIATE: D = 0.834 (identifiable), raw $-0.008$ [$-0.009$,
+$-0.007$], denoised $-0.004$, gate quiet, recency gain +0.031 above the floor, detectable floor 0.0013.
+Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven, since new
+families appear while old labels do not rot. The lens draws exactly that distinction: keep the old
+data, expect decay anyway, retrain for coverage.
 
-\paragraph{The WhyShift bridge (ACS across years).} WhyShift reported $Y \mid X$-shifts as prevalent on
-ACSIncome across \emph{states}; running the instrument on the same task across \emph{years} (California,
-2014--2018, yearly windows, 10 seeds) yields the map's best-powered null: NO-STRONG-CONCEPT with
-raw $-0.008$ and denoised $-0.007$ (both CIs negative---old years help), gate quiet, $D = 0.515$
-(the years are barely separable in feature space---negligible covariate movement, fully
-identifiable), recency $\approx 0$, and a detectable floor of 0.0008. The same task whose spatial axis
-exhibits prevalent $Y \mid X$-shift is temporally quiet over five years---the axis, not just the
-dataset, determines the shift type. (An overlap-based decomposition run on the same cell
-agrees: within-overlap gap $-0.009 \approx$ placebo $-0.008$ at cov-AUC 0.68---Appendix~\ref{app:rebuttal}.) The cell also passes a real-data analogue of the
-prior-shift control: the fixed \$50k income threshold under inflation produces a monotone
-positive-rate ramp ($0.36 \to 0.42$), and the instrument does not misread that prior drift as
-concept. (Scope: one state, five pre-COVID years; a multi-state extension is future work.)
+\textbf{Income across years.} On ACS income across \emph{years} (California, 2014--2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw $-0.008$,
+denoised $-0.007$ (both CIs negative), gate quiet, D = 0.515, recency near zero, detectable floor
+0.0008 --- on the same task whose \emph{spatial} axis is reported to exhibit prevalent Y|X-shift. The
+axis, not the dataset, determines the shift type. That cell also passes a real-data prior-shift
+control: the fixed $50k threshold under inflation produces a monotone positive-rate ramp (0.36 to
+0.42) and the instrument does not misread it as concept. The complementary ACS reading --- the one
+where a documented rule change went unseen --- is Section~\ref{sec:metricrel}, and the two should be read together: the
+instrument is well powered on this task and still metric-blind to a particular kind of change on it.
 
 \section{Discussion}\label{sec:discussion}
 
-\paragraph{What a practitioner gets.} Raw staleness answers ``does old data hurt?''; the repaired
-instrument answers ``\emph{why}, and what to do about it,'' with a decision rule per cell: a denoised
-fire inside the envelope $\Rightarrow$ the rule changed for your model class---old labels are poison,
-retrain recent-only or add temporal structure; a raw fire with the gate on $\Rightarrow$ your labels' noise
-profile drifted---old rows are \emph{reusable} via self-training (the denoised arm is literally that
-remedy, measured); nulls with a recovery certificate $\Rightarrow$ retraining chases coverage, not rule
-change; negative recency $\Rightarrow$ regimes recur---retention, not recency, is your friend; vacuous or
-unstable certificates $\Rightarrow$ do not let a monitor speak about this dataset's drift type at all.
+\textbf{What this paper is.} An instrument, its failure anatomy, a measured map of its blind spots, and
+one application. The claim we defend is narrow and, we think, load-bearing: drift-type
+attribution without identifiability certificates is unreliable, not as an argument from
+principle but because we built the uncertified version, believed one of its outputs, and then
+identified the mechanism that produced it.
 
-\paragraph{What the map means, and does not.} The 0/8 aggregate does \emph{not} say concept drift is absent
-from industrial tabular ML: \textbf{two of the eight cells are certificate-less} (their injections
-are unlearnable in every signal family tried), and exactly one of the eight is
-blind-but-certified (\texttt{homesite\_insurance}); Electricity, the panel's other earned
-blindness, is not one of the industrial eight. The aggregate is therefore 0/8 audited but 0/5 informative; blindness is
-not absence, and neither is vacuity. It says something narrower and, we argue, more useful: on the
-benchmark the field uses to argue for time-aware tabular architectures, \textbf{no measurable
-mean-rule drift exists for the model class that dominates those benchmarks, and every apparent
-counterexample so far has dissolved under controls}---the last one into label-noise decay,
-diagnosed rather than asserted. The burden of proof for ``temporal architecture X exploits
-concept drift on TabReD-like data'' should now include an identifiability certificate.
+\textbf{Limitations.} The four axes along which the instrument is blind are not listed here --- they are
+Section~\ref{sec:blind}, promoted out of this section because a limitation you can measure is a result. What remains are
+the limits of the \emph{study}.
 
-\paragraph{Limitations.} (1) Verdicts are tree-ensemble-scoped; we show this scoping is necessary, not
-that it is sufficient for every deployed system. The panel's neural probe (a two-layer MLP)
-fails the separation battery and is classified a canary (\S\ref{sec:classmatrix}); modern deep tabular
-architectures (FT-Transformer-class, at production scale) remain untested---extending the panel
-is the clearest next step, with the battery as the pre-registered entry bar any such probe must
-pass before its drift verdicts are trusted. (1b) \textbf{Scale.} The probe trains on $N \le 6{,}000$ rows
-per arm; industrial models train on orders of magnitude more. A rule change exploitable only at
-much larger $N$ is invisible here, so every $\delta$ bound and the 0/8 (0/5 certified) aggregate are statements \emph{at probe
-scale}. A first $\delta(N)$ sweep (Appendix~\ref{app:rebuttal}) raises the arm cap to the
-window-geometry ceiling ($N \approx$ 14k--24k, up to $4\times$ the headline scale) on the three
-largest null cells: every verdict is unchanged and no reading trends toward the floor.
-Production-scale $N$ beyond that remains future work, and we flag rather than dismiss the
-possibility that the map changes there. Scale enters a second way: because the arms differ in size
-($N$ vs $2N$), a sample-size gain is folded into every staleness reading. Measured directly
-(Table~\ref{tab:sizeterm}) it is negligible on binary cells but reaches 61\% of the decision floor
-on regression, which effectively raises the detectable floor on the map's five regression cells;
-we report their nulls with that displacement stated rather than absorbed.
-(2) $K = 10$ rolling windows with a fixed early
-anchor: drift at time scales far below the window width is averaged away (the injection control
-partially measures this---its recovery varies with $K$), and the TabReD map covers the train
-segments of the official splits---though the full-span audit of Appendix~\ref{app:rebuttal}, B.4
-crosses that gap and moves no verdict. (3) The single robust positive
-is lab-designed drift; we found no naturally occurring industrial positive to calibrate
-magnitude against---that is the map's finding and its weakness simultaneously. (4) The envelope
-constant (4.7) is calibrated on Gaussian noise families; heavy-tailed label noise inherits only
-the abstention discipline, not the exact boundary. (5) TabReD is curated to be temporally
-splittable; external validity to industrial data at large is an inductive step we flag rather
-than take. (6) The injection certificates were calibrated on a single reference family,
-and the sweep that was owed here has now been run (Appendix~\ref{app:rebuttal}, B.5): power is
-\textbf{certified against low-variance rotations and against interaction-borne rules}, and
-\textbf{disconfirmed against subpopulation-local rule change}---on weather, a planted
-subpopulation-local rule is comfortably learnable in-window ($R^2$ 0.560) and still fails to
-recover ($-0.050$), reproducing on confirmatory seeds, while the same geometry recovers
-low-variance ($+0.128$) and interaction ($+0.046$) rules. ``Verified no-concept'' therefore
-carries an explicit family denominator throughout \S\ref{sec:results}, and the relativity of
-certificates is a measured property rather than a caveat.
+(1) \textbf{Scale.} The probe trains on N $\le$ 6,000 rows per arm; industrial models train on orders of
+magnitude more. A rule change exploitable only at much larger N is invisible here, so every $\delta$ bound
+and both aggregates are statements \emph{at probe scale}. A first $\delta$(N) sweep raises the arm cap to the
+window-geometry ceiling (N $\approx$ 14k--24k, up to 4$\times$ the headline scale) on the three largest null cells:
+every verdict is unchanged and no reading trends toward the floor. Production-scale N beyond that
+remains future work, and we flag rather than dismiss the possibility that the map changes there.
+Scale enters a second way: because the arms differ in size (N versus 2N), a sample-size gain is
+folded into every staleness reading --- negligible on binary cells, but 56\% of the decision floor on
+regression, which effectively raises the detectable floor on the map's five regression cells. We
+report those nulls with the displacement stated rather than absorbed.
 
-(7) \textbf{The probe is blind to rule change that moves a threshold without reordering.} We
-tested the instrument against an externally documented rule change: the ACA Medicaid expansion,
-which Pennsylvania implemented on 2015-01-01 and Texas never adopted, on the ACS public-coverage
-task over 2014--2018 (Appendix~\ref{app:rebuttal}, B.6). The expansion lifted Pennsylvania's
-positive rate from 0.234 to 0.306 with the step at the implementation year, while Texas stayed
-flat within 0.2 points. The probe read \textbf{both states null}, in a fully identifiable regime
-($D = 0.53$) and at the tightest detectable bound anywhere in this paper ($\delta = 0.00083$)---so
-this is not an underpowered null but a confident zero, which makes the miss sharper rather than
-softer. The mechanism was registered before the run and is confirmed by it: our binary score is
-AUC, which is rank-based, and an eligibility threshold can move a large mass of people across a
-decision boundary without reordering anyone. Measured on the same rows with a proper score, the
-treatment-versus-control separation widens from $3.1\times$ under AUC to $6.3\times$ under Brier,
-$6.6\times$ under log-loss and $15\times$ under a rule-movement divergence. But it does not become
-large: every reading stays below the decision floors of both instruments, and the control state
-also returns placebo-significant gaps, so only the treatment/control \emph{ratio} is
-interpretable. The honest statement is therefore not ``the metric explains the miss'' but ``the
-metric compresses the signal six- to sevenfold, and even uncompressed this policy change sits
-under our floor.'' Two consequences follow. Every null in \S\ref{sec:map} should be read as scoped
-to a rank-based score, which is the right scope for a ranking or triage system and the wrong one
-for the fixed-threshold eligibility systems this very task represents. And the decision floor of
-0.02, calibrated on planted effects and no-drift anchors, is larger than a real population-scale
-policy rule change---recorded as a measured criticism of that constant in
-Appendix~\ref{app:constants} rather than acted on, since changing a pre-registered threshold after
-seeing results is what this paper argues against.
+(2) \textbf{Window geometry.} K = 10 rolling windows with a fixed early anchor: drift at time scales far
+below the window width is averaged away, and the recurrence fingerprint of Section~\ref{sec:anchors} certifies only
+horizon-dominating returns. The injection control partially measures this, since its recovery
+varies with K.
 
-\paragraph{On process.} This project's ledger records nine positive findings that dissolved under
-scrutiny before the present result; the ninth dissolution is \S\ref{sec:diagnosis}, and it is the only one the
-measuring instrument itself diagnosed. The methodological claim we stand behind is that the
-combination that finally produced a stable result---executed adversarial nulls before real-data
-claims, pre-registered cascades with commit-timestamped predictions, confirmatory fresh-seed
-replication, certificates instead of assumptions, and canary probes---is cheap relative to the
-cost of the dissolutions it prevents, and we release the audit trail as part of the artifact.
+(3) \textbf{No naturally occurring industrial positive.} The single robust positive on the panel is
+lab-designed drift. We found no industrial cell against which to calibrate magnitude --- that is
+simultaneously the map's finding and its weakness, and the attempt to close it from outside
+(Section~\ref{sec:metricrel}) instead produced a falsification of the instrument. We report that as the outcome it was.
 
-\paragraph{Future work.} Multi-state and post-2019 extensions of the ACS bridge (\S\ref{sec:anchors}); class-invariance
-conditions for the denoised arm (when does a probe family admit \emph{any} sound staleness
-reading?); a $\delta(N)$ scaling study; and porting the certificate protocol to streaming monitors,
-where the recurring-regime fingerprint (negative recency) is directly actionable.
+(4) \textbf{The envelope constant is calibrated on one noise family.} The abstention boundary at
+noise-ratio 4.7 is measured on Gaussian label-noise nulls (Section~\ref{sec:gate}). Heavy-tailed label noise inherits
+the \emph{discipline} --- abstain where the denoiser's own bias is not bounded --- but not the number, which
+would have to be re-measured for that family. We state the constant with its calibration source
+rather than as a property of the estimator (Appendix C).
+
+(5) \textbf{Benchmark curation.} TabReD is curated to be temporally splittable; external validity to
+industrial data at large is an inductive step we flag rather than take.
+
+(6) \textbf{Deep architectures.} The panel's neural probe fails the separation battery and is carried as
+a canary (Section~\ref{sec:classrel}). Modern deep tabular architectures at production scale remain untested. We claim
+the direction of the burden rather than the conclusion: a probe class earns drift-verdict authority
+by passing the battery of Section~\ref{sec:validation}, and the first neural probe we tested does not.
+
+\textbf{On process.} This project's ledger records nine positive findings that dissolved under scrutiny
+before the present result. The ninth dissolution is Section~\ref{sec:diagnosis}, and it is the only one the measuring
+instrument itself diagnosed. The methodological claim we stand behind is that the combination that
+finally produced a stable result --- executed adversarial nulls before real-data claims,
+pre-registered cascades with commit-timestamped predictions, confirmatory fresh-seed replication,
+certificates instead of assumptions, and canary probes --- is cheap relative to the cost of the
+dissolutions it prevents. Two of this paper's own results exist only because that discipline was in
+place: a prediction registered before execution was falsified by the run (Section~\ref{sec:metricrel}, and the control
+state's behaviour in the proper-score follow-up), and a re-gate caught a battery executed under the
+wrong interpreter (Section~\ref{sec:repro}). We release the audit trail as part of the artifact, dissolutions included.
+
+\textbf{What a practitioner should take.} Three things. A loss-based drift verdict should not be acted
+on without a noise reading on the old window, because the two are confusable at the magnitudes
+people act on. A null should not be reported without a power certificate, because ``we saw nothing''
+and ``we could not have seen anything'' are different sentences and only one of them is evidence.
+And a verdict should carry its probe class, its separability, its rule family and its metric, since
+each of the four can flip it on identical bytes.
+
+\textbf{Future work.} Multi-state and post-2019 extensions of the ACS analysis; class-invariance
+conditions for the denoised arm (when does a probe family admit \emph{any} sound staleness reading?); a
+$\delta$(N) scaling study at production scale; a proper-score arm with its own calibrated floor, which
+Section~\ref{sec:metricrel} shows is the repair direction for the metric blind spot but which would need its own
+pre-registration; and porting the certificate protocol to streaming monitors, where the
+negative-recency fingerprint is directly actionable.
 
 \section{Reproducibility}\label{sec:repro}
 
-% SUBMISSION TODO: replace with the anonymized mirror link (e.g. anonymous.4open.science),
-% preserving commit history — the commit timeline is part of the pre-registration argument.
-Everything is in one repository, linked in anonymized form for review. The instrument is a
-single sklearn-only script
-(\texttt{scripts/run\_deployment\_decay.py}); every stochastic step is seeded, and every output artifact
-embeds its commit hash, argv, library versions, and UTC timestamp. That stamping is not ceremony,
-and we can say so from an incident rather than from principle: one battery run was executed under
-the wrong interpreter because the shell prompt announced the intended conda environment while
-\texttt{PATH} still resolved to an unrelated project's virtualenv. The verdicts passed, so nothing
-on screen looked wrong; the artifact's recorded library versions did not match the environment the
-real-data runs use, and that mismatch is the only thing that caught it. Had the run been trusted, a
-gate certified in one environment would have licensed measurements in another---the precise failure
-the pre-registration had already logged once before and repaired (\S\ref{sec:battery}). Every
-subsequent run invokes the interpreter by absolute path and asserts its version before doing
+Everything is in one repository, linked in anonymized form for review. The instrument is a single
+sklearn-only script; every stochastic step is seeded, and every output artifact embeds its commit
+hash, argv, library versions and UTC timestamp.
+
+That stamping is not ceremony, and we can say so from an incident rather than from principle. One
+battery run executed under the wrong interpreter, because the shell prompt announced the intended
+conda environment while \texttt{PATH} still resolved to an unrelated project's virtualenv. The verdicts
+passed, so nothing on screen looked wrong; the artifact's recorded library versions did not match
+the environment the real-data runs use, and that mismatch is the only thing that caught it. Had the
+run been trusted, a gate certified in one environment would have licensed measurements in another.
+Every subsequent run invokes the interpreter by absolute path and asserts its version before doing
 anything else.
-\paragraph{Compute.} Every run in the paper is CPU-only---the instrument and all probe classes
-are scikit-learn models; no GPU is used anywhere---executed single-node on one shared multicore
-Linux server (Python 3.11.15, scikit-learn 1.9.0, NumPy 2.4.6; the environment freeze is
-committed). Wall-clock is reconstructable from the committed phase logs: the main pre-registered
-phases ran phase-parallel in ${\approx}17$\,h on one calendar day, the model-class panel adds
-${\approx}2$\,h, and the optional cells (EMBER, the ACS bridge, canary reruns) ${\approx}13$\,h
-across two further days; no single dataset cell exceeds a few CPU-hours. Per-source data access
-and license terms are tabulated in Appendix~\ref{app:licenses}. The synthetic battery is
-byte-reproducible (re-running \texttt{-{}-synth} regenerates the committed artifact SHA-identical on the
-same environment), and the raw arm's RNG stream is stable across instrument versions (the v2
-headline number reproduces bit-for-bit under v3, which is what makes \S\ref{sec:diagnosis} a reinterpretation
-rather than a re-roll). The pre-registration (\texttt{PREREG\_DEPLOYMENT\_V2.md}) freezes thresholds,
-cascade, seed protocol, and aggregate reading, with results appended as read-only sections whose
-ordering is enforced by the git history; all server runs are reproduced by one resumable driver
-(\texttt{scripts/run\_prereg\_phases.sh}, marker-based, phase-parallel), and the environment freeze of
-the machine that produced the headline numbers is committed. One deviation from the registered
-procedure is disclosed: the family sweep specified a human checkpoint after its implementation
-control, and the batch that ran it computed all four signal families before that checkpoint was
-read, so the gate became a read-time filter rather than an execution-time one. No family was
-excluded in the event---the control recovered in all four---but the order differed from what was
-committed, and the record says so. Data access: TabReD requires
-Kaggle authentication and per-competition rule acceptance; elec2 fetches from OpenML; INSECTS
-and the river panel install via \texttt{river}; EMBER-2018 downloads from its public archive and is
-parsed by a dependency-free adapter. Exact cross-version bit-reproducibility of
-HistGradientBoosting across sklearn releases is \emph{not} claimed; verdict-level stability across
-seed sets and across HGB/RF is (10/10 and 10/10, \S\ref{sec:map}).
+
+\textbf{Compute.} Every run in the paper is CPU-only --- the instrument and all probe classes are
+scikit-learn models, and no GPU is used anywhere --- executed single-node on one shared multicore
+Linux server (Python 3.11.15, scikit-learn 1.9.0, NumPy 2.4.6; the environment freeze is committed).
+Wall-clock is reconstructable from the committed phase logs: the main pre-registered phases ran
+phase-parallel in $\approx$17 h on one calendar day, the model-class panel adds $\approx$2 h, and the optional cells
+$\approx$13 h across two further days; no single dataset cell exceeds a few CPU-hours.
+
+\textbf{Reproducibility of the gate.} The synthetic battery is byte-reproducible: re-running it
+regenerates the committed artifact SHA-identical on the same environment, and when the instrument
+gained two opt-in diagnostic flags the battery was required to come back bit-identical against the
+reference environment before any new run was read (Section~\ref{sec:validation}). The raw arm's RNG stream is stable across
+instrument versions --- the v2 headline number reproduces bit-for-bit under v3, which is what makes
+Section~\ref{sec:diagnosis} a reinterpretation rather than a re-roll. Exact cross-version bit-reproducibility of
+HistGradientBoosting across scikit-learn releases is \emph{not} claimed; verdict-level stability across
+seed sets and across HGB/RF is (10/10 and 10/10).
+
+\textbf{Pre-registration.} The pre-registration freezes thresholds, cascade, seed protocol and aggregate
+reading, with results appended as read-only sections whose ordering is enforced by the git history;
+existing sections are never edited. Predictions for each queued experiment are committed in the
+driver script's header before execution, and read against the outcome afterwards including where
+they failed. All server runs are reproduced by one resumable driver.
+
+\textbf{Two disclosures.} First, one deviation from the registered procedure: the family sweep specified
+a human checkpoint after its implementation control, and the batch that ran it computed all four
+signal families before that checkpoint was read, so the gate became a read-time filter rather than
+an execution-time one. No family was excluded in the event --- the control recovered in all four ---
+but the order differed from what was committed. Second, one decision constant is known to be wrong
+in a direction we did not act on: Section~\ref{sec:metricrel} shows the 0.02 decision floor is larger than a real
+population-scale policy rule change. We record that in the constants appendix and leave the
+threshold alone, because changing a pre-registered threshold after seeing results is what this
+paper argues against.
+
+\textbf{Data access.} Per-source access and license terms are tabulated in the data appendix. TabReD
+requires Kaggle authentication and per-competition rule acceptance; Electricity fetches from
+OpenML; INSECTS and the river panel install via \texttt{river}; EMBER-2018 downloads from its public
+archive and is parsed by a dependency-free adapter.
 
 \bibliography{main}
 \bibliographystyle{tmlr}
@@ -1122,13 +1267,13 @@ battery cell & task & recent $\to$ recent $\cup$ old & size term & vs.\ floor & 
 \texttt{synth\_stable} & binclass (AUC) & $0.9895 \to 0.9902$ & $\mathbf{+0.00074}$ & 4\% & SD 0.0016, sign mixed \\
 \texttt{synth\_covariate} & binclass (AUC) & $0.9577 \to 0.9583$ & $+0.00064$ & 3\% & SD 0.0019, sign mixed \\
 \texttt{synth\_covariate\_mild} & binclass (AUC) & $0.9631 \to 0.9665$ & $+0.00340$ & 17\% & SD 0.0033 \\
-\texttt{synth\_reg\_stable} & regression (z-RMSE) & $-0.1343 \to -0.1222$ & $\mathbf{+0.01212}$ & \textbf{61\%} & SD 0.0048, \textbf{all 25 positive} \\
+\texttt{synth\_reg\_stable} & regression (z-RMSE) & $-0.1332 \to -0.1221$ & $\mathbf{+0.01114}$ & \textbf{56\%} & SD 0.0040, \textbf{all 25 positive} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 Two readings, and we state the unfavourable one first. \textbf{On regression the term is real and
-large}: 61\% of the decision floor, positive in every one of 25 windows, so it is not a
+large}: 56\% of the decision floor, positive in every one of 25 windows, so it is not a
 single-window artifact. A regression cell whose true rule-change harm were $+0.012$ would be
 observed at ${\approx}0$ and read as a null. The detectable floor on the regression cells of the
 map (\texttt{sberbank\_housing}, \texttt{cooking\_time}, \texttt{delivery\_eta},
@@ -1245,6 +1390,87 @@ sevenfold, and uncompressing it still leaves the change under our floor. The cor
 statement and the criticism this implies for the floor constant are in \S\ref{sec:discussion}
 (Lim.~7) and Appendix~\ref{app:constants}.
 
+\textbf{B.7 Classic stream detectors on the battery: the fire rate does not track the truth.} Section 2
+argues that loss-stream detectors are type-blind by construction. This measures it. Four standard
+detectors (ADWIN, KSWIN, DDM, PageHinkley) were run over the prequential error stream of a river
+learner on the battery cells, whose ground truth is fixed by construction; detections per 1,000
+samples, three seeds. DDM requires a 0/1 error stream and therefore applies only to the binary
+cells.
+
+\begin{table}[t]
+\centering
+\small
+\caption{Classic stream detectors on the battery: detections per 1,000 samples, three seeds.}
+\label{tab:b7}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+cell & truth & ADWIN & DDM & KSWIN & PageHinkley \\
+\midrule
+concept & rule moved & 0.167 & 0.278 & 0.000 & 0.194 \\
+nuisance_proxy & rule moved & 0.111 & 0.139 & 0.028 & 0.195 \\
+\textbf{concept + noise decay} & \textbf{rule moved} & 0.083 & \textbf{0.000} & 0.000 & 0.083 \\
+reg_concept & rule moved & 0.083 & --- & 1.556 & 0.584 \\
+\textbf{reg_early_noisy} & \textbf{rule fixed, noise decays} & \textbf{0.472} & --- & 1.361 & 0.695 \\
+\textbf{reg_xdep_noise} & \textbf{rule fixed, noise decays} & \textbf{0.417} & --- & 1.528 & 0.750 \\
+stable & rule fixed & 0.083 & 0.000 & 0.000 & 0.083 \\
+\textbf{covariate} & \textbf{rule fixed} & 0.111 & \textbf{0.139} & 0.000 & \textbf{0.278} \\
+\textbf{reg_stable} & \textbf{rule fixed (pure null)} & 0.083 & --- & \textbf{1.333} & \textbf{0.583} \\
+reg_late_noisy & rule fixed & 0.528 & --- & 1.278 & \textbf{3.444} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Read within task, since the learner differs across tasks. On regression the noise-decay cells fire
+ADWIN \emph{more often} than the true rule-change cell does, and KSWIN and PageHinkley put them within
+3$\times$ of it --- but so does the pure stationary cell (KSWIN 1.333, PageHinkley 0.583), and a fixed-rule
+cell posts the highest PageHinkley rate in the panel. The binary arm shows both failure directions
+with the learner held fixed: a true rule change fires at exactly the stationary cell's rate --- a miss
+--- while a fixed-rule covariate shift fires DDM and PageHinkley --- a false alarm.
+
+Two limits, stated rather than absorbed. The regression error stream carries the incremental
+learner's own learning curve, so that arm supports ``the fire does not track the truth'' but cannot
+by itself support ``these detectors fire on noise decay specifically''; the binary miss/false-alarm
+pair is the clean evidence. And the one-sidedness of DDM --- it warns on error \emph{increase}, while noise
+decay drives error \emph{down} --- could not be tested here, because the battery's two noise-decay cells
+are both regression and DDM needs a binary error stream. We did not add a binary noise-decay cell
+after seeing this. None of these detectors emits a drift-type verdict, so none of this enters the
+map; the point is only that a fire carries no type information, which is what Section~\ref{sec:related} claims.
+
+---|
+\begin{table}[t]
+\centering
+\small
+\caption{}
+\label{tab:unnamed38}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Pennsylvania (treated) & NO-STRONG-CONCEPT & $-0.011$ & $-0.009$ & +0.009 & 0.534 & 0.00083 \\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+Both null. The one arm that separates them is recency gain, positive and CI-excluding-zero on the
+treated state and indistinguishable from zero on the control --- directionally right, and still
+below the floor, so the verdict does not move. The null survives removing the default row
+thinning, and the model-class panel moves three of six labels to the sub-floor band without
+changing any reading (the control's linear-probe sub-floor value is in fact \emph{larger} than the
+treated state's, so nothing can be claimed from that panel).
+
+Re-measuring the same rows with proper scores localises part of the miss. Using the
+within-overlap lens of B.2 on a clean pre/post pair (2014 vs 2018), with a permutation placebo and
+15 seeds, the treatment-versus-control separation of the placebo-corrected gap is 3.1$\times$ under AUC,
+6.3$\times$ under Brier, 6.6$\times$ under log-loss and 15$\times$ under a rule-movement divergence; Pennsylvania is
+metric-invariant (all four positive) and Texas is not. An independent run of the same lens family
+reproduces the temporal contrast (+0.021 vs +0.003). But the effect does not become large: every
+value stays below both instruments' decision floors, and the control returns placebo-significant
+gaps of its own, so only the ratio is interpretable. What we can conclude is bounded accordingly ---
+the rank-based score compresses this signal six- to sevenfold, and uncompressing it still leaves
+the change under our floor. The corresponding scope statement and the criticism this implies for
+the floor constant are in Section~\ref{sec:metricrel} and Appendix C.
+
 \section{Decision constants: calibration sources and validity}\label{app:constants}
 
 Every decision constant in the cascade, with where it was calibrated and where it stops being
@@ -1266,7 +1492,7 @@ decision floor & 0.02 & CONCEPT magnitude bar, shared across AUC / accuracy / z-
 noise gate & 1.5 & label-noise-drift flag (old proxy / recent median) & stable synthetic controls read 0.75--0.99; noise-drift cells read 3.5--3.9 & every real-data value falls below 1.5 or in 2.0--2.9---nowhere near the envelope edge \\
 envelope & 4.7 & denoiser validity boundary; abstain above & measured on fixed-rule nulls: $+0.014$ at ratio 4.72, $+0.026$ at 5.71 (crosses the floor) & Gaussian noise family only; heavy tails inherit the abstention discipline, not the number (\S\ref{sec:discussion}, Lim.~4) \\
 $D^{\ast}$ & 0.96 & separability routing to the injection control & group-aware, size-matched repairs (duplicates 0.994$\to{\approx}$0.50; shuffle-$D$ 0.94$\to$0.50) & a routing statistic, never support overlap; $D \ge D^{\ast}$ concludes nothing by itself \\
-learnability gates & AUC 0.65 / $R^2$ 0.20 / acc maj.$+$0.10 & injection-certificate validity & executed junk-geometry control (in-window AUC 0.506 $\to$ vacuous) vs learnable control (0.964 $\to$ recovery $+0.195$) & unlearnable $\Rightarrow$ certificate refused for that family---vacuity, not blindness \\
+learnability gates & AUC 0.65 / $R^2$ 0.20 / acc maj.$+$0.10 & injection-certificate validity & executed junk-geometry sweep: learnability crosses the gate as the tails thicken (0.944 $\to$ 0.839 $\to$ \textbf{0.482} $\to$ 0.477) and the certificate goes vacuous there (recovery $+0.186$ $\to$ $+0.150$ $\to$ \textbf{$+0.012$} $\to$ $-0.002$) vs the learnable control (0.951 $\to$ recovery $+0.201$) & unlearnable $\Rightarrow$ certificate refused for that family---vacuity, not blindness \\
 injection strength & 2.5 rad & reference rotation magnitude & clears the floor on learnable geometry (recoveries $+0.16$ to $+0.55$) & family sweep executed (Appendix~\ref{app:rebuttal}, B.5): certified vs low-variance and interaction rules, \textbf{disconfirmed vs subpopulation-local} (\S\ref{sec:discussion}, Lim.~6) \\
 seed protocol & 10 (0--9) $+$ conf.\ (100--109); battery 5 & power and stability & battery effects at 10--27$\times$ the floor make 5 a sufficient pass/fail gate & verdicts that move between seed sets are barred (unstable) \\
 \bottomrule
