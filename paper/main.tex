@@ -359,9 +359,9 @@ sample size 71.3\% after reweighting).
 \small
 \caption{A reweighting-based frame on battery cells whose ground truth is fixed by construction. It separates rule change from noise decay by magnitude but not by sign.}
 \label{tab:1}
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular}{@{}llr@{}}
 \toprule
-cell & truth & Y\ & X-side gap \\
+cell & truth & $Y|X$-side gap \\
 \midrule
 rotating rule (binary) & rule moved & \textbf{+0.4345} \\
 rotating rule (regression) & rule moved & \textbf{+0.8207} \\
@@ -1410,11 +1410,11 @@ concept & rule moved & 0.167 & 0.278 & 0.000 & 0.194 \\
 \texttt{nuisance\_proxy} & rule moved & 0.111 & 0.139 & 0.028 & 0.195 \\
 \textbf{concept + noise decay} & \textbf{rule moved} & 0.083 & \textbf{0.000} & 0.000 & 0.083 \\
 \texttt{reg\_concept} & rule moved & 0.083 & --- & 1.556 & 0.584 \\
-\textbf{reg_\texttt{early\_noisy}} & \textbf{rule fixed, noise decays} & \textbf{0.472} & --- & 1.361 & 0.695 \\
-\textbf{reg_\texttt{xdep\_noise}} & \textbf{rule fixed, noise decays} & \textbf{0.417} & --- & 1.528 & 0.750 \\
+\textbf{\texttt{reg\_early\_noisy}} & \textbf{rule fixed, noise decays} & \textbf{0.472} & --- & 1.361 & 0.695 \\
+\textbf{\texttt{reg\_xdep\_noise}} & \textbf{rule fixed, noise decays} & \textbf{0.417} & --- & 1.528 & 0.750 \\
 stable & rule fixed & 0.083 & 0.000 & 0.000 & 0.083 \\
 \textbf{covariate} & \textbf{rule fixed} & 0.111 & \textbf{0.139} & 0.000 & \textbf{0.278} \\
-\textbf{reg_stable} & \textbf{rule fixed (pure null)} & 0.083 & --- & \textbf{1.333} & \textbf{0.583} \\
+\textbf{\texttt{reg\_stable}} & \textbf{rule fixed (pure null)} & 0.083 & --- & \textbf{1.333} & \textbf{0.583} \\
 \texttt{reg\_late\_noisy} & rule fixed & 0.528 & --- & 1.278 & \textbf{3.444} \\
 \bottomrule
 \end{tabular}
