@@ -49,6 +49,10 @@ def inline(t: str) -> str:
     t = re.sub(r"PREREG Section~\\ref\{[^}]+\}", "PREREG~\\\\S", t)      # never renumber the prereg
     t = re.sub(r"−(\d[\d.,]*)", lambda m: "$-" + m.group(1).rstrip(".,") + "$"
                + m.group(1)[len(m.group(1).rstrip(".,")):], t)      # keep minus with its number
+    # bare cell names such as ecom_offers are text-mode underscores, which LaTeX reads as
+    # subscripts; V4 typesets them as \\texttt{...}, so match that rather than escaping in place
+    tok = re.compile(r"(?<![\\\\A-Za-z0-9{])([a-z][a-z0-9]*(?:" + chr(95) + r"[a-z0-9]+)+)")
+    t = tok.sub(lambda mm: "\\texttt{" + mm.group(1).replace(chr(95), "\\" + chr(95)) + "}", t)
     q = chr(34)                                                  # straight quotes -> LaTeX quotes
     t = re.sub(q + "([^" + q + chr(10) + "]*)" + q, lambda mm: "``" + mm.group(1) + "''", t)
     for a, b in UNI:

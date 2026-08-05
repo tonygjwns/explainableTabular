@@ -661,9 +661,9 @@ concept-drift dataset --- reads DEPLOYMENT-CONCEPT under two independent canary 
 raw +0.023, denoised +0.033, injection recovers +0.190; MLP: raw +0.007, denoised +0.025) and
 unidentifiable-with-earned-blindness under the tree-ensemble probe, on identical bytes. Whether a
 monitor confirms that dataset's reputation is a property of the monitor. A second canary behaviour
-is worth reporting as a warning: on ecom_offers the linear probe fires the \emph{denoised} arm alone
+is worth reporting as a warning: on \texttt{ecom\_offers} the linear probe fires the \emph{denoised} arm alone
 (+0.028) with the raw arm null ($-0.002$) --- a denoiser artifact specific to misspecified probes,
-since the linear ĝ_old's systematic error is itself informative to the linear downstream model.
+since the linear $\hat{g}_{\text{old}}$'s systematic error is itself informative to the linear downstream model.
 The denoised arm's semantics are class-scoped too.
 
 \begin{table}[t]
@@ -689,8 +689,8 @@ rotating rule + nuisance & \yes\ ($+0.203$) & \yes\ ($+0.200$) & \yes\ ($+0.228$
 
 The separability threshold D\* = 0.96 routes cells to the injection control, and it reads as a
 cliff. It is not one. Just inside it, a planted rule of \emph{fixed} strength recovers at wildly
-different magnitudes: cooking_time (D = 0.966) +0.546, delivery_eta (D = 0.999) +0.332,
-Electricity (D = 1.000) +0.018, homesite_insurance (D = 1.000) $-0.052$.
+different magnitudes: \texttt{cooking\_time} (D = 0.966) +0.546, \texttt{delivery\_eta} (D = 0.999) +0.332,
+Electricity (D = 1.000) +0.018, \texttt{homesite\_insurance} (D = 1.000) $-0.052$.
 
 Learnability does not explain the ordering --- Electricity's planted rule is the \emph{most} learnable in
 the panel (in-window AUC 0.976) and still barely recovers. What decays across D is recovery, not
@@ -703,7 +703,7 @@ had power \emph{at this separability} --- not that power is uniform across certi
 We tried to convert that correlation into a controlled ladder and could not, which is worth
 reporting because the failure is informative. Narrowing a single cell's representation
 (mutual-information top-k, k $\in$ {5, 10, 20, 50}) moves D monotonically while holding dataset and
-probe fixed --- delivery_eta 0.521 $\to$ 0.540 $\to$ 0.555 $\to$ 0.801, homecredit_default 0.721 $\to$ 0.796 $\to$
+probe fixed --- \texttt{delivery\_eta} 0.521 $\to$ 0.540 $\to$ 0.555 $\to$ 0.801, \texttt{homecredit\_default} 0.721 $\to$ 0.796 $\to$
 0.833 $\to$ 0.912, against 0.999 and 1.000 at full representation. But the narrowed cells fall
 \emph{below} the routing threshold, so the injection control never runs and there is no recovery to
 read: the handle that moves D also moves the cell out of the region where power is measured. The
@@ -712,7 +712,7 @@ correlation. (Registered predictions, for the record: D was predicted to fall wi
 the recovery prediction was unmeasurable for the reason just given.)
 
 Two things the ladder did show. The denoised reading itself moves with representation on a fixed
-cell (delivery_eta $-0.002$ $\to$ $-0.013$; homecredit_default +0.013 [+0.010, +0.016] at k = 5, where
+cell (\texttt{delivery\_eta} $-0.002$ $\to$ $-0.013$; \texttt{homecredit\_default} +0.013 [+0.010, +0.016] at k = 5, where
 D = 0.721 puts it in the identifiable region, decaying to $-0.010$ at k = 50) --- so representation
 choice sets both whether a cell is identifiable \emph{and} the sign of what is read there. And in the
 adjacent low-D regime the picture is the opposite of the high-D panel: at D $\approx$ 0.49 on the river
@@ -743,7 +743,7 @@ one that has already fallen off in the high-D industrial geometry. So the scope 
 a joint statement about which rule families were tested and at what separability, and Section~\ref{sec:application} reports
 both. Every ``verified no-concept'' in this
 paper therefore carries an explicit family denominator, and the two certificates that stand on the
-industrial panel (weather, homesite_insurance) stand against the families actually tested --- weather
+industrial panel (weather, \texttt{homesite\_insurance}) stand against the families actually tested --- weather
 recovering +0.183 / +0.193 on fresh seeds under the low-variance carrier and +0.083 / +0.078 under
 the interaction family.
 
@@ -855,15 +855,15 @@ computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-s
 dataset & verdict (= confirmatory) & raw & denoised & gate & D & Rec. & certificate \\
 \midrule
 insects & \textbf{DEPLOYMENT-CONCEPT} & +0.135 / +0.129 & \textbf{+0.152 / +0.145} & 1.24 & 0.844 & +0.162 & injection recovers \\
-sberbank_housing & \textbf{NOISE-DRIFT-CONFOUNDED} & +0.024 / +0.033 (fires) & \textbf{$-0.015$ / $-0.011$} & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & diagnosed (Section~\ref{sec:diagnosis}) \\
-cooking_time & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & \textbf{+0.546} & \textbf{verified no-concept} \\
-delivery_eta & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & \textbf{+0.332} & \textbf{verified no-concept} \\
-maps_routing & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
+\texttt{sberbank\_housing} & \textbf{NOISE-DRIFT-CONFOUNDED} & +0.024 / +0.033 (fires) & \textbf{$-0.015$ / $-0.011$} & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & diagnosed (Section~\ref{sec:diagnosis}) \\
+\texttt{cooking\_time} & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & \textbf{+0.546} & \textbf{verified no-concept} \\
+\texttt{delivery\_eta} & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & \textbf{+0.332} & \textbf{verified no-concept} \\
+\texttt{maps\_routing} & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
 elec2 & UNIDENTIFIABLE & +0.001 & +0.001 & 0.66 & 1.000 & +0.018 & \textbf{blindness earned} \\
-ecom_offers & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous} --- injection unlearnable (0/4 families) \\
-homecredit_default & UNIDENTIFIABLE & $-0.007$ & +0.004 & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 families; 80 proxy features stripped) \\
+\texttt{ecom\_offers} & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous} --- injection unlearnable (0/4 families) \\
+\texttt{homecredit\_default} & UNIDENTIFIABLE & $-0.007$ & +0.004 & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 families; 80 proxy features stripped) \\
 weather & INJECTION-RECOVERED $\dagger$ & $-0.012$ & $-0.011$ & 0.93 & 0.994 & \textbf{+0.183} & \textbf{verified no-concept} (2/3 learnable families) \\
-homesite_insurance & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 learnable families, stable) \\
+\texttt{homesite\_insurance} & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 learnable families, stable) \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -882,12 +882,12 @@ read as stronger than the class of rule change it was tested against.
 number of industrial datasets with exploitable mean-rule drift above the per-dataset detectable
 floor is 0/8 audited. Over the cells that carry an informative reading it is 0/5, and the
 denominator is worth spelling out because three cells leave it for two different reasons.
-ecom_offers and homecredit_default end with no certificate --- their planted probe rule is unlearnable
+\texttt{ecom\_offers} and \texttt{homecredit\_default} end with no certificate --- their planted probe rule is unlearnable
 under every family tried --- so they contribute no evidence in either direction. sberbank-housing is
 not a null at all: it is the diagnosed noise cell of Section~\ref{sec:diagnosis}, and counting a diagnosed mechanism as a
 null would double-count it. What remains are the three verified no-concept certificates
-(cooking_time, delivery_eta, weather), the earned-blindness certificate (homesite_insurance), and
-the identifiable null that needs no certificate (maps_routing). We report both aggregates wherever
+(\texttt{cooking\_time}, \texttt{delivery\_eta}, weather), the earned-blindness certificate (\texttt{homesite\_insurance}), and
+the identifiable null that needs no certificate (\texttt{maps\_routing}). We report both aggregates wherever
 they appear; the first is what was pre-registered, the second is what it is worth.
 
 Three readings deserve their own sentence. The only concept positive is the designed-drift stream,
@@ -958,9 +958,9 @@ re-scoped to train segments.
 
 Three cells move in ways worth recording rather than burying. sberbank's raw arm no longer clears
 the floor over the longer span, so the noise diagnosis of Section~\ref{sec:diagnosis} is explicitly scoped to the train
-segment. cooking_time's separability \emph{falls} below D\* (0.927), against our expectation that a
+segment. \texttt{cooking\_time}'s separability \emph{falls} below D\* (0.927), against our expectation that a
 longer span would raise it, leaving an identifiable null that needs no certificate. And
-homecredit_default's denoised arm reads +0.018 --- 89\% of the decision floor, the largest
+\texttt{homecredit\_default}'s denoised arm reads +0.018 --- 89\% of the decision floor, the largest
 positive-direction number anywhere in this paper --- with a certificate that is \emph{earned} here rather
 than refused, so it reads as ``measured and under the floor'' rather than ``not measured''. That cell
 is the closest thing this panel has to a positive, and we flag it as the place a larger-N or
@@ -973,9 +973,9 @@ it over 23 synthetic river streams (SEA / Agrawal / STAGGER / Sine / Hyperplane;
 single-switch, gradual and reoccurring variants) and all seven INSECTS variants (real sensor data,
 lab-controlled temperature drift).
 
-\textbf{Monotone and single-switch rule changes fire: 9/9.} River: agrawal_abrupt +0.045,
-agrawal_gradual +0.047, stagger_abrupt, sine_abrupt +0.031, hyperplane_incremental +0.112 (with the
-gate correctly co-flagging its noise component), sine_reoccur2 +0.047. INSECTS: gradual-balanced
+\textbf{Monotone and single-switch rule changes fire: 9/9.} River: \texttt{agrawal\_abrupt} +0.045,
+\texttt{agrawal\_gradual} +0.047, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} +0.031, \texttt{hyperplane\_incremental} +0.112 (with the
+gate correctly co-flagging its noise component), \texttt{sine\_reoccur2} +0.047. INSECTS: gradual-balanced
 +0.092, gradual-imbalanced +0.069, incremental +0.135 --- in every firing cell denoised is at least
 raw, and the injection positive control recovers. Weak switches (SEA's threshold nudge) land in the
 no-evidence band with consistent sign and are reported with their detectable floors.
@@ -991,9 +991,9 @@ monitor built on this lens will not \emph{detect} recurring drift; it will corre
 safe to keep, and the negative-recency flag says why.
 
 On the audited panel that flag is silent:
-every industrial cell reads recency gain at or above zero (+0.000 on maps_routing to +0.325 on
+every industrial cell reads recency gain at or above zero (+0.000 on \texttt{maps\_routing} to +0.325 on
 sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
-horizon --- our own sine_reoccur2 anchor returns to its initial regime in the final ~22\% and reads
+horizon --- our own \texttt{sine\_reoccur2} anchor returns to its initial regime in the final ~22\% and reads
 recency +0.30 --- so it rules out horizon-dominating recurrence and says nothing about late, brief or
 sub-window-periodic returns.
 
@@ -1407,15 +1407,15 @@ cells.
 cell & truth & ADWIN & DDM & KSWIN & PageHinkley \\
 \midrule
 concept & rule moved & 0.167 & 0.278 & 0.000 & 0.194 \\
-nuisance_proxy & rule moved & 0.111 & 0.139 & 0.028 & 0.195 \\
+\texttt{nuisance\_proxy} & rule moved & 0.111 & 0.139 & 0.028 & 0.195 \\
 \textbf{concept + noise decay} & \textbf{rule moved} & 0.083 & \textbf{0.000} & 0.000 & 0.083 \\
-reg_concept & rule moved & 0.083 & --- & 1.556 & 0.584 \\
-\textbf{reg_early_noisy} & \textbf{rule fixed, noise decays} & \textbf{0.472} & --- & 1.361 & 0.695 \\
-\textbf{reg_xdep_noise} & \textbf{rule fixed, noise decays} & \textbf{0.417} & --- & 1.528 & 0.750 \\
+\texttt{reg\_concept} & rule moved & 0.083 & --- & 1.556 & 0.584 \\
+\textbf{reg_\texttt{early\_noisy}} & \textbf{rule fixed, noise decays} & \textbf{0.472} & --- & 1.361 & 0.695 \\
+\textbf{reg_\texttt{xdep\_noise}} & \textbf{rule fixed, noise decays} & \textbf{0.417} & --- & 1.528 & 0.750 \\
 stable & rule fixed & 0.083 & 0.000 & 0.000 & 0.083 \\
 \textbf{covariate} & \textbf{rule fixed} & 0.111 & \textbf{0.139} & 0.000 & \textbf{0.278} \\
 \textbf{reg_stable} & \textbf{rule fixed (pure null)} & 0.083 & --- & \textbf{1.333} & \textbf{0.583} \\
-reg_late_noisy & rule fixed & 0.528 & --- & 1.278 & \textbf{3.444} \\
+\texttt{reg\_late\_noisy} & rule fixed & 0.528 & --- & 1.278 & \textbf{3.444} \\
 \bottomrule
 \end{tabular}
 \end{table}
