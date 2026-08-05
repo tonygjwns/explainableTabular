@@ -27,8 +27,9 @@ data, with the power to have seen a rule change certified in the same windows. W
 it is blind, along four axes, and the last is settled from outside. Against the ACA Medicaid
 expansion, a rule change documented in law, the probe read null in a fully identifiable regime and
 at the tightest detectable bound in the paper, because its score is rank-based and an eligibility
-threshold moves mass across a decision boundary without reordering anyone. On eight industrial
-datasets (TabReD), with a fresh-seed replication that leaves 10 of 10 verdicts unchanged, it finds
+threshold moves mass across a decision boundary without reordering anyone.
+
+On eight industrial datasets (TabReD), with a fresh-seed replication that leaves 10 of 10 verdicts unchanged, it finds
 no exploitable mean-rule drift above each dataset's detectable floor for the deployed tree-ensemble
 class: 0/8 audited, 0/5 among the cells that carry an informative reading. A frame that does attribute shift types, run head-to-head on the same battery, separates
 the two mechanisms by magnitude but not by sign, so a threshold reading files two events with
@@ -204,24 +205,26 @@ literatures, to our reading, reports the failure channel this arm exists to defu
 **Drift detectors and their evaluation.** Classical detectors (surveys: Gama et al., 2014; Lu et
 al., 2019) monitor loss or distribution statistics and are evaluated by injecting known drifts
 into streams (Poenaru-Olaru et al., 2022); Detectron (Ginsberg et al., 2023) defines harmful
-shift model-relatively. Our injection control differs in role: it is an *in-situ, per-dataset
-power certificate* (planted in the real covariate geometry, learnability-gated), used to
-distinguish earned blindness from instrument vacuity — a distinction we show matters on real
-data: of the four industrial "unidentifiable" cells, two never earn a certificate at all
-(the planted rule is unlearnable in their geometry under every signal family we tried) and the
-other two are settled only by widening the family beyond the reference one. We do not run
-these detectors head-to-head on the audited cells: a loss-stream detector answers "did anything
-change?" and is type-blind by construction, so its fires would not bear on drift-*type*
-attribution, and we measure that rather than only asserting it: run over the battery's
-prequential error streams, four standard detectors fire at rates that do not track the ground truth
-at all — a true rule change firing at exactly the stationary cell's rate while a fixed-rule
-covariate shift fires, and a pure stationary regression cell firing level with both (Appendix B.7).
-Frames that *do* attribute types are a different matter, and we run one head-to-head on battery
-cells whose ground truth is fixed by construction (§3.4): it separates rule change from noise decay
-by magnitude but not by sign. The canary panel (§6.1) is the
-like-for-like comparison within our own instrument — what a weaker *attribution* probe reports
-on the same bytes — and porting the certificate protocol to streaming monitors is future
-work (§8).
+shift model-relatively.
+
+Our injection control differs from theirs in role. It is a power certificate computed in situ, per
+dataset: a rule is planted in that dataset's own covariate geometry, gated on learnability, and used
+to tell earned blindness from instrument vacuity. That distinction matters on real data. Of the four
+industrial cells the cascade calls unidentifiable, two never earn a certificate at all, because the
+planted rule is unlearnable in their geometry under every signal family we tried; the other two are
+settled only by widening the family beyond the reference one.
+
+What a classical detector's fire can bear on is a separate question, and we measure it rather than
+only asserting it. A loss-stream detector answers whether anything changed, and is type-blind by
+construction. Run over the battery's prequential error streams, four standard detectors fire at
+rates that do not track the ground truth at all: a true rule change fires at exactly the stationary
+cell's rate, while a fixed-rule covariate shift fires and a pure stationary regression cell fires
+level with both (Appendix B.7). Frames that *do* attribute types are a different matter, and we run
+one head-to-head on battery cells whose ground truth is fixed by construction (§3.4); it separates
+rule change from noise decay by magnitude but not by sign. Within our own instrument the
+like-for-like comparison is the canary panel of §6.1, which reports what a weaker attribution probe
+makes of the same bytes. Porting the certificate protocol to streaming monitors is future work
+(§8).
 
 **Malware.** TESSERACT (Pendlebury et al., 2019) established temporally honest evaluation in
 malware and documents performance decay. Our EMBER read (old data *helps*; staleness −0.008;
@@ -863,10 +866,12 @@ no-evidence band with consistent sign and are reported with their detectable flo
 (−0.058, −0.023): the window adjacent to the test predicts it *worse* than the oldest window does.
 Negative recency is impossible under one-way drift; it is the signature of a regime that has
 returned, and it replicates across river's reoccurring cells and INSECTS incremental-reoccurring.
-This is a scope statement, not a defect: the lens answers the deployment question — does old data
-harm a model trained today? — and when old regimes recur, old data genuinely does not harm. A
+This is a scope statement, not a defect. The lens answers the deployment question of whether old
+data harms a model trained today, and when old regimes recur, old data genuinely does not harm. A
 monitor built on this lens will not *detect* recurring drift; it will correctly say old data is
-safe to keep, and the negative-recency flag says why. On the audited panel that flag is silent:
+safe to keep, and the negative-recency flag says why.
+
+On the audited panel that flag is silent:
 every industrial cell reads recency gain at or above zero (+0.000 on maps_routing to +0.325 on
 sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
 horizon — our own sine_reoccur2 anchor returns to its initial regime in the final ~22% and reads
@@ -879,13 +884,14 @@ on overlapping subsamples are anti-conservative at tiny magnitudes. The sub-floo
 read as *no evidence* everywhere in this paper — a calibration the anchor suite forced and the
 pre-registration records.
 
-**Two external cells.** On malware (EMBER, 2018-dense monthly windows) the instrument returns a
+**Malware.** On EMBER, over 2018-dense monthly windows, the instrument returns a
 certificate-grade DEPLOYMENT-DECAY-COVARIATE: D = 0.834 (identifiable), raw −0.008 [−0.009,
 −0.007], denoised −0.004, gate quiet, recency gain +0.031 above the floor, detectable floor 0.0013.
-Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven — new
-families appear, old labels do not rot — and the lens draws exactly that distinction: keep the old
-data, expect decay anyway, retrain for coverage. On ACS income across *years* (California,
-2014–2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw −0.008,
+Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven, since new
+families appear while old labels do not rot. The lens draws exactly that distinction: keep the old
+data, expect decay anyway, retrain for coverage.
+
+**Income across years.** On ACS income across *years* (California, 2014–2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw −0.008,
 denoised −0.007 (both CIs negative), gate quiet, D = 0.515, recency near zero, detectable floor
 0.0008 — on the same task whose *spatial* axis is reported to exhibit prevalent Y|X-shift. The
 axis, not the dataset, determines the shift type. That cell also passes a real-data prior-shift
