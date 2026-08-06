@@ -152,16 +152,6 @@ Under proper scores the same windows turn positive on the treated state (+0.021 
 against +0.006 on the control. That localises the blindness and gives a repair direction, and Section~\ref{sec:metricrel}
 states the three things the reading does not license.
 
-\textbf{The application.} With the instrument certified and its blind spots mapped, we spend it on the
-question that motivated building it (Section~\ref{sec:application}): a pre-registered audit of eight TabReD datasets,
-Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
-result is an identifiability map rather than a detection table: 0/8 audited and 0/5 among the cells
-that carry an informative reading, the sole robust positive being designed drift, with two cells
-refusing a certificate outright rather than counting as evidence and one already diagnosed in
-Section~\ref{sec:diagnosis}. Anchor streams fix the
-sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
-correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
-
 \textbf{Contributions.}
 
 \begin{enumerate}
@@ -184,19 +174,6 @@ unrecovered at $-0.050$), and metric relativity (the ACS falsification).
 informative, one diagnosed false positive with mechanism, per-dataset certificates and
 detectable-effect bounds, 10/10 confirmatory stability and 10/10 cross-class agreement.
 \end{enumerate}
-
-\textbf{What we do not claim.} We do not claim concept drift is absent from industrial tabular data:
-several cells are certified \emph{blind}, and blindness is not absence. We do not claim the
-identifiability theory is new: that overlap failure blocks nonparametric identification is
-classical, and class-relativity is established. Our contribution is the executed channel, the
-repaired instrument, and the certified map. We do not claim model-agnosticism: every verdict is
-relative to the deployed hypothesis class, which we argue is the only honest way to state
-drift-type attribution at all. We do not claim to have discovered that noise fools drift
-machinery: for detection that is established, with detectors built to resist it. We claim the
-failure survives into type attribution, that a trend drives it, and that it was large enough to
-have fooled us. And
-we do not claim our own instrument is trustworthy everywhere. Section~\ref{sec:blind} is the list of places where it is
-not, and one entry on that list was set by a state's policy decision rather than by us.
 
 \section{Related Work}\label{sec:related}
 
@@ -839,6 +816,16 @@ score; through log-loss it sees something floor-sized, uncertified, and shared w
 
 \section{Application: auditing an industrial panel}\label{sec:application}
 
+With the instrument certified and its blind spots mapped, we spend it on the
+question that motivated building it (Section~\ref{sec:application}): a pre-registered audit of eight TabReD datasets,
+Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
+result is an identifiability map rather than a detection table: 0/8 audited and 0/5 among the cells
+that carry an informative reading, the sole robust positive being designed drift, with two cells
+refusing a certificate outright rather than counting as evidence and one already diagnosed in
+Section~\ref{sec:diagnosis}. Anchor streams fix the
+sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
+correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
+
 Everything above is about an instrument. This section spends it on the question that motivated
 building one: does industrial tabular data contain rule change a deployed model could exploit?
 The answer is a map, and the map is worth exactly what Section~\ref{sec:blind} says it is worth --- every number below is
@@ -1088,7 +1075,20 @@ certificates instead of assumptions, and canary probes --- is cheap relative to 
 dissolutions it prevents. Two of this paper's own results exist only because that discipline was in
 place: a prediction registered before execution was falsified by the run (Section~\ref{sec:metricrel}, and the control
 state's behaviour in the proper-score follow-up), and a re-gate caught a battery executed under the
-wrong interpreter (Section~\ref{sec:repro}). We release the audit trail as part of the artifact, dissolutions included.
+wrong interpreter (Appendix~\ref{app:repro}). We release the audit trail as part of the artifact, dissolutions included.
+
+\textbf{What we do not claim.} We do not claim concept drift is absent from industrial tabular data:
+several cells are certified \emph{blind}, and blindness is not absence. We do not claim the
+identifiability theory is new: that overlap failure blocks nonparametric identification is
+classical, and class-relativity is established. Our contribution is the executed channel, the
+repaired instrument, and the certified map. We do not claim model-agnosticism: every verdict is
+relative to the deployed hypothesis class, which we argue is the only honest way to state
+drift-type attribution at all. We do not claim to have discovered that noise fools drift
+machinery: for detection that is established, with detectors built to resist it. We claim the
+failure survives into type attribution, that a trend drives it, and that it was large enough to
+have fooled us. And
+we do not claim our own instrument is trustworthy everywhere. Section~\ref{sec:blind} is the list of places where it is
+not, and one entry on that list was set by a state's policy decision rather than by us.
 
 \textbf{What a practitioner should take.} Three things. A loss-based drift verdict should not be acted
 on without a noise reading on the old window, because the two are confusable at the magnitudes
@@ -1104,7 +1104,22 @@ Section~\ref{sec:metricrel} shows is the repair direction for the metric blind s
 pre-registration; and porting the certificate protocol to streaming monitors, where the
 negative-recency fingerprint is directly actionable.
 
-\section{Reproducibility}\label{sec:repro}
+\section*{Reproducibility Statement}
+
+The instrument is a single scikit-learn script; every stochastic step is seeded and every output
+artifact embeds its commit hash, argv, library versions and UTC timestamp. The synthetic battery is
+byte-reproducible on a fixed environment, and any change to the instrument must re-pass it
+bit-identically before a new reading is admitted (Section~\ref{sec:regate}). The pre-registration
+freezes thresholds, cascade, seed protocol and aggregate reading, with results appended as
+read-only sections and per-experiment predictions committed before execution. Appendix~\ref{app:repro} gives the compute, the environment, the data-access route, and two disclosures we owe the
+reader: one deviation from the registered procedure, and one decision constant we know to be wrong
+in a direction we did not act on.
+
+\bibliography{main}
+\bibliographystyle{tmlr}
+
+\appendix
+\section{Reproducibility details}\label{app:repro}
 
 Everything is in one repository, linked in anonymized form for review. The instrument is a single
 sklearn-only script; every stochastic step is seeded, and every output artifact embeds its commit
@@ -1156,10 +1171,6 @@ requires Kaggle authentication and per-competition rule acceptance; Electricity 
 OpenML; INSECTS and the river panel install via \texttt{river}; EMBER-2018 downloads from its public
 archive and is parsed by a dependency-free adapter.
 
-\bibliography{main}
-\bibliographystyle{tmlr}
-
-\appendix
 \section{Data access and licenses}\label{app:licenses}
 
 Verified against each distributor at the time of writing (Table~\ref{tab:licenses}).
