@@ -637,12 +637,6 @@ the mixture-ERM optimum moves with P(x), so covariate shift alone manufactures `
 Denoising does not repair it --- kNN still false-fires at +0.111 on pseudo-labels, because the
 misspecification is in the probe, not in the labels.
 
-The neural result deserves its own sentence, because the field's motivating question is whether
-deep tabular models have a rule change to exploit: the first neural probe we tested fails the
-separation battery and is therefore carried as a canary, not as decision grade. We do not
-extrapolate that to modern deep architectures at production scale; we claim the direction of the
-burden --- a probe class earns drift-verdict authority by passing this battery.
-
 On real data the consequence is not hypothetical. Electricity --- the literature's canonical
 concept-drift dataset --- reads DEPLOYMENT-CONCEPT under two independent canary classes (linear:
 raw +0.023, denoised +0.033, injection recovers +0.190; MLP: raw +0.007, denoised +0.025) and
@@ -652,25 +646,6 @@ is worth reporting as a warning: on \texttt{ecom\_offers} the linear probe fires
 (+0.028) with the raw arm null ($-0.002$) --- a denoiser artifact specific to misspecified probes,
 since the linear $\hat{g}_{\text{old}}$'s systematic error is itself informative to the linear downstream model.
 The denoised arm's semantics are class-scoped too.
-
-\begin{table}[t]
-\caption{The model-class matrix: the five core controls with the probe's model class swapped.}
-\label{tab:classmatrix}
-\centering
-\footnotesize
-\setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.05in}>{\centering\arraybackslash}p{0.72in}>{\centering\arraybackslash}p{0.85in}>{\centering\arraybackslash}p{1.15in}>{\centering\arraybackslash}p{1.05in}>{\centering\arraybackslash}p{1.05in}@{}}
-\toprule
-control (truth) & HGB & RandomForest & MLP (64,32) & linear & kNN \\
-\midrule
-rotating rule & \yes\ ($+0.280$) & \yes\ ($+0.287$) & \yes\ ($+0.305$) & \yes\ ($+0.310$) & \yes\ ($+0.295$) \\
-covariate shift, fixed rule & \yes\ ($-0.001$) & \yes\ ($+0.004$) & \marginalmark\ (den $+0.045$, CI-saved) & \yes\ ($-0.002$) & \textbf{\no\ CONCEPT ($+0.098$)} \\
-prior shift, fixed rule & \yes\ ($-0.003$) & \yes\ ($+0.003$) & \textbf{\no\ CONCEPT (den $+0.042$)} & \textbf{\no\ CONCEPT ($+0.026$)} & \textbf{\no\ CONCEPT ($+0.048$)} \\
-stationary & \yes & \yes & \yes & \yes & \yes \\
-rotating rule + nuisance & \yes\ ($+0.203$) & \yes\ ($+0.200$) & \yes\ ($+0.228$) & \yes\ ($+0.229$) & \yes\ ($+0.219$) \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 \subsection{Power collapses continuously inside the separability gate}\label{sec:powerrel}
 
@@ -686,26 +661,6 @@ and recovery is $\rho$ = $-0.47$ (p = 0.037, n = 20), and the cleanest contrast 
 dataset: Electricity's identical planted rule recovers +0.190 at D = 0.905 under the linear
 probe, ten times its recovery at D = 1.000. A certificate therefore certifies that the geometry
 had power \emph{at this separability} --- not that power is uniform across certified cells.
-
-We tried to convert that correlation into a controlled ladder and could not, which is worth
-reporting because the failure is informative. Narrowing a single cell's representation
-(mutual-information top-k, k $\in$ {5, 10, 20, 50}) moves D monotonically while holding dataset and
-probe fixed --- \texttt{delivery\_eta} 0.521 $\to$ 0.540 $\to$ 0.555 $\to$ 0.801, \texttt{homecredit\_default} 0.721 $\to$ 0.796 $\to$
-0.833 $\to$ 0.912, against 0.999 and 1.000 at full representation. But the narrowed cells fall
-\emph{below} the routing threshold, so the injection control never runs and there is no recovery to
-read: the handle that moves D also moves the cell out of the region where power is measured. The
-within-cell recovery ladder therefore remains unmeasured, and we state the correlation as a
-correlation. (Registered predictions, for the record: D was predicted to fall with k and rises;
-the recovery prediction was unmeasurable for the reason just given.)
-
-Two things the ladder did show. The denoised reading itself moves with representation on a fixed
-cell (\texttt{delivery\_eta} $-0.002$ $\to$ $-0.013$; \texttt{homecredit\_default} +0.013 [+0.010, +0.016] at k = 5, where
-D = 0.721 puts it in the identifiable region, decaying to $-0.010$ at k = 50) --- so representation
-choice sets both whether a cell is identifiable \emph{and} the sign of what is read there. And in the
-adjacent low-D regime the picture is the opposite of the high-D panel: at D $\approx$ 0.49 on the river
-anchors, all four signal families recover (+0.076 to +0.238, all learnable at 0.916--0.968),
-including the subpopulation-local family that fails at high D in Section~\ref{sec:familyrel}. Representation dependence
-is a known hazard for this literature's estimands; here it is a measured one.
 
 \subsection{Family relativity: the certificate is relative to the class of rule change}\label{sec:familyrel}
 
@@ -723,19 +678,6 @@ power against changes in feature \emph{direction} and none against changes in su
 the same blind spot one layer down: standard detectors miss drift confined to a small
 subpopulation \citep{giobergia2024localized}. Our contribution here is not the blind spot but its
 measurement inside a certificate, where it determines what a null is worth.
-
-The blind spot is a property of family \emph{and} geometry rather than of the family alone, and an
-anchor sweep pins that down: on the single-switch river anchors, where separability is low
-(D $\approx$ 0.49), the subpopulation-local family recovers on all three anchors (+0.119, +0.079, +0.076,
-learnable at 0.937--0.963), as do the other three (+0.135 to +0.238). It is also, consistently, the
-\emph{smallest} recovery of the four --- the family that falls off first as separability rises, and the
-one that has already fallen off in the high-D industrial geometry. So the scope of a certificate is
-a joint statement about which rule families were tested and at what separability, and Section~\ref{sec:application} reports
-both. Every ``verified no-concept'' in this
-paper therefore carries an explicit family denominator, and the two certificates that stand on the
-industrial panel (weather, \texttt{homesite\_insurance}) stand against the families actually tested --- weather
-recovering +0.183 / +0.193 on fresh seeds under the low-variance carrier and +0.083 / +0.078 under
-the interaction family.
 
 \subsection{Metric relativity: falsified against an externally documented rule change}\label{sec:metricrel}
 
@@ -774,41 +716,10 @@ The scope statement is fixed and we hold to it (\texttt{PREREG\_ACS\_EXTENSION} 
 ``there is no drift in ACS'' but ``this instrument does not see a real rule change of this size.''
 We do not reinterpret it as a property of the data after the fact.
 
-\textbf{The blind spot is localised, and the repair direction is measurable.} Re-running the probe
-itself under proper scores --- diagnostic only, since changing the score changes the estimand and
-voids the AUC-calibrated floor, so the reading rule fixed before execution discards the verdict
-label and reads arm magnitudes and the PA-versus-TX contrast --- flips the sign of the Pennsylvania
-reading:
-
-\begin{table}[t]
-\centering
-\small
-\caption{The ACS public-coverage cells under three scores. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated floor.}
-\label{tab:4}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-state & AUC (raw / denoised) & Brier & log-loss \\
-\midrule
-Pennsylvania (expanded) & $-0.011$ / $-0.009$ & $-0.005$ / \textbf{+0.002} & $-0.018$ / \textbf{+0.021} \\
-Texas (never adopted) & $-0.015$ / $-0.011$ & $-0.005$ / $-0.002$ & $-0.023$ / \textbf{+0.006} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-
-The denoised arm turns positive under both proper scores on the treatment state, reaching +0.021 ---
-the size of the decision floor --- under log-loss, against +0.006 on the control, a 3.5$\times$ contrast in
-the right direction. The raw arm stays negative under every metric. So the mechanism registered
-before the run is confirmed on the instrument itself and not only through the external lens: what
-the probe could not see, it could not see \emph{because of the score}.
-
-Three things this does not license, all of which we state rather than absorb. The proper-score arm
-carries no certificate --- the injection planted in that run is unlearnable (learnability $-0.185$),
-so this reading has no power guarantee behind it. The control state also moves positive under
-log-loss (+0.006), so only the ratio is interpretable, never the absolute value; the honest summary
-of Section~\ref{sec:metricrel} remains that the metric compresses the signal six- to sevenfold and the residue still sits
-under the floor. And +0.021 ``clearing 0.02'' compares against a constant calibrated in AUC units,
-which is not a verdict; we record it and leave the constant alone.
+Under proper scores the same windows turn positive on the treated state and stay far
+smaller on the control, which localises the blindness to the score and points at a repair without
+licensing one: that arm carries no certificate, the control moves too, and the floor it clears is
+calibrated in AUC units (Appendix~\ref{app:properscore}).
 
 The scope sentence therefore gains a clause and loses none of its force: not "there is no drift in
 ACS``, but ''this instrument does not see a real rule change of this size through a rank-based
@@ -1023,6 +934,110 @@ carrier, where it reproduces on fresh seeds ($+0.183$ / $+0.193$) and under the 
 many signal families were learnable and how many of those recovered, so a certificate is never
 read as stronger than the class of rule change it was actually tested against.}
 \end{table}
+
+\section{The blind-spot map in full}\label{app:properscore}
+
+\paragraph{Class relativity: the full matrix.}
+
+\begin{table}[t]
+\caption{The model-class matrix: the five core controls with the probe's model class swapped.}
+\label{tab:classmatrix}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{1.05in}>{\centering\arraybackslash}p{0.72in}>{\centering\arraybackslash}p{0.85in}>{\centering\arraybackslash}p{1.15in}>{\centering\arraybackslash}p{1.05in}>{\centering\arraybackslash}p{1.05in}@{}}
+\toprule
+control (truth) & HGB & RandomForest & MLP (64,32) & linear & kNN \\
+\midrule
+rotating rule & \yes\ ($+0.280$) & \yes\ ($+0.287$) & \yes\ ($+0.305$) & \yes\ ($+0.310$) & \yes\ ($+0.295$) \\
+covariate shift, fixed rule & \yes\ ($-0.001$) & \yes\ ($+0.004$) & \marginalmark\ (den $+0.045$, CI-saved) & \yes\ ($-0.002$) & \textbf{\no\ CONCEPT ($+0.098$)} \\
+prior shift, fixed rule & \yes\ ($-0.003$) & \yes\ ($+0.003$) & \textbf{\no\ CONCEPT (den $+0.042$)} & \textbf{\no\ CONCEPT ($+0.026$)} & \textbf{\no\ CONCEPT ($+0.048$)} \\
+stationary & \yes & \yes & \yes & \yes & \yes \\
+rotating rule + nuisance & \yes\ ($+0.203$) & \yes\ ($+0.200$) & \yes\ ($+0.228$) & \yes\ ($+0.229$) & \yes\ ($+0.219$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The neural result deserves its own sentence, because the field's motivating question is whether
+deep tabular models have a rule change to exploit: the first neural probe we tested fails the
+separation battery and is therefore carried as a canary, not as decision grade. We do not
+extrapolate that to modern deep architectures at production scale; we claim the direction of the
+burden --- a probe class earns drift-verdict authority by passing this battery.
+
+\paragraph{The within-cell ladder, and why it could not be built.}
+
+We tried to convert that correlation into a controlled ladder and could not, which is worth
+reporting because the failure is informative. Narrowing a single cell's representation
+(mutual-information top-k, k $\in$ {5, 10, 20, 50}) moves D monotonically while holding dataset and
+probe fixed --- \texttt{delivery\_eta} 0.521 $\to$ 0.540 $\to$ 0.555 $\to$ 0.801, \texttt{homecredit\_default} 0.721 $\to$ 0.796 $\to$
+0.833 $\to$ 0.912, against 0.999 and 1.000 at full representation. But the narrowed cells fall
+\emph{below} the routing threshold, so the injection control never runs and there is no recovery to
+read: the handle that moves D also moves the cell out of the region where power is measured. The
+within-cell recovery ladder therefore remains unmeasured, and we state the correlation as a
+correlation. (Registered predictions, for the record: D was predicted to fall with k and rises;
+the recovery prediction was unmeasurable for the reason just given.)
+
+Two things the ladder did show. The denoised reading itself moves with representation on a fixed
+cell (\texttt{delivery\_eta} $-0.002$ $\to$ $-0.013$; \texttt{homecredit\_default} +0.013 [+0.010, +0.016] at k = 5, where
+D = 0.721 puts it in the identifiable region, decaying to $-0.010$ at k = 50) --- so representation
+choice sets both whether a cell is identifiable \emph{and} the sign of what is read there. And in the
+adjacent low-D regime the picture is the opposite of the high-D panel: at D $\approx$ 0.49 on the river
+anchors, all four signal families recover (+0.076 to +0.238, all learnable at 0.916--0.968),
+including the subpopulation-local family that fails at high D in Section~\ref{sec:familyrel}. Representation dependence
+is a known hazard for this literature's estimands; here it is a measured one.
+
+\paragraph{Family relativity across geometries.}
+
+The blind spot is a property of family \emph{and} geometry rather than of the family alone, and an
+anchor sweep pins that down: on the single-switch river anchors, where separability is low
+(D $\approx$ 0.49), the subpopulation-local family recovers on all three anchors (+0.119, +0.079, +0.076,
+learnable at 0.937--0.963), as do the other three (+0.135 to +0.238). It is also, consistently, the
+\emph{smallest} recovery of the four --- the family that falls off first as separability rises, and the
+one that has already fallen off in the high-D industrial geometry. So the scope of a certificate is
+a joint statement about which rule families were tested and at what separability, and Section~\ref{sec:application} reports
+both. Every ``verified no-concept'' in this
+paper therefore carries an explicit family denominator, and the two certificates that stand on the
+industrial panel (weather, \texttt{homesite\_insurance}) stand against the families actually tested --- weather
+recovering +0.183 / +0.193 on fresh seeds under the low-variance carrier and +0.083 / +0.078 under
+the interaction family.
+
+\paragraph{The proper-score follow-up.}
+
+\textbf{The blind spot is localised, and the repair direction is measurable.} Re-running the probe
+itself under proper scores --- diagnostic only, since changing the score changes the estimand and
+voids the AUC-calibrated floor, so the reading rule fixed before execution discards the verdict
+label and reads arm magnitudes and the PA-versus-TX contrast --- flips the sign of the Pennsylvania
+reading:
+
+\begin{table}[t]
+\centering
+\small
+\caption{The ACS public-coverage cells under three scores. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated floor.}
+\label{tab:4}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+state & AUC (raw / denoised) & Brier & log-loss \\
+\midrule
+Pennsylvania (expanded) & $-0.011$ / $-0.009$ & $-0.005$ / \textbf{+0.002} & $-0.018$ / \textbf{+0.021} \\
+Texas (never adopted) & $-0.015$ / $-0.011$ & $-0.005$ / $-0.002$ & $-0.023$ / \textbf{+0.006} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+The denoised arm turns positive under both proper scores on the treatment state, reaching +0.021 ---
+the size of the decision floor --- under log-loss, against +0.006 on the control, a 3.5$\times$ contrast in
+the right direction. The raw arm stays negative under every metric. So the mechanism registered
+before the run is confirmed on the instrument itself and not only through the external lens: what
+the probe could not see, it could not see \emph{because of the score}.
+
+Three things this does not license, all of which we state rather than absorb. The proper-score arm
+carries no certificate --- the injection planted in that run is unlearnable (learnability $-0.185$),
+so this reading has no power guarantee behind it. The control state also moves positive under
+log-loss (+0.006), so only the ratio is interpretable, never the absolute value; the honest summary
+of Section~\ref{sec:metricrel} remains that the metric compresses the signal six- to sevenfold and the residue still sits
+under the floor. And +0.021 ``clearing 0.02'' compares against a constant calibrated in AUC units,
+which is not a verdict; we record it and leave the constant alone.
 
 \section{Across the deployment gap}\label{sec:gap}
 
