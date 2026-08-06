@@ -816,22 +816,12 @@ score; through log-loss it sees something floor-sized, uncertified, and shared w
 
 \section{Application: auditing an industrial panel}\label{sec:application}
 
-With the instrument certified and its blind spots mapped, we spend it on the
-question that motivated building it (Section~\ref{sec:application}): a pre-registered audit of eight TabReD datasets,
-Electricity and the INSECTS streams, with confirmatory fresh-seed replication (10/10 stable). The
-result is an identifiability map rather than a detection table: 0/8 audited and 0/5 among the cells
-that carry an informative reading, the sole robust positive being designed drift, with two cells
-refusing a certificate outright rather than counting as evidence and one already diagnosed in
-Section~\ref{sec:diagnosis}. Anchor streams fix the
-sensitivity profile: monotone and single-switch rule changes fire 9/9, and recurring regimes are
-correctly silent with a negative-recency fingerprint that is impossible under one-way drift.
-
-Everything above is about an instrument. This section spends it on the question that motivated
-building one: does industrial tabular data contain rule change a deployed model could exploit?
-The answer is a map, and the map is worth exactly what Section~\ref{sec:blind} says it is worth --- every number below is
-scoped to a tree-ensemble probe class (Section~\ref{sec:classrel}), to the separability at which its certificate was
-earned (Section~\ref{sec:powerrel}), to the rule families that certificate was tested against (Section~\ref{sec:familyrel}), and to a
-rank-based score (Section~\ref{sec:metricrel}). We state the qualifiers with the result rather than after it.
+With the instrument certified and its blind spots mapped, we spend it on the question that
+motivated building it: does industrial tabular data contain rule change a deployed model could
+exploit? The answer is a map, and it is worth what Section~\ref{sec:blind} says it is worth. Every
+number below is scoped to a tree-ensemble probe class, to the separability at which its
+certificate was earned, to the rule families that certificate was tested against, and to a
+rank-based score. We state the qualifiers with the result rather than after it.
 
 \subsection{Protocol and result}\label{sec:panel}
 
@@ -845,28 +835,7 @@ denoised-null) and a survival battery was pre-specified in case the prediction f
 what happened. Both the primary rule (CI > 0 and mean > floor) and the strict rule (CI > floor) are
 computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-stable.
 
-\begin{table}[t]
-\centering
-\small
-\caption{The audited panel. Verdicts are identical on exploratory and confirmatory seeds; certificates state what each null is worth.}
-\label{tab:5}
-\begin{tabular}{@{}lrrrrrrr@{}}
-\toprule
-dataset & verdict (= confirmatory) & raw & denoised & gate & D & Rec. & certificate \\
-\midrule
-insects & \textbf{DEPLOYMENT-CONCEPT} & +0.135 / +0.129 & \textbf{+0.152 / +0.145} & 1.24 & 0.844 & +0.162 & injection recovers \\
-\texttt{sberbank\_housing} & \textbf{NOISE-DRIFT-CONFOUNDED} & +0.024 / +0.033 (fires) & \textbf{$-0.015$ / $-0.011$} & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & diagnosed (Section~\ref{sec:diagnosis}) \\
-\texttt{cooking\_time} & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & \textbf{+0.546} & \textbf{verified no-concept} \\
-\texttt{delivery\_eta} & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & \textbf{+0.332} & \textbf{verified no-concept} \\
-\texttt{maps\_routing} & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
-elec2 & UNIDENTIFIABLE & +0.001 & +0.001 & 0.66 & 1.000 & +0.018 & \textbf{blindness earned} \\
-\texttt{ecom\_offers} & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous} --- injection unlearnable (0/4 families) \\
-\texttt{homecredit\_default} & UNIDENTIFIABLE & $-0.007$ & +0.004 & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 families; 80 proxy features stripped) \\
-weather & INJECTION-RECOVERED $\dagger$ & $-0.012$ & $-0.011$ & 0.93 & 0.994 & \textbf{+0.183} & \textbf{verified no-concept} (2/3 learnable families) \\
-\texttt{homesite\_insurance} & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 learnable families, stable) \\
-\bottomrule
-\end{tabular}
-\end{table}
+
 
 
 \emph{D} = the group-aware separability median (D\\emph{ = 0.96 routes to the injection control); }Rec.* =
@@ -911,113 +880,13 @@ injection recovery). Color is redundant: every tile also prints its verdict.}
 \label{fig:map}
 \end{figure}
 
-\begin{table}[t]
-\caption{The identifiability map. Where two numbers are shown: exploratory / confirmatory.}
-\label{tab:map}
-\centering
-\scriptsize
-\setlength{\tabcolsep}{2pt}
-\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{0.92in}>{\raggedright\arraybackslash}p{0.78in}>{\raggedright\arraybackslash}p{0.78in}>{\raggedright\arraybackslash}p{0.55in}>{\raggedright\arraybackslash}p{0.30in}>{\raggedright\arraybackslash}p{0.40in}>{\raggedright\arraybackslash}p{1.02in}@{}}
-\toprule
-dataset & verdict ($=$ confirmatory) & raw & denoised & gate & $D$ & Rec. & certificate \\
-\midrule
-insects & \textbf{DEPLOYMENT-CONCEPT} & $+0.135$ / $+0.129$ & $\boldsymbol{+0.152}$ / $\boldsymbol{+0.145}$ & 1.24 & 0.844 & $+0.162$ & injection recovers \\
-\texttt{sberbank\_housing} & \textbf{NOISE-DRIFT-CONFOUNDED} & $+0.024$ / $+0.033$ (fires) & $\boldsymbol{-0.015}$ / $\boldsymbol{-0.011}$ & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & --- (diagnosed, \S\ref{sec:diagnosis}) \\
-\texttt{cooking\_time} & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & $\boldsymbol{+0.546}$ & \textbf{verified no-concept} \\
-\texttt{delivery\_eta} & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & $\boldsymbol{+0.332}$ & \textbf{verified no-concept} \\
-\texttt{maps\_routing} & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
-elec2 & UNIDENTIFIABLE & $+0.001$ & $+0.001$ & 0.66 & 1.000 & $+0.018$ & \textbf{blindness earned} (inj learnable) \\
-\texttt{ecom\_offers} & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous}---unlearnable (0/4 fam.) \\
-\texttt{homecredit\_default} & UNIDENTIFIABLE & $-0.007$ & $+0.004$ & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 fam.; 80 proxies stripped) \\
-weather & INJECTION-RECOVERED\,$\dagger$ & $-0.012$ & $-0.011$ & 0.93 & 0.994 & $\mathbf{+0.183}$ & 	extbf{verified no-concept} (2/3 fam.) \\
-\texttt{homesite\_insurance} & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 fam., stable) \\
-\bottomrule
-\end{tabular}
-
-\vspace{2pt}
-{\scriptsize $D$ $=$ \texttt{D\_strip}, the group-aware separability median ($D^\star = 0.96$ routes
-to the injection control). Rec.\ $=$ recovered staleness of a planted rule at reference strength (2.5\,rad);
-``---'' $=$ the injection was unlearnable in every signal family tried, so no recovery number is
-admissible (vacuity discipline), and n/a $=$ the cell never routes to the injection control.
-Recovery values move by ${<}0.01$ between seed sets on every cell. $\dagger$ weather's
-reference-family rule is unlearnable in its geometry; recovery is measured under the low-variance
-carrier, where it reproduces on fresh seeds ($+0.183$ / $+0.193$) and under the interaction family
-($+0.083$ / $+0.078$), both also clearing the strict rule. The ``(m/n fam.)'' counts report how
-many signal families were learnable and how many of those recovered, so a certificate is never
-read as stronger than the class of rule change it was actually tested against.}
-\end{table}
-
-\subsection{Across the deployment gap}\label{sec:gap}
-
-The map covers the train segments of TabReD's official temporal splits, which is where a
-practitioner would fit but not where the model is judged. Re-running all eight cells with train,
-validation and test concatenated on the shared normalised timestamp --- so the windows cross the
-held-out gap the official split withholds --- leaves 8/8 verdicts identical between exploratory and
-confirmatory seeds and no industrial cell firing CONCEPT. The aggregate is therefore not
-re-scoped to train segments.
-
-Three cells move in ways worth recording rather than burying. sberbank's raw arm no longer clears
-the floor over the longer span, so the noise diagnosis of Section~\ref{sec:diagnosis} is explicitly scoped to the train
-segment. \texttt{cooking\_time}'s separability \emph{falls} below D\* (0.927), against our expectation that a
-longer span would raise it, leaving an identifiable null that needs no certificate. And
-\texttt{homecredit\_default}'s denoised arm reads +0.018 --- 89\% of the decision floor, the largest
-positive-direction number anywhere in this paper --- with a certificate that is \emph{earned} here rather
-than refused, so it reads as ``measured and under the floor'' rather than ``not measured''. That cell
-is the closest thing this panel has to a positive, and we flag it as the place a larger-N or
-finer-window follow-up should look first.
-
-\subsection{Anchors and the sensitivity profile}\label{sec:anchors}
-
-A map of nulls is only as informative as the sensitivity of the instrument that drew it, so we ran
-it over 23 synthetic river streams (SEA / Agrawal / STAGGER / Sine / Hyperplane; no-drift, abrupt
-single-switch, gradual and reoccurring variants) and all seven INSECTS variants (real sensor data,
-lab-controlled temperature drift).
-
-\textbf{Monotone and single-switch rule changes fire: 9/9.} River: \texttt{agrawal\_abrupt} +0.045,
-\texttt{agrawal\_gradual} +0.047, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} +0.031, \texttt{hyperplane\_incremental} +0.112 (with the
-gate correctly co-flagging its noise component), \texttt{sine\_reoccur2} +0.047. INSECTS: gradual-balanced
-+0.092, gradual-imbalanced +0.069, incremental +0.135 --- in every firing cell denoised is at least
-raw, and the injection positive control recovers. Weak switches (SEA's threshold nudge) land in the
-no-evidence band with consistent sign and are reported with their detectable floors.
-
-\textbf{Recurring regimes are correctly silent --- and fingerprinted.} INSECTS abrupt variants
-(oscillating temperature) read \emph{negative} staleness ($-0.070$, $-0.027$) with negative recency gain
-($-0.058$, $-0.023$): the window adjacent to the test predicts it \emph{worse} than the oldest window does.
-Negative recency is impossible under one-way drift; it is the signature of a regime that has
-returned, and it replicates across river's reoccurring cells and INSECTS incremental-reoccurring.
-This is a scope statement, not a defect. The lens answers the deployment question of whether old
-data harms a model trained today, and when old regimes recur, old data genuinely does not harm. A
-monitor built on this lens will not \emph{detect} recurring drift; it will correctly say old data is
-safe to keep, and the negative-recency flag says why.
-
-On the audited panel that flag is silent:
-every industrial cell reads recency gain at or above zero (+0.000 on \texttt{maps\_routing} to +0.325 on
-sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
-horizon --- our own \texttt{sine\_reoccur2} anchor returns to its initial regime in the final ~22\% and reads
-recency +0.30 --- so it rules out horizon-dominating recurrence and says nothing about late, brief or
-sub-window-periodic returns.
-
-\textbf{Calibration of the no-evidence band.} Two of five no-drift anchor streams produce
-``CI-significant'' sub-floor denoised positives at 1/10 to 1/20 of the decision floor: seed-level CIs
-on overlapping subsamples are anti-conservative at tiny magnitudes. The sub-floor band is therefore
-read as \emph{no evidence} everywhere in this paper --- a calibration the anchor suite forced and the
-pre-registration records.
-
-\textbf{Malware.} On EMBER, over 2018-dense monthly windows, the instrument returns a
-certificate-grade DEPLOYMENT-DECAY-COVARIATE: D = 0.834 (identifiable), raw $-0.008$ [$-0.009$,
-$-0.007$], denoised $-0.004$, gate quiet, recency gain +0.031 above the floor, detectable floor 0.0013.
-Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven, since new
-families appear while old labels do not rot. The lens draws exactly that distinction: keep the old
-data, expect decay anyway, retrain for coverage.
-
-\textbf{Income across years.} On ACS income across \emph{years} (California, 2014--2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw $-0.008$,
-denoised $-0.007$ (both CIs negative), gate quiet, D = 0.515, recency near zero, detectable floor
-0.0008 --- on the same task whose \emph{spatial} axis is reported to exhibit prevalent Y|X-shift. The
-axis, not the dataset, determines the shift type. That cell also passes a real-data prior-shift
-control: the fixed \$50k threshold under inflation produces a monotone positive-rate ramp (0.36 to
-0.42) and the instrument does not misread it as concept. The complementary ACS reading --- the one
-where a documented rule change went unseen --- is Section~\ref{sec:metricrel}, and the two should be read together: the
-instrument is well powered on this task and still metric-blind to a particular kind of change on it.
+\textbf{What the instrument can see, and where the map does not move.} A map of nulls is only as
+informative as the sensitivity of the instrument that drew it. Over 23 synthetic streams and all
+seven INSECTS variants, monotone and single-switch rule changes fire 9/9, and recurring regimes are
+correctly silent with a negative-recency fingerprint that is impossible under one-way drift; on the
+audited panel that flag is silent everywhere (Appendix~\ref{sec:anchors}). Re-running all eight cells
+across the held-out deployment gap leaves 8/8 verdicts identical and no industrial cell firing
+CONCEPT, so the aggregate is not re-scoped to train segments (Appendix~\ref{sec:gap}).
 
 \section{Discussion}\label{sec:discussion}
 
@@ -1119,6 +988,114 @@ in a direction we did not act on.
 \bibliographystyle{tmlr}
 
 \appendix
+\begin{table}[t]
+\caption{The identifiability map. Where two numbers are shown: exploratory / confirmatory.}
+\label{tab:map}
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{0.92in}>{\raggedright\arraybackslash}p{0.78in}>{\raggedright\arraybackslash}p{0.78in}>{\raggedright\arraybackslash}p{0.55in}>{\raggedright\arraybackslash}p{0.30in}>{\raggedright\arraybackslash}p{0.40in}>{\raggedright\arraybackslash}p{1.02in}@{}}
+\toprule
+dataset & verdict ($=$ confirmatory) & raw & denoised & gate & $D$ & Rec. & certificate \\
+\midrule
+insects & \textbf{DEPLOYMENT-CONCEPT} & $+0.135$ / $+0.129$ & $\boldsymbol{+0.152}$ / $\boldsymbol{+0.145}$ & 1.24 & 0.844 & $+0.162$ & injection recovers \\
+\texttt{sberbank\_housing} & \textbf{NOISE-DRIFT-CONFOUNDED} & $+0.024$ / $+0.033$ (fires) & $\boldsymbol{-0.015}$ / $\boldsymbol{-0.011}$ & \textbf{2.11 / 2.21 (fires)} & 1.000 & --- & --- (diagnosed, \S\ref{sec:diagnosis}) \\
+\texttt{cooking\_time} & INJECTION-RECOVERED & $-0.011$ & $-0.018$ & 0.92 & 0.966 & $\boldsymbol{+0.546}$ & \textbf{verified no-concept} \\
+\texttt{delivery\_eta} & INJECTION-RECOVERED & $-0.012$ & $-0.014$ & 0.89 & 0.999 & $\boldsymbol{+0.332}$ & \textbf{verified no-concept} \\
+\texttt{maps\_routing} & NO-STRONG-CONCEPT & $-0.008$ & $-0.010$ & 1.01 & 0.578 & n/a & identifiable region \\
+elec2 & UNIDENTIFIABLE & $+0.001$ & $+0.001$ & 0.66 & 1.000 & $+0.018$ & \textbf{blindness earned} (inj learnable) \\
+\texttt{ecom\_offers} & UNIDENTIFIABLE & $-0.001$ & $-0.007$ & 1.25 & 1.000 & --- & \emph{vacuous}---unlearnable (0/4 fam.) \\
+\texttt{homecredit\_default} & UNIDENTIFIABLE & $-0.007$ & $+0.004$ & 1.29 & 1.000 & --- & \emph{vacuous} (0/4 fam.; 80 proxies stripped) \\
+weather & INJECTION-RECOVERED\,$\dagger$ & $-0.012$ & $-0.011$ & 0.93 & 0.994 & $\mathbf{+0.183}$ & 	extbf{verified no-concept} (2/3 fam.) \\
+\texttt{homesite\_insurance} & UNIDENTIFIABLE-INERT & $-0.004$ & $-0.002$ & 1.14 & 1.000 & $-0.001$ & \textbf{blindness earned} (2/2 fam., stable) \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+{\scriptsize $D$ $=$ \texttt{D\_strip}, the group-aware separability median ($D^\star = 0.96$ routes
+to the injection control). Rec.\ $=$ recovered staleness of a planted rule at reference strength (2.5\,rad);
+``---'' $=$ the injection was unlearnable in every signal family tried, so no recovery number is
+admissible (vacuity discipline), and n/a $=$ the cell never routes to the injection control.
+Recovery values move by ${<}0.01$ between seed sets on every cell. $\dagger$ weather's
+reference-family rule is unlearnable in its geometry; recovery is measured under the low-variance
+carrier, where it reproduces on fresh seeds ($+0.183$ / $+0.193$) and under the interaction family
+($+0.083$ / $+0.078$), both also clearing the strict rule. The ``(m/n fam.)'' counts report how
+many signal families were learnable and how many of those recovered, so a certificate is never
+read as stronger than the class of rule change it was actually tested against.}
+\end{table}
+
+\section{Across the deployment gap}\label{sec:gap}
+
+The map covers the train segments of TabReD's official temporal splits, which is where a
+practitioner would fit but not where the model is judged. Re-running all eight cells with train,
+validation and test concatenated on the shared normalised timestamp --- so the windows cross the
+held-out gap the official split withholds --- leaves 8/8 verdicts identical between exploratory and
+confirmatory seeds and no industrial cell firing CONCEPT. The aggregate is therefore not
+re-scoped to train segments.
+
+Three cells move in ways worth recording rather than burying. sberbank's raw arm no longer clears
+the floor over the longer span, so the noise diagnosis of Section~\ref{sec:diagnosis} is explicitly scoped to the train
+segment. \texttt{cooking\_time}'s separability \emph{falls} below D\* (0.927), against our expectation that a
+longer span would raise it, leaving an identifiable null that needs no certificate. And
+\texttt{homecredit\_default}'s denoised arm reads +0.018 --- 89\% of the decision floor, the largest
+positive-direction number anywhere in this paper --- with a certificate that is \emph{earned} here rather
+than refused, so it reads as ``measured and under the floor'' rather than ``not measured''. That cell
+is the closest thing this panel has to a positive, and we flag it as the place a larger-N or
+finer-window follow-up should look first.
+
+\section{Anchors and the sensitivity profile}\label{sec:anchors}
+
+A map of nulls is only as informative as the sensitivity of the instrument that drew it, so we ran
+it over 23 synthetic river streams (SEA / Agrawal / STAGGER / Sine / Hyperplane; no-drift, abrupt
+single-switch, gradual and reoccurring variants) and all seven INSECTS variants (real sensor data,
+lab-controlled temperature drift).
+
+\textbf{Monotone and single-switch rule changes fire: 9/9.} River: \texttt{agrawal\_abrupt} +0.045,
+\texttt{agrawal\_gradual} +0.047, \texttt{stagger\_abrupt}, \texttt{sine\_abrupt} +0.031, \texttt{hyperplane\_incremental} +0.112 (with the
+gate correctly co-flagging its noise component), \texttt{sine\_reoccur2} +0.047. INSECTS: gradual-balanced
++0.092, gradual-imbalanced +0.069, incremental +0.135 --- in every firing cell denoised is at least
+raw, and the injection positive control recovers. Weak switches (SEA's threshold nudge) land in the
+no-evidence band with consistent sign and are reported with their detectable floors.
+
+\textbf{Recurring regimes are correctly silent --- and fingerprinted.} INSECTS abrupt variants
+(oscillating temperature) read \emph{negative} staleness ($-0.070$, $-0.027$) with negative recency gain
+($-0.058$, $-0.023$): the window adjacent to the test predicts it \emph{worse} than the oldest window does.
+Negative recency is impossible under one-way drift; it is the signature of a regime that has
+returned, and it replicates across river's reoccurring cells and INSECTS incremental-reoccurring.
+This is a scope statement, not a defect. The lens answers the deployment question of whether old
+data harms a model trained today, and when old regimes recur, old data genuinely does not harm. A
+monitor built on this lens will not \emph{detect} recurring drift; it will correctly say old data is
+safe to keep, and the negative-recency flag says why.
+
+On the audited panel that flag is silent:
+every industrial cell reads recency gain at or above zero (+0.000 on \texttt{maps\_routing} to +0.325 on
+sberbank-housing). The flag certifies recurrence only at scales that dominate the evaluation
+horizon --- our own \texttt{sine\_reoccur2} anchor returns to its initial regime in the final ~22\% and reads
+recency +0.30 --- so it rules out horizon-dominating recurrence and says nothing about late, brief or
+sub-window-periodic returns.
+
+\textbf{Calibration of the no-evidence band.} Two of five no-drift anchor streams produce
+``CI-significant'' sub-floor denoised positives at 1/10 to 1/20 of the decision floor: seed-level CIs
+on overlapping subsamples are anti-conservative at tiny magnitudes. The sub-floor band is therefore
+read as \emph{no evidence} everywhere in this paper --- a calibration the anchor suite forced and the
+pre-registration records.
+
+\textbf{Malware.} On EMBER, over 2018-dense monthly windows, the instrument returns a
+certificate-grade DEPLOYMENT-DECAY-COVARIATE: D = 0.834 (identifiable), raw $-0.008$ [$-0.009$,
+$-0.007$], denoised $-0.004$, gate quiet, recency gain +0.031 above the floor, detectable floor 0.0013.
+Malware's temporal degradation is real and recency-recoverable, but it is coverage-driven, since new
+families appear while old labels do not rot. The lens draws exactly that distinction: keep the old
+data, expect decay anyway, retrain for coverage.
+
+\textbf{Income across years.} On ACS income across \emph{years} (California, 2014--2018) the instrument returns the map's best-powered null: NO-STRONG-CONCEPT, raw $-0.008$,
+denoised $-0.007$ (both CIs negative), gate quiet, D = 0.515, recency near zero, detectable floor
+0.0008 --- on the same task whose \emph{spatial} axis is reported to exhibit prevalent Y|X-shift. The
+axis, not the dataset, determines the shift type. That cell also passes a real-data prior-shift
+control: the fixed \$50k threshold under inflation produces a monotone positive-rate ramp (0.36 to
+0.42) and the instrument does not misread it as concept. The complementary ACS reading --- the one
+where a documented rule change went unseen --- is Section~\ref{sec:metricrel}, and the two should be read together: the
+instrument is well powered on this task and still metric-blind to a particular kind of change on it.
+
 \section{Reproducibility details}\label{app:repro}
 
 Everything is in one repository, linked in anonymized form for review. The instrument is a single
