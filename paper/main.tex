@@ -110,16 +110,12 @@ constructed adversarially against our own repair, fire the same way: x-dependent
 decays (+0.025), and noise correlated with the rule-carrying feature (+0.026), the denoiser's worst
 case. Growing noise reads $-0.023$, so the artifact is directional rather than a constant bias.
 
-\textbf{Two more ways the naive instrument lies}, repaired in Section~\ref{sec:certificates} and mapped in Section~\ref{sec:classrel} respectively. The
-natural certificate for ``a null here is uninformative'' is a window-separability AUC, which asks
-whether a classifier can tell old rows from future rows. Computed row-wise it saturates to
-0.994--1.000 under exact duplicates, near-duplicates and entity cohorts with no covariate shift at
-all: the classifier memorizes rows, not distributions, and
-eight of ten real datasets read exactly 1.000 under the naive gate. And the concept/covariate
-separation is hypothesis-class-relative: a kNN probe reads pure covariate shift as concept drift
-(+0.098) and a two-layer MLP reads fixed-rule prior shift as concept drift (denoised +0.042), while
-tree ensembles pass all controls. That is Shimodaira's misspecification result made empirical, and
-it means ``old data hurts'' can be manufactured by geometry alone.
+\textbf{Two more ways the naive instrument lies.} The certificate that should license a null --- a
+window-separability AUC --- saturates to 1.000 under duplicates and entity cohorts with no covariate
+shift at all, so eight of ten real datasets read as unmeasurable for a reason that is memorisation
+rather than geometry. And the concept/covariate separation is hypothesis-class-relative: a kNN probe
+reads pure covariate shift as concept drift ($+0.098$). Both are repaired in
+Section~\ref{sec:certificates} and mapped in Section~\ref{sec:classrel}.
 
 \textbf{The repair, and the discipline it needs.} Each failure gets a repair validated by execution
 (Section~\ref{sec:instrument}--Section~\ref{sec:validation}). A \emph{denoised staleness} arm replaces old labels with cross-fitted predictions from inside
@@ -140,17 +136,13 @@ reference strength (+0.086, learnable at R$^2$ 0.93), so the negative is certifi
 argued. We are not aware of a prior case of a drift-attribution instrument diagnosing the
 \emph{mechanism} of its own earlier false positive on real data, as opposed to failing to replicate it.
 
-\textbf{And its blind spots, measured.} A null is worth its blind spots, so we map ours (Section~\ref{sec:blind}) along four
-axes: probe class, separability, rule family, and metric. The last is settled from outside. The ACA
-Medicaid expansion, implemented by Pennsylvania on 2015-01-01 and never adopted by Texas, is a rule
-change documented in law and visible in the raw positive rates (0.234 $\to$ 0.306 against a flat
-0.183--0.185). The probe read both states null, in a fully identifiable regime and at the
-tightest detectable bound anywhere in this paper, so a confident zero rather than an underpowered
-one. The mechanism was registered before the run: our binary score is AUC, which is rank-based, and
-an eligibility threshold moves a large mass across a decision boundary without reordering anyone.
-Under proper scores the same windows turn positive on the treated state (+0.021 under log-loss)
-against +0.006 on the control. That localises the blindness and gives a repair direction, and Section~\ref{sec:metricrel}
-states the three things the reading does not license.
+\textbf{And its blind spots, measured.} A null is worth its blind spots, so we map ours
+(Section~\ref{sec:blind}) along four axes: probe class, separability, rule family, and metric. The
+last is settled from outside. Against the ACA Medicaid expansion --- implemented by Pennsylvania on
+2015-01-01, never adopted by Texas, and visible in the raw positive rates --- the probe read both
+states null, in a fully identifiable regime and at the tightest detectable bound in the paper. The
+mechanism was registered before the run: our binary score is rank-based, and an eligibility
+threshold moves mass across a decision boundary without reordering anyone.
 
 \textbf{Contributions.}
 
@@ -244,12 +236,6 @@ change?'' and is type-blind by construction, so its fires would not bear on drif
 attribution; the canary panel (\S\ref{sec:classrel}) is the like-for-like comparison---what a
 weaker \emph{attribution} instrument reports on the same bytes---and porting the certificate
 protocol to streaming monitors is future work (\S\ref{sec:discussion}).
-
-\paragraph{Malware.} TESSERACT \citep{pendlebury2019tesseract} established temporally honest evaluation in
-malware and documents performance decay. Our EMBER read (old data \emph{helps}; staleness $-0.008$;
-detectable floor 0.0013) refines rather than contradicts it: the decay is coverage-driven (new
-families appear---covariate expansion), not label rot (a 2017 malware sample is still malware),
-which is exactly the distinction a deployment lens should draw.
 
 \section{The failure channel}\label{sec:channel}
 
@@ -359,7 +345,6 @@ stationary (regression) & rule fixed, no noise trend & $-0.0208$ \\
 \end{tabular}
 \end{table}
 
-
 The strong version of our claim is refuted by this, and we say so: the frame does separate the
 two mechanisms by magnitude, 7.5--14$\times$ --- a practitioner reading the number, not the label, is not
 misled. What survives is narrower and still costly. Sign does not separate. Both noise-decay
@@ -388,8 +373,6 @@ sberbank-housing (\S\ref{sec:diagnosis}), the raw arm fires ($+0.024$) but the n
 ($2.1\times$) and the denoised arm is negative---so the cascade returns NOISE-DRIFT-CONFOUNDED
 rather than concept; had all three aligned inside the envelope, the verdict would have been
 DEPLOYMENT-CONCEPT, subject to an injection positive control.
-
-
 
 \subsection{Setting and estimand}\label{sec:setting}
 
@@ -501,28 +484,13 @@ label noise \emph{growing}, fixed rule & $-0.023$ & $-0.019$ & 0.14 & NO-STRONG-
 \end{tabular}
 \end{table}
 
-Three cells carry the paper's argument. The noise-decay cell is the executed refutation of
-``correct labels cannot hurt'': the raw probe fires at a magnitude ($+0.021$) that matched a real
-industrial positive to within 0.003. The $x$-dependent-noise cell is a \emph{second} raw false-positive
-channel, discovered during adversarial review of the repair itself; a third (noise scale
-correlated with the rule feature---the denoiser's worst case, since pseudo-label error then
-concentrates where the signal lives) was constructed by an independent red-team pass and also
-defused (raw $+0.026$ fires; denoised $+0.006$, null). The concept-plus-noise cell establishes that
-the repair keeps power where both mechanisms co-occur: denoised retention is 58\% of the clean
-rotating-rule signal ($+0.316$ vs $+0.541$), and the same holds at small rule-change magnitudes
-(a 0.8-rad rotation: clean denoised $+0.108$, with noise decay $+0.062$---attenuated, still firing).
-Robustness of the denoiser to a small old window was checked directly (old window capped at 600
-rows, cross-fit folds of 300): no false positive ($+0.004$) and no false negative ($+0.429$).
-
-\paragraph{Floor comparability across metrics.} The 0.02 decision floor is shared across AUC, accuracy,
-and z-scored $-$RMSE, which are not decision-equivalent units. Two mitigations are structural:
-every null carries its own detectable-effect bound $\delta$ (the per-dataset, per-metric power
-statement that does the aggregate's real work), and CONCEPT never rests on the floor alone (the
-denoised CI, gate, and envelope must all align). As a sensitivity check, re-thresholding all
-committed runs under per-metric floors rescaled by the battery's matched-strength concept
-magnitudes (binary $+0.28$ vs regression $+0.55$ $\Rightarrow$ regression floor 0.04) moves no cell across the
-concept/no-concept boundary; the only affected cell is the mechanism label of the diagnosed
-regression positive (\S\ref{sec:diagnosis}), which is already flagged rule-sensitive and barred from headlines.
+The three rows that carry the paper's argument are read in Section~\ref{sec:channel}; the rest are
+controls whose truth is fixed by construction, and the instrument must return the right verdict on
+all fourteen before it touches real data. Two readings appear nowhere else: a third noise channel,
+correlated with the rule-carrying feature, fires the raw arm at +0.026 and is defused by the
+denoised arm at +0.006; and the denoiser survives a small old window (600 rows, folds of 300) with
+no false positive (+0.004) and no false negative (+0.429). Appendix~\ref{app:instrument} covers floor
+comparability across metrics.
 
 \subsection{The gate has teeth: re-gating after the instrument changes}\label{sec:regate}
 
@@ -536,12 +504,10 @@ that it can.
 
 \section{Where the instrument is blind}\label{sec:blind}
 
-Sections 4 and 5 establish what the repaired instrument can say. This section establishes what it
+Sections 4 and 5 establish what the repaired instrument can say; this section establishes what it
 cannot, along four axes, each measured rather than asserted. Three are measured with our own
-tools; the fourth is settled from outside, against a rule change documented in law.
-
-We put this before the application (Section~\ref{sec:application}) deliberately. A verdict of ``no rule change'' is only worth
-its blind spots, and a reader who does not know them cannot price the map that follows.
+tools; the fourth is settled from outside, against a rule change documented in law. It comes
+before the application because a verdict of no rule change is worth only its blind spots.
 
 \subsection{Class relativity: the same bytes, a different probe, a different verdict}\label{sec:classrel}
 
@@ -631,10 +597,6 @@ anchors, is larger than a real population-scale policy rule change. We record th
 measured criticism of the constant (Appendix C) and do not act on it: changing a pre-registered
 threshold after seeing results is precisely what this paper argues against.
 
-The scope statement is fixed and we hold to it (\texttt{PREREG\_ACS\_EXTENSION} Section~\ref{sec:blind}(b)): the finding is not
-``there is no drift in ACS'' but ``this instrument does not see a real rule change of this size.''
-We do not reinterpret it as a property of the data after the fact.
-
 Under proper scores the same windows turn positive on the treated state and stay far
 smaller on the control, which localises the blindness to the score and points at a repair without
 licensing one: that arm carries no certificate, the control moves too, and the floor it clears is
@@ -664,9 +626,6 @@ pre-registered as a \emph{retraction candidate with a prediction} (NOISE-DRIFT-C
 denoised-null) and a survival battery was pre-specified in case the prediction failed; Section~\ref{sec:diagnosis} reports
 what happened. Both the primary rule (CI > 0 and mean > floor) and the strict rule (CI > floor) are
 computed, and rule-sensitive cells are flagged. All ten cells are confirmatory-stable.
-
-
-
 
 \emph{D} = the group-aware separability median (D\\emph{ = 0.96 routes to the injection control); }Rec.* =
 recovered staleness of a rule planted at reference strength; ``---'' = the injection was unlearnable in
@@ -765,17 +724,6 @@ a canary (Section~\ref{sec:classrel}). Modern deep tabular architectures at prod
 the direction of the burden rather than the conclusion: a probe class earns drift-verdict authority
 by passing the battery of Section~\ref{sec:validation}, and the first neural probe we tested does not.
 
-\textbf{On process.} This project's ledger records nine positive findings that dissolved under scrutiny
-before the present result. The ninth dissolution is Section~\ref{sec:diagnosis}, and it is the only one the measuring
-instrument itself diagnosed. The methodological claim we stand behind is that the combination that
-finally produced a stable result --- executed adversarial nulls before real-data claims,
-pre-registered cascades with commit-timestamped predictions, confirmatory fresh-seed replication,
-certificates instead of assumptions, and canary probes --- is cheap relative to the cost of the
-dissolutions it prevents. Two of this paper's own results exist only because that discipline was in
-place: a prediction registered before execution was falsified by the run (Section~\ref{sec:metricrel}, and the control
-state's behaviour in the proper-score follow-up), and a re-gate caught a battery executed under the
-wrong interpreter (Appendix~\ref{app:repro}). We release the audit trail as part of the artifact, dissolutions included.
-
 \textbf{What we do not claim.} We do not claim concept drift is absent from industrial tabular data:
 several cells are certified \emph{blind}, and blindness is not absence. We do not claim the
 identifiability theory is new: that overlap failure blocks nonparametric identification is
@@ -789,19 +737,17 @@ have fooled us. And
 we do not claim our own instrument is trustworthy everywhere. Section~\ref{sec:blind} is the list of places where it is
 not, and one entry on that list was set by a state's policy decision rather than by us.
 
+\textbf{On process.} This project's ledger records nine positive findings that dissolved under
+scrutiny before the present result; the ninth is Section~\ref{sec:diagnosis}, and it is the only one
+the measuring instrument itself diagnosed. Appendix~\ref{app:instrument} records what that discipline
+cost and caught, and the future work it leaves open.
+
 \textbf{What a practitioner should take.} Three things. A loss-based drift verdict should not be acted
 on without a noise reading on the old window, because the two are confusable at the magnitudes
 people act on. A null should not be reported without a power certificate, because ``we saw nothing''
 and ``we could not have seen anything'' are different sentences and only one of them is evidence.
 And a verdict should carry its probe class, its separability, its rule family and its metric, since
 each of the four can flip it on identical bytes.
-
-\textbf{Future work.} Multi-state and post-2019 extensions of the ACS analysis; class-invariance
-conditions for the denoised arm (when does a probe family admit \emph{any} sound staleness reading?); a
-$\delta$(N) scaling study at production scale; a proper-score arm with its own calibrated floor, which
-Section~\ref{sec:metricrel} shows is the repair direction for the metric blind spot but which would need its own
-pre-registration; and porting the certificate protocol to streaming monitors, where the
-negative-recency fingerprint is directly actionable.
 
 \section*{Reproducibility Statement}
 
@@ -854,7 +800,69 @@ many signal families were learnable and how many of those recovered, so a certif
 read as stronger than the class of rule change it was actually tested against.}
 \end{table}
 
+\begin{table}[t]
+\centering
+\small
+\caption{The ACS public-coverage cells under three scores. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated floor.}
+\label{tab:4}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+state & AUC (raw / denoised) & Brier & log-loss \\
+\midrule
+Pennsylvania (expanded) & $-0.011$ / $-0.009$ & $-0.005$ / \textbf{+0.002} & $-0.018$ / \textbf{+0.021} \\
+Texas (never adopted) & $-0.015$ / $-0.011$ & $-0.005$ / $-0.002$ & $-0.023$ / \textbf{+0.006} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \section{Instrument details}\label{app:instrument}
+
+\paragraph{Malware.} TESSERACT \citep{pendlebury2019tesseract} established temporally honest evaluation in
+malware and documents performance decay. Our EMBER read (old data \emph{helps}; staleness $-0.008$;
+detectable floor 0.0013) refines rather than contradicts it: the decay is coverage-driven (new
+families appear---covariate expansion), not label rot (a 2017 malware sample is still malware),
+which is exactly the distinction a deployment lens should draw.
+
+Three cells carry the paper's argument. The noise-decay cell is the executed refutation of
+``correct labels cannot hurt'': the raw probe fires at a magnitude ($+0.021$) that matched a real
+industrial positive to within 0.003. The $x$-dependent-noise cell is a \emph{second} raw false-positive
+channel, discovered during adversarial review of the repair itself; a third (noise scale
+correlated with the rule feature---the denoiser's worst case, since pseudo-label error then
+concentrates where the signal lives) was constructed by an independent red-team pass and also
+defused (raw $+0.026$ fires; denoised $+0.006$, null). The concept-plus-noise cell establishes that
+the repair keeps power where both mechanisms co-occur: denoised retention is 58\% of the clean
+rotating-rule signal ($+0.316$ vs $+0.541$), and the same holds at small rule-change magnitudes
+(a 0.8-rad rotation: clean denoised $+0.108$, with noise decay $+0.062$---attenuated, still firing).
+Robustness of the denoiser to a small old window was checked directly (old window capped at 600
+rows, cross-fit folds of 300): no false positive ($+0.004$) and no false negative ($+0.429$).
+
+\paragraph{Floor comparability across metrics.} The 0.02 decision floor is shared across AUC, accuracy,
+and z-scored $-$RMSE, which are not decision-equivalent units. Two mitigations are structural:
+every null carries its own detectable-effect bound $\delta$ (the per-dataset, per-metric power
+statement that does the aggregate's real work), and CONCEPT never rests on the floor alone (the
+denoised CI, gate, and envelope must all align). As a sensitivity check, re-thresholding all
+committed runs under per-metric floors rescaled by the battery's matched-strength concept
+magnitudes (binary $+0.28$ vs regression $+0.55$ $\Rightarrow$ regression floor 0.04) moves no cell across the
+concept/no-concept boundary; the only affected cell is the mechanism label of the diagnosed
+regression positive (\S\ref{sec:diagnosis}), which is already flagged rule-sensitive and barred from headlines.
+
+\textbf{On process.} This project's ledger records nine positive findings that dissolved under scrutiny
+before the present result. The ninth dissolution is Section~\ref{sec:diagnosis}, and it is the only one the measuring
+instrument itself diagnosed. The methodological claim we stand behind is that the combination that
+finally produced a stable result --- executed adversarial nulls before real-data claims,
+pre-registered cascades with commit-timestamped predictions, confirmatory fresh-seed replication,
+certificates instead of assumptions, and canary probes --- is cheap relative to the cost of the
+dissolutions it prevents. Two of this paper's own results exist only because that discipline was in
+place: a prediction registered before execution was falsified by the run (Section~\ref{sec:metricrel}, and the control
+state's behaviour in the proper-score follow-up), and a re-gate caught a battery executed under the
+wrong interpreter (Appendix~\ref{app:repro}). We release the audit trail as part of the artifact, dissolutions included.
+
+\textbf{Future work.} Multi-state and post-2019 extensions of the ACS analysis; class-invariance
+conditions for the denoised arm (when does a probe family admit \emph{any} sound staleness reading?); a
+$\delta$(N) scaling study at production scale; a proper-score arm with its own calibrated floor, which
+Section~\ref{sec:metricrel} shows is the repair direction for the metric blind spot but which would need its own
+pre-registration; and porting the certificate protocol to streaming monitors, where the
+negative-recency fingerprint is directly actionable.
 
 \paragraph{Scores, intervals and window construction.}
 
@@ -996,22 +1004,6 @@ itself under proper scores --- diagnostic only, since changing the score changes
 voids the AUC-calibrated floor, so the reading rule fixed before execution discards the verdict
 label and reads arm magnitudes and the PA-versus-TX contrast --- flips the sign of the Pennsylvania
 reading:
-
-\begin{table}[t]
-\centering
-\small
-\caption{The ACS public-coverage cells under three scores. Diagnostic only: changing the score changes the estimand and voids the AUC-calibrated floor.}
-\label{tab:4}
-\begin{tabular}{@{}lrrr@{}}
-\toprule
-state & AUC (raw / denoised) & Brier & log-loss \\
-\midrule
-Pennsylvania (expanded) & $-0.011$ / $-0.009$ & $-0.005$ / \textbf{+0.002} & $-0.018$ / \textbf{+0.021} \\
-Texas (never adopted) & $-0.015$ / $-0.011$ & $-0.005$ / $-0.002$ & $-0.023$ / \textbf{+0.006} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 
 The denoised arm turns positive under both proper scores on the treatment state, reaching +0.021 ---
 the size of the decision floor --- under log-loss, against +0.006 on the control, a 3.5$\times$ contrast in
@@ -1424,7 +1416,6 @@ stable & rule fixed & 0.083 & 0.000 & 0.000 & 0.083 \\
 \end{tabular}
 \end{table}
 
-
 Read within task, since the learner differs across tasks. On regression the noise-decay cells fire
 ADWIN \emph{more often} than the true rule-change cell does, and KSWIN and PageHinkley put them within
 3$\times$ of it --- but so does the pure stationary cell (KSWIN 1.333, PageHinkley 0.583), and a fixed-rule
@@ -1454,7 +1445,6 @@ Pennsylvania (treated) & NO-STRONG-CONCEPT & $-0.011$ & $-0.009$ & +0.009 & 0.53
 \bottomrule
 \end{tabular}
 \end{table}
-
 
 Both null. The one arm that separates them is recency gain, positive and CI-excluding-zero on the
 treated state and indistinguishable from zero on the control --- directionally right, and still
