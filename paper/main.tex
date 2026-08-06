@@ -53,9 +53,9 @@ and What a Certified Instrument Looks Like}
 
 \begin{abstract}
 A drift monitor must say what moved, not merely that something did, because a changed rule P(y|x)
-calls for retraining on recent data and moving covariates under a fixed rule do not. The loss-based
-comparison this attribution rests on has a false-positive channel we have not found reported
-elsewhere. Hold the rule provably fixed, let only label noise decay over time, and the comparison
+calls for retraining on recent data and moving covariates under a fixed rule do not. That noise can make a drift detector
+false-alarm is known; we show the failure carries into attribution, where the repair is chosen, and
+that its driver is the noise trend rather than its level. Hold the rule provably fixed, let only label noise decay over time, and the comparison
 returns a concept-drift verdict: +0.021 against a decision floor of 0.02, and within 0.003 of the
 +0.024 industrial positive our own earlier instrument had reported and we had believed. Two further
 channels, built adversarially against our own repair, fire the same way under fixed rules.
@@ -191,8 +191,10 @@ identifiability theory is new: that overlap failure blocks nonparametric identif
 classical, and class-relativity is established. Our contribution is the executed channel, the
 repaired instrument, and the certified map. We do not claim model-agnosticism: every verdict is
 relative to the deployed hypothesis class, which we argue is the only honest way to state
-drift-type attribution at all. We do not claim the noise channel is the only way this comparison
-fails, only that it is one nobody had reported and that it is large enough to have fooled us. And
+drift-type attribution at all. We do not claim to have discovered that noise fools drift
+machinery: for detection that is established, with detectors built to resist it. We claim the
+failure survives into type attribution, that a trend drives it, and that it was large enough to
+have fooled us. And
 we do not claim our own instrument is trustworthy everywhere. Section~\ref{sec:blind} is the list of places where it is
 not, and one entry on that list was set by a state's policy decision rather than by us.
 
@@ -228,12 +230,18 @@ envelope, the certificates), the content is a measured boundary, not a proved on
 \paragraph{Old data harming.} \citet{shimodaira2000improving} is the mechanism for the misspecified case;
 the Data Addition Dilemma \citep{shen2024data} documents mixture harm empirically in clinical ML;
 \citet{klinkenberg2000detecting} use held-out error over candidate training windows to \emph{adapt}
-window size. We are not aware of prior work that uses the add-old-data contrast as a
-drift-\emph{type} identifier with verdict semantics, or that reports the label-noise-decay
-false-positive channel---under the field-standard definition of real drift as any change in
+window size. That label noise degrades drift
+detection is established, and detectors are built for it: \citet{wang2022noise} filter the false
+drifts noise induces, on the premise that real streams are contaminated while detectors assume they
+are not. Our claim is placed relative to that work on three axes. It concerns drift-\emph{type}
+attribution rather than detection, which is the layer at which a repair is chosen; its driver is the
+noise \emph{trend} rather than its level, which the growing-noise mirror establishes by flipping the
+sign; and the mechanism is the inefficiency of pooled empirical risk minimisation rather than a
+detector's threshold. Under the field-standard definition of real drift as any change in
 $P(y \mid x)$ \citep{gama2014survey,webb2016characterizing}, noise drift \emph{is} drift, which is precisely why an
-instrument that claims to detect \emph{exploitable rule change} must separate the two; we separate
-them by construction and validate the separation adversarially.
+instrument claiming to detect \emph{exploitable rule change} must separate the two; we separate them
+by construction and validate the separation adversarially. We are not aware of prior work that uses
+the add-old-data contrast as a drift-\emph{type} identifier with verdict semantics.
 
 \paragraph{Pseudo-labels, denoising, cross-fitting.} The denoised arm's mechanics are deliberately
 borrowed: replacing labels with model predictions is self-training \citep{scudder1965probability,lee2013pseudolabel}
@@ -275,8 +283,10 @@ the \emph{rule} move" --- because the two answers imply different repairs. Retra
 remedy for a rule change; it is a mistake when the rule is fixed, since it discards data that is
 still valid. Loss-based attribution answers that question with a comparison: a model fit on recent
 data versus one fit on recent plus old data, the gap read as evidence that the old rows now
-mislead. The comparison has a false-positive channel that, to our knowledge, has not been
-reported.
+mislead. That comparison has a false-positive channel. Its counterpart one layer down is known:
+label noise makes error-rate detectors false-alarm, and detectors exist that filter those
+alarms \citep{wang2022noise}. What has not been examined is whether the failure survives into
+\emph{attribution}, where the answer selects a repair, and what drives it there.
 
 Hold the rule provably fixed and let only the \emph{label noise} decay --- early labels noisier than
 late ones, the mapping from x to the true label unchanged throughout --- and the comparison fires.
@@ -732,7 +742,10 @@ $-0.042$).
 
 That combination is the point. Learnability and recoverability come apart: the instrument has
 power against changes in feature \emph{direction} and none against changes in subpopulation
-\emph{membership}, in the same geometry, at the same strength.
+\emph{membership}, in the same geometry, at the same strength. The detection literature reports
+the same blind spot one layer down: standard detectors miss drift confined to a small
+subpopulation \citep{giobergia2024localized}. Our contribution here is not the blind spot but its
+measurement inside a certificate, where it determines what a null is worth.
 
 The blind spot is a property of family \emph{and} geometry rather than of the family alone, and an
 anchor sweep pins that down: on the single-switch river anchors, where separability is low
