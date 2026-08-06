@@ -383,68 +383,17 @@ on every run.}
 \label{fig:cascade}
 \end{figure}
 
-\emph{Reading aid.} One real cell exercises most of the vocabulary in Table~\ref{tab:terms}. On
+\emph{Reading aid.} One real cell exercises most of the vocabulary (Table~\ref{tab:terms}, appendix). On
 sberbank-housing (\S\ref{sec:diagnosis}), the raw arm fires ($+0.024$) but the noise gate is on
 ($2.1\times$) and the denoised arm is negative---so the cascade returns NOISE-DRIFT-CONFOUNDED
 rather than concept; had all three aligned inside the envelope, the verdict would have been
 DEPLOYMENT-CONCEPT, subject to an injection positive control.
 
-\begin{table}[t]
-\caption{Terminology (one line each).}
-\label{tab:terms}
-\centering
-\footnotesize
-\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{4.55in}@{}}
-\toprule
-term & meaning \\
-\midrule
-raw staleness & future-window score(recent) $-$ score(recent $\cup$ old); $>0$ = old data hurts \\
-denoised staleness & same, with old labels replaced by cross-fitted within-old-window predictions; $>0$ = the \emph{rule} changed \\
-noise gate & old-window noise proxy / recent median; $>1.5$ = label-noise drift present \\
-envelope & noise-ratio 4.7, the measured boundary of denoiser validity; above it the instrument abstains \\
-$D$ & window-separability AUC (group-aware, size-matched); a routing statistic, \emph{not} support overlap \\
-injection & a known rule rotation planted in the dataset's own geometry; the per-dataset power certificate \\
-earned blindness & injection learnable in-window yet unrecoverable $\to$ the geometry genuinely hides this signal class \\
-injection-vacuous & injection unlearnable $\to$ the null certifies nothing \\
-no-evidence band & sub-floor CI-positive readings; calibrated on no-drift anchors as noise \\
-canary probe & a deliberately misspecified probe class (linear/kNN) whose false fires are reported \\
-rule-sensitive & verdict differs between the primary and strict decision rules; barred from headlines \\
-\bottomrule
-\end{tabular}
-\end{table}
+
 
 \subsection{Setting and estimand}\label{sec:setting}
 
-Rows $(x_i, y_i, t_i)$ arrive over time; the auditor sees the full labeled history (retrospective
-audit, not online prediction). Fix $K$ windows by timestamp-value rank (ties never straddle
-boundaries; per-seed boundary jitter). For each future window $W_j$ (back half), with old anchor
-$W_0$ (earliest window with $\ge 200$ rows and a trainable label set) and recent window $W_{j-1}$, draw
-size-matched samples ($N = \min(|\text{recent}|, |\text{old}|, 6000)$) and train three models of the deployed
-class: recent-only, old-only, recent$\,\cup\,$old. Report per-seed means over future windows of
-\begin{itemize}
-\item \textbf{decay} $=$ score(old model, held-out $W_0$) $-$ score(old model, $W_j$)---aging,
-  mechanism-blind (documented at scale by \citealp{vela2022temporal});
-\item \textbf{recency gain} $=$ score(recent) $-$ score(old) on $W_j$---adaptation value, conflates coverage
-  and rule change; \emph{its sign is itself diagnostic (\S\ref{sec:anchors}): negative recency is impossible under
-  one-way drift and fingerprints recurring regimes};
-\item \textbf{raw staleness} $=$ score(recent) $-$ score(recent$\,\cup\,$old) on $W_j$---the attribution probe;
-\item \textbf{denoised staleness} $=$ score(recent) $-$ score(recent $\cup$ $(X_{\text{old}}, \hat{g}_{\text{old}}(X_{\text{old}}))$) on $W_j$, where
-  $\hat{g}_{\text{old}}$ is a 2-fold cross-fitted model \emph{within} $W_0$ producing strictly out-of-fold hard
-  pseudo-labels.
-\end{itemize}
-Scores: AUC (binary), accuracy (multiclass), $-$RMSE on z-scored targets (regression). CIs are
-Student-$t$ over 10 seeds; each seed re-draws a 90\% row subsample, re-jitters window boundaries,
-and re-samples all training sets. These are seed-level intervals over heavily overlapping
-subsamples and are anti-conservative for tiny effects (\S\ref{sec:anchors} calibrates the resulting no-evidence
-band on no-drift anchors); verdict-level inference does not rest on them alone---the
-confirmatory fresh-seed replication (\S\ref{sec:panel}) is the operative stability check, and per-seed values
-are emitted with every run so that alternative constructions (window-block bootstrap, split-half)
-can be applied without re-execution. The pre-registered estimand is \emph{exploitable mean-rule drift}:
-a change in the decision-relevant functional of $P(y \mid x)$ that makes old labels contradict the
-current rule for the deployed hypothesis class. This is deliberately narrower than the
-field-standard ``any change in $P(y \mid x)$'' \citep{morenotorres2012unifying,webb2016characterizing}---the narrowing is the point, because
-the wider definition classifies label-noise drift as concept and thereby licenses retraining
-that cannot help.
+Rows $(x_i, y_i, t_i)$ arrive over time; the auditor sees the full labeled history (retrospective audit, not online prediction). Fix $K$ windows by timestamp-value rank (ties never straddle boundaries; per-seed boundary jitter). For each future window $W_j$ (back half), with old anchor $W_0$ (earliest window with $\ge 200$ rows and a trainable label set) and recent window $W_{j-1}$, draw size-matched samples ($N = \min(|\text{recent}|, |\text{old}|, 6000)$) and train three models of the deployed class: recent-only, old-only, recent$\,\cup\,$old. Report per-seed means over future windows of \begin{itemize} \item \textbf{decay} $=$ score(old model, held-out $W_0$) $-$ score(old model, $W_j$)---aging, mechanism-blind (documented at scale by \citealp{vela2022temporal}); \item \textbf{recency gain} $=$ score(recent) $-$ score(old) on $W_j$---adaptation value, conflates coverage and rule change; \emph{its sign is itself diagnostic (\S\ref{sec:anchors}): negative recency is impossible under one-way drift and fingerprints recurring regimes}; \item \textbf{raw staleness} $=$ score(recent) $-$ score(recent$\,\cup\,$old) on $W_j$---the attribution probe; \item \textbf{denoised staleness} $=$ score(recent) $-$ score(recent $\cup$ $(X_{\text{old}}, \hat{g}_{\text{old}}(X_{\text{old}}))$) on $W_j$, where $\hat{g}_{\text{old}}$ is a 2-fold cross-fitted model \emph{within} $W_0$ producing strictly out-of-fold hard pseudo-labels. \end{itemize}
 
 \subsection{The denoised arm and the noise gate}\label{sec:denoised}
 
@@ -474,6 +423,15 @@ arm does not.
 
 \subsection{Certificates: separability, injection, learnability}\label{sec:certificates}
 
+\paragraph{Learnability-gated injection.} On any cell the cascade calls unidentifiable, we
+plant a rule of reference strength in that dataset's own covariate geometry, check that it is
+learnable in-window (held-out AUC $\ge$ 0.65, $R^2 \ge$ 0.20, or accuracy $\ge$ majority $+$ 0.10),
+and only then read whether staleness recovers it. Recovery certifies that the geometry had power
+and the real null is informative; persistent non-recovery of a learnable rule certifies earned
+blindness; an unlearnable rule certifies nothing, and the cell is marked injection-vacuous rather
+than blind. Appendix~\ref{app:instrument} gives the procedure and the identification boundary it
+operationalises.
+
 \paragraph{Window separability $D$ (not ``overlap'').} $D$ is the median held-out AUC of a classifier
 separating $W_0$ from each back-half window, on the proxy-stripped feature space, with two
 repairs over the naive version: size-matching by \emph{random subsample} (a head-slice on
@@ -485,45 +443,6 @@ shift; the group split returns both to $\approx 0.50$ while honest drift keeps $
 \emph{separability}, never as support overlap: a single genuinely predictive drifting feature
 saturates it, so $D \ge D^{\ast} = 0.96$ routes a staleness null to the injection control rather than
 concluding anything by itself.
-
-\paragraph{Learnability-gated injection.} For any candidate-unidentifiable dataset (and, as a positive
-control, for any CONCEPT verdict), a reference concept---a rule rotation of fixed strength on
-the two highest-variance features---is planted in the dataset's own $(X, t)$ geometry and the full
-staleness pipeline re-run (10 seeds, same power as the main read). Before the null is allowed to
-mean anything, the injected rule must be \emph{learnable in-window} (held-out AUC $\ge 0.65$ / $R^2 \ge 0.20$
-/ accuracy $\ge$ majority $+\ 0.10$): executed on a constructed geometry whose top-variance features
-are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.482) and the naive
-protocol grants ``earned blindness'' vacuously; the gate converts that to \emph{injection-vacuous}---%
-certificate refused. Outcomes: recovery ($\Rightarrow$ the real null was informative: verified no-concept),
-earned blindness (learnable but unrecoverable $\Rightarrow$ the geometry genuinely hides this signal
-class), or vacuity (no certificate). On the real audit, this distinction is load-bearing: all four
-``unidentifiable'' industrial cells, two fail the learnability gate under every signal family
-tried and end with no certificate; the other two resolve only once the family is widened
----\texttt{homesite\_insurance} scores within 0.05 of the gate on the reference family and flips
-across seed sets, but is comfortably learnable and consistently unrecovered on the low-variance
-one, and weather is unlearnable on the reference family yet recovers on two others
-(\S\ref{sec:panel}). The certificate is explicitly
-relative to this reference family: recovery certifies power against rotations carried by the
-dataset's high-variance directions, not against rule changes living in low-variance features,
-interactions, or subpopulations (\S\ref{sec:discussion}, Limitation 6).
-
-\paragraph{The identification boundary (restatement of prior work, not a new result).}
-Let $R$ be the region of covariate space the future windows occupy and the old anchor does not. On
-$R$, $P(y \mid x)$ is not nonparametrically identified from the observed windows: two conditionals
-that agree on the old window's support and differ on $R$ induce identical observable data, because
-no old rows fall in $R$. This is the time-axis instance of the shared-support requirement that
-DISDE makes explicit \citep[Prop.~1]{cai2023disde}, and we claim no theorem of our own. Three
-properties of the instrument follow from it rather than from convenience. Abstention is
-\emph{correctness}, not timidity. $D$ is a routing statistic for how close a panel sits to that
-boundary, and never a measure of support overlap itself---which is why $D \geq D^\star$ concludes
-nothing on its own and hands off to the injection control. And a cell without an identifiability
-certificate cannot be evidence of \emph{no drift}; it is only evidence of \emph{no measurement},
-which is why we carry the 0/5 certified count alongside the pre-registered 0/8
-(\S\ref{sec:panel}). In the opposite direction---\emph{soundness}, i.e.\ staleness $>0$ implying
-rule change---no theorem is available to be had: \citet{loog2019minimizers} show ERM risk is
-non-monotone in added same-distribution data, so $\mathbb{E}[\text{staleness}] > 0$ is possible
-under zero drift and zero heteroscedasticity. That asymmetry is why \S\ref{sec:gate} reports a
-\emph{measured} validity envelope where a soundness lemma would otherwise go.
 
 \subsection{Decision cascade and scope}\label{sec:cascade}
 
@@ -934,6 +853,75 @@ carrier, where it reproduces on fresh seeds ($+0.183$ / $+0.193$) and under the 
 many signal families were learnable and how many of those recovered, so a certificate is never
 read as stronger than the class of rule change it was actually tested against.}
 \end{table}
+
+\section{Instrument details}\label{app:instrument}
+
+\paragraph{Scores, intervals and window construction.}
+
+Scores: AUC (binary), accuracy (multiclass), $-$RMSE on z-scored targets (regression). CIs are Student-$t$ over 10 seeds; each seed re-draws a 90\% row subsample, re-jitters window boundaries, and re-samples all training sets. These are seed-level intervals over heavily overlapping subsamples and are anti-conservative for tiny effects (\S\ref{sec:anchors} calibrates the resulting no-evidence band on no-drift anchors); verdict-level inference does not rest on them alone---the confirmatory fresh-seed replication (\S\ref{sec:panel}) is the operative stability check, and per-seed values are emitted with every run so that alternative constructions (window-block bootstrap, split-half) can be applied without re-execution. The pre-registered estimand is \emph{exploitable mean-rule drift}: a change in the decision-relevant functional of $P(y \mid x)$ that makes old labels contradict the current rule for the deployed hypothesis class. This is deliberately narrower than the field-standard ``any change in $P(y \mid x)$'' \citep{morenotorres2012unifying,webb2016characterizing}---the narrowing is the point, because the wider definition classifies label-noise drift as concept and thereby licenses retraining that cannot help.
+
+\paragraph{The identification boundary (restatement of prior work, not a new result).}
+Let $R$ be the region of covariate space the future windows occupy and the old anchor does not. On
+$R$, $P(y \mid x)$ is not nonparametrically identified from the observed windows: two conditionals
+that agree on the old window's support and differ on $R$ induce identical observable data, because
+no old rows fall in $R$. This is the time-axis instance of the shared-support requirement that
+DISDE makes explicit \citep[Prop.~1]{cai2023disde}, and we claim no theorem of our own. Three
+properties of the instrument follow from it rather than from convenience. Abstention is
+\emph{correctness}, not timidity. $D$ is a routing statistic for how close a panel sits to that
+boundary, and never a measure of support overlap itself---which is why $D \geq D^\star$ concludes
+nothing on its own and hands off to the injection control. And a cell without an identifiability
+certificate cannot be evidence of \emph{no drift}; it is only evidence of \emph{no measurement},
+which is why we carry the 0/5 certified count alongside the pre-registered 0/8
+(\S\ref{sec:panel}). In the opposite direction---\emph{soundness}, i.e.\ staleness $>0$ implying
+rule change---no theorem is available to be had: \citet{loog2019minimizers} show ERM risk is
+non-monotone in added same-distribution data, so $\mathbb{E}[\text{staleness}] > 0$ is possible
+under zero drift and zero heteroscedasticity. That asymmetry is why \S\ref{sec:gate} reports a
+\emph{measured} validity envelope where a soundness lemma would otherwise go.
+
+\begin{table}[t]
+\caption{Terminology (one line each).}
+\label{tab:terms}
+\centering
+\footnotesize
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{4.55in}@{}}
+\toprule
+term & meaning \\
+\midrule
+raw staleness & future-window score(recent) $-$ score(recent $\cup$ old); $>0$ = old data hurts \\
+denoised staleness & same, with old labels replaced by cross-fitted within-old-window predictions; $>0$ = the \emph{rule} changed \\
+noise gate & old-window noise proxy / recent median; $>1.5$ = label-noise drift present \\
+envelope & noise-ratio 4.7, the measured boundary of denoiser validity; above it the instrument abstains \\
+$D$ & window-separability AUC (group-aware, size-matched); a routing statistic, \emph{not} support overlap \\
+injection & a known rule rotation planted in the dataset's own geometry; the per-dataset power certificate \\
+earned blindness & injection learnable in-window yet unrecoverable $\to$ the geometry genuinely hides this signal class \\
+injection-vacuous & injection unlearnable $\to$ the null certifies nothing \\
+no-evidence band & sub-floor CI-positive readings; calibrated on no-drift anchors as noise \\
+canary probe & a deliberately misspecified probe class (linear/kNN) whose false fires are reported \\
+rule-sensitive & verdict differs between the primary and strict decision rules; barred from headlines \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Learnability-gated injection.} For any candidate-unidentifiable dataset (and, as a positive
+control, for any CONCEPT verdict), a reference concept---a rule rotation of fixed strength on
+the two highest-variance features---is planted in the dataset's own $(X, t)$ geometry and the full
+staleness pipeline re-run (10 seeds, same power as the main read). Before the null is allowed to
+mean anything, the injected rule must be \emph{learnable in-window} (held-out AUC $\ge 0.65$ / $R^2 \ge 0.20$
+/ accuracy $\ge$ majority $+\ 0.10$): executed on a constructed geometry whose top-variance features
+are heavy-tailed junk, the injected rule is unlearnable (in-window AUC 0.482) and the naive
+protocol grants ``earned blindness'' vacuously; the gate converts that to \emph{injection-vacuous}---%
+certificate refused. Outcomes: recovery ($\Rightarrow$ the real null was informative: verified no-concept),
+earned blindness (learnable but unrecoverable $\Rightarrow$ the geometry genuinely hides this signal
+class), or vacuity (no certificate). On the real audit, this distinction is load-bearing: all four
+``unidentifiable'' industrial cells, two fail the learnability gate under every signal family
+tried and end with no certificate; the other two resolve only once the family is widened
+---\texttt{homesite\_insurance} scores within 0.05 of the gate on the reference family and flips
+across seed sets, but is comfortably learnable and consistently unrecovered on the low-variance
+one, and weather is unlearnable on the reference family yet recovers on two others
+(\S\ref{sec:panel}). The certificate is explicitly
+relative to this reference family: recovery certifies power against rotations carried by the
+dataset's high-variance directions, not against rule changes living in low-variance features,
+interactions, or subpopulations (\S\ref{sec:discussion}, Limitation 6).
 
 \section{The blind-spot map in full}\label{app:properscore}
 
